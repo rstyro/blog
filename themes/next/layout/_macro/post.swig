@@ -352,6 +352,12 @@
     {#####################}
     {### END POST BODY ###}
     {#####################}
+	
+	    <div>
+	{% if not is_index %}
+	{% include 'passage-end-tag.swig' %}
+	{% endif %}
+	</div>
 
     {% if theme.wechat_subscriber.enabled and not is_index %}
       <div>
@@ -377,10 +383,31 @@
     {% endif %}
 
     <footer class="post-footer">
+	
+	<div>    
+	 {# 此处判断是否在索引列表中 #}
+	 {% if not is_index %}
+	<ul class="post-copyright">
+	  <li class="post-copyright-author">
+		  <strong>本文作者：</strong>{{ theme.author }}
+	  </li>
+	  <li class="post-copyright-link">
+		<strong>本文链接：</strong>
+		<a href="{{ url_for(page.path) }}" title="{{ page.title }}">{{ page.path }}</a>
+	  </li>
+	  <li class="post-copyright-license">
+		<strong>版权： </strong>
+		转载注明出处！
+	  </li>
+	</ul>
+	{% endif %}
+	</div>
+	
+
       {% if post.tags and post.tags.length and not is_index %}
         <div class="post-tags">
           {% for tag in post.tags %}
-            <a href="{{ url_for(tag.path) }}" rel="tag"># {{ tag.name }}</a>
+            <a href="{{ url_for(tag.path) }}" rel="tag"><i class="fa fa-tag"></i> {{ tag.name }}</a>
           {% endfor %}
         </div>
       {% endif %}
@@ -467,6 +494,8 @@
   {######################}
   {### END POST BLOCK ###}
   {######################}
+
+
   </article>
 
 {% endmacro %}
