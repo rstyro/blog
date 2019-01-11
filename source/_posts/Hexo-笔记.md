@@ -2,6 +2,7 @@
 title: Hexo 笔记
 date: 2019-01-10 14:37:42
 tags: hexo
+categories: 学习笔记
 ---
 
 ## 一、前置条件
