@@ -8,7 +8,9 @@ categories: 学习笔记
 ## 一、前置条件
 
 #### 1、安装Git
+> 下载地址：https://git-scm.com/
 #### 2、安装Node.js
+> 下载地址：http://nodejs.cn/download/
 
 
 ## 二、安装Hexo
@@ -255,6 +257,187 @@ passage_end_tag:
 }
 ```
 
+### 十一、添加评论
+#### 注册Leancloud
+> 官网：https://leancloud.cn/
+
+修改主题配置文件`_config.xml` 查找Valine ,如下：
+```yml
+# You can get your appid and appkey from https://leancloud.cn
+# More info available at https://valine.js.org
+valine:
+  enable: true # When enable is set to be true, leancloud_visitors is recommended to be closed for the re-initialization problem within different leancloud adk version.
+  appid: 你的appid # your leancloud application appid
+  appkey: 你的appkey # your leancloud application appkey
+  notify: false # mail notifier, See: https://github.com/xCss/Valine/wiki
+  verify: false # Verification code
+  placeholder: 来都来了，不说几句就走，过分了啊！！！ # comment box placeholder
+  avatar: mm # gravatar style
+  guest_info: nick,mail,link # custom comment header
+  pageSize: 10 # pagination size
+
+```
+
+### 十二、压缩
+```bash
+# 安装依赖
+npm i gulp gulp-debug gulp-clean-css gulp-uglify gulp-htmlmin gulp-htmlclean gulp-imagemin gulp-changed gulp-if gulp-plumber run-sequence del -s
+```
+在根目录下创建`gulpfile.js`文件。编辑内容如下：
+
+```js
+var gulp        = require('gulp');
+var debug       = require('gulp-debug');
+var cleancss    = require('gulp-clean-css'); //css压缩组件
+var uglify      = require('gulp-uglify');    //js压缩组件
+var htmlmin     = require('gulp-htmlmin');   //html压缩组件
+var htmlclean   = require('gulp-htmlclean'); //html清理组件
+var imagemin    = require('gulp-imagemin');  //图片压缩组件
+var changed     = require('gulp-changed');   //文件更改校验组件
+var gulpif      = require('gulp-if')         //任务 帮助调用组件
+var plumber     = require('gulp-plumber');   //容错组件（发生错误不跳出任务，并报出错误内容）
+var runSequence = require('run-sequence');   //异步执行组件
+var isScriptAll = true;  //是否处理所有文件，(true|处理所有文件)(false|只处理有更改的文件)
+var isDebug     = true;  //是否调试显示 编译通过的文件
+var del         = require('del');
+var Hexo        = require('hexo');
+var hexo        = new Hexo(process.cwd(), {}); // 初始化一个hexo对象
+
+// 清除public文件夹
+gulp.task('clean', function() {
+    return del(['public/**/*']);
+});
+
+// 下面几个跟hexo有关的操作，主要通过hexo.call()去执行，注意return
+
+// 创建静态页面 （等同 hexo generate）
+gulp.task('generate', function() {
+    return hexo.init().then(function() {
+        return hexo.call('generate', {
+            watch: false
+        }).then(function() {
+            return hexo.exit();
+        }).catch(function(err) {
+            return hexo.exit(err);
+        });
+    });
+});
+
+// 启动Hexo服务器
+gulp.task('server',  function() {
+    return hexo.init().then(function() {
+        return hexo.call('server', {});
+    }).catch(function(err) {
+        console.log(err);
+    });
+});
+
+// 部署到服务器
+gulp.task('deploy', function() {
+    return hexo.init().then(function() {
+        return hexo.call('deploy', {
+            watch: false
+        }).then(function() {
+            return hexo.exit();
+        }).catch(function(err) {
+            return hexo.exit(err);
+        });
+    });
+});
+
+// 压缩public目录下的js文件
+gulp.task('compressJs', function () {
+    var option = {
+        // preserveComments: 'all',//保留所有注释
+        mangle: true,           //类型：Boolean 默认：true 是否修改变量名
+        compress: true          //类型：Boolean 默认：true 是否完全压缩
+    }
+    return gulp.src(['./public/**/*.js','!./public/**/*.min.js'])  //排除的js
+        .pipe(gulpif(!isScriptAll, changed('./public')))
+        .pipe(gulpif(isDebug,debug({title: 'Compress JS:'})))
+        .pipe(plumber())
+        .pipe(uglify(option))                //调用压缩组件方法uglify(),对合并的文件进行压缩
+        .pipe(gulp.dest('./public'));         //输出到目标目录
+});
+
+// 压缩public目录下的css文件
+gulp.task('compressCss', function () {
+    var option = {
+        rebase: false,
+        //advanced: true,               //类型：Boolean 默认：true [是否开启高级优化（合并选择器等）]
+        compatibility: 'ie7',         //保留ie7及以下兼容写法 类型：String 默认：''or'*' [启用兼容模式； 'ie7'：IE7兼容模式，'ie8'：IE8兼容模式，'*'：IE9+兼容模式]
+        //keepBreaks: true,             //类型：Boolean 默认：false [是否保留换行]
+        //keepSpecialComments: '*'      //保留所有特殊前缀 当你用autoprefixer生成的浏览器前缀，如果不加这个参数，有可能将会删除你的部分前缀
+    }
+    return gulp.src(['./public/**/*.css','!./public/**/*.min.css'])  //排除的css
+        .pipe(gulpif(!isScriptAll, changed('./public')))
+        .pipe(gulpif(isDebug,debug({title: 'Compress CSS:'})))
+        .pipe(plumber())
+        .pipe(cleancss(option))
+        .pipe(gulp.dest('./public'));
+});
+
+// 压缩public目录下的html文件
+gulp.task('compressHtml', function () {
+    var cleanOptions = {
+        protect: /<\!--%fooTemplate\b.*?%-->/g,             //忽略处理
+        unprotect: /<script [^>]*\btype="text\/x-handlebars-template"[\s\S]+?<\/script>/ig //特殊处理
+    }
+    var minOption = {
+        collapseWhitespace: true,           //压缩HTML
+        collapseBooleanAttributes: true,    //省略布尔属性的值  <input checked="true"/> ==> <input />
+        removeEmptyAttributes: true,        //删除所有空格作属性值    <input id="" /> ==> <input />
+        removeScriptTypeAttributes: true,   //删除<script>的type="text/javascript"
+        removeStyleLinkTypeAttributes: true,//删除<style>和<link>的type="text/css"
+        removeComments: true,               //清除HTML注释
+        minifyJS: true,                     //压缩页面JS
+        minifyCSS: true,                    //压缩页面CSS
+        minifyURLs: true                    //替换页面URL
+    };
+    return gulp.src('./public/**/*.html')
+        .pipe(gulpif(isDebug,debug({title: 'Compress HTML:'})))
+        .pipe(plumber())
+        .pipe(htmlclean(cleanOptions))
+        .pipe(htmlmin(minOption))
+        .pipe(gulp.dest('./public'));
+});
+
+// 压缩 public/uploads 目录内图片
+gulp.task('compressImage', function() {
+    var option = {
+        optimizationLevel: 5, //类型：Number  默认：3  取值范围：0-7（优化等级）
+        progressive: true,    //类型：Boolean 默认：false 无损压缩jpg图片
+        interlaced: false,    //类型：Boolean 默认：false 隔行扫描gif进行渲染
+        multipass: false      //类型：Boolean 默认：false 多次优化svg直到完全优化
+    }
+    return gulp.src('./public/uploads/**/*.*')
+        .pipe(gulpif(!isScriptAll, changed('./public/uploads')))
+        .pipe(gulpif(isDebug,debug({title: 'Compress Images:'})))
+        .pipe(plumber())
+        .pipe(imagemin(option))
+        .pipe(gulp.dest('./public/uploads'));
+});
+
+// 用run-sequence并发执行，同时处理html，css，js，img
+gulp.task('compress', function(cb) {
+    runSequence.options.ignoreUndefinedTasks = true;
+    runSequence(['compressHtml', 'compressCss', 'compressJs'],cb);
+});
+
+// 执行顺序： 清除public目录 -> 产生原始博客内容 -> 执行压缩混淆 -> 部署到服务器
+gulp.task('build', function(cb) {
+    runSequence.options.ignoreUndefinedTasks = true;
+    runSequence('clean', 'generate', 'compress', 'deploy', cb);
+});
+
+// 默认任务
+gulp.task('default', 
+	gulp.series('clean','generate',
+		gulp.parallel('compressHtml','compressCss','compressImage')
+	)
+);
+```
+
 
 ## 五、部署到GitHub
 ### 准备工作
@@ -291,3 +474,4 @@ git push origin hexo  //更新分支
 hexo d -g   //push更新完分支之后将自己写的博客对接到自己搭的博客网站上，同时同步了Github中的master
 ```
 
+> 参考链接：http://theme-next.iissnan.com
