@@ -1,0 +1,1476 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/blog/css/main.css?v=6.7.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon.jpg?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon.jpg?v=6.7.0">
+
+
+  <link rel="mask-icon" href="/blog/images/logo.svg?v=6.7.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/blog/',
+    scheme: 'Mist',
+    version: '6.7.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+<script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+<link href="//cdn.bootcss.com/pace/1.0.2/themes/pink/pace-theme-flash.css" rel="stylesheet">
+  <style>
+      .pace .pace-progress {
+          background: #1E92FB; /*进度条颜色*/
+          height: 3px;
+      }
+      .pace .pace-progress-inner {
+           box-shadow: 0 0 10px #1E92FB, 0 0 5px     #1E92FB; /*阴影颜色*/
+      }
+      .pace .pace-activity {
+          border-top-color: #1E92FB;    /*上边框颜色*/
+          border-left-color: #1E92FB;    /*左边框颜色*/
+      }
+  </style>
+
+  <meta name="description" content="RocketMQ 配置多master一、准备工作1、虚拟机安装两台 Centos72、jdk83、maven 3.5.04、git二、下载并编译123456789git clone -b develop https://github.com/apache/incubator-rocketmq.gitcd incubator-rocketmqmvn -Prelease-all -DskipTests">
+<meta name="keywords" content="MQ">
+<meta property="og:type" content="article">
+<meta property="og:title" content="RocketMQ 配置双master">
+<meta property="og:url" content="https://rstyro.github.io/blog/2017/08/23/RocketMQ 配置双master/index.html">
+<meta property="og:site_name" content="帅大叔的博客">
+<meta property="og:description" content="RocketMQ 配置多master一、准备工作1、虚拟机安装两台 Centos72、jdk83、maven 3.5.04、git二、下载并编译123456789git clone -b develop https://github.com/apache/incubator-rocketmq.gitcd incubator-rocketmqmvn -Prelease-all -DskipTests">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://rstyro.github.io/blog/2017/08/23/RocketMQ%20配置双master/1503655178352098012.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2017/08/23/RocketMQ%20配置双master/1503655219756096848.png">
+<meta property="og:image" content="http://lrshuai.top/upload/image/20170831/1504160283634075289.png">
+<meta property="og:updated_time" content="2019-01-12T14:49:03.067Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="RocketMQ 配置双master">
+<meta name="twitter:description" content="RocketMQ 配置多master一、准备工作1、虚拟机安装两台 Centos72、jdk83、maven 3.5.04、git二、下载并编译123456789git clone -b develop https://github.com/apache/incubator-rocketmq.gitcd incubator-rocketmqmvn -Prelease-all -DskipTests">
+<meta name="twitter:image" content="https://rstyro.github.io/blog/2017/08/23/RocketMQ%20配置双master/1503655178352098012.png">
+
+
+
+
+
+
+  <link rel="canonical" href="https://rstyro.github.io/blog/2017/08/23/RocketMQ 配置双master/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>RocketMQ 配置双master | 帅大叔的博客</title>
+  
+
+
+
+
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?cd2197f8af1d69b326360027b8f93d92";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/blog/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">帅大叔的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">信你所信，为你所见</p>
+      
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/" rel="section">首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/about/" rel="section">关于</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/tags/" rel="section">标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/categories/" rel="section">分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/archives/" rel="section">归档</a>
+
+  </li>
+
+      
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            搜索</a>
+        </li>
+      
+    </ul>
+  
+
+  
+    
+
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://rstyro.github.io/blog/blog/2017/08/23/RocketMQ 配置双master/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="rstyro">
+      <meta itemprop="description" content="帅大叔个人站点，记录一路走来的坑坑坎坎。">
+      <meta itemprop="image" content="/blog/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="帅大叔的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">RocketMQ 配置双master
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2017-08-23 14:05:41" itemprop="dateCreated datePublished" datetime="2017-08-23T14:05:41+08:00">2017-08-23</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2019-01-12 22:49:03" itemprop="dateModified" datetime="2019-01-12T22:49:03+08:00">2019-01-12</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing"><a href="/blog/categories/MQ/" itemprop="url" rel="index"><span itemprop="name">MQ</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/blog/2017/08/23/RocketMQ 配置双master/#comments" itemprop="discussionUrl">
+                  <span class="post-meta-item-text">评论数：</span> <span class="post-comments-count valine-comment-count" data-xid="/blog/2017/08/23/RocketMQ 配置双master/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="post-meta-item-icon">
+            <i class="fa fa-eye"></i>
+             阅读次数： 
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="RocketMQ-配置多master"><a href="#RocketMQ-配置多master" class="headerlink" title="RocketMQ 配置多master"></a>RocketMQ 配置多master</h1><h2 id="一、准备工作"><a href="#一、准备工作" class="headerlink" title="一、准备工作"></a>一、准备工作</h2><h4 id="1、虚拟机安装两台-Centos7"><a href="#1、虚拟机安装两台-Centos7" class="headerlink" title="1、虚拟机安装两台 Centos7"></a>1、虚拟机安装两台 Centos7</h4><h4 id="2、jdk8"><a href="#2、jdk8" class="headerlink" title="2、jdk8"></a>2、jdk8</h4><h4 id="3、maven-3-5-0"><a href="#3、maven-3-5-0" class="headerlink" title="3、maven 3.5.0"></a>3、maven 3.5.0</h4><h4 id="4、git"><a href="#4、git" class="headerlink" title="4、git"></a>4、git</h4><h2 id="二、下载并编译"><a href="#二、下载并编译" class="headerlink" title="二、下载并编译"></a>二、下载并编译</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">git clone -b develop https://github.com/apache/incubator-rocketmq.git</span><br><span class="line">cd incubator-rocketmq</span><br><span class="line">mvn -Prelease-all -DskipTests clean install -U</span><br><span class="line">cd distribution/target/apache-rocketmq</span><br><span class="line"># 把编译后得到的apache-rocketmq（target下的文件夹就是） 剪切到/usr/local 下并重命名rocketmq</span><br><span class="line">cp -r apache-rocketmq /usr/local/ &amp;&amp; cd /user/local</span><br><span class="line">mv apache-rocketmq rocketmq</span><br><span class="line"># 用scp命令把rocketmq 文件夹复制到另一台机器。也可以在另一个台执行同样的操作。</span><br><span class="line">scp -r /usr/local/rocketmq root@192.168.12.133:/usr/local/rocketmq</span><br></pre></td></tr></table></figure>
+<h2 id="三、修改broker-的配置文件"><a href="#三、修改broker-的配置文件" class="headerlink" title="三、修改broker 的配置文件"></a>三、修改broker 的配置文件</h2><h3 id="1、两台电脑都要修改"><a href="#1、两台电脑都要修改" class="headerlink" title="1、两台电脑都要修改"></a>1、两台电脑都要修改</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">vim /usr/local/rocketmq/conf/2m-noslave/broker-a.properties </span><br><span class="line">vim /usr/local/rocketmq/conf/2m-noslave/broker-b.properties</span><br></pre></td></tr></table></figure>
+<h5 id="再多一台就broker-c-properties-以此类推可以添加多台。。"><a href="#再多一台就broker-c-properties-以此类推可以添加多台。。" class="headerlink" title="再多一台就broker-c.properties ,以此类推可以添加多台。。"></a>再多一台就broker-c.properties ,以此类推可以添加多台。。</h5><h3 id="2、修改的内容如下："><a href="#2、修改的内容如下：" class="headerlink" title="2、修改的内容如下："></a>2、修改的内容如下：</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br></pre></td><td class="code"><pre><span class="line">#所属集群名字</span><br><span class="line">brokerClusterName=rocketmq-cluster</span><br><span class="line">#broker名字，注意此处不同的配置文件填写的不一样，如果是broker-a.properties 这里就写broker-a,broker-b.properties 这里就写broker-b,以此类推</span><br><span class="line">brokerName=broker-a</span><br><span class="line">#0 表示 Master， &gt;0 表示 Slave</span><br><span class="line">brokerId=0</span><br><span class="line">#nameServer地址，分号分割</span><br><span class="line">namesrvAddr=rocketmq-nameserver1:9876;rocketmq-nameserver2:9876</span><br><span class="line">#在发送消息时，自动创建服务器不存在的topic，默认创建的队列数</span><br><span class="line">defaultTopicQueueNums=4</span><br><span class="line">#是否允许 Broker 自动创建Topic，建议线下开启，线上关闭</span><br><span class="line">autoCreateTopicEnable=true</span><br><span class="line">#是否允许 Broker 自动创建订阅组，建议线下开启，线上关闭</span><br><span class="line">autoCreateSubscriptionGroup=true</span><br><span class="line">#Broker 对外服务的监听端口</span><br><span class="line">listenPort=10911</span><br><span class="line">#删除文件时间点，默认凌晨 0点</span><br><span class="line">deleteWhen=00</span><br><span class="line">#文件保留时间，默认 48 小时</span><br><span class="line">fileReservedTime=120</span><br><span class="line">#commitLog每个文件的大小默认1G</span><br><span class="line">mapedFileSizeCommitLog=1073741824</span><br><span class="line">#ConsumeQueue每个文件默认存30W条，根据业务情况调整</span><br><span class="line">mapedFileSizeConsumeQueue=300000</span><br><span class="line">#destroyMapedFileIntervalForcibly=120000</span><br><span class="line">#redeleteHangedFileInterval=120000</span><br><span class="line">#检测物理文件磁盘空间</span><br><span class="line">diskMaxUsedSpaceRatio=88</span><br><span class="line">#存储路径</span><br><span class="line">storePathRootDir=/usr/local/rocketmq/data</span><br><span class="line">#commitLog 存储路径</span><br><span class="line">storePathCommitLog=/usr/local/rocketmq/data/commitlog</span><br><span class="line">#消费队列存储路径存储路径</span><br><span class="line">storePathConsumeQueue=/usr/local/rocketmq/data/consumequeue</span><br><span class="line">#消息索引存储路径</span><br><span class="line">storePathIndex=/usr/local/rocketmq/data/index</span><br><span class="line">#checkpoint 文件存储路径</span><br><span class="line">storeCheckpoint=/usr/local/rocketmq/data/checkpoint</span><br><span class="line">#abort 文件存储路径</span><br><span class="line">abortFile=/usr/local/rocketmq/data/abort</span><br><span class="line">#限制的消息大小</span><br><span class="line">maxMessageSize=65536</span><br><span class="line">#flushCommitLogLeastPages=4</span><br><span class="line">#flushConsumeQueueLeastPages=2</span><br><span class="line">#flushCommitLogThoroughInterval=10000</span><br><span class="line">#flushConsumeQueueThoroughInterval=60000</span><br><span class="line">#Broker 的角色</span><br><span class="line">#- ASYNC_MASTER 异步复制Master</span><br><span class="line">#- SYNC_MASTER 同步双写Master</span><br><span class="line">#- SLAVE</span><br><span class="line">brokerRole=ASYNC_MASTER</span><br><span class="line">#刷盘方式</span><br><span class="line">#- ASYNC_FLUSH 异步刷盘</span><br><span class="line">#- SYNC_FLUSH 同步刷盘</span><br><span class="line">flushDiskType=ASYNC_FLUSH</span><br><span class="line">#checkTransactionMessageEnable=false</span><br><span class="line">#发消息线程池数量</span><br><span class="line">#sendMessageThreadPoolNums=128</span><br><span class="line">#拉消息线程池数量</span><br><span class="line">#pullMessageThreadPoolNums=128</span><br></pre></td></tr></table></figure>
+<h4 id="只需要修改brokerName这个属性就行，nameservAddr这个使用域名，下面会修改hosts文件。"><a href="#只需要修改brokerName这个属性就行，nameservAddr这个使用域名，下面会修改hosts文件。" class="headerlink" title="只需要修改brokerName这个属性就行，nameservAddr这个使用域名，下面会修改hosts文件。"></a>只需要修改<code>brokerName</code>这个属性就行，<code>nameservAddr</code>这个使用域名，下面会修改hosts文件。</h4><h4 id="当然也可以用ip-如果用ip，下面的hosts文件配置就可以不用配，这里配的原因主要是为了方便而已没其他含义"><a href="#当然也可以用ip-如果用ip，下面的hosts文件配置就可以不用配，这里配的原因主要是为了方便而已没其他含义" class="headerlink" title="当然也可以用ip,如果用ip，下面的hosts文件配置就可以不用配，这里配的原因主要是为了方便而已没其他含义"></a>当然也可以用ip,如果用ip，下面的hosts文件配置就可以不用配，这里配的原因主要是为了方便而已没其他含义</h4><h2 id="四、修改-etc-hosts-文件-可选，如果上面的nameservAddr用ip-这个步骤可跳过"><a href="#四、修改-etc-hosts-文件-可选，如果上面的nameservAddr用ip-这个步骤可跳过" class="headerlink" title="四、修改/etc/hosts 文件(可选，如果上面的nameservAddr用ip,这个步骤可跳过)"></a>四、修改/etc/hosts 文件(可选，如果上面的nameservAddr用ip,这个步骤可跳过)</h2><h3 id="1、两台电脑都要修改-1"><a href="#1、两台电脑都要修改-1" class="headerlink" title="1、两台电脑都要修改"></a>1、两台电脑都要修改</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4</span><br><span class="line">::1         localhost localhost.localdomain localhost6 localhost6.localdomain6</span><br><span class="line">#添加下面4行 ，注意修改成你电脑的ip</span><br><span class="line">192.168.12.132 rocketmq-nameserver1</span><br><span class="line">192.168.12.132 rocketmq-master1</span><br><span class="line"> </span><br><span class="line">192.168.12.133 rocketmq-nameserver2</span><br><span class="line">192.168.12.133 rocketmq-master2</span><br></pre></td></tr></table></figure>
+<h3 id="2、测试-ping-一下"><a href="#2、测试-ping-一下" class="headerlink" title="2、测试: ping 一下"></a>2、测试: ping 一下</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ping rocketmq-nameserver1</span><br><span class="line">ping rocketmq-nameserver2</span><br></pre></td></tr></table></figure>
+<h2 id="五、修改日志配置文件"><a href="#五、修改日志配置文件" class="headerlink" title="五、修改日志配置文件"></a>五、修改日志配置文件</h2><h3 id="1、两台电脑都要修改-2"><a href="#1、两台电脑都要修改-2" class="headerlink" title="1、两台电脑都要修改"></a>1、两台电脑都要修改</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mkdir /usr/local/rocketmq/logs</span><br><span class="line">cd /usr/local/rocketmq/conf &amp;&amp; sed -i &apos;s#$&#123;user.home&#125;#/usr/local/rocketmq#g&apos; *.xml</span><br></pre></td></tr></table></figure>
+<h2 id="六、修改启动脚本（可不用修改，我是用虚拟机-内存不够-所以改改）"><a href="#六、修改启动脚本（可不用修改，我是用虚拟机-内存不够-所以改改）" class="headerlink" title="六、修改启动脚本（可不用修改，我是用虚拟机,内存不够,所以改改）"></a>六、修改启动脚本（可不用修改，我是用虚拟机,内存不够,所以改改）</h2><h3 id="1、修改-bin-runserver-sh"><a href="#1、修改-bin-runserver-sh" class="headerlink" title="1、修改 bin/runserver.sh"></a>1、修改 bin/runserver.sh</h3><p><img src="/blog/2017/08/23/RocketMQ 配置双master/1503655178352098012.png" alt=""></p>
+<h3 id="2、修改-bin-runbroker-sh"><a href="#2、修改-bin-runbroker-sh" class="headerlink" title="2、修改 bin/runbroker.sh"></a>2、修改 bin/runbroker.sh</h3><p><img src="/blog/2017/08/23/RocketMQ 配置双master/1503655219756096848.png" alt=""></p>
+<h4 id="都是改成1G-和-512M"><a href="#都是改成1G-和-512M" class="headerlink" title="都是改成1G 和 512M"></a>都是改成1G 和 512M</h4><h2 id="七、启动"><a href="#七、启动" class="headerlink" title="七、启动"></a>七、启动</h2><h3 id="1、启动-nameserver"><a href="#1、启动-nameserver" class="headerlink" title="1、启动 nameserver"></a>1、启动 nameserver</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">nohup sh /usr/local/rocketmq/bin/mqnamesrv &amp;</span><br><span class="line">#查看日志</span><br><span class="line">tail -n 200 /usr/local/rocketmq/logs/rocketmqlogs/namesrv.log</span><br><span class="line">#可以用jps 查看后台程序</span><br><span class="line">jps</span><br></pre></td></tr></table></figure>
+<h3 id="2、启动-broker"><a href="#2、启动-broker" class="headerlink" title="2、启动 broker"></a>2、启动 broker</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">#在192.168.12.132 中启动</span><br><span class="line">nohup sh /usr/local/rocketmq/bin/mqbroker -c /usr/local/rocketmq/conf/2m-noslave/broker-a.properties &gt;/dev/null 2&gt;&amp;1 &amp;</span><br><span class="line">#在192.168.12.133 中启动，启动读取不用的配置文件（注意）</span><br><span class="line">nohup sh /usr/local/rocketmq/bin/mqbroker -c /usr/local/rocketmq/conf/2m-noslave/broker-b.properties &gt;/dev/null 2&gt;&amp;1 &amp;</span><br><span class="line">#查看启动的日志</span><br><span class="line">tail -n 200 /usr/local/rocketmq/logs/rocketmqlogs/broker.log</span><br></pre></td></tr></table></figure>
+<h3 id="3、端口开放"><a href="#3、端口开放" class="headerlink" title="3、端口开放"></a>3、端口开放</h3><h4 id="1、注意开放端口"><a href="#1、注意开放端口" class="headerlink" title="1、注意开放端口"></a>1、注意开放端口</h4><ul>
+<li>9876 （nameserver 端口）</li>
+<li>10909（主要是fastRemotingServer服务使用）</li>
+<li>10911（Broker 对外服务的监听端口）</li>
+<li>10912 (Master 和Slave同步的数据的端口，)</li>
+</ul>
+<h4 id="2、废话一下"><a href="#2、废话一下" class="headerlink" title="2、废话一下:"></a>2、废话一下:</h4><p><code>/dev/null</code> ：代表空设备文件<br><code>&gt;</code> ：代表重定向到哪里，例如：echo “123” &gt; /home/123.txt<br><code>1</code>  ：表示stdout标准输出，系统默认值是1，所以”&gt;/dev/null”等同于”1&gt;/dev/null”<br><code>2</code>  ：表示stderr标准错误<br><code>&amp;</code> ：表示等同于的意思，2&gt;&amp;1，表示2的输出重定向等同于1</p>
+<p> <code>1 &gt; /dev/null 2&gt;&amp;1</code> 语句含义：<br><code>1 &gt; /dev/null</code>： 首先表示标准输出重定向到空设备文件，也就是不输出任何信息到终端，说白了就是不显示任何信息。<br><code>2&gt;&amp;1</code>：接着，标准错误输出重定向（等同于）标准输出，因为之前标准输出已经重定向到了空设备文件，所以标准错误输出也重定向到空设备文件。</p>
+<h2 id="八、代码示例"><a href="#八、代码示例" class="headerlink" title="八、代码示例"></a>八、代码示例</h2><h4 id="1、-Consumer类"><a href="#1、-Consumer类" class="headerlink" title="1、 Consumer类"></a>1、 Consumer类</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><span class="line">package com.alibaba.rocketmq.example.quickstart;</span><br><span class="line"> </span><br><span class="line">import java.io.UnsupportedEncodingException;</span><br><span class="line">import java.util.List;</span><br><span class="line"> </span><br><span class="line">import com.alibaba.rocketmq.client.consumer.DefaultMQPushConsumer;</span><br><span class="line">import com.alibaba.rocketmq.client.consumer.listener.ConsumeConcurrentlyContext;</span><br><span class="line">import com.alibaba.rocketmq.client.consumer.listener.ConsumeConcurrentlyStatus;</span><br><span class="line">import com.alibaba.rocketmq.client.consumer.listener.MessageListenerConcurrently;</span><br><span class="line">import com.alibaba.rocketmq.client.exception.MQClientException;</span><br><span class="line">import com.alibaba.rocketmq.common.consumer.ConsumeFromWhere;</span><br><span class="line">import com.alibaba.rocketmq.common.message.MessageExt;</span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line">/**</span><br><span class="line"> * Consumer，订阅消息</span><br><span class="line"> */</span><br><span class="line">public class Consumer &#123;</span><br><span class="line"> </span><br><span class="line">    public static void main(String[] args) throws InterruptedException, MQClientException &#123;</span><br><span class="line">        DefaultMQPushConsumer consumer = new DefaultMQPushConsumer(&quot;hello_pushconsumer&quot;);</span><br><span class="line">        /**</span><br><span class="line">         * 设置Consumer第一次启动是从队列头部开始消费还是队列尾部开始消费&lt;br&gt;</span><br><span class="line">         * 如果非第一次启动，那么按照上次消费的位置继续消费</span><br><span class="line">         */</span><br><span class="line">        consumer.setConsumeFromWhere(ConsumeFromWhere.CONSUME_FROM_FIRST_OFFSET);</span><br><span class="line">        consumer.setNamesrvAddr(&quot;192.168.12.132:9876;192.168.12.133:9876&quot;);</span><br><span class="line">        consumer.subscribe(&quot;TopicTest&quot;, &quot;*&quot;);</span><br><span class="line"> </span><br><span class="line">        consumer.registerMessageListener(new MessageListenerConcurrently() &#123;</span><br><span class="line"> </span><br><span class="line">            @Override</span><br><span class="line">            public ConsumeConcurrentlyStatus consumeMessage(List&lt;MessageExt&gt; msgs,</span><br><span class="line">                    ConsumeConcurrentlyContext context) &#123;</span><br><span class="line">                try &#123;</span><br><span class="line">                     for(MessageExt msg:msgs)&#123;</span><br><span class="line">                         String topic=msg.getTopic();</span><br><span class="line">                         String tags=msg.getTags();</span><br><span class="line">                         String msgBody = new String(msg.getBody(),&quot;utf-8&quot;);</span><br><span class="line">                         System.out.println(topic+&quot; -- &quot;+tags+&quot; -- &quot;+msgBody);</span><br><span class="line">                     &#125;</span><br><span class="line">                &#125; catch (UnsupportedEncodingException e) &#123;</span><br><span class="line">                    e.printStackTrace();</span><br><span class="line">                &#125;</span><br><span class="line">                 </span><br><span class="line">                return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line"> </span><br><span class="line">        consumer.start();</span><br><span class="line"> </span><br><span class="line">        System.out.println(&quot;==================Consumer Started.===========================&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="2、Producer类"><a href="#2、Producer类" class="headerlink" title="2、Producer类"></a>2、Producer类</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">package com.alibaba.rocketmq.example.quickstart;</span><br><span class="line"> </span><br><span class="line">import com.alibaba.rocketmq.client.exception.MQClientException;</span><br><span class="line">import com.alibaba.rocketmq.client.producer.DefaultMQProducer;</span><br><span class="line">import com.alibaba.rocketmq.client.producer.SendResult;</span><br><span class="line">import com.alibaba.rocketmq.common.message.Message;</span><br><span class="line">/**</span><br><span class="line"> * Producer，发送消息</span><br><span class="line"> * </span><br><span class="line"> */</span><br><span class="line">public class Producer &#123;</span><br><span class="line">    public static void main(String[] args) throws MQClientException, InterruptedException &#123;</span><br><span class="line">        DefaultMQProducer producer = new DefaultMQProducer(&quot;hello_producer&quot;);</span><br><span class="line">        producer.setNamesrvAddr(&quot;192.168.12.132:9876;192.168.12.133:9876&quot;);</span><br><span class="line">        producer.start();</span><br><span class="line"> </span><br><span class="line">        for (int i = 0; i &lt; 1000; i++) &#123;</span><br><span class="line">            try &#123;</span><br><span class="line">                Message msg = new Message(&quot;TopicTest&quot;,// topic</span><br><span class="line">                    &quot;TagA&quot;,// tag</span><br><span class="line">                    (&quot;Hello RocketMQ &quot; + i).getBytes()// body</span><br><span class="line">                        );</span><br><span class="line">                SendResult sendResult = producer.send(msg);</span><br><span class="line">                System.out.println(sendResult);</span><br><span class="line">            &#125;</span><br><span class="line">            catch (Exception e) &#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">                Thread.sleep(1000);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        producer.shutdown();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="http://lrshuai.top/upload/image/20170831/1504160283634075289.png" alt=""></p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+	
+	    <div>
+	
+	<div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------本文结束 <i class="fa fa-heartbeat"></i> 感谢您的阅读-------------</div>
+    
+</div>
+	
+	</div>
+
+    
+
+    
+      
+    
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div></div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>打赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/blog/images/wechat_pay.jpg" alt="rstyro 微信支付">
+        <p>微信支付</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/blog/images/alipay.jpg" alt="rstyro 支付宝">
+        <p>支付宝</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+	
+	<div>    
+	 
+	 
+	<ul class="post-copyright">
+	  <li class="post-copyright-author">
+		  <strong>本文作者：</strong>rstyro
+	  </li>
+	  <li class="post-copyright-link">
+		<strong>本文链接：</strong>
+		<a href="/blog/2017/08/23/RocketMQ 配置双master/" title="RocketMQ 配置双master">https://rstyro.github.io/blog/2017/08/23/RocketMQ 配置双master/</a>
+	  </li>
+	  <li class="post-copyright-license">
+		<strong>版权： </strong>
+		转载注明出处！
+	  </li>
+	</ul>
+	
+	</div>
+	
+
+      
+        <div class="post-tags">
+          
+            <a href="/blog/tags/MQ/" rel="tag"><i class="fa fa-tag"></i> MQ</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2017/08/22/安装maven/" rel="next" title="安装maven">
+                <i class="fa fa-chevron-left"></i> 安装maven
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2017/08/24/服务器 搭建vpn/" rel="prev" title="服务器 搭建vpn">
+                服务器 搭建vpn <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+
+
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/blog/images/avatar.jpg" alt="rstyro">
+            
+              <p class="site-author-name" itemprop="name">rstyro</p>
+              <p class="site-description motion-element" itemprop="description">帅大叔个人站点，记录一路走来的坑坑坎坎。</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/blog/archives/">
+                
+                    <span class="site-state-item-count">129</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/blog/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">9</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/blog/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">24</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://github.com/rstyro" title="GitHub &rarr; https://github.com/rstyro" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="/blog/1006059906" title="QQ &rarr; 1006059906"><i class="fa fa-fw fa-qq"></i>QQ</a>
+                </span>
+              
+            </div>
+          
+
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-block">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                友链
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://rstyro.github.io/blog/" title="https://rstyro.github.io/blog/">帅大叔博客</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://www.zhyd.me/" title="https://www.zhyd.me/" rel="noopener" target="_blank">张亚东博客</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://www.devsong.org/" title="http://www.devsong.org/" rel="noopener" target="_blank">DevSONG</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://www.dalaoyang.cn/" title="https://www.dalaoyang.cn/" rel="noopener" target="_blank">dalaoyang</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://www.chenshuangyi.com/" title="https://www.chenshuangyi.com/" rel="noopener" target="_blank">陈双义博客</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#RocketMQ-配置多master"><span class="nav-number">1.</span> <span class="nav-text">RocketMQ 配置多master</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#一、准备工作"><span class="nav-number">1.1.</span> <span class="nav-text">一、准备工作</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1、虚拟机安装两台-Centos7"><span class="nav-number">1.1.0.1.</span> <span class="nav-text">1、虚拟机安装两台 Centos7</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2、jdk8"><span class="nav-number">1.1.0.2.</span> <span class="nav-text">2、jdk8</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3、maven-3-5-0"><span class="nav-number">1.1.0.3.</span> <span class="nav-text">3、maven 3.5.0</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4、git"><span class="nav-number">1.1.0.4.</span> <span class="nav-text">4、git</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#二、下载并编译"><span class="nav-number">1.2.</span> <span class="nav-text">二、下载并编译</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#三、修改broker-的配置文件"><span class="nav-number">1.3.</span> <span class="nav-text">三、修改broker 的配置文件</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1、两台电脑都要修改"><span class="nav-number">1.3.1.</span> <span class="nav-text">1、两台电脑都要修改</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#再多一台就broker-c-properties-以此类推可以添加多台。。"><span class="nav-number">1.3.1.0.1.</span> <span class="nav-text">再多一台就broker-c.properties ,以此类推可以添加多台。。</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2、修改的内容如下："><span class="nav-number">1.3.2.</span> <span class="nav-text">2、修改的内容如下：</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#只需要修改brokerName这个属性就行，nameservAddr这个使用域名，下面会修改hosts文件。"><span class="nav-number">1.3.2.1.</span> <span class="nav-text">只需要修改brokerName这个属性就行，nameservAddr这个使用域名，下面会修改hosts文件。</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#当然也可以用ip-如果用ip，下面的hosts文件配置就可以不用配，这里配的原因主要是为了方便而已没其他含义"><span class="nav-number">1.3.2.2.</span> <span class="nav-text">当然也可以用ip,如果用ip，下面的hosts文件配置就可以不用配，这里配的原因主要是为了方便而已没其他含义</span></a></li></ol></li></ol><li class="nav-item nav-level-2"><a class="nav-link" href="#四、修改-etc-hosts-文件-可选，如果上面的nameservAddr用ip-这个步骤可跳过"><span class="nav-number">1.4.</span> <span class="nav-text">四、修改/etc/hosts 文件(可选，如果上面的nameservAddr用ip,这个步骤可跳过)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1、两台电脑都要修改-1"><span class="nav-number">1.4.1.</span> <span class="nav-text">1、两台电脑都要修改</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2、测试-ping-一下"><span class="nav-number">1.4.2.</span> <span class="nav-text">2、测试: ping 一下</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#五、修改日志配置文件"><span class="nav-number">1.5.</span> <span class="nav-text">五、修改日志配置文件</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1、两台电脑都要修改-2"><span class="nav-number">1.5.1.</span> <span class="nav-text">1、两台电脑都要修改</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#六、修改启动脚本（可不用修改，我是用虚拟机-内存不够-所以改改）"><span class="nav-number">1.6.</span> <span class="nav-text">六、修改启动脚本（可不用修改，我是用虚拟机,内存不够,所以改改）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1、修改-bin-runserver-sh"><span class="nav-number">1.6.1.</span> <span class="nav-text">1、修改 bin/runserver.sh</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2、修改-bin-runbroker-sh"><span class="nav-number">1.6.2.</span> <span class="nav-text">2、修改 bin/runbroker.sh</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#都是改成1G-和-512M"><span class="nav-number">1.6.2.1.</span> <span class="nav-text">都是改成1G 和 512M</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#七、启动"><span class="nav-number">1.7.</span> <span class="nav-text">七、启动</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1、启动-nameserver"><span class="nav-number">1.7.1.</span> <span class="nav-text">1、启动 nameserver</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2、启动-broker"><span class="nav-number">1.7.2.</span> <span class="nav-text">2、启动 broker</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3、端口开放"><span class="nav-number">1.7.3.</span> <span class="nav-text">3、端口开放</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1、注意开放端口"><span class="nav-number">1.7.3.1.</span> <span class="nav-text">1、注意开放端口</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2、废话一下"><span class="nav-number">1.7.3.2.</span> <span class="nav-text">2、废话一下:</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#八、代码示例"><span class="nav-number">1.8.</span> <span class="nav-text">八、代码示例</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1、-Consumer类"><span class="nav-number">1.8.0.1.</span> <span class="nav-text">1、 Consumer类</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2、Producer类"><span class="nav-number">1.8.1.</span> <span class="nav-text">2、Producer类</span></a></li></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">rstyro</span>
+
+  
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-user"></i>
+    </span>
+    <span class="site-uv" title="总访客量">
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+    </span>
+  
+
+  
+    <span class="post-meta-divider">|</span>
+  
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-eye"></i>
+    </span>
+    <span class="site-pv" title="总访问量">
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/blog/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/blog/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/blog/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/blog/js/src/utils.js?v=6.7.0"></script>
+
+  <script src="/blog/js/src/motion.js?v=6.7.0"></script>
+
+
+
+  
+  
+
+  
+  <script src="/blog/js/src/scrollspy.js?v=6.7.0"></script>
+<script src="/blog/js/src/post-details.js?v=6.7.0"></script>
+
+
+
+  
+
+
+  <script src="/blog/js/src/bootstrap.js?v=6.7.0"></script>
+
+
+
+  
+  
+
+
+
+
+  
+
+<script src="//cdn1.lncld.net/static/js/3.11.1/av-min.js"></script>
+
+
+
+<script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+
+<script>
+  var GUEST = ['nick', 'mail', 'link'];
+  var guest = 'nick,mail,link';
+  guest = guest.split(',').filter(function (item) {
+    return GUEST.indexOf(item) > -1;
+  });
+  new Valine({
+    el: '#comments',
+    verify: false,
+    notify: false,
+    appId: 'LwEPiJFa7YMn2MrJdCwaUbmQ-gzGzoHsz',
+    appKey: 'JqS1y3RxYvDOki9r3NcqqoO5',
+    placeholder: '来都来了，不说几句就走，过分了啊！！！',
+    avatar: 'monsterid',
+    meta: guest,
+    pageSize: '10' || 10,
+    visitor: false
+  });
+</script>
+
+
+
+  
+
+  <script>
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/blog/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url).replace(/\/{2,}/g, '/');
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x"></i></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x"></i></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+  <script>
+    (function(){
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+      }
+      else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+      }
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+    })();
+  </script>
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

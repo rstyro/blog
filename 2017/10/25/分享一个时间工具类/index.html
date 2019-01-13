@@ -1,0 +1,1469 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/blog/css/main.css?v=6.7.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon.jpg?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon.jpg?v=6.7.0">
+
+
+  <link rel="mask-icon" href="/blog/images/logo.svg?v=6.7.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/blog/',
+    scheme: 'Mist',
+    version: '6.7.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+<script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+<link href="//cdn.bootcss.com/pace/1.0.2/themes/pink/pace-theme-flash.css" rel="stylesheet">
+  <style>
+      .pace .pace-progress {
+          background: #1E92FB; /*进度条颜色*/
+          height: 3px;
+      }
+      .pace .pace-progress-inner {
+           box-shadow: 0 0 10px #1E92FB, 0 0 5px     #1E92FB; /*阴影颜色*/
+      }
+      .pace .pace-activity {
+          border-top-color: #1E92FB;    /*上边框颜色*/
+          border-left-color: #1E92FB;    /*左边框颜色*/
+      }
+  </style>
+
+  <meta name="description" content="分享一个时间Java工具类 获取格式化输出 获取当天开始/结束时间 获取昨天开始/结束时间 获取明天开始/结束时间 得到N天之后的日期 获取本周的开始/结束时间 获取本月的开始/结束时间 获取本年的开始/结束时间 获取今年是哪一年 获取本月是哪一月 获取某年某月到某年某月按天的切片日期集合 获取某年某月按天切片日期集合 获取某年某月的第一天日期 获取某年某月的最后一天日期 ……..  123456">
+<meta name="keywords" content="Java">
+<meta property="og:type" content="article">
+<meta property="og:title" content="分享一个时间工具类">
+<meta property="og:url" content="https://rstyro.github.io/blog/2017/10/25/分享一个时间工具类/index.html">
+<meta property="og:site_name" content="帅大叔的博客">
+<meta property="og:description" content="分享一个时间Java工具类 获取格式化输出 获取当天开始/结束时间 获取昨天开始/结束时间 获取明天开始/结束时间 得到N天之后的日期 获取本周的开始/结束时间 获取本月的开始/结束时间 获取本年的开始/结束时间 获取今年是哪一年 获取本月是哪一月 获取某年某月到某年某月按天的切片日期集合 获取某年某月按天切片日期集合 获取某年某月的第一天日期 获取某年某月的最后一天日期 ……..  123456">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-01-12T14:49:03.565Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="分享一个时间工具类">
+<meta name="twitter:description" content="分享一个时间Java工具类 获取格式化输出 获取当天开始/结束时间 获取昨天开始/结束时间 获取明天开始/结束时间 得到N天之后的日期 获取本周的开始/结束时间 获取本月的开始/结束时间 获取本年的开始/结束时间 获取今年是哪一年 获取本月是哪一月 获取某年某月到某年某月按天的切片日期集合 获取某年某月按天切片日期集合 获取某年某月的第一天日期 获取某年某月的最后一天日期 ……..  123456">
+
+
+
+
+
+
+  <link rel="canonical" href="https://rstyro.github.io/blog/2017/10/25/分享一个时间工具类/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>分享一个时间工具类 | 帅大叔的博客</title>
+  
+
+
+
+
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?cd2197f8af1d69b326360027b8f93d92";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/blog/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">帅大叔的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">信你所信，为你所见</p>
+      
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/" rel="section">首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/about/" rel="section">关于</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/tags/" rel="section">标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/categories/" rel="section">分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/archives/" rel="section">归档</a>
+
+  </li>
+
+      
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            搜索</a>
+        </li>
+      
+    </ul>
+  
+
+  
+    
+
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://rstyro.github.io/blog/blog/2017/10/25/分享一个时间工具类/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="rstyro">
+      <meta itemprop="description" content="帅大叔个人站点，记录一路走来的坑坑坎坎。">
+      <meta itemprop="image" content="/blog/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="帅大叔的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">分享一个时间工具类
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2017-10-25 17:07:53" itemprop="dateCreated datePublished" datetime="2017-10-25T17:07:53+08:00">2017-10-25</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2019-01-12 22:49:03" itemprop="dateModified" datetime="2019-01-12T22:49:03+08:00">2019-01-12</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing"><a href="/blog/categories/Java/" itemprop="url" rel="index"><span itemprop="name">Java</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/blog/2017/10/25/分享一个时间工具类/#comments" itemprop="discussionUrl">
+                  <span class="post-meta-item-text">评论数：</span> <span class="post-comments-count valine-comment-count" data-xid="/blog/2017/10/25/分享一个时间工具类/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="post-meta-item-icon">
+            <i class="fa fa-eye"></i>
+             阅读次数： 
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="分享一个时间Java工具类"><a href="#分享一个时间Java工具类" class="headerlink" title="分享一个时间Java工具类"></a>分享一个时间Java工具类</h1><ul>
+<li>获取格式化输出</li>
+<li>获取当天开始/结束时间</li>
+<li>获取昨天开始/结束时间</li>
+<li>获取明天开始/结束时间</li>
+<li>得到N天之后的日期</li>
+<li>获取本周的开始/结束时间</li>
+<li>获取本月的开始/结束时间</li>
+<li>获取本年的开始/结束时间</li>
+<li>获取今年是哪一年</li>
+<li>获取本月是哪一月</li>
+<li>获取某年某月到某年某月按天的切片日期集合</li>
+<li>获取某年某月按天切片日期集合</li>
+<li>获取某年某月的第一天日期</li>
+<li>获取某年某月的最后一天日期</li>
+<li>……..</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br><span class="line">228</span><br><span class="line">229</span><br><span class="line">230</span><br><span class="line">231</span><br><span class="line">232</span><br><span class="line">233</span><br><span class="line">234</span><br><span class="line">235</span><br><span class="line">236</span><br><span class="line">237</span><br><span class="line">238</span><br><span class="line">239</span><br><span class="line">240</span><br><span class="line">241</span><br><span class="line">242</span><br><span class="line">243</span><br><span class="line">244</span><br><span class="line">245</span><br><span class="line">246</span><br><span class="line">247</span><br><span class="line">248</span><br><span class="line">249</span><br><span class="line">250</span><br><span class="line">251</span><br><span class="line">252</span><br><span class="line">253</span><br><span class="line">254</span><br><span class="line">255</span><br><span class="line">256</span><br><span class="line">257</span><br><span class="line">258</span><br><span class="line">259</span><br><span class="line">260</span><br><span class="line">261</span><br><span class="line">262</span><br><span class="line">263</span><br><span class="line">264</span><br><span class="line">265</span><br><span class="line">266</span><br><span class="line">267</span><br><span class="line">268</span><br><span class="line">269</span><br><span class="line">270</span><br><span class="line">271</span><br><span class="line">272</span><br><span class="line">273</span><br><span class="line">274</span><br><span class="line">275</span><br><span class="line">276</span><br><span class="line">277</span><br><span class="line">278</span><br><span class="line">279</span><br><span class="line">280</span><br><span class="line">281</span><br><span class="line">282</span><br><span class="line">283</span><br><span class="line">284</span><br><span class="line">285</span><br><span class="line">286</span><br><span class="line">287</span><br><span class="line">288</span><br><span class="line">289</span><br><span class="line">290</span><br><span class="line">291</span><br><span class="line">292</span><br><span class="line">293</span><br><span class="line">294</span><br><span class="line">295</span><br><span class="line">296</span><br><span class="line">297</span><br><span class="line">298</span><br><span class="line">299</span><br><span class="line">300</span><br><span class="line">301</span><br><span class="line">302</span><br><span class="line">303</span><br><span class="line">304</span><br><span class="line">305</span><br><span class="line">306</span><br><span class="line">307</span><br><span class="line">308</span><br><span class="line">309</span><br><span class="line">310</span><br><span class="line">311</span><br><span class="line">312</span><br><span class="line">313</span><br><span class="line">314</span><br><span class="line">315</span><br><span class="line">316</span><br><span class="line">317</span><br><span class="line">318</span><br><span class="line">319</span><br><span class="line">320</span><br><span class="line">321</span><br><span class="line">322</span><br><span class="line">323</span><br><span class="line">324</span><br><span class="line">325</span><br><span class="line">326</span><br><span class="line">327</span><br><span class="line">328</span><br><span class="line">329</span><br><span class="line">330</span><br><span class="line">331</span><br><span class="line">332</span><br><span class="line">333</span><br><span class="line">334</span><br><span class="line">335</span><br><span class="line">336</span><br><span class="line">337</span><br><span class="line">338</span><br><span class="line">339</span><br><span class="line">340</span><br><span class="line">341</span><br><span class="line">342</span><br><span class="line">343</span><br><span class="line">344</span><br><span class="line">345</span><br><span class="line">346</span><br><span class="line">347</span><br><span class="line">348</span><br><span class="line">349</span><br><span class="line">350</span><br><span class="line">351</span><br><span class="line">352</span><br><span class="line">353</span><br><span class="line">354</span><br><span class="line">355</span><br><span class="line">356</span><br><span class="line">357</span><br><span class="line">358</span><br><span class="line">359</span><br><span class="line">360</span><br><span class="line">361</span><br><span class="line">362</span><br><span class="line">363</span><br><span class="line">364</span><br><span class="line">365</span><br><span class="line">366</span><br><span class="line">367</span><br><span class="line">368</span><br><span class="line">369</span><br><span class="line">370</span><br><span class="line">371</span><br><span class="line">372</span><br><span class="line">373</span><br><span class="line">374</span><br><span class="line">375</span><br><span class="line">376</span><br><span class="line">377</span><br><span class="line">378</span><br><span class="line">379</span><br><span class="line">380</span><br><span class="line">381</span><br><span class="line">382</span><br><span class="line">383</span><br><span class="line">384</span><br><span class="line">385</span><br><span class="line">386</span><br><span class="line">387</span><br><span class="line">388</span><br><span class="line">389</span><br><span class="line">390</span><br><span class="line">391</span><br><span class="line">392</span><br><span class="line">393</span><br><span class="line">394</span><br><span class="line">395</span><br><span class="line">396</span><br><span class="line">397</span><br><span class="line">398</span><br><span class="line">399</span><br><span class="line">400</span><br><span class="line">401</span><br><span class="line">402</span><br><span class="line">403</span><br><span class="line">404</span><br><span class="line">405</span><br><span class="line">406</span><br><span class="line">407</span><br><span class="line">408</span><br><span class="line">409</span><br><span class="line">410</span><br><span class="line">411</span><br><span class="line">412</span><br><span class="line">413</span><br><span class="line">414</span><br><span class="line">415</span><br><span class="line">416</span><br><span class="line">417</span><br><span class="line">418</span><br><span class="line">419</span><br><span class="line">420</span><br><span class="line">421</span><br><span class="line">422</span><br><span class="line">423</span><br><span class="line">424</span><br><span class="line">425</span><br><span class="line">426</span><br><span class="line">427</span><br><span class="line">428</span><br><span class="line">429</span><br><span class="line">430</span><br><span class="line">431</span><br><span class="line">432</span><br><span class="line">433</span><br><span class="line">434</span><br><span class="line">435</span><br><span class="line">436</span><br><span class="line">437</span><br><span class="line">438</span><br><span class="line">439</span><br><span class="line">440</span><br><span class="line">441</span><br><span class="line">442</span><br><span class="line">443</span><br><span class="line">444</span><br><span class="line">445</span><br><span class="line">446</span><br><span class="line">447</span><br><span class="line">448</span><br><span class="line">449</span><br><span class="line">450</span><br><span class="line">451</span><br><span class="line">452</span><br><span class="line">453</span><br><span class="line">454</span><br><span class="line">455</span><br><span class="line">456</span><br><span class="line">457</span><br><span class="line">458</span><br><span class="line">459</span><br><span class="line">460</span><br><span class="line">461</span><br><span class="line">462</span><br><span class="line">463</span><br><span class="line">464</span><br><span class="line">465</span><br><span class="line">466</span><br><span class="line">467</span><br><span class="line">468</span><br><span class="line">469</span><br><span class="line">470</span><br><span class="line">471</span><br><span class="line">472</span><br><span class="line">473</span><br><span class="line">474</span><br><span class="line">475</span><br><span class="line">476</span><br><span class="line">477</span><br><span class="line">478</span><br><span class="line">479</span><br><span class="line">480</span><br><span class="line">481</span><br><span class="line">482</span><br><span class="line">483</span><br><span class="line">484</span><br><span class="line">485</span><br><span class="line">486</span><br><span class="line">487</span><br><span class="line">488</span><br><span class="line">489</span><br><span class="line">490</span><br><span class="line">491</span><br><span class="line">492</span><br><span class="line">493</span><br><span class="line">494</span><br><span class="line">495</span><br><span class="line">496</span><br><span class="line">497</span><br><span class="line">498</span><br><span class="line">499</span><br><span class="line">500</span><br><span class="line">501</span><br><span class="line">502</span><br><span class="line">503</span><br><span class="line">504</span><br><span class="line">505</span><br><span class="line">506</span><br><span class="line">507</span><br><span class="line">508</span><br><span class="line">509</span><br><span class="line">510</span><br><span class="line">511</span><br><span class="line">512</span><br><span class="line">513</span><br><span class="line">514</span><br><span class="line">515</span><br><span class="line">516</span><br><span class="line">517</span><br><span class="line">518</span><br><span class="line">519</span><br><span class="line">520</span><br><span class="line">521</span><br><span class="line">522</span><br><span class="line">523</span><br><span class="line">524</span><br><span class="line">525</span><br><span class="line">526</span><br><span class="line">527</span><br><span class="line">528</span><br><span class="line">529</span><br><span class="line">530</span><br><span class="line">531</span><br><span class="line">532</span><br><span class="line">533</span><br><span class="line">534</span><br><span class="line">535</span><br><span class="line">536</span><br><span class="line">537</span><br><span class="line">538</span><br><span class="line">539</span><br><span class="line">540</span><br><span class="line">541</span><br><span class="line">542</span><br><span class="line">543</span><br><span class="line">544</span><br><span class="line">545</span><br><span class="line">546</span><br><span class="line">547</span><br><span class="line">548</span><br><span class="line">549</span><br><span class="line">550</span><br><span class="line">551</span><br><span class="line">552</span><br><span class="line">553</span><br><span class="line">554</span><br><span class="line">555</span><br><span class="line">556</span><br><span class="line">557</span><br><span class="line">558</span><br><span class="line">559</span><br><span class="line">560</span><br><span class="line">561</span><br><span class="line">562</span><br><span class="line">563</span><br><span class="line">564</span><br><span class="line">565</span><br><span class="line">566</span><br><span class="line">567</span><br><span class="line">568</span><br><span class="line">569</span><br><span class="line">570</span><br><span class="line">571</span><br><span class="line">572</span><br><span class="line">573</span><br><span class="line">574</span><br><span class="line">575</span><br><span class="line">576</span><br><span class="line">577</span><br><span class="line">578</span><br><span class="line">579</span><br><span class="line">580</span><br><span class="line">581</span><br><span class="line">582</span><br><span class="line">583</span><br><span class="line">584</span><br><span class="line">585</span><br><span class="line">586</span><br><span class="line">587</span><br><span class="line">588</span><br><span class="line">589</span><br><span class="line">590</span><br><span class="line">591</span><br><span class="line">592</span><br><span class="line">593</span><br><span class="line">594</span><br><span class="line">595</span><br><span class="line">596</span><br><span class="line">597</span><br><span class="line">598</span><br></pre></td><td class="code"><pre><span class="line">package top.lrshuai.blog.util;</span><br><span class="line"></span><br><span class="line">import java.sql.Timestamp;</span><br><span class="line">import java.text.DateFormat;</span><br><span class="line">import java.text.ParseException;</span><br><span class="line">import java.text.SimpleDateFormat;</span><br><span class="line">import java.util.ArrayList;</span><br><span class="line">import java.util.Calendar;</span><br><span class="line">import java.util.Date;</span><br><span class="line">import java.util.GregorianCalendar;</span><br><span class="line">import java.util.List;</span><br><span class="line">/**</span><br><span class="line"> * </span><br><span class="line"> * @author rstyro</span><br><span class="line"> *</span><br><span class="line"> */</span><br><span class="line">public class DateUtil &#123;</span><br><span class="line">	private final static SimpleDateFormat sdfYear = new SimpleDateFormat(&quot;yyyy&quot;);</span><br><span class="line"></span><br><span class="line">	private final static SimpleDateFormat sdfDay = new SimpleDateFormat(</span><br><span class="line">			&quot;yyyy-MM-dd&quot;);</span><br><span class="line">	</span><br><span class="line">	private final static SimpleDateFormat sdfDays = new SimpleDateFormat(</span><br><span class="line">	&quot;yyyyMMdd&quot;);</span><br><span class="line"></span><br><span class="line">	private final static SimpleDateFormat sdfTime = new SimpleDateFormat(</span><br><span class="line">			&quot;yyyy-MM-dd HH:mm:ss&quot;);</span><br><span class="line"></span><br><span class="line">	/**</span><br><span class="line">	 * 获取YYYY格式</span><br><span class="line">	 * </span><br><span class="line">	 * @return</span><br><span class="line">	 */</span><br><span class="line">	public static String getYear() &#123;</span><br><span class="line">		return sdfYear.format(new Date());</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	/**</span><br><span class="line">	 * 获取YYYY-MM-DD格式</span><br><span class="line">	 * </span><br><span class="line">	 * @return</span><br><span class="line">	 */</span><br><span class="line">	public static String getDay() &#123;</span><br><span class="line">		return sdfDay.format(new Date());</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	/**</span><br><span class="line">	 * 获取YYYYMMDD格式</span><br><span class="line">	 * </span><br><span class="line">	 * @return</span><br><span class="line">	 */</span><br><span class="line">	public static String getDays()&#123;</span><br><span class="line">		return sdfDays.format(new Date());</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	/**</span><br><span class="line">	 * 获取YYYY-MM-DD HH:mm:ss格式</span><br><span class="line">	 * </span><br><span class="line">	 * @return</span><br><span class="line">	 */</span><br><span class="line">	public static String getTime() &#123;</span><br><span class="line">		return sdfTime.format(new Date());</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	/**</span><br><span class="line">	* @Title: compareDate</span><br><span class="line">	* @Description: TODO(日期比较，如果s&gt;=e 返回true 否则返回false)</span><br><span class="line">	* @param s</span><br><span class="line">	* @param e</span><br><span class="line">	* @return boolean  </span><br><span class="line">	* @throws</span><br><span class="line">	* @author luguosui</span><br><span class="line">	 */</span><br><span class="line">	public static boolean compareDate(String s, String e) &#123;</span><br><span class="line">		if(fomatDate(s)==null||fomatDate(e)==null)&#123;</span><br><span class="line">			return false;</span><br><span class="line">		&#125;</span><br><span class="line">		return fomatDate(s).getTime() &gt;=fomatDate(e).getTime();</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	/**</span><br><span class="line">	 * 格式化日期</span><br><span class="line">	 * </span><br><span class="line">	 * @return</span><br><span class="line">	 */</span><br><span class="line">	public static Date fomatDate(String date) &#123;</span><br><span class="line">		DateFormat fmt = new SimpleDateFormat(&quot;yyyy-MM-dd&quot;);</span><br><span class="line">		try &#123;</span><br><span class="line">			return fmt.parse(date);</span><br><span class="line">		&#125; catch (ParseException e) &#123;</span><br><span class="line">			e.printStackTrace();</span><br><span class="line">			return null;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	/**</span><br><span class="line">	 * 格式化日期</span><br><span class="line">	 * @param date 时间</span><br><span class="line">	 * @param format 格式化格式</span><br><span class="line">	 * @return</span><br><span class="line">	 */</span><br><span class="line">	public static String fomatDate(Date date,String format) &#123;</span><br><span class="line">		DateFormat fmt = new SimpleDateFormat(format);</span><br><span class="line">		try &#123;</span><br><span class="line">			return fmt.format(date);</span><br><span class="line">		&#125; catch (Exception e) &#123;</span><br><span class="line">			e.printStackTrace();</span><br><span class="line">			return null;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line"></span><br><span class="line">	/**</span><br><span class="line">	 * 校验日期是否合法</span><br><span class="line">	 * </span><br><span class="line">	 * @return</span><br><span class="line">	 */</span><br><span class="line">	public static boolean isValidDate(String s) &#123;</span><br><span class="line">		DateFormat fmt = new SimpleDateFormat(&quot;yyyy-MM-dd&quot;);</span><br><span class="line">		try &#123;</span><br><span class="line">			fmt.parse(s);</span><br><span class="line">			return true;</span><br><span class="line">		&#125; catch (Exception e) &#123;</span><br><span class="line">			// 如果throw java.text.ParseException或者NullPointerException，就说明格式不对</span><br><span class="line">			return false;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	public static int getDiffYear(String startTime,String endTime) &#123;</span><br><span class="line">		DateFormat fmt = new SimpleDateFormat(&quot;yyyy-MM-dd&quot;);</span><br><span class="line">		try &#123;</span><br><span class="line">			int years=(int) (((fmt.parse(endTime).getTime()-fmt.parse(startTime).getTime())/ (1000 * 60 * 60 * 24))/365);</span><br><span class="line">			return years;</span><br><span class="line">		&#125; catch (Exception e) &#123;</span><br><span class="line">			// 如果throw java.text.ParseException或者NullPointerException，就说明格式不对</span><br><span class="line">			return 0;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	  /**</span><br><span class="line">     * &lt;li&gt;功能描述：时间相减得到天数</span><br><span class="line">     * @param beginDateStr</span><br><span class="line">     * @param endDateStr</span><br><span class="line">     * @return</span><br><span class="line">     * long </span><br><span class="line">     * @author Administrator</span><br><span class="line">     */</span><br><span class="line">    public static long getDaySub(String beginDateStr,String endDateStr)&#123;</span><br><span class="line">        long day=0;</span><br><span class="line">        java.text.SimpleDateFormat format = new java.text.SimpleDateFormat(&quot;yyyy-MM-dd&quot;);</span><br><span class="line">        java.util.Date beginDate = null;</span><br><span class="line">        java.util.Date endDate = null;</span><br><span class="line">        </span><br><span class="line">            try &#123;</span><br><span class="line">				beginDate = format.parse(beginDateStr);</span><br><span class="line">				endDate= format.parse(endDateStr);</span><br><span class="line">			&#125; catch (ParseException e) &#123;</span><br><span class="line">				e.printStackTrace();</span><br><span class="line">			&#125;</span><br><span class="line">            day=(endDate.getTime()-beginDate.getTime())/(24*60*60*1000);</span><br><span class="line">            //System.out.println(&quot;相隔的天数=&quot;+day);</span><br><span class="line">      </span><br><span class="line">        return day;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    /**</span><br><span class="line">     * 得到n天之后的日期</span><br><span class="line">     * @param days</span><br><span class="line">     * @return</span><br><span class="line">     */</span><br><span class="line">    public static String getAfterDayDate(String days) &#123;</span><br><span class="line">    	int daysInt = Integer.parseInt(days);</span><br><span class="line">    	</span><br><span class="line">        Calendar canlendar = Calendar.getInstance(); // java.util包</span><br><span class="line">        canlendar.add(Calendar.DATE, daysInt); // 日期减 如果不够减会将月变动</span><br><span class="line">        Date date = canlendar.getTime();</span><br><span class="line">        </span><br><span class="line">        SimpleDateFormat sdfd = new SimpleDateFormat(&quot;yyyy-MM-dd HH:mm:ss&quot;);</span><br><span class="line">        String dateStr = sdfd.format(date);</span><br><span class="line">        </span><br><span class="line">        return dateStr;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    /**</span><br><span class="line">     * 得到n天之后是周几</span><br><span class="line">     * @param days</span><br><span class="line">     * @return</span><br><span class="line">     */</span><br><span class="line">    public static String getAfterDayWeek(String days) &#123;</span><br><span class="line">    	int daysInt = Integer.parseInt(days);</span><br><span class="line">    	</span><br><span class="line">        Calendar canlendar = Calendar.getInstance(); // java.util包</span><br><span class="line">        canlendar.add(Calendar.DATE, daysInt); // 日期减 如果不够减会将月变动</span><br><span class="line">        Date date = canlendar.getTime();</span><br><span class="line">        </span><br><span class="line">        SimpleDateFormat sdf = new SimpleDateFormat(&quot;E&quot;);</span><br><span class="line">        String dateStr = sdf.format(date);</span><br><span class="line">        </span><br><span class="line">        return dateStr;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    /**</span><br><span class="line">	 *  获取当天的开始时间</span><br><span class="line">	 * @return</span><br><span class="line">	 */</span><br><span class="line">	public static Date getDayBegin() &#123;</span><br><span class="line">		Calendar cal = new GregorianCalendar();</span><br><span class="line">		cal.set(Calendar.HOUR_OF_DAY, 0);</span><br><span class="line">		cal.set(Calendar.MINUTE, 0);</span><br><span class="line">		cal.set(Calendar.SECOND, 0);</span><br><span class="line">		cal.set(Calendar.MILLISECOND, 0);</span><br><span class="line">		return cal.getTime();</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	/**</span><br><span class="line">	 *  获取当天的结束时间</span><br><span class="line">	 * @return</span><br><span class="line">	 */</span><br><span class="line">	public static Date getDayEnd() &#123;</span><br><span class="line">		Calendar cal = new GregorianCalendar();</span><br><span class="line">		cal.set(Calendar.HOUR_OF_DAY, 23);</span><br><span class="line">		cal.set(Calendar.MINUTE, 59);</span><br><span class="line">		cal.set(Calendar.SECOND, 59);</span><br><span class="line">		return cal.getTime();</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	/**</span><br><span class="line">	 *  获取昨天的开始时间</span><br><span class="line">	 * @return</span><br><span class="line">	 */</span><br><span class="line">	public static Date getBeginDayOfYesterday() &#123;</span><br><span class="line">		Calendar cal = new GregorianCalendar();</span><br><span class="line">		cal.setTime(getDayBegin());</span><br><span class="line">		cal.add(Calendar.DAY_OF_MONTH, -1);</span><br><span class="line">		return cal.getTime();</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	/**</span><br><span class="line">	 *  获取昨天的结束时间</span><br><span class="line">	 * @return</span><br><span class="line">	 */</span><br><span class="line">	public static Date getEndDayOfYesterDay() &#123;</span><br><span class="line">		Calendar cal = new GregorianCalendar();</span><br><span class="line">		cal.setTime(getDayEnd());</span><br><span class="line">		cal.add(Calendar.DAY_OF_MONTH, -1);</span><br><span class="line">		return cal.getTime();</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	/**</span><br><span class="line">	 *  获取明天的开始时间</span><br><span class="line">	 * @return</span><br><span class="line">	 */</span><br><span class="line">	public static Date getBeginDayOfTomorrow() &#123;</span><br><span class="line">		Calendar cal = new GregorianCalendar();</span><br><span class="line">		cal.setTime(getDayBegin());</span><br><span class="line">		cal.add(Calendar.DAY_OF_MONTH, 1);</span><br><span class="line"></span><br><span class="line">		return cal.getTime();</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	/**</span><br><span class="line">	 *  获取明天的结束时间</span><br><span class="line">	 * @return</span><br><span class="line">	 */</span><br><span class="line">	public static Date getEndDayOfTomorrow() &#123;</span><br><span class="line">		Calendar cal = new GregorianCalendar();</span><br><span class="line">		cal.setTime(getDayEnd());</span><br><span class="line">		cal.add(Calendar.DAY_OF_MONTH, 1);</span><br><span class="line">		return cal.getTime();</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	/**</span><br><span class="line">	 * 获取本周的开始时间</span><br><span class="line">	 * @return</span><br><span class="line">	 */</span><br><span class="line">	public static Date getBeginDayOfWeek() &#123;</span><br><span class="line">		Date date = new Date();</span><br><span class="line">		Calendar cal = Calendar.getInstance();</span><br><span class="line">		cal.setTime(date);</span><br><span class="line">		int dayofweek = cal.get(Calendar.DAY_OF_WEEK);</span><br><span class="line">		if (dayofweek == 1) &#123;</span><br><span class="line">			dayofweek += 7;</span><br><span class="line">		&#125;</span><br><span class="line">		cal.add(Calendar.DATE, 2 - dayofweek);</span><br><span class="line">		return getDayStartTime(cal.getTime());</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	/**</span><br><span class="line">	 *  获取本周的结束时间</span><br><span class="line">	 * @return</span><br><span class="line">	 */</span><br><span class="line">	public static Date getEndDayOfWeek() &#123;</span><br><span class="line">		Calendar cal = Calendar.getInstance();</span><br><span class="line">		cal.setTime(getBeginDayOfWeek());</span><br><span class="line">		cal.add(Calendar.DAY_OF_WEEK, 6);</span><br><span class="line">		Date weekEndSta = cal.getTime();</span><br><span class="line">		return getDayEndTime(weekEndSta);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	/**</span><br><span class="line">	 *  获取本月的开始时间</span><br><span class="line">	 * @return</span><br><span class="line">	 */</span><br><span class="line">	public static Date getBeginDayOfMonth() &#123;</span><br><span class="line">		Calendar calendar = Calendar.getInstance();</span><br><span class="line">		calendar.set(getNowYear(), getNowMonth() - 1, 1);</span><br><span class="line">		return getDayStartTime(calendar.getTime());</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	/**</span><br><span class="line">	 *  获取本月的结束时间</span><br><span class="line">	 * @return</span><br><span class="line">	 */</span><br><span class="line">	public static Date getEndDayOfMonth() &#123;</span><br><span class="line">		Calendar calendar = Calendar.getInstance();</span><br><span class="line">		calendar.set(getNowYear(), getNowMonth() - 1, 1);</span><br><span class="line">		int day = calendar.getActualMaximum(5);</span><br><span class="line">		calendar.set(getNowYear(), getNowMonth() - 1, day);</span><br><span class="line">		return getDayEndTime(calendar.getTime());</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	/**</span><br><span class="line">	 *  获取本年的开始时间</span><br><span class="line">	 * @return</span><br><span class="line">	 */</span><br><span class="line">	public static java.util.Date getBeginDayOfYear() &#123;</span><br><span class="line">		Calendar cal = Calendar.getInstance();</span><br><span class="line">		cal.set(Calendar.YEAR, getNowYear());</span><br><span class="line">		// cal.set</span><br><span class="line">		cal.set(Calendar.MONTH, Calendar.JANUARY);</span><br><span class="line">		cal.set(Calendar.DATE, 1);</span><br><span class="line"></span><br><span class="line">		return getDayStartTime(cal.getTime());</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	/**</span><br><span class="line">	 *  获取本年的结束时间</span><br><span class="line">	 * @return</span><br><span class="line">	 */</span><br><span class="line">	public static java.util.Date getEndDayOfYear() &#123;</span><br><span class="line">		Calendar cal = Calendar.getInstance();</span><br><span class="line">		cal.set(Calendar.YEAR, getNowYear());</span><br><span class="line">		cal.set(Calendar.MONTH, Calendar.DECEMBER);</span><br><span class="line">		cal.set(Calendar.DATE, 31);</span><br><span class="line">		return getDayEndTime(cal.getTime());</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	/**</span><br><span class="line">	 *  获取某个日期的开始时间</span><br><span class="line">	 * @param d</span><br><span class="line">	 * @return</span><br><span class="line">	 */</span><br><span class="line">	public static Timestamp getDayStartTime(Date d) &#123;</span><br><span class="line">		Calendar calendar = Calendar.getInstance();</span><br><span class="line">		if (null != d)</span><br><span class="line">			calendar.setTime(d);</span><br><span class="line">		calendar.set(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH), 0,</span><br><span class="line">				0, 0);</span><br><span class="line">		calendar.set(Calendar.MILLISECOND, 0);</span><br><span class="line">		return new Timestamp(calendar.getTimeInMillis());</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	/**</span><br><span class="line">	 *  获取某个日期的结束时间</span><br><span class="line">	 * @param d</span><br><span class="line">	 * @return</span><br><span class="line">	 */</span><br><span class="line">	public static Timestamp getDayEndTime(Date d) &#123;</span><br><span class="line">		Calendar calendar = Calendar.getInstance();</span><br><span class="line">		if (null != d)</span><br><span class="line">			calendar.setTime(d);</span><br><span class="line">		calendar.set(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH), 23,</span><br><span class="line">				59, 59);</span><br><span class="line">		calendar.set(Calendar.MILLISECOND, 999);</span><br><span class="line">		return new Timestamp(calendar.getTimeInMillis());</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	/**</span><br><span class="line">	 *  获取今年是哪一年</span><br><span class="line">	 * @return</span><br><span class="line">	 */</span><br><span class="line">	public static Integer getNowYear() &#123;</span><br><span class="line">		Date date = new Date();</span><br><span class="line">		GregorianCalendar gc = (GregorianCalendar) Calendar.getInstance();</span><br><span class="line">		gc.setTime(date);</span><br><span class="line">		return Integer.valueOf(gc.get(1));</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	/**</span><br><span class="line">	 *  获取本月是哪一月</span><br><span class="line">	 * @return</span><br><span class="line">	 */</span><br><span class="line">	public static int getNowMonth() &#123;</span><br><span class="line">		Date date = new Date();</span><br><span class="line">		GregorianCalendar gc = (GregorianCalendar) Calendar.getInstance();</span><br><span class="line">		gc.setTime(date);</span><br><span class="line">		return gc.get(2) + 1;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	/**</span><br><span class="line">	 * 两个日期相减得到的天数</span><br><span class="line">	 * @param beginDate</span><br><span class="line">	 * @param endDate</span><br><span class="line">	 * @return</span><br><span class="line">	 */</span><br><span class="line">	public static int getDiffDays(Date beginDate, Date endDate) &#123;</span><br><span class="line"></span><br><span class="line">		if (beginDate == null || endDate == null) &#123;</span><br><span class="line">			throw new IllegalArgumentException(&quot;getDiffDays param is null!&quot;);</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		long diff = (endDate.getTime() - beginDate.getTime()) / (1000 * 60 * 60 * 24);</span><br><span class="line"></span><br><span class="line">		int days = new Long(diff).intValue();</span><br><span class="line"></span><br><span class="line">		return days;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	/**</span><br><span class="line">	 * 两个日期相减得到的毫秒数</span><br><span class="line">	 * @param beginDate</span><br><span class="line">	 * @param endDate</span><br><span class="line">	 * @return</span><br><span class="line">	 */</span><br><span class="line">	public static long dateDiff(Date beginDate, Date endDate) &#123;</span><br><span class="line">		long date1ms = beginDate.getTime();</span><br><span class="line">		long date2ms = endDate.getTime();</span><br><span class="line">		return date2ms - date1ms;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	/**</span><br><span class="line">	 *  获取两个日期中的最大日期</span><br><span class="line">	 * @param beginDate</span><br><span class="line">	 * @param endDate</span><br><span class="line">	 * @return</span><br><span class="line">	 */</span><br><span class="line">	public static Date max(Date beginDate, Date endDate) &#123;</span><br><span class="line">		if (beginDate == null) &#123;</span><br><span class="line">			return endDate;</span><br><span class="line">		&#125;</span><br><span class="line">		if (endDate == null) &#123;</span><br><span class="line">			return beginDate;</span><br><span class="line">		&#125;</span><br><span class="line">		if (beginDate.after(endDate)) &#123;</span><br><span class="line">			return beginDate;</span><br><span class="line">		&#125;</span><br><span class="line">		return endDate;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	/**</span><br><span class="line">	 *  获取两个日期中的最小日期</span><br><span class="line">	 * @param beginDate</span><br><span class="line">	 * @param endDate</span><br><span class="line">	 * @return</span><br><span class="line">	 */</span><br><span class="line">	public static Date min(Date beginDate, Date endDate) &#123;</span><br><span class="line">		if (beginDate == null) &#123;</span><br><span class="line">			return endDate;</span><br><span class="line">		&#125;</span><br><span class="line">		if (endDate == null) &#123;</span><br><span class="line">			return beginDate;</span><br><span class="line">		&#125;</span><br><span class="line">		if (beginDate.after(endDate)) &#123;</span><br><span class="line">			return endDate;</span><br><span class="line">		&#125;</span><br><span class="line">		return beginDate;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	/**</span><br><span class="line">	 *  返回某月该季度的第一个月</span><br><span class="line">	 * @param date</span><br><span class="line">	 * @return</span><br><span class="line">	 */</span><br><span class="line">	public static Date getFirstSeasonDate(Date date) &#123;</span><br><span class="line">		final int[] SEASON = &#123; 1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4 &#125;;</span><br><span class="line">		Calendar cal = Calendar.getInstance();</span><br><span class="line">		cal.setTime(date);</span><br><span class="line">		int sean = SEASON[cal.get(Calendar.MONTH)];</span><br><span class="line">		cal.set(Calendar.MONTH, sean * 3 - 3);</span><br><span class="line">		return cal.getTime();</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	/**</span><br><span class="line">	 *  返回某个日期下几天的日期</span><br><span class="line">	 * @param date</span><br><span class="line">	 * @param i</span><br><span class="line">	 * @return</span><br><span class="line">	 */</span><br><span class="line">	public static Date getNextDay(Date date, int i) &#123;</span><br><span class="line">		Calendar cal = new GregorianCalendar();</span><br><span class="line">		cal.setTime(date);</span><br><span class="line">		cal.set(Calendar.DATE, cal.get(Calendar.DATE) + i);</span><br><span class="line">		return cal.getTime();</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	/**</span><br><span class="line">	 * 返回某个日期前几天的日期</span><br><span class="line">	 * @param date</span><br><span class="line">	 * @param i</span><br><span class="line">	 * @return</span><br><span class="line">	 */</span><br><span class="line">	public static Date getFrontDay(Date date, int i) &#123;</span><br><span class="line">		Calendar cal = new GregorianCalendar();</span><br><span class="line">		cal.setTime(date);</span><br><span class="line">		cal.set(Calendar.DATE, cal.get(Calendar.DATE) - i);</span><br><span class="line">		return cal.getTime();</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	/**</span><br><span class="line">	 *  获取某年某月到某年某月按天的切片日期集合（间隔天数的集合）</span><br><span class="line">	 * @param beginYear</span><br><span class="line">	 * @param beginMonth</span><br><span class="line">	 * @param endYear</span><br><span class="line">	 * @param endMonth</span><br><span class="line">	 * @param k</span><br><span class="line">	 * @return</span><br><span class="line">	 */</span><br><span class="line">	@SuppressWarnings(&#123; &quot;rawtypes&quot;, &quot;unchecked&quot; &#125;)</span><br><span class="line">	public static List getTimeList(int beginYear, int beginMonth, int endYear, int endMonth, int k) &#123;</span><br><span class="line">		List list = new ArrayList();</span><br><span class="line">		if (beginYear == endYear) &#123;</span><br><span class="line">			for (int j = beginMonth; j &lt;= endMonth; j++) &#123;</span><br><span class="line">				list.add(getTimeList(beginYear, j, k));</span><br><span class="line"></span><br><span class="line">			&#125;</span><br><span class="line">		&#125; else &#123;</span><br><span class="line">			&#123;</span><br><span class="line">				for (int j = beginMonth; j &lt; 12; j++) &#123;</span><br><span class="line">					list.add(getTimeList(beginYear, j, k));</span><br><span class="line">				&#125;</span><br><span class="line"></span><br><span class="line">				for (int i = beginYear + 1; i &lt; endYear; i++) &#123;</span><br><span class="line">					for (int j = 0; j &lt; 12; j++) &#123;</span><br><span class="line">						list.add(getTimeList(i, j, k));</span><br><span class="line">					&#125;</span><br><span class="line">				&#125;</span><br><span class="line">				for (int j = 0; j &lt;= endMonth; j++) &#123;</span><br><span class="line">					list.add(getTimeList(endYear, j, k));</span><br><span class="line">				&#125;</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">		return list;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	/**</span><br><span class="line">	 *  获取某年某月按天切片日期集合（某个月间隔多少天的日期集合）</span><br><span class="line">	 * @param beginYear</span><br><span class="line">	 * @param beginMonth</span><br><span class="line">	 * @param k</span><br><span class="line">	 * @return</span><br><span class="line">	 */</span><br><span class="line">	@SuppressWarnings(&#123; &quot;rawtypes&quot;, &quot;unchecked&quot; &#125;)</span><br><span class="line">	public static List getTimeList(int beginYear, int beginMonth, int k) &#123;</span><br><span class="line">		List list = new ArrayList();</span><br><span class="line">		Calendar begincal = new GregorianCalendar(beginYear, beginMonth, 1);</span><br><span class="line">		int max = begincal.getActualMaximum(Calendar.DATE);</span><br><span class="line">		for (int i = 1; i &lt; max; i = i + k) &#123;</span><br><span class="line">			list.add(begincal.getTime());</span><br><span class="line">			begincal.add(Calendar.DATE, k);</span><br><span class="line">		&#125;</span><br><span class="line">		begincal = new GregorianCalendar(beginYear, beginMonth, max);</span><br><span class="line">		list.add(begincal.getTime());</span><br><span class="line">		return list;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	/**</span><br><span class="line">	 *  获取某年某月的第一天日期</span><br><span class="line">	 * @param year</span><br><span class="line">	 * @param month</span><br><span class="line">	 * @return</span><br><span class="line">	 */</span><br><span class="line">	public static Date getStartMonthDate(int year, int month) &#123;</span><br><span class="line">		Calendar calendar = Calendar.getInstance();</span><br><span class="line">		calendar.set(year, month - 1, 1);</span><br><span class="line">		return calendar.getTime();</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	/**</span><br><span class="line">	 * 获取某年某月的最后一天日期</span><br><span class="line">	 * @param year</span><br><span class="line">	 * @param month</span><br><span class="line">	 * @return</span><br><span class="line">	 */</span><br><span class="line">	public static Date getEndMonthDate(int year, int month) &#123;</span><br><span class="line">		Calendar calendar = Calendar.getInstance();</span><br><span class="line">		calendar.set(year, month - 1, 1);</span><br><span class="line">		int day = calendar.getActualMaximum(5);</span><br><span class="line">		calendar.set(year, month - 1, day);</span><br><span class="line">		return calendar.getTime();</span><br><span class="line">	&#125;</span><br><span class="line">    </span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">    	System.out.println(getDays());</span><br><span class="line">    	System.out.println(getAfterDayWeek(&quot;3&quot;));</span><br><span class="line">    	System.out.println(fomatDate(getBeginDayOfYesterday(), &quot;yyyy-MM-dd&quot;));</span><br><span class="line">    	System.out.println(getTimeList(2017, 1, 7));</span><br><span class="line">    	System.out.println(getTimeList(2016, 1, 2017, 1, 7));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+	
+	    <div>
+	
+	<div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------本文结束 <i class="fa fa-heartbeat"></i> 感谢您的阅读-------------</div>
+    
+</div>
+	
+	</div>
+
+    
+
+    
+      
+    
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div></div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>打赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/blog/images/wechat_pay.jpg" alt="rstyro 微信支付">
+        <p>微信支付</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/blog/images/alipay.jpg" alt="rstyro 支付宝">
+        <p>支付宝</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+	
+	<div>    
+	 
+	 
+	<ul class="post-copyright">
+	  <li class="post-copyright-author">
+		  <strong>本文作者：</strong>rstyro
+	  </li>
+	  <li class="post-copyright-link">
+		<strong>本文链接：</strong>
+		<a href="/blog/2017/10/25/分享一个时间工具类/" title="分享一个时间工具类">https://rstyro.github.io/blog/2017/10/25/分享一个时间工具类/</a>
+	  </li>
+	  <li class="post-copyright-license">
+		<strong>版权： </strong>
+		转载注明出处！
+	  </li>
+	</ul>
+	
+	</div>
+	
+
+      
+        <div class="post-tags">
+          
+            <a href="/blog/tags/Java/" rel="tag"><i class="fa fa-tag"></i> Java</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2017/10/25/MongoDB (六)：高级命令操作与实操/" rel="next" title="MongoDB (六)：高级命令操作与实操">
+                <i class="fa fa-chevron-left"></i> MongoDB (六)：高级命令操作与实操
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2017/10/26/MongoDB (七)：主从配置/" rel="prev" title="MongoDB (七)：主从配置">
+                MongoDB (七)：主从配置 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+
+
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/blog/images/avatar.jpg" alt="rstyro">
+            
+              <p class="site-author-name" itemprop="name">rstyro</p>
+              <p class="site-description motion-element" itemprop="description">帅大叔个人站点，记录一路走来的坑坑坎坎。</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/blog/archives/">
+                
+                    <span class="site-state-item-count">129</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/blog/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">9</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/blog/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">24</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://github.com/rstyro" title="GitHub &rarr; https://github.com/rstyro" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="/blog/1006059906" title="QQ &rarr; 1006059906"><i class="fa fa-fw fa-qq"></i>QQ</a>
+                </span>
+              
+            </div>
+          
+
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-block">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                友链
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://rstyro.github.io/blog/" title="https://rstyro.github.io/blog/">帅大叔博客</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://www.zhyd.me/" title="https://www.zhyd.me/" rel="noopener" target="_blank">张亚东博客</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://www.devsong.org/" title="http://www.devsong.org/" rel="noopener" target="_blank">DevSONG</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://www.dalaoyang.cn/" title="https://www.dalaoyang.cn/" rel="noopener" target="_blank">dalaoyang</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://www.chenshuangyi.com/" title="https://www.chenshuangyi.com/" rel="noopener" target="_blank">陈双义博客</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#分享一个时间Java工具类"><span class="nav-number">1.</span> <span class="nav-text">分享一个时间Java工具类</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">rstyro</span>
+
+  
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-user"></i>
+    </span>
+    <span class="site-uv" title="总访客量">
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+    </span>
+  
+
+  
+    <span class="post-meta-divider">|</span>
+  
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-eye"></i>
+    </span>
+    <span class="site-pv" title="总访问量">
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/blog/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/blog/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/blog/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/blog/js/src/utils.js?v=6.7.0"></script>
+
+  <script src="/blog/js/src/motion.js?v=6.7.0"></script>
+
+
+
+  
+  
+
+  
+  <script src="/blog/js/src/scrollspy.js?v=6.7.0"></script>
+<script src="/blog/js/src/post-details.js?v=6.7.0"></script>
+
+
+
+  
+
+
+  <script src="/blog/js/src/bootstrap.js?v=6.7.0"></script>
+
+
+
+  
+  
+
+
+
+
+  
+
+<script src="//cdn1.lncld.net/static/js/3.11.1/av-min.js"></script>
+
+
+
+<script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+
+<script>
+  var GUEST = ['nick', 'mail', 'link'];
+  var guest = 'nick,mail,link';
+  guest = guest.split(',').filter(function (item) {
+    return GUEST.indexOf(item) > -1;
+  });
+  new Valine({
+    el: '#comments',
+    verify: false,
+    notify: false,
+    appId: 'LwEPiJFa7YMn2MrJdCwaUbmQ-gzGzoHsz',
+    appKey: 'JqS1y3RxYvDOki9r3NcqqoO5',
+    placeholder: '来都来了，不说几句就走，过分了啊！！！',
+    avatar: 'monsterid',
+    meta: guest,
+    pageSize: '10' || 10,
+    visitor: false
+  });
+</script>
+
+
+
+  
+
+  <script>
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/blog/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url).replace(/\/{2,}/g, '/');
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x"></i></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x"></i></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+  <script>
+    (function(){
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+      }
+      else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+      }
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+    })();
+  </script>
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

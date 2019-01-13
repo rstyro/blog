@@ -1,0 +1,1456 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/blog/css/main.css?v=6.7.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon.jpg?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon.jpg?v=6.7.0">
+
+
+  <link rel="mask-icon" href="/blog/images/logo.svg?v=6.7.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/blog/',
+    scheme: 'Mist',
+    version: '6.7.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+<script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+<link href="//cdn.bootcss.com/pace/1.0.2/themes/pink/pace-theme-flash.css" rel="stylesheet">
+  <style>
+      .pace .pace-progress {
+          background: #1E92FB; /*进度条颜色*/
+          height: 3px;
+      }
+      .pace .pace-progress-inner {
+           box-shadow: 0 0 10px #1E92FB, 0 0 5px     #1E92FB; /*阴影颜色*/
+      }
+      .pace .pace-activity {
+          border-top-color: #1E92FB;    /*上边框颜色*/
+          border-left-color: #1E92FB;    /*左边框颜色*/
+      }
+  </style>
+
+  <meta name="description" content="jxl导入导出excel一、导入依赖12345&amp;lt;dependency&amp;gt;	&amp;lt;groupId&amp;gt;com.hynnet&amp;lt;/groupId&amp;gt;	&amp;lt;artifactId&amp;gt;jxl&amp;lt;/artifactId&amp;gt;	&amp;lt;version&amp;gt;2.6.12.1&amp;lt;/version&amp;gt;&amp;lt;/dependency&amp;gt; java 操作jxl 工具类12">
+<meta name="keywords" content="Java">
+<meta property="og:type" content="article">
+<meta property="og:title" content="java jxl导入导出excel">
+<meta property="og:url" content="https://rstyro.github.io/blog/2017/11/24/java jxl导入导出excel/index.html">
+<meta property="og:site_name" content="帅大叔的博客">
+<meta property="og:description" content="jxl导入导出excel一、导入依赖12345&amp;lt;dependency&amp;gt;	&amp;lt;groupId&amp;gt;com.hynnet&amp;lt;/groupId&amp;gt;	&amp;lt;artifactId&amp;gt;jxl&amp;lt;/artifactId&amp;gt;	&amp;lt;version&amp;gt;2.6.12.1&amp;lt;/version&amp;gt;&amp;lt;/dependency&amp;gt; java 操作jxl 工具类12">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-01-12T14:49:03.478Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="java jxl导入导出excel">
+<meta name="twitter:description" content="jxl导入导出excel一、导入依赖12345&amp;lt;dependency&amp;gt;	&amp;lt;groupId&amp;gt;com.hynnet&amp;lt;/groupId&amp;gt;	&amp;lt;artifactId&amp;gt;jxl&amp;lt;/artifactId&amp;gt;	&amp;lt;version&amp;gt;2.6.12.1&amp;lt;/version&amp;gt;&amp;lt;/dependency&amp;gt; java 操作jxl 工具类12">
+
+
+
+
+
+
+  <link rel="canonical" href="https://rstyro.github.io/blog/2017/11/24/java jxl导入导出excel/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>java jxl导入导出excel | 帅大叔的博客</title>
+  
+
+
+
+
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?cd2197f8af1d69b326360027b8f93d92";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/blog/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">帅大叔的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">信你所信，为你所见</p>
+      
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/" rel="section">首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/about/" rel="section">关于</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/tags/" rel="section">标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/categories/" rel="section">分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/archives/" rel="section">归档</a>
+
+  </li>
+
+      
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            搜索</a>
+        </li>
+      
+    </ul>
+  
+
+  
+    
+
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://rstyro.github.io/blog/blog/2017/11/24/java jxl导入导出excel/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="rstyro">
+      <meta itemprop="description" content="帅大叔个人站点，记录一路走来的坑坑坎坎。">
+      <meta itemprop="image" content="/blog/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="帅大叔的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">java jxl导入导出excel
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2017-11-24 14:59:08" itemprop="dateCreated datePublished" datetime="2017-11-24T14:59:08+08:00">2017-11-24</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2019-01-12 22:49:03" itemprop="dateModified" datetime="2019-01-12T22:49:03+08:00">2019-01-12</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing"><a href="/blog/categories/Java/" itemprop="url" rel="index"><span itemprop="name">Java</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/blog/2017/11/24/java jxl导入导出excel/#comments" itemprop="discussionUrl">
+                  <span class="post-meta-item-text">评论数：</span> <span class="post-comments-count valine-comment-count" data-xid="/blog/2017/11/24/java jxl导入导出excel/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="post-meta-item-icon">
+            <i class="fa fa-eye"></i>
+             阅读次数： 
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="jxl导入导出excel"><a href="#jxl导入导出excel" class="headerlink" title="jxl导入导出excel"></a>jxl导入导出excel</h1><h2 id="一、导入依赖"><a href="#一、导入依赖" class="headerlink" title="一、导入依赖"></a>一、导入依赖</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;dependency&gt;</span><br><span class="line">	&lt;groupId&gt;com.hynnet&lt;/groupId&gt;</span><br><span class="line">	&lt;artifactId&gt;jxl&lt;/artifactId&gt;</span><br><span class="line">	&lt;version&gt;2.6.12.1&lt;/version&gt;</span><br><span class="line">&lt;/dependency&gt;</span><br></pre></td></tr></table></figure>
+<h3 id="java-操作jxl-工具类"><a href="#java-操作jxl-工具类" class="headerlink" title="java 操作jxl 工具类"></a>java 操作jxl 工具类</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br></pre></td><td class="code"><pre><span class="line">import java.io.File;</span><br><span class="line">import java.io.IOException;</span><br><span class="line">import java.util.ArrayList;</span><br><span class="line">import java.util.HashMap;</span><br><span class="line">import java.util.Map;</span><br><span class="line">import javax.servlet.http.HttpServletResponse;</span><br><span class="line"></span><br><span class="line">import org.springframework.beans.factory.annotation.Autowired;</span><br><span class="line"></span><br><span class="line">import jxl.Sheet;</span><br><span class="line">import jxl.Workbook;</span><br><span class="line">import jxl.read.biff.BiffException;</span><br><span class="line">import jxl.write.Label;</span><br><span class="line">import jxl.write.WritableImage;</span><br><span class="line">import jxl.write.WritableSheet;</span><br><span class="line">import jxl.write.WritableWorkbook;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> * @since 2017-11-24</span><br><span class="line"> * @author rstyro</span><br><span class="line"> *</span><br><span class="line"> */</span><br><span class="line">public class ExcelUtils &#123;</span><br><span class="line">	</span><br><span class="line">	</span><br><span class="line">	/**</span><br><span class="line">	 * list 导出到本地excel </span><br><span class="line">	 * @param arrayList 数据,key-value 形式</span><br><span class="line">	 * @param filePath 生成excel的路径</span><br><span class="line">	 */</span><br><span class="line">	public static void excelOut(ArrayList&lt;Map&lt;String,String&gt;&gt; arrayList,String filePath)&#123;</span><br><span class="line">		 WritableWorkbook bWorkbook = null;  </span><br><span class="line">	        try &#123;  </span><br><span class="line">	            bWorkbook = Workbook.createWorkbook(new File(filePath));  </span><br><span class="line">	            // 通过Excel对象创建一个选项卡对象  </span><br><span class="line">	            WritableSheet sheet = bWorkbook.createSheet(&quot;sheet1&quot;, 0);  </span><br><span class="line">	            //使用循环将数据读出  </span><br><span class="line">	            for (int i = 0; i &lt; arrayList.size(); i++) &#123;  </span><br><span class="line">	            	Map&lt;String, String&gt; data = arrayList.get(i);  </span><br><span class="line">	            	int index = 0;</span><br><span class="line">	            	for (Map.Entry&lt;String, String&gt; entry : data.entrySet()) &#123;</span><br><span class="line">		                Label label=new Label(index,i,String.valueOf(entry.getValue()));  </span><br><span class="line">		                sheet.addCell(label);  </span><br><span class="line">		                ++index;</span><br><span class="line">	            	&#125;</span><br><span class="line">	            &#125;  </span><br><span class="line">	            bWorkbook.write();  </span><br><span class="line">	            System.out.println(&quot;导出成功：路径&gt;&quot;+filePath);</span><br><span class="line">	        &#125; catch (Exception e) &#123;  </span><br><span class="line">	            e.printStackTrace();  </span><br><span class="line">	        &#125; finally &#123;  </span><br><span class="line">	            try &#123;  </span><br><span class="line">	                bWorkbook.close();  </span><br><span class="line">	            &#125; catch (Exception e) &#123;  </span><br><span class="line">	                e.printStackTrace();  </span><br><span class="line">	            &#125;  </span><br><span class="line">	        &#125;  </span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	/**</span><br><span class="line">	 * list 导出到 浏览器 excel </span><br><span class="line">	 * @param arrayList 数据,key-value 形式</span><br><span class="line">	 * @param filePath 生成excel的路径</span><br><span class="line">	 */</span><br><span class="line">	public static void excelOut(ArrayList&lt;Map&lt;String,String&gt;&gt; arrayList,HttpServletResponse response)&#123;</span><br><span class="line">		WritableWorkbook bWorkbook = null;  </span><br><span class="line">		try &#123;  </span><br><span class="line">			bWorkbook = Workbook.createWorkbook(response.getOutputStream());  </span><br><span class="line">			// 通过Excel对象创建一个选项卡对象  </span><br><span class="line">			WritableSheet sheet = bWorkbook.createSheet(&quot;sheet1&quot;, 0);  </span><br><span class="line">			//使用循环将数据读出  </span><br><span class="line">			for (int i = 0; i &lt; arrayList.size(); i++) &#123;  </span><br><span class="line">				Map&lt;String, String&gt; data = arrayList.get(i);  </span><br><span class="line">				int index = 0;</span><br><span class="line">				for (Map.Entry&lt;String, String&gt; entry : data.entrySet()) &#123;</span><br><span class="line">					Label label=new Label(index,i,String.valueOf(entry.getValue()));  </span><br><span class="line">					sheet.addCell(label);  </span><br><span class="line">					++index;</span><br><span class="line">				&#125;</span><br><span class="line">			&#125;  </span><br><span class="line">			bWorkbook.write();  </span><br><span class="line">			String fileName=&quot;下载的文件名&quot;;</span><br><span class="line">			response.setCharacterEncoding(&quot;utf-8&quot;);</span><br><span class="line">			response.reset();</span><br><span class="line">			response.setContentType(&quot;application/OCTET-STREAM;charset=utf-8&quot;);</span><br><span class="line">			response.setHeader(&quot;pragma&quot;, &quot;no-cache&quot;);</span><br><span class="line">			response.addHeader(&quot;Content-Disposition&quot;, &quot;attachment;filename=\&quot;&quot;+ fileName + &quot;.xls\&quot;&quot;);// 点击导出excle按钮时候页面显示的默认名称</span><br><span class="line">		&#125; catch (Exception e) &#123;  </span><br><span class="line">			e.printStackTrace();  </span><br><span class="line">		&#125; finally &#123;  </span><br><span class="line">			try &#123;  </span><br><span class="line">				bWorkbook.close();  </span><br><span class="line">			&#125; catch (Exception e) &#123;  </span><br><span class="line">				e.printStackTrace();  </span><br><span class="line">			&#125;  </span><br><span class="line">		&#125;  </span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	</span><br><span class="line">	/**</span><br><span class="line">	 * 图片 导出到本地excel</span><br><span class="line">	 * @param filePath 生成excel的路径</span><br><span class="line">	 * @param imgPath 图片路径</span><br><span class="line">	 */</span><br><span class="line">	public static void excelOut(String filePath,String imgPath)&#123;</span><br><span class="line">		WritableWorkbook bWorkbook = null;  </span><br><span class="line">		try &#123;  </span><br><span class="line">			bWorkbook = Workbook.createWorkbook(new File(filePath));  </span><br><span class="line">			// 通过Excel对象创建一个选项卡对象  </span><br><span class="line">			WritableSheet sheet = bWorkbook.createSheet(&quot;sheet1&quot;, 0);  </span><br><span class="line">            File imgFile = new File(imgPath); </span><br><span class="line">            WritableImage image = new WritableImage(0,0,5,5,imgFile); //前两位是起始格，后两位是图片占多少个格，并非是位置。</span><br><span class="line">            sheet.addImage(image); </span><br><span class="line">			bWorkbook.write();  </span><br><span class="line">			System.out.println(&quot;导出成功：路径&gt;&quot;+filePath);</span><br><span class="line">		&#125; catch (Exception e) &#123;  </span><br><span class="line">			e.printStackTrace();  </span><br><span class="line">		&#125; finally &#123;  </span><br><span class="line">			try &#123;  </span><br><span class="line">				bWorkbook.close();  </span><br><span class="line">			&#125; catch (Exception e) &#123;  </span><br><span class="line">				e.printStackTrace();  </span><br><span class="line">			&#125;  </span><br><span class="line">		&#125;  </span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	/**</span><br><span class="line">	 * 导出到 浏览器  excel</span><br><span class="line">	 * @param filePath 生成excel的路径</span><br><span class="line">	 * @param imgPath 图片路径</span><br><span class="line">	 */</span><br><span class="line">	public static void excelOut(HttpServletResponse response,String imgPath)&#123;</span><br><span class="line">		WritableWorkbook bWorkbook = null;  </span><br><span class="line">		try &#123;  </span><br><span class="line">			bWorkbook = Workbook.createWorkbook(response.getOutputStream());  </span><br><span class="line">			// 通过Excel对象创建一个选项卡对象  </span><br><span class="line">			WritableSheet sheet = bWorkbook.createSheet(&quot;sheet1&quot;, 0);  </span><br><span class="line">			File imgFile = new File(imgPath); </span><br><span class="line">			WritableImage image = new WritableImage(0,0,5,5,imgFile); //前两位是起始格，后两位是图片占多少个格，并非是位置。</span><br><span class="line">			sheet.addImage(image); </span><br><span class="line">			bWorkbook.write(); </span><br><span class="line">			String fileName=&quot;下载的文件名&quot;;</span><br><span class="line">			response.setCharacterEncoding(&quot;utf-8&quot;);</span><br><span class="line">			response.reset();</span><br><span class="line">			response.setContentType(&quot;application/OCTET-STREAM;charset=utf-8&quot;);</span><br><span class="line">			response.setHeader(&quot;pragma&quot;, &quot;no-cache&quot;);</span><br><span class="line">			response.addHeader(&quot;Content-Disposition&quot;, &quot;attachment;filename=\&quot;&quot;+ fileName + &quot;.xls\&quot;&quot;);// 点击导出excle按钮时候页面显示的默认名称</span><br><span class="line">		&#125; catch (Exception e) &#123;  </span><br><span class="line">			e.printStackTrace();  </span><br><span class="line">		&#125; finally &#123;  </span><br><span class="line">			try &#123;  </span><br><span class="line">				bWorkbook.close();  </span><br><span class="line">			&#125; catch (Exception e) &#123;  </span><br><span class="line">				e.printStackTrace();  </span><br><span class="line">			&#125;  </span><br><span class="line">		&#125;  </span><br><span class="line">	&#125;</span><br><span class="line">      </span><br><span class="line">    /**</span><br><span class="line">     * 将Excel中的数据导入  </span><br><span class="line">     * @param filePath 文件路径</span><br><span class="line">     * @return</span><br><span class="line">     */</span><br><span class="line">    public static ArrayList&lt;Map&lt;String,String&gt;&gt; ExcelIn(String filePath)&#123;  </span><br><span class="line">    	ArrayList&lt;Map&lt;String,String&gt;&gt;arrayList=new ArrayList&lt;Map&lt;String,String&gt;&gt;();  </span><br><span class="line">    	Workbook bWorkbook=null;  </span><br><span class="line">    	try &#123;  </span><br><span class="line">    		bWorkbook=Workbook.getWorkbook(new File(filePath));  </span><br><span class="line">    		Sheet sheet=bWorkbook.getSheet(0);  </span><br><span class="line">    		for (int i = 0; i &lt; sheet.getRows(); i++) &#123;  </span><br><span class="line">    			Map&lt;String,String&gt; map = new HashMap&lt;String, String&gt;();</span><br><span class="line">    			//获取单元格的值  </span><br><span class="line">    			map.put(&quot;name&quot;, sheet.getCell(0,i).getContents());</span><br><span class="line">    			map.put(&quot;age&quot;, sheet.getCell(1,i).getContents());</span><br><span class="line">    			map.put(&quot;sex&quot;, sheet.getCell(2,i).getContents());</span><br><span class="line">    			arrayList.add(map);  </span><br><span class="line">    		&#125;  </span><br><span class="line">			</span><br><span class="line">			//查询图片个数</span><br><span class="line">    		for(int i=0;i&lt;sheet.getNumberOfImages();i++) &#123;</span><br><span class="line">    			//获取图片流</span><br><span class="line">    			InputStream input = new ByteArrayInputStream(sheet.getDrawing(i).getImageData());</span><br><span class="line">    			//....之后保存省略</span><br><span class="line">    		&#125;</span><br><span class="line">    		</span><br><span class="line">    	&#125; catch (BiffException e) &#123;  </span><br><span class="line">    		// TODO Auto-generated catch block  </span><br><span class="line">    		e.printStackTrace();  </span><br><span class="line">    	&#125; catch (IOException e) &#123;  </span><br><span class="line">    		// TODO Auto-generated catch block  </span><br><span class="line">    		e.printStackTrace();  </span><br><span class="line">    	&#125;finally &#123;  </span><br><span class="line">    		bWorkbook.close();  </span><br><span class="line">    	&#125;  </span><br><span class="line">    	return arrayList;  </span><br><span class="line">    &#125; </span><br><span class="line">    </span><br><span class="line">    @Autowired</span><br><span class="line">	public static void main(String[] args) &#123;</span><br><span class="line">		Map&lt;String, String&gt; map1 = new HashMap&lt;String, String&gt;();</span><br><span class="line">		map1.put(&quot;name&quot;, &quot;名称&quot;);</span><br><span class="line">		map1.put(&quot;age&quot;, &quot;年龄&quot;);</span><br><span class="line">		map1.put(&quot;sex&quot;, &quot;性别&quot;);</span><br><span class="line">		Map&lt;String, String&gt; map2 = new HashMap&lt;String, String&gt;();</span><br><span class="line">		map2.put(&quot;name&quot;, &quot;靓女&quot;);</span><br><span class="line">		map2.put(&quot;age&quot;, &quot;20&quot;);</span><br><span class="line">		map2.put(&quot;sex&quot;, &quot;女人&quot;);</span><br><span class="line">		Map&lt;String, String&gt; map3 = new HashMap&lt;String, String&gt;();</span><br><span class="line">		map3.put(&quot;name&quot;, &quot;帅哥&quot;);</span><br><span class="line">		map3.put(&quot;age&quot;, &quot;30&quot;);</span><br><span class="line">		map3.put(&quot;sex&quot;, &quot;男人&quot;);</span><br><span class="line">		ArrayList&lt;Map&lt;String,String&gt;&gt; arrayList = new ArrayList&lt;Map&lt;String,String&gt;&gt;();</span><br><span class="line">		arrayList.add(map1);</span><br><span class="line">		arrayList.add(map2);</span><br><span class="line">		arrayList.add(map3);</span><br><span class="line">		ExcelUtils.excelOut(arrayList, &quot;F://map.xls&quot;);</span><br><span class="line">    	</span><br><span class="line">//    	ArrayList&lt;Map&lt;String,String&gt;&gt; array = ExcelUtils.ExcelIn(&quot;F://map.xls&quot;);</span><br><span class="line">//    	for(Map&lt;String, String&gt; obj:array)&#123;</span><br><span class="line">//    		for(Map.Entry&lt;String, String&gt; ent: obj.entrySet())&#123;</span><br><span class="line">//    			System.out.println(ent.getKey()+&quot;:&quot;+ent.getValue());</span><br><span class="line">//    		&#125;</span><br><span class="line">//    		System.out.println(&quot;=============================&quot;);</span><br><span class="line">//    	&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="二、其他"><a href="#二、其他" class="headerlink" title="二、其他"></a>二、其他</h2><h3 id="1、设置字体"><a href="#1、设置字体" class="headerlink" title="1、设置字体"></a>1、设置字体</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">WritableFont font1= new WritableFont(WritableFont.TIMES, 16, WritableFont.BOLD); //设置字体格式为excel支持的格式 WritableFont font3=new WritableFont(WritableFont.createFont(&quot;楷体 _GB2312&quot;), 12, WritableFont.NO_BOLD);</span><br><span class="line">WritableCellFormat format1=new WritableCellFormat(font1);</span><br><span class="line">Label label=new Label(0, 0, &quot;data 4 test&quot;, format1);</span><br></pre></td></tr></table></figure>
+<h3 id="2、对齐方式"><a href="#2、对齐方式" class="headerlink" title="2、对齐方式"></a>2、对齐方式</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">//把水平对齐方式指定为居中</span><br><span class="line">format1.setAlignment(jxl.format.Alignment.CENTRE);</span><br><span class="line">//把垂直对齐方式指定为居中</span><br><span class="line">format1.setVerticalAlignment(jxl.format.VerticalAlignment.CENTRE);</span><br><span class="line">//设置自动换行</span><br><span class="line">format1.setWrap(true);</span><br></pre></td></tr></table></figure>
+<h3 id="3、合并单元格"><a href="#3、合并单元格" class="headerlink" title="3、合并单元格"></a>3、合并单元格</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">WritableSheet sheet = book.createSheet(&quot;sheet1&quot;, 0);  </span><br><span class="line">//合并第一列第一行到第六列第一行的所有单元格</span><br><span class="line">//合并既可以是横向的，也可以是纵向的。合并后的单元格不能再次进行合并，否则会触发异常。</span><br><span class="line">sheet.mergeCells(0, 0, 5, 0);</span><br></pre></td></tr></table></figure>
+<h3 id="4、指定单元格-行高与列宽"><a href="#4、指定单元格-行高与列宽" class="headerlink" title="4、指定单元格 行高与列宽"></a>4、指定单元格 行高与列宽</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">//作用是指定第i+1行的高度</span><br><span class="line">WritableSheet.setRowView(int i, int height);</span><br><span class="line">//比如：将第一行的高度设为200</span><br><span class="line">sheet.setRowView(0, 200);</span><br><span class="line"></span><br><span class="line">//作用是指定第i+1列的宽度，</span><br><span class="line">WritableSheet.setColumnView(int i,int width);</span><br><span class="line">//比如：将第一列的宽度设为30</span><br><span class="line">sheet.setColumnView(0, 30);</span><br></pre></td></tr></table></figure>
+      
+    </div>
+
+    
+
+    
+    
+    
+	
+	    <div>
+	
+	<div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------本文结束 <i class="fa fa-heartbeat"></i> 感谢您的阅读-------------</div>
+    
+</div>
+	
+	</div>
+
+    
+
+    
+      
+    
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div></div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>打赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/blog/images/wechat_pay.jpg" alt="rstyro 微信支付">
+        <p>微信支付</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/blog/images/alipay.jpg" alt="rstyro 支付宝">
+        <p>支付宝</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+	
+	<div>    
+	 
+	 
+	<ul class="post-copyright">
+	  <li class="post-copyright-author">
+		  <strong>本文作者：</strong>rstyro
+	  </li>
+	  <li class="post-copyright-link">
+		<strong>本文链接：</strong>
+		<a href="/blog/2017/11/24/java jxl导入导出excel/" title="java jxl导入导出excel">https://rstyro.github.io/blog/2017/11/24/java jxl导入导出excel/</a>
+	  </li>
+	  <li class="post-copyright-license">
+		<strong>版权： </strong>
+		转载注明出处！
+	  </li>
+	</ul>
+	
+	</div>
+	
+
+      
+        <div class="post-tags">
+          
+            <a href="/blog/tags/Java/" rel="tag"><i class="fa fa-tag"></i> Java</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2017/11/21/Jquery 相关笔记/" rel="next" title="Jquery 相关笔记">
+                <i class="fa fa-chevron-left"></i> Jquery 相关笔记
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2017/11/30/Linux 安装pip/" rel="prev" title="Linux 安装pip">
+                Linux 安装pip <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+
+
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/blog/images/avatar.jpg" alt="rstyro">
+            
+              <p class="site-author-name" itemprop="name">rstyro</p>
+              <p class="site-description motion-element" itemprop="description">帅大叔个人站点，记录一路走来的坑坑坎坎。</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/blog/archives/">
+                
+                    <span class="site-state-item-count">129</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/blog/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">9</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/blog/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">24</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://github.com/rstyro" title="GitHub &rarr; https://github.com/rstyro" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="/blog/1006059906" title="QQ &rarr; 1006059906"><i class="fa fa-fw fa-qq"></i>QQ</a>
+                </span>
+              
+            </div>
+          
+
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-block">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                友链
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://rstyro.github.io/blog/" title="https://rstyro.github.io/blog/">帅大叔博客</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://www.zhyd.me/" title="https://www.zhyd.me/" rel="noopener" target="_blank">张亚东博客</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://www.devsong.org/" title="http://www.devsong.org/" rel="noopener" target="_blank">DevSONG</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://www.dalaoyang.cn/" title="https://www.dalaoyang.cn/" rel="noopener" target="_blank">dalaoyang</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://www.chenshuangyi.com/" title="https://www.chenshuangyi.com/" rel="noopener" target="_blank">陈双义博客</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#jxl导入导出excel"><span class="nav-number">1.</span> <span class="nav-text">jxl导入导出excel</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#一、导入依赖"><span class="nav-number">1.1.</span> <span class="nav-text">一、导入依赖</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#java-操作jxl-工具类"><span class="nav-number">1.1.1.</span> <span class="nav-text">java 操作jxl 工具类</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#二、其他"><span class="nav-number">1.2.</span> <span class="nav-text">二、其他</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1、设置字体"><span class="nav-number">1.2.1.</span> <span class="nav-text">1、设置字体</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2、对齐方式"><span class="nav-number">1.2.2.</span> <span class="nav-text">2、对齐方式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3、合并单元格"><span class="nav-number">1.2.3.</span> <span class="nav-text">3、合并单元格</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4、指定单元格-行高与列宽"><span class="nav-number">1.2.4.</span> <span class="nav-text">4、指定单元格 行高与列宽</span></a></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">rstyro</span>
+
+  
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-user"></i>
+    </span>
+    <span class="site-uv" title="总访客量">
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+    </span>
+  
+
+  
+    <span class="post-meta-divider">|</span>
+  
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-eye"></i>
+    </span>
+    <span class="site-pv" title="总访问量">
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/blog/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/blog/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/blog/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/blog/js/src/utils.js?v=6.7.0"></script>
+
+  <script src="/blog/js/src/motion.js?v=6.7.0"></script>
+
+
+
+  
+  
+
+  
+  <script src="/blog/js/src/scrollspy.js?v=6.7.0"></script>
+<script src="/blog/js/src/post-details.js?v=6.7.0"></script>
+
+
+
+  
+
+
+  <script src="/blog/js/src/bootstrap.js?v=6.7.0"></script>
+
+
+
+  
+  
+
+
+
+
+  
+
+<script src="//cdn1.lncld.net/static/js/3.11.1/av-min.js"></script>
+
+
+
+<script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+
+<script>
+  var GUEST = ['nick', 'mail', 'link'];
+  var guest = 'nick,mail,link';
+  guest = guest.split(',').filter(function (item) {
+    return GUEST.indexOf(item) > -1;
+  });
+  new Valine({
+    el: '#comments',
+    verify: false,
+    notify: false,
+    appId: 'LwEPiJFa7YMn2MrJdCwaUbmQ-gzGzoHsz',
+    appKey: 'JqS1y3RxYvDOki9r3NcqqoO5',
+    placeholder: '来都来了，不说几句就走，过分了啊！！！',
+    avatar: 'monsterid',
+    meta: guest,
+    pageSize: '10' || 10,
+    visitor: false
+  });
+</script>
+
+
+
+  
+
+  <script>
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/blog/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url).replace(/\/{2,}/g, '/');
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x"></i></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x"></i></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+  <script>
+    (function(){
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+      }
+      else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+      }
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+    })();
+  </script>
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

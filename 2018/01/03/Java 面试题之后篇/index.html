@@ -1,0 +1,1775 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/blog/css/main.css?v=6.7.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon.jpg?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon.jpg?v=6.7.0">
+
+
+  <link rel="mask-icon" href="/blog/images/logo.svg?v=6.7.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/blog/',
+    scheme: 'Mist',
+    version: '6.7.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+<script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+<link href="//cdn.bootcss.com/pace/1.0.2/themes/pink/pace-theme-flash.css" rel="stylesheet">
+  <style>
+      .pace .pace-progress {
+          background: #1E92FB; /*进度条颜色*/
+          height: 3px;
+      }
+      .pace .pace-progress-inner {
+           box-shadow: 0 0 10px #1E92FB, 0 0 5px     #1E92FB; /*阴影颜色*/
+      }
+      .pace .pace-activity {
+          border-top-color: #1E92FB;    /*上边框颜色*/
+          border-left-color: #1E92FB;    /*左边框颜色*/
+      }
+  </style>
+
+  <meta name="description" content="Java 面试高级篇三、开源框架和容器3.1、SSM/Servlet Servlet的生命周期 1、new 实例化Servlet2、Servlet 通过调用 init () 方法进行初始化。3、Servlet 调用 service() 方法来处理客户端的请求。4、Servlet 通过调用 destroy() 方法终止（结束）。5、最后，Servlet 是由 JVM 的垃圾回收器进行垃圾回收的">
+<meta name="keywords" content="Java">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java 面试题之后篇">
+<meta property="og:url" content="https://rstyro.github.io/blog/2018/01/03/Java 面试题之后篇/index.html">
+<meta property="og:site_name" content="帅大叔的博客">
+<meta property="og:description" content="Java 面试高级篇三、开源框架和容器3.1、SSM/Servlet Servlet的生命周期 1、new 实例化Servlet2、Servlet 通过调用 init () 方法进行初始化。3、Servlet 调用 service() 方法来处理客户端的请求。4、Servlet 通过调用 destroy() 方法终止（结束）。5、最后，Servlet 是由 JVM 的垃圾回收器进行垃圾回收的">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-01-12T14:49:02.984Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Java 面试题之后篇">
+<meta name="twitter:description" content="Java 面试高级篇三、开源框架和容器3.1、SSM/Servlet Servlet的生命周期 1、new 实例化Servlet2、Servlet 通过调用 init () 方法进行初始化。3、Servlet 调用 service() 方法来处理客户端的请求。4、Servlet 通过调用 destroy() 方法终止（结束）。5、最后，Servlet 是由 JVM 的垃圾回收器进行垃圾回收的">
+
+
+
+
+
+
+  <link rel="canonical" href="https://rstyro.github.io/blog/2018/01/03/Java 面试题之后篇/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>Java 面试题之后篇 | 帅大叔的博客</title>
+  
+
+
+
+
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?cd2197f8af1d69b326360027b8f93d92";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/blog/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">帅大叔的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">信你所信，为你所见</p>
+      
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/" rel="section">首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/about/" rel="section">关于</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/tags/" rel="section">标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/categories/" rel="section">分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/archives/" rel="section">归档</a>
+
+  </li>
+
+      
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            搜索</a>
+        </li>
+      
+    </ul>
+  
+
+  
+    
+
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://rstyro.github.io/blog/blog/2018/01/03/Java 面试题之后篇/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="rstyro">
+      <meta itemprop="description" content="帅大叔个人站点，记录一路走来的坑坑坎坎。">
+      <meta itemprop="image" content="/blog/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="帅大叔的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Java 面试题之后篇
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2018-01-03 17:14:32" itemprop="dateCreated datePublished" datetime="2018-01-03T17:14:32+08:00">2018-01-03</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2019-01-12 22:49:02" itemprop="dateModified" datetime="2019-01-12T22:49:02+08:00">2019-01-12</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing"><a href="/blog/categories/Java/" itemprop="url" rel="index"><span itemprop="name">Java</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/blog/2018/01/03/Java 面试题之后篇/#comments" itemprop="discussionUrl">
+                  <span class="post-meta-item-text">评论数：</span> <span class="post-comments-count valine-comment-count" data-xid="/blog/2018/01/03/Java 面试题之后篇/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="post-meta-item-icon">
+            <i class="fa fa-eye"></i>
+             阅读次数： 
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="Java-面试高级篇"><a href="#Java-面试高级篇" class="headerlink" title="Java 面试高级篇"></a>Java 面试高级篇</h2><h2 id="三、开源框架和容器"><a href="#三、开源框架和容器" class="headerlink" title="三、开源框架和容器"></a>三、开源框架和容器</h2><h3 id="3-1、SSM-Servlet"><a href="#3-1、SSM-Servlet" class="headerlink" title="3.1、SSM/Servlet"></a>3.1、SSM/Servlet</h3><ul>
+<li><h4 id="Servlet的生命周期"><a href="#Servlet的生命周期" class="headerlink" title="Servlet的生命周期"></a>Servlet的生命周期</h4><blockquote>
+<p>1、new 实例化Servlet<br>2、Servlet 通过调用 init () 方法进行初始化。<br>3、Servlet 调用 service() 方法来处理客户端的请求。<br>4、Servlet 通过调用 destroy() 方法终止（结束）。<br>5、最后，Servlet 是由 JVM 的垃圾回收器进行垃圾回收的</p>
+</blockquote>
+</li>
+<li><h4 id="转发与重定向的区别"><a href="#转发与重定向的区别" class="headerlink" title="转发与重定向的区别"></a>转发与重定向的区别</h4><blockquote>
+<p>转发是服务器行为，重定向是客户端行为<br>重定向，其实是两次request,请求转发共享相同的request对象和response对象<br>我也说得不是很好，可以度娘或者按自己得理解</p>
+</blockquote>
+</li>
+</ul>
+<ul>
+<li><h4 id="Spring-中BeanFactory-和-ApplicationContext-有什么区别"><a href="#Spring-中BeanFactory-和-ApplicationContext-有什么区别" class="headerlink" title="Spring 中BeanFactory 和 ApplicationContext 有什么区别"></a>Spring 中BeanFactory 和 ApplicationContext 有什么区别</h4><blockquote>
+<p>BeanFacotry是spring中比较原始的Factory,原始的BeanFactory无法支持spring的许多插件，如AOP功能、Web应用等。<br>ApplicationContext接口,它由BeanFactory接口派生而来，因而提供BeanFactory所有的功能。还提供了以下的功能:<br>1.利用MessageSource进行国际化<br>2.强大的事件机制(Event)<br>3.底层资源的访问<br>4.对Web应用的支持<br>5、BeanFactroy采用的是延迟加载形式来注入Bean的，而ApplicationContext则相反，容器启动时，一次性创建了所有的Bean。这样，在容器启动时，我们就可以发现Spring中存在的配置错误。<br>6.BeanFactory和ApplicationContext都支持BeanPostProcessor、BeanFactoryPostProcessor的使用，但两者之间的区别是：BeanFactory需要手动注册，而ApplicationContext则是自动注册</p>
+</blockquote>
+</li>
+</ul>
+<ul>
+<li><h4 id="Spring-Bean-的生命周期"><a href="#Spring-Bean-的生命周期" class="headerlink" title="Spring Bean 的生命周期"></a>Spring Bean 的生命周期</h4><blockquote>
+<p>1：Bean的建立：<br>  容器寻找Bean的定义信息并将其实例化。<br>2：属性注入：<br>  使用依赖注入，Spring按照Bean定义信息配置Bean所有属性<br>3：BeanNameAware的setBeanName()：<br>  如果Bean类有实现org.springframework.beans.BeanNameAware接口，工厂调用Bean的setBeanName()方法传递Bean的ID。<br>4：BeanFactoryAware的setBeanFactory()：<br>  如果Bean类有实现org.springframework.beans.factory.BeanFactoryAware接口，工厂调用setBeanFactory()方法传入工厂自身。<br>5：BeanPostProcessors的ProcessBeforeInitialization()<br>  如果有org.springframework.beans.factory.config.BeanPostProcessors和Bean关联，那么其postProcessBeforeInitialization()方法将被将被调用。<br>6：initializingBean的afterPropertiesSet()：<br>  如果Bean类已实现org.springframework.beans.factory.InitializingBean接口，则执行他的afterProPertiesSet()方法<br>7：Bean定义文件中定义init-method：<br>  可以在Bean定义文件中使用”init-method”属性设定方法名称例如：<br>  如果有以上设置的话，则执行到这个阶段，就会执行initBean()方法<br>8：BeanPostProcessors的ProcessaAfterInitialization()<br>  如果有任何的BeanPostProcessors实例与Bean实例关联，则执行BeanPostProcessors实例的ProcessaAfterInitialization()方法<br>9：DisposableBean的destroy()<br>  在容器关闭时，如果Bean类有实现org.springframework.beans.factory.DisposableBean接口，则执行他的destroy()方法<br>参考:<a href="https://www.cnblogs.com/kenshinobiy/p/4652008.html" target="_blank" rel="noopener">https://www.cnblogs.com/kenshinobiy/p/4652008.html</a></p>
+</blockquote>
+</li>
+<li><h4 id="Spring的bean的创建时机？依赖注入的时机？"><a href="#Spring的bean的创建时机？依赖注入的时机？" class="headerlink" title="Spring的bean的创建时机？依赖注入的时机？"></a>Spring的bean的创建时机？依赖注入的时机？</h4><blockquote>
+<p>1、在默认的情况下，启动spring容器创建对象。<br>2、在spring的配置文件bean中有一个属性  lazy-init=”default/true/false”<br>如果 lazy-init = default/false ，在启动spring容器时创建对象。<br>为 true 时，在 context.getBean() 时才创建对象。<br>依赖注入在以下两种情况发生：<br>(1).用户第一次通过getBean方法向IoC容索要Bean时，IoC容器触发依赖注入。<br>(2).当用户在Bean定义资源中为<bean>元素配置了lazy-init属性，即让容器在解析注册Bean定义时进行预实例化，触发依赖注入。</bean></p>
+</blockquote>
+</li>
+</ul>
+<ul>
+<li><h4 id="Spring-IOC-如何实现"><a href="#Spring-IOC-如何实现" class="headerlink" title="Spring IOC 如何实现"></a>Spring IOC 如何实现</h4><blockquote>
+<p>依赖注入的思想好像是通过反射机制实现的，这个我得水平好像没到。<br>可以参考文章：<a href="https://www.cnblogs.com/ITtangtang/p/3978349.html" target="_blank" rel="noopener">https://www.cnblogs.com/ITtangtang/p/3978349.html</a></p>
+</blockquote>
+</li>
+</ul>
+<ul>
+<li><h4 id="Spring-IoC涉及到的设计模式；"><a href="#Spring-IoC涉及到的设计模式；" class="headerlink" title="Spring IoC涉及到的设计模式；"></a>Spring IoC涉及到的设计模式；</h4><blockquote>
+<p>工厂模式、单利模式。。</p>
+</blockquote>
+</li>
+<li><h4 id="Spring中Bean的作用域，默认的是哪一个"><a href="#Spring中Bean的作用域，默认的是哪一个" class="headerlink" title="Spring中Bean的作用域，默认的是哪一个"></a>Spring中Bean的作用域，默认的是哪一个</h4><blockquote>
+<p>1、singleton：单例模式，在整个Spring IoC容器中，使用singleton定义的Bean将只有一个实例<br>2、prototype：原型模式，每次通过容器的getBean方法获取prototype定义的Bean时，都将产生一个新的Bean实例<br>3、request：对于每次HTTP请求，使用request定义的Bean都将产生一个新实例，即每次HTTP请求将会产生不同的Bean实例。只有在Web应用中使用Spring时，该作用域才有效<br>4、session：对于每次HTTP Session，使用session定义的Bean豆浆产生一个新实例。同样只有在Web应用中使用Spring时，该作用域才有效<br>5、globalsession：每个全局的HTTP Session，使用session定义的Bean都将产生一个新实例。典型情况下，仅在使用portlet context的时候有效。同样只有在Web应用中使用Spring时，该作用域才有效<br>模式的是单例模式（singleton）</p>
+</blockquote>
+</li>
+</ul>
+<ul>
+<li><h4 id="说说-Spring-AOP、实现原理"><a href="#说说-Spring-AOP、实现原理" class="headerlink" title="说说 Spring AOP、实现原理"></a>说说 Spring AOP、实现原理</h4><blockquote>
+<p>笔者的水平不够<br>可参考：<a href="https://blog.csdn.net/fighterandknight/article/details/51209822" target="_blank" rel="noopener">https://blog.csdn.net/fighterandknight/article/details/51209822</a></p>
+</blockquote>
+</li>
+<li><h4 id="动态代理（CGLib-与-JDK）、优缺点、性能对比、如何选择"><a href="#动态代理（CGLib-与-JDK）、优缺点、性能对比、如何选择" class="headerlink" title="动态代理（CGLib 与 JDK）、优缺点、性能对比、如何选择"></a>动态代理（CGLib 与 JDK）、优缺点、性能对比、如何选择</h4><blockquote>
+<p>从 jdk6 到 jdk7、jdk8 ，动态代理的性能得到了显著的提升，而 cglib 的表现并未跟上，甚至可能会略微下降<br>是否正确，自行决断，笔者水平一般，参考：<a href="https://www.cnblogs.com/haiq/p/4304615.html" target="_blank" rel="noopener">https://www.cnblogs.com/haiq/p/4304615.html</a></p>
+</blockquote>
+</li>
+<li><h4 id="Spring-事务实现方式、事务的传播机制、默认的事务类别"><a href="#Spring-事务实现方式、事务的传播机制、默认的事务类别" class="headerlink" title="Spring 事务实现方式、事务的传播机制、默认的事务类别"></a>Spring 事务实现方式、事务的传播机制、默认的事务类别</h4><blockquote>
+<p>现实方式有:声明式事务和编程式事务？<br>六种事务传播机制：<br>PROPAGATION_REQUIRED – 支持当前事务，如果当前没有事务，就新建一个事务。这是最常见的选择。<br>PROPAGATION_SUPPORTS – 支持当前事务，如果当前没有事务，就以非事务方式执行。<br>PROPAGATION_MANDATORY – 支持当前事务，如果当前没有事务，就抛出异常<br>PROPAGATION_REQUIRES_NEW – 新建事务，如果当前存在事务，把当前事务挂起。<br>PROPAGATION_NOT_SUPPORTED – 以非事务方式执行操作，如果当前存在事务，就把当前事务挂起。<br>PROPAGATION_NEVER – 以非事务方式执行，如果当前存在事务，则抛出异常。<br>PROPAGATION_NESTED – 如果当前存在事务，则在嵌套事务内执行。如果当前没有事务，则进行与PROPAGATION_REQUIRED类似的操作<br>参考自：<a href="https://blog.csdn.net/yuanlaishini2010/article/details/45792069" target="_blank" rel="noopener">https://blog.csdn.net/yuanlaishini2010/article/details/45792069</a></p>
+</blockquote>
+</li>
+</ul>
+<ul>
+<li><h4 id="Spring-事务底层原理"><a href="#Spring-事务底层原理" class="headerlink" title="Spring 事务底层原理"></a>Spring 事务底层原理</h4><blockquote>
+<p>不行了，来个大腿</p>
+</blockquote>
+</li>
+</ul>
+<ul>
+<li><h4 id="Spring事务失效（事务嵌套），JDK动态代理给Spring事务埋下的坑"><a href="#Spring事务失效（事务嵌套），JDK动态代理给Spring事务埋下的坑" class="headerlink" title="Spring事务失效（事务嵌套），JDK动态代理给Spring事务埋下的坑"></a>Spring事务失效（事务嵌套），JDK动态代理给Spring事务埋下的坑</h4><blockquote>
+<p>不知道什么坑。。。</p>
+</blockquote>
+</li>
+<li><h4 id="如何自定义注解实现功能"><a href="#如何自定义注解实现功能" class="headerlink" title="如何自定义注解实现功能"></a>如何自定义注解实现功能</h4><blockquote>
+<p>以后来写</p>
+</blockquote>
+</li>
+</ul>
+<ul>
+<li><h4 id="Spring-MVC-运行流程"><a href="#Spring-MVC-运行流程" class="headerlink" title="Spring MVC 运行流程"></a>Spring MVC 运行流程</h4><blockquote>
+<p>1.spring mvc将所有的请求都提交给DispatcherServlet,它会委托应用系统的其他模块负责对请求 进行真正的处理工作。<br>2.DispatcherServlet查询一个或多个HandlerMapping,找到处理请求的Controller.<br>3.DispatcherServlet请请求提交到目标Controller<br>4.Controller进行业务逻辑处理后，会返回一个ModelAndView<br>5.Dispathcher查询一个或多个ViewResolver视图解析器,找到ModelAndView对象指定的视图对象<br>6.视图对象负责渲染返回给客户端。</p>
+</blockquote>
+</li>
+</ul>
+<ul>
+<li><h4 id="Spring-MVC-启动流程"><a href="#Spring-MVC-启动流程" class="headerlink" title="Spring MVC 启动流程"></a>Spring MVC 启动流程</h4><blockquote>
+<p>1.Web容器初始化过程<br>2.SpringMVC中web.xml配置<br>3.认识ServletContextListener<br>4.认识ContextLoaderListener<br>5.DispatcherServlet初始化（HttpServletBean • FrameworkServlet • DispatcherServlet）<br>6.ContextLoaderListener与DispatcherServlet关系<br>7.DispatcherServlet的设计<br>8.DispatcherServlet工作原理</p>
+</blockquote>
+</li>
+<li><h4 id="Spring-的单例实现原理"><a href="#Spring-的单例实现原理" class="headerlink" title="Spring 的单例实现原理"></a>Spring 的单例实现原理</h4><blockquote>
+<p>Spring对bean实例的创建是采用单例注册表的方式进行实现的，而这个注册表的缓存是HashMap对象，如果配置文件中的配置信息不要求使用单例，Spring会采用新建实例的方式返回对象实例<br>参考：<a href="https://blog.csdn.net/cs408/article/details/48982085" target="_blank" rel="noopener">https://blog.csdn.net/cs408/article/details/48982085</a></p>
+</blockquote>
+</li>
+</ul>
+<ul>
+<li><h4 id="Spring-框架中用到了哪些设计模式"><a href="#Spring-框架中用到了哪些设计模式" class="headerlink" title="Spring 框架中用到了哪些设计模式"></a>Spring 框架中用到了哪些设计模式</h4><blockquote>
+<p>代理模式—在AOP和remoting中被用的比较多。<br>单例模式—在spring配置文件中定义的bean默认为单例模式。<br>模板方法—用来解决代码重复的问题。比如. RestTemplate, JmsTemplate, JpaTemplate。<br>工厂模式—BeanFactory用来创建对象的实例。<br>适配器–spring aop<br>装饰器–spring data  hashmapper<br>观察者– spring 时间驱动模型<br>回调–Spring ResourceLoaderAware回调接口</p>
+</blockquote>
+</li>
+</ul>
+<ul>
+<li><h4 id="Spring-其他产品"><a href="#Spring-其他产品" class="headerlink" title="Spring 其他产品"></a>Spring 其他产品</h4><blockquote>
+<p>Srping Boot、Spring Cloud、Spring Secuirity、Spring Data、Spring AMQP 等</p>
+</blockquote>
+</li>
+<li><h4 id="有没有用到Spring-Boot，Spring-Boot的认识、原理"><a href="#有没有用到Spring-Boot，Spring-Boot的认识、原理" class="headerlink" title="有没有用到Spring Boot，Spring Boot的认识、原理"></a>有没有用到Spring Boot，Spring Boot的认识、原理</h4><blockquote>
+<p>这个不是一两句话能说清的。<br>可参考：<a href="https://www.cnblogs.com/zheting/p/6707035.html" target="_blank" rel="noopener">https://www.cnblogs.com/zheting/p/6707035.html</a></p>
+</blockquote>
+</li>
+<li><h4 id="Spring中-Resource注解和Autowired注解的区别"><a href="#Spring中-Resource注解和Autowired注解的区别" class="headerlink" title="Spring中 Resource注解和Autowired注解的区别"></a>Spring中 Resource注解和Autowired注解的区别</h4><blockquote>
+<p><code>@Resource</code>默认按照名称方式进行bean匹配，<code>@Autowired</code>默认按照类型方式进行bean匹配<br><code>@Resource</code>是J2EE的注解,<code>@Autowired</code>是Spring的注解</p>
+</blockquote>
+</li>
+<li><h4 id="如果一个接⼝有2个不同的实现-那么怎么来Autowire一个指定的实现？"><a href="#如果一个接⼝有2个不同的实现-那么怎么来Autowire一个指定的实现？" class="headerlink" title="如果一个接⼝有2个不同的实现, 那么怎么来Autowire一个指定的实现？"></a>如果一个接⼝有2个不同的实现, 那么怎么来Autowire一个指定的实现？</h4><blockquote>
+<p>(可以使用Qualifier注解限定要注入的Bean，也可以使用Qualifier和Autowire注解指定要获取的bean，也可以使用Resource注解的name属性指定要获取的Bean)</p>
+</blockquote>
+</li>
+<li><h4 id="Spring声明一个-bean-如何对其进行个性化定制；"><a href="#Spring声明一个-bean-如何对其进行个性化定制；" class="headerlink" title="Spring声明一个 bean 如何对其进行个性化定制；"></a>Spring声明一个 bean 如何对其进行个性化定制；</h4><blockquote>
+<p>init-method属性指定了在初始化bean时要调用的方法，类似的，destroy-method属性指定了bean从容器移除之前要调用的方法。</p>
+</blockquote>
+</li>
+</ul>
+<ul>
+<li><h4 id="MyBatis有什么优势；"><a href="#MyBatis有什么优势；" class="headerlink" title="MyBatis有什么优势；"></a>MyBatis有什么优势；</h4></li>
+</ul>
+<blockquote>
+<p>优点：</p>
+<ol>
+<li>易于上手和掌握。</li>
+<li>sql写在xml里，便于统一管理和优化。</li>
+<li>解除sql与程序代码的耦合。</li>
+<li>提供映射标签，支持对象与数据库的orm字段关系映射</li>
+<li>提供对象关系映射标签，支持对象关系组建维护</li>
+<li>提供xml标签，支持编写动态sql。</li>
+</ol>
+</blockquote>
+<blockquote>
+<p>缺点：</p>
+<ol>
+<li>sql工作量很大，尤其是字段多、关联表多时，更是如此。</li>
+<li>sql依赖于数据库，导致数据库移植性差。</li>
+<li>由于xml里标签id必须唯一，导致DAO中方法不支持方法重载。</li>
+<li>字段映射标签和对象关系映射标签仅仅是对映射关系的描述，具体实现仍然依赖于sql。（比如配置了一对多Collection标签，如果sql里没有join子表或查询子表的话，查询后返回的对象是不具备对象关系的，即Collection的对象为null）</li>
+<li>DAO层过于简单，对象组装的工作量较大。</li>
+<li>不支持级联更新、级联删除。</li>
+<li>编写动态sql时,不方便调试，尤其逻辑复杂时。<br>8 提供的写动态sql的xml标签功能简单（连struts都比不上），编写动态sql仍然受限，且可读性低。</li>
+<li>若不查询主键字段，容易造成查询出的对象有“覆盖”现象。</li>
+<li>参数的数据类型支持不完善。（如参数为Date类型时，容易报没有get、set方法，需在参数上加@param）</li>
+<li>多参数时，使用不方便，功能不够强大。（目前支持的方法有map、对象、注解@param以及默认采用012索引位的方式）</li>
+<li>缓存使用不当，容易产生脏数据。</li>
+</ol>
+</blockquote>
+<ul>
+<li><h4 id="MyBatis如何做事务管理；"><a href="#MyBatis如何做事务管理；" class="headerlink" title="MyBatis如何做事务管理；"></a>MyBatis如何做事务管理；</h4><blockquote>
+<p>MyBatis单独使用时，使用SqlSession来处理事务：<br>和Spring集成后，使用Spring的事务管理</p>
+</blockquote>
+</li>
+<li><h4 id="MyBatis怎么防止SQL注入；"><a href="#MyBatis怎么防止SQL注入；" class="headerlink" title="MyBatis怎么防止SQL注入；"></a>MyBatis怎么防止SQL注入；</h4><blockquote>
+<p>使用#{}语法,MyBatis会产生PreparedStatement语句中，并且安全的设置PreparedStatement参数，这个过程中MyBatis会进行必要的安全检查和转义<br>简单说，#{}是经过预编译的，是安全的；${}是未经过预编译的，仅仅是取变量的值，是非安全的，存在SQL注入</p>
+</blockquote>
+</li>
+</ul>
+<ul>
+<li><h4 id="Mybatis-的工作原理"><a href="#Mybatis-的工作原理" class="headerlink" title="Mybatis 的工作原理"></a>Mybatis 的工作原理</h4><blockquote>
+<p>1、XMLConfigBuilder对象会进行XML配置文件的解析<br>2、在configuration节点下会依次解析properties/settings/…/mappers等节点配置，并存到configuration对象<br>3、使用Configuration对象去创建SqlSessionFactory。<br>4、SqlSession通过SqlSessionFactory的opensession方法返回的<br>5、MapperProxy 通过SqlSession这个具体实现类DefaultSqlSession的getMapper来获取动态代理对象<br>6、MapperProxy的invoke方法最终会被代理对象调用，<br>7、invoke 方法中调用MapperMethod.execute(sqlsession,args) 执行,得到最终的处理结果<br>可参考：<a href="https://www.jianshu.com/p/a6b5e066c3d9" target="_blank" rel="noopener">https://www.jianshu.com/p/a6b5e066c3d9</a></p>
+</blockquote>
+</li>
+</ul>
+<ul>
+<li><h4 id="Mybtis缓存机制"><a href="#Mybtis缓存机制" class="headerlink" title="Mybtis缓存机制"></a>Mybtis缓存机制</h4><blockquote>
+<p>mybatis的缓存分为两级：一级缓存、二级缓存。<br>一级缓存是SqlSession级别的缓存，缓存的数据只在SqlSession内有效(默认是开启一级缓存)<br>二级缓存是mapper级别的缓存，同一个namespace公用这一个缓存，所以对SqlSession是共享的(默认是没有开启的)</p>
+</blockquote>
+</li>
+</ul>
+<ul>
+<li><h4 id="Mybtis-常用的动态标签"><a href="#Mybtis-常用的动态标签" class="headerlink" title="Mybtis 常用的动态标签"></a>Mybtis 常用的动态标签</h4><blockquote>
+<p>1,foreach用来循环容器的标签<br>2,concat模糊查詢<br>3,choose(when,otherwise)标签<br>4,if标签<br>5,selectKey标签</p>
+</blockquote>
+</li>
+</ul>
+<h3 id="3-2、Netty"><a href="#3-2、Netty" class="headerlink" title="3.2、Netty"></a>3.2、Netty</h3><ul>
+<li><h4 id="为什么选择-Netty"><a href="#为什么选择-Netty" class="headerlink" title="为什么选择 Netty"></a>为什么选择 Netty</h4></li>
+<li><h4 id="说说业务中，Netty-的使用场景"><a href="#说说业务中，Netty-的使用场景" class="headerlink" title="说说业务中，Netty 的使用场景"></a>说说业务中，Netty 的使用场景</h4></li>
+<li><h4 id="原生的-NIO-在-JDK-1-7-版本存在-epoll-bug"><a href="#原生的-NIO-在-JDK-1-7-版本存在-epoll-bug" class="headerlink" title="原生的 NIO 在 JDK 1.7 版本存在 epoll bug"></a>原生的 NIO 在 JDK 1.7 版本存在 epoll bug</h4></li>
+<li><h4 id="什么是TCP-粘包-拆包"><a href="#什么是TCP-粘包-拆包" class="headerlink" title="什么是TCP 粘包/拆包"></a>什么是TCP 粘包/拆包</h4></li>
+<li><h4 id="TCP粘包-拆包的解决办法"><a href="#TCP粘包-拆包的解决办法" class="headerlink" title="TCP粘包/拆包的解决办法"></a>TCP粘包/拆包的解决办法</h4></li>
+<li><h4 id="Netty-线程模型"><a href="#Netty-线程模型" class="headerlink" title="Netty 线程模型"></a>Netty 线程模型</h4></li>
+<li><h4 id="说说-Netty-的零拷贝"><a href="#说说-Netty-的零拷贝" class="headerlink" title="说说 Netty 的零拷贝"></a>说说 Netty 的零拷贝</h4></li>
+<li><h4 id="Netty-内部执行流程"><a href="#Netty-内部执行流程" class="headerlink" title="Netty 内部执行流程"></a>Netty 内部执行流程</h4></li>
+<li><h4 id="Netty-重连实现"><a href="#Netty-重连实现" class="headerlink" title="Netty 重连实现"></a>Netty 重连实现</h4></li>
+</ul>
+<h3 id="3-3、Tomcat"><a href="#3-3、Tomcat" class="headerlink" title="3.3、Tomcat"></a>3.3、Tomcat</h3><ul>
+<li><h4 id="Tomcat的基础架构（Server、Service、Connector、Container）"><a href="#Tomcat的基础架构（Server、Service、Connector、Container）" class="headerlink" title="Tomcat的基础架构（Server、Service、Connector、Container）"></a>Tomcat的基础架构（Server、Service、Connector、Container）</h4></li>
+<li><h4 id="Tomcat如何加载Servlet的"><a href="#Tomcat如何加载Servlet的" class="headerlink" title="Tomcat如何加载Servlet的"></a>Tomcat如何加载Servlet的</h4></li>
+<li><h4 id="Pipeline-Valve机制"><a href="#Pipeline-Valve机制" class="headerlink" title="Pipeline-Valve机制"></a>Pipeline-Valve机制</h4></li>
+</ul>
+<p>可参考：《四张图带你了解Tomcat系统架构！》</p>
+<h2 id="四、分布式"><a href="#四、分布式" class="headerlink" title="四、分布式"></a>四、分布式</h2><h3 id="4-1、Nginx"><a href="#4-1、Nginx" class="headerlink" title="4.1、Nginx"></a>4.1、Nginx</h3><ul>
+<li><h4 id="请解释什么是C10K问题或者知道什么是C10K问题吗？"><a href="#请解释什么是C10K问题或者知道什么是C10K问题吗？" class="headerlink" title="请解释什么是C10K问题或者知道什么是C10K问题吗？"></a>请解释什么是C10K问题或者知道什么是C10K问题吗？</h4></li>
+<li><h4 id="Nginx简介，可参考《Nginx简介》"><a href="#Nginx简介，可参考《Nginx简介》" class="headerlink" title="Nginx简介，可参考《Nginx简介》"></a>Nginx简介，可参考《Nginx简介》</h4></li>
+<li><h4 id="正向代理和反向代理"><a href="#正向代理和反向代理" class="headerlink" title="正向代理和反向代理."></a>正向代理和反向代理.</h4></li>
+<li><h4 id="Nginx几种常见的负载均衡策略"><a href="#Nginx几种常见的负载均衡策略" class="headerlink" title="Nginx几种常见的负载均衡策略"></a>Nginx几种常见的负载均衡策略</h4></li>
+<li><h4 id="Nginx服务器上的Master和Worker进程分别是什么"><a href="#Nginx服务器上的Master和Worker进程分别是什么" class="headerlink" title="Nginx服务器上的Master和Worker进程分别是什么"></a>Nginx服务器上的Master和Worker进程分别是什么</h4></li>
+<li><h4 id="使用“反向代理服务器”的优点是什么"><a href="#使用“反向代理服务器”的优点是什么" class="headerlink" title="使用“反向代理服务器”的优点是什么?"></a>使用“反向代理服务器”的优点是什么?</h4></li>
+<li><h4 id="常见的Nginx负载均衡策略；已有两台Nginx服务器了，倘若这时候再增加一台服务器，采用什么负载均衡算法比较好？"><a href="#常见的Nginx负载均衡策略；已有两台Nginx服务器了，倘若这时候再增加一台服务器，采用什么负载均衡算法比较好？" class="headerlink" title="常见的Nginx负载均衡策略；已有两台Nginx服务器了，倘若这时候再增加一台服务器，采用什么负载均衡算法比较好？"></a>常见的Nginx负载均衡策略；已有两台Nginx服务器了，倘若这时候再增加一台服务器，采用什么负载均衡算法比较好？</h4></li>
+</ul>
+<h3 id="4-2、分布式其他"><a href="#4-2、分布式其他" class="headerlink" title="4.2、分布式其他"></a>4.2、分布式其他</h3><ul>
+<li><h4 id="谈谈业务中使用分布式的场景"><a href="#谈谈业务中使用分布式的场景" class="headerlink" title="谈谈业务中使用分布式的场景"></a>谈谈业务中使用分布式的场景</h4></li>
+<li><h4 id="Session-分布式方案"><a href="#Session-分布式方案" class="headerlink" title="Session 分布式方案"></a>Session 分布式方案</h4></li>
+<li><h4 id="Session-分布式处理"><a href="#Session-分布式处理" class="headerlink" title="Session 分布式处理"></a>Session 分布式处理</h4></li>
+<li><h4 id="分布式锁的应用场景、分布式锁的产生原因、基本概念"><a href="#分布式锁的应用场景、分布式锁的产生原因、基本概念" class="headerlink" title="分布式锁的应用场景、分布式锁的产生原因、基本概念"></a>分布式锁的应用场景、分布式锁的产生原因、基本概念</h4></li>
+<li><h4 id="分布是锁的常见解决方案"><a href="#分布是锁的常见解决方案" class="headerlink" title="分布是锁的常见解决方案"></a>分布是锁的常见解决方案</h4></li>
+<li><h4 id="分布式事务的常见解决方案"><a href="#分布式事务的常见解决方案" class="headerlink" title="分布式事务的常见解决方案"></a>分布式事务的常见解决方案</h4></li>
+<li><h4 id="集群与负载均衡的算法与实现"><a href="#集群与负载均衡的算法与实现" class="headerlink" title="集群与负载均衡的算法与实现"></a>集群与负载均衡的算法与实现</h4></li>
+<li><h4 id="说说分库与分表设计，可参考《数据库分库分表策略的具体实现方案》"><a href="#说说分库与分表设计，可参考《数据库分库分表策略的具体实现方案》" class="headerlink" title="说说分库与分表设计，可参考《数据库分库分表策略的具体实现方案》"></a>说说分库与分表设计，可参考《数据库分库分表策略的具体实现方案》</h4></li>
+<li><h4 id="分库与分表带来的分布式困境与应对之策"><a href="#分库与分表带来的分布式困境与应对之策" class="headerlink" title="分库与分表带来的分布式困境与应对之策"></a>分库与分表带来的分布式困境与应对之策</h4></li>
+<li><h4 id="如何保证分布式缓存的一致性-分布式缓存一致性hash算法-？分布式session实现？"><a href="#如何保证分布式缓存的一致性-分布式缓存一致性hash算法-？分布式session实现？" class="headerlink" title="如何保证分布式缓存的一致性(分布式缓存一致性hash算法?)？分布式session实现？"></a>如何保证分布式缓存的一致性(分布式缓存一致性hash算法?)？分布式session实现？</h4></li>
+<li><h4 id="Solr如何实现全天24小时索引更新；"><a href="#Solr如何实现全天24小时索引更新；" class="headerlink" title="Solr如何实现全天24小时索引更新；"></a>Solr如何实现全天24小时索引更新；</h4></li>
+</ul>
+<h3 id="4-3、Dubbo"><a href="#4-3、Dubbo" class="headerlink" title="4.3、Dubbo"></a>4.3、Dubbo</h3><ul>
+<li><h4 id="什么是Dubbo，可参考《Dubbo入门》"><a href="#什么是Dubbo，可参考《Dubbo入门》" class="headerlink" title="什么是Dubbo，可参考《Dubbo入门》"></a>什么是Dubbo，可参考《Dubbo入门》</h4></li>
+<li><h4 id="什么是RPC、如何实现RPC、RPC-的实现原理，可参考《基于HTTP的RPC实现》"><a href="#什么是RPC、如何实现RPC、RPC-的实现原理，可参考《基于HTTP的RPC实现》" class="headerlink" title="什么是RPC、如何实现RPC、RPC 的实现原理，可参考《基于HTTP的RPC实现》"></a>什么是RPC、如何实现RPC、RPC 的实现原理，可参考《基于HTTP的RPC实现》</h4></li>
+<li><h4 id="Dubbo中的SPI是什么概念"><a href="#Dubbo中的SPI是什么概念" class="headerlink" title="Dubbo中的SPI是什么概念"></a>Dubbo中的SPI是什么概念</h4></li>
+<li><h4 id="Dubbo的基本原理、执行流程"><a href="#Dubbo的基本原理、执行流程" class="headerlink" title="Dubbo的基本原理、执行流程"></a>Dubbo的基本原理、执行流程</h4></li>
+</ul>
+<h2 id="五、微服务"><a href="#五、微服务" class="headerlink" title="五、微服务"></a>五、微服务</h2><h3 id="5-1、微服务"><a href="#5-1、微服务" class="headerlink" title="5.1、微服务"></a>5.1、微服务</h3><ul>
+<li><h4 id="前后端分离是如何做的？"><a href="#前后端分离是如何做的？" class="headerlink" title="前后端分离是如何做的？"></a>前后端分离是如何做的？</h4></li>
+<li><h4 id="微服务哪些框架"><a href="#微服务哪些框架" class="headerlink" title="微服务哪些框架"></a>微服务哪些框架</h4></li>
+<li><h4 id="Spring-Could的常见组件有哪些？可参考《Spring-Cloud概述》"><a href="#Spring-Could的常见组件有哪些？可参考《Spring-Cloud概述》" class="headerlink" title="Spring Could的常见组件有哪些？可参考《Spring Cloud概述》"></a>Spring Could的常见组件有哪些？可参考《Spring Cloud概述》</h4></li>
+<li><h4 id="领域驱动有了解吗？什么是领域驱动模型？充血模型、贫血模型"><a href="#领域驱动有了解吗？什么是领域驱动模型？充血模型、贫血模型" class="headerlink" title="领域驱动有了解吗？什么是领域驱动模型？充血模型、贫血模型"></a>领域驱动有了解吗？什么是领域驱动模型？充血模型、贫血模型</h4></li>
+<li><h4 id="JWT有了解吗，什么是JWT，可参考《前后端分离利器之JWT》"><a href="#JWT有了解吗，什么是JWT，可参考《前后端分离利器之JWT》" class="headerlink" title="JWT有了解吗，什么是JWT，可参考《前后端分离利器之JWT》"></a>JWT有了解吗，什么是JWT，可参考《前后端分离利器之JWT》</h4></li>
+<li><h4 id="你怎么理解-RESTful"><a href="#你怎么理解-RESTful" class="headerlink" title="你怎么理解 RESTful"></a>你怎么理解 RESTful</h4></li>
+<li><h4 id="说说如何设计一个良好的-API"><a href="#说说如何设计一个良好的-API" class="headerlink" title="说说如何设计一个良好的 API"></a>说说如何设计一个良好的 API</h4></li>
+<li><h4 id="如何理解-RESTful-API-的幂等性"><a href="#如何理解-RESTful-API-的幂等性" class="headerlink" title="如何理解 RESTful API 的幂等性"></a>如何理解 RESTful API 的幂等性</h4></li>
+<li><h4 id="如何保证接口的幂等性"><a href="#如何保证接口的幂等性" class="headerlink" title="如何保证接口的幂等性"></a>如何保证接口的幂等性</h4></li>
+<li><h4 id="说说-CAP-定理、BASE-理论"><a href="#说说-CAP-定理、BASE-理论" class="headerlink" title="说说 CAP 定理、BASE 理论"></a>说说 CAP 定理、BASE 理论</h4></li>
+<li><h4 id="怎么考虑数据一致性问题"><a href="#怎么考虑数据一致性问题" class="headerlink" title="怎么考虑数据一致性问题"></a>怎么考虑数据一致性问题</h4></li>
+<li><h4 id="说说最终一致性的实现方案"><a href="#说说最终一致性的实现方案" class="headerlink" title="说说最终一致性的实现方案"></a>说说最终一致性的实现方案</h4></li>
+<li><h4 id="微服务的优缺点，可参考《微服务批判》"><a href="#微服务的优缺点，可参考《微服务批判》" class="headerlink" title="微服务的优缺点，可参考《微服务批判》"></a>微服务的优缺点，可参考《微服务批判》</h4></li>
+<li><h4 id="微服务与-SOA-的区别"><a href="#微服务与-SOA-的区别" class="headerlink" title="微服务与 SOA 的区别"></a>微服务与 SOA 的区别</h4></li>
+<li><h4 id="如何拆分服务、水平分割、垂直分割"><a href="#如何拆分服务、水平分割、垂直分割" class="headerlink" title="如何拆分服务、水平分割、垂直分割"></a>如何拆分服务、水平分割、垂直分割</h4></li>
+<li><h4 id="如何应对微服务的链式调用异常"><a href="#如何应对微服务的链式调用异常" class="headerlink" title="如何应对微服务的链式调用异常"></a>如何应对微服务的链式调用异常</h4></li>
+<li><h4 id="如何快速追踪与定位问题"><a href="#如何快速追踪与定位问题" class="headerlink" title="如何快速追踪与定位问题"></a>如何快速追踪与定位问题</h4></li>
+<li><h4 id="如何保证微服务的安全、认证"><a href="#如何保证微服务的安全、认证" class="headerlink" title="如何保证微服务的安全、认证"></a>如何保证微服务的安全、认证</h4></li>
+</ul>
+<h3 id="5-2、安全问题"><a href="#5-2、安全问题" class="headerlink" title="5.2、安全问题"></a>5.2、安全问题</h3><ul>
+<li><h4 id="如何防范常见的Web攻击、如何方式SQL注入"><a href="#如何防范常见的Web攻击、如何方式SQL注入" class="headerlink" title="如何防范常见的Web攻击、如何方式SQL注入"></a>如何防范常见的Web攻击、如何方式SQL注入</h4></li>
+<li><h4 id="服务端通信安全攻防"><a href="#服务端通信安全攻防" class="headerlink" title="服务端通信安全攻防"></a>服务端通信安全攻防</h4></li>
+<li><h4 id="HTTPS原理剖析、降级攻击、HTTP与HTTPS的对比"><a href="#HTTPS原理剖析、降级攻击、HTTP与HTTPS的对比" class="headerlink" title="HTTPS原理剖析、降级攻击、HTTP与HTTPS的对比"></a>HTTPS原理剖析、降级攻击、HTTP与HTTPS的对比</h4></li>
+</ul>
+<h3 id="5-3、性能优化"><a href="#5-3、性能优化" class="headerlink" title="5.3、性能优化"></a>5.3、性能优化</h3><ul>
+<li><h4 id="性能指标有哪些"><a href="#性能指标有哪些" class="headerlink" title="性能指标有哪些"></a>性能指标有哪些</h4></li>
+<li><h4 id="如何发现性能瓶颈"><a href="#如何发现性能瓶颈" class="headerlink" title="如何发现性能瓶颈"></a>如何发现性能瓶颈</h4></li>
+<li><h4 id="性能调优的常见手段"><a href="#性能调优的常见手段" class="headerlink" title="性能调优的常见手段"></a>性能调优的常见手段</h4></li>
+<li><h4 id="说说你在项目中如何进行性能调优"><a href="#说说你在项目中如何进行性能调优" class="headerlink" title="说说你在项目中如何进行性能调优"></a>说说你在项目中如何进行性能调优</h4></li>
+</ul>
+<h2 id="六、其他"><a href="#六、其他" class="headerlink" title="六、其他"></a>六、其他</h2><h3 id="6-1、设计能力"><a href="#6-1、设计能力" class="headerlink" title="6.1、设计能力"></a>6.1、设计能力</h3><ul>
+<li><h4 id="说说你在项目中使用过的UML图"><a href="#说说你在项目中使用过的UML图" class="headerlink" title="说说你在项目中使用过的UML图"></a>说说你在项目中使用过的UML图</h4></li>
+<li><h4 id="你如何考虑组件化、服务化、系统拆分"><a href="#你如何考虑组件化、服务化、系统拆分" class="headerlink" title="你如何考虑组件化、服务化、系统拆分"></a>你如何考虑组件化、服务化、系统拆分</h4></li>
+<li><h4 id="秒杀场景如何设计"><a href="#秒杀场景如何设计" class="headerlink" title="秒杀场景如何设计"></a>秒杀场景如何设计</h4></li>
+<li><h4 id="如何防止表单重复提交（Token令牌环等方式）；"><a href="#如何防止表单重复提交（Token令牌环等方式）；" class="headerlink" title="如何防止表单重复提交（Token令牌环等方式）；"></a>如何防止表单重复提交（Token令牌环等方式）；</h4></li>
+<li><h4 id="有一个url白名单，需要使用正则表达式进行过滤，但是url量级很大，大概亿级，那么如何优化正则表达式？如何优化亿级的url匹配呢？"><a href="#有一个url白名单，需要使用正则表达式进行过滤，但是url量级很大，大概亿级，那么如何优化正则表达式？如何优化亿级的url匹配呢？" class="headerlink" title="有一个url白名单，需要使用正则表达式进行过滤，但是url量级很大，大概亿级，那么如何优化正则表达式？如何优化亿级的url匹配呢？"></a>有一个url白名单，需要使用正则表达式进行过滤，但是url量级很大，大概亿级，那么如何优化正则表达式？如何优化亿级的url匹配呢？</h4></li>
+</ul>
+<p>可参考：《秒杀系统的技术挑战、应对策略以及架构设计总结一二！》</p>
+<h3 id="6-2、业务工程"><a href="#6-2、业务工程" class="headerlink" title="6.2、业务工程"></a>6.2、业务工程</h3><ul>
+<li><h4 id="说说你的开发流程、如何进行自动化部署的"><a href="#说说你的开发流程、如何进行自动化部署的" class="headerlink" title="说说你的开发流程、如何进行自动化部署的"></a>说说你的开发流程、如何进行自动化部署的</h4></li>
+<li><h4 id="你和团队是如何沟通的"><a href="#你和团队是如何沟通的" class="headerlink" title="你和团队是如何沟通的"></a>你和团队是如何沟通的</h4></li>
+<li><h4 id="你如何进行代码评审"><a href="#你如何进行代码评审" class="headerlink" title="你如何进行代码评审"></a>你如何进行代码评审</h4></li>
+<li><h4 id="说说你对技术与业务的理解"><a href="#说说你对技术与业务的理解" class="headerlink" title="说说你对技术与业务的理解"></a>说说你对技术与业务的理解</h4></li>
+<li><h4 id="说说你在项目中遇到感觉最难Bug，是如何解决的"><a href="#说说你在项目中遇到感觉最难Bug，是如何解决的" class="headerlink" title="说说你在项目中遇到感觉最难Bug，是如何解决的"></a>说说你在项目中遇到感觉最难Bug，是如何解决的</h4></li>
+<li><h4 id="介绍一下工作中的一个你认为最有价值的项目，以及在这个过程中的角色、解决的问题、你觉得你们项目还有哪些不足的地方"><a href="#介绍一下工作中的一个你认为最有价值的项目，以及在这个过程中的角色、解决的问题、你觉得你们项目还有哪些不足的地方" class="headerlink" title="介绍一下工作中的一个你认为最有价值的项目，以及在这个过程中的角色、解决的问题、你觉得你们项目还有哪些不足的地方"></a>介绍一下工作中的一个你认为最有价值的项目，以及在这个过程中的角色、解决的问题、你觉得你们项目还有哪些不足的地方</h4></li>
+</ul>
+<h3 id="6-3、软实力"><a href="#6-3、软实力" class="headerlink" title="6.3、软实力"></a>6.3、软实力</h3><ul>
+<li><h4 id="说说你的优缺点、亮点"><a href="#说说你的优缺点、亮点" class="headerlink" title="说说你的优缺点、亮点"></a>说说你的优缺点、亮点</h4></li>
+<li><h4 id="说说你最近在看什么书、什么博客、在研究什么新技术、再看那些开源项目的源代码"><a href="#说说你最近在看什么书、什么博客、在研究什么新技术、再看那些开源项目的源代码" class="headerlink" title="说说你最近在看什么书、什么博客、在研究什么新技术、再看那些开源项目的源代码"></a>说说你最近在看什么书、什么博客、在研究什么新技术、再看那些开源项目的源代码</h4></li>
+<li><h4 id="说说你觉得最有意义的技术书籍"><a href="#说说你觉得最有意义的技术书籍" class="headerlink" title="说说你觉得最有意义的技术书籍"></a>说说你觉得最有意义的技术书籍</h4></li>
+<li><h4 id="工作之余做什么事情、平时是如何学习的，怎样提升自己的能力"><a href="#工作之余做什么事情、平时是如何学习的，怎样提升自己的能力" class="headerlink" title="工作之余做什么事情、平时是如何学习的，怎样提升自己的能力"></a>工作之余做什么事情、平时是如何学习的，怎样提升自己的能力</h4></li>
+<li><h4 id="说说个人发展方向方面的思考"><a href="#说说个人发展方向方面的思考" class="headerlink" title="说说个人发展方向方面的思考"></a>说说个人发展方向方面的思考</h4></li>
+<li><h4 id="说说你认为的服务端开发工程师应该具备哪些能力"><a href="#说说你认为的服务端开发工程师应该具备哪些能力" class="headerlink" title="说说你认为的服务端开发工程师应该具备哪些能力"></a>说说你认为的服务端开发工程师应该具备哪些能力</h4></li>
+<li><h4 id="说说你认为的架构师是什么样的，架构师主要做什么"><a href="#说说你认为的架构师是什么样的，架构师主要做什么" class="headerlink" title="说说你认为的架构师是什么样的，架构师主要做什么"></a>说说你认为的架构师是什么样的，架构师主要做什么</h4></li>
+<li><h4 id="如何看待加班的问题"><a href="#如何看待加班的问题" class="headerlink" title="如何看待加班的问题"></a>如何看待加班的问题</h4></li>
+</ul>
+<h2 id="七、操作系统"><a href="#七、操作系统" class="headerlink" title="七、操作系统"></a>七、操作系统</h2><ul>
+<li><h4 id="Linux静态链接和动态链接；"><a href="#Linux静态链接和动态链接；" class="headerlink" title="Linux静态链接和动态链接；"></a>Linux静态链接和动态链接；</h4></li>
+<li><h4 id="什么是IO多路复用模型（select、poll、epoll）；"><a href="#什么是IO多路复用模型（select、poll、epoll）；" class="headerlink" title="什么是IO多路复用模型（select、poll、epoll）；"></a>什么是IO多路复用模型（select、poll、epoll）；</h4></li>
+<li><h4 id="Linux中的grep管道用处？Linux的常用命令？"><a href="#Linux中的grep管道用处？Linux的常用命令？" class="headerlink" title="Linux中的grep管道用处？Linux的常用命令？"></a>Linux中的grep管道用处？Linux的常用命令？</h4></li>
+<li><h4 id="操作系统中虚拟地址、逻辑地址、线性地址、物理地址的概念及区别；"><a href="#操作系统中虚拟地址、逻辑地址、线性地址、物理地址的概念及区别；" class="headerlink" title="操作系统中虚拟地址、逻辑地址、线性地址、物理地址的概念及区别；"></a>操作系统中虚拟地址、逻辑地址、线性地址、物理地址的概念及区别；</h4></li>
+<li><h4 id="内存的页面置换算法；"><a href="#内存的页面置换算法；" class="headerlink" title="内存的页面置换算法；"></a>内存的页面置换算法；</h4></li>
+<li><h4 id="进程调度算法，操作系统是如何调度进程的；"><a href="#进程调度算法，操作系统是如何调度进程的；" class="headerlink" title="进程调度算法，操作系统是如何调度进程的；"></a>进程调度算法，操作系统是如何调度进程的；</h4></li>
+<li><h4 id="父子进程、孤儿进程、僵死进程等概念；"><a href="#父子进程、孤儿进程、僵死进程等概念；" class="headerlink" title="父子进程、孤儿进程、僵死进程等概念；"></a>父子进程、孤儿进程、僵死进程等概念；</h4></li>
+<li><h4 id="fork进程时的操作；"><a href="#fork进程时的操作；" class="headerlink" title="fork进程时的操作；"></a>fork进程时的操作；</h4></li>
+<li><h4 id="kill用法，某个进程杀不掉的原因（僵死进程；进入内核态，忽略kill信号）；"><a href="#kill用法，某个进程杀不掉的原因（僵死进程；进入内核态，忽略kill信号）；" class="headerlink" title="kill用法，某个进程杀不掉的原因（僵死进程；进入内核态，忽略kill信号）；"></a>kill用法，某个进程杀不掉的原因（僵死进程；进入内核态，忽略kill信号）；</h4></li>
+<li><h4 id="系统管理命令（如查看内存使用、网络情况）；"><a href="#系统管理命令（如查看内存使用、网络情况）；" class="headerlink" title="系统管理命令（如查看内存使用、网络情况）；"></a>系统管理命令（如查看内存使用、网络情况）；</h4></li>
+<li><h4 id="find命令、awk使用；"><a href="#find命令、awk使用；" class="headerlink" title="find命令、awk使用；"></a>find命令、awk使用；</h4></li>
+<li><h4 id="Linux下排查某个死循环的线程；"><a href="#Linux下排查某个死循环的线程；" class="headerlink" title="Linux下排查某个死循环的线程；"></a>Linux下排查某个死循环的线程；</h4></li>
+<li><h4 id="为什么要内存对齐；"><a href="#为什么要内存对齐；" class="headerlink" title="为什么要内存对齐；"></a>为什么要内存对齐；</h4></li>
+<li><h4 id="为什么会有大端小端，htol这一类函数的作用；"><a href="#为什么会有大端小端，htol这一类函数的作用；" class="headerlink" title="为什么会有大端小端，htol这一类函数的作用；"></a>为什么会有大端小端，htol这一类函数的作用；</h4></li>
+<li><h4 id="top显示出来的系统信息都是什么含义；（重要！）"><a href="#top显示出来的系统信息都是什么含义；（重要！）" class="headerlink" title="top显示出来的系统信息都是什么含义；（重要！）"></a>top显示出来的系统信息都是什么含义；（重要！）</h4></li>
+<li><h4 id="Linux地址空间，怎么样进行寻址的；"><a href="#Linux地址空间，怎么样进行寻址的；" class="headerlink" title="Linux地址空间，怎么样进行寻址的；"></a>Linux地址空间，怎么样进行寻址的；</h4></li>
+<li><h4 id="Linux如何查找目录或者文件的；"><a href="#Linux如何查找目录或者文件的；" class="headerlink" title="Linux如何查找目录或者文件的；"></a>Linux如何查找目录或者文件的；</h4></li>
+<li><h4 id="Linux下可以在-proc目录下可以查看CPU的核心数等；cat-proc-下边会有很多系统内核信息可供显示；"><a href="#Linux下可以在-proc目录下可以查看CPU的核心数等；cat-proc-下边会有很多系统内核信息可供显示；" class="headerlink" title="Linux下可以在/proc目录下可以查看CPU的核心数等；cat /proc/下边会有很多系统内核信息可供显示；"></a>Linux下可以在/proc目录下可以查看CPU的核心数等；cat /proc/下边会有很多系统内核信息可供显示；</h4></li>
+<li><h4 id="说一下栈的内存是怎么分配的；"><a href="#说一下栈的内存是怎么分配的；" class="headerlink" title="说一下栈的内存是怎么分配的；"></a>说一下栈的内存是怎么分配的；</h4></li>
+<li><h4 id="Linux各个目录有了解过吗？-etc、-bin、-dev、-lib、-sbin这些常见的目录主要作用是什么？"><a href="#Linux各个目录有了解过吗？-etc、-bin、-dev、-lib、-sbin这些常见的目录主要作用是什么？" class="headerlink" title="Linux各个目录有了解过吗？/etc、/bin、/dev、/lib、/sbin这些常见的目录主要作用是什么？"></a>Linux各个目录有了解过吗？/etc、/bin、/dev、/lib、/sbin这些常见的目录主要作用是什么？</h4></li>
+<li><h4 id="说一下栈帧的内存是怎么分配的；"><a href="#说一下栈帧的内存是怎么分配的；" class="headerlink" title="说一下栈帧的内存是怎么分配的；"></a>说一下栈帧的内存是怎么分配的；</h4></li>
+<li><h4 id="Linux下排查某个死循环的线程；-1"><a href="#Linux下排查某个死循环的线程；-1" class="headerlink" title="Linux下排查某个死循环的线程；"></a>Linux下排查某个死循环的线程；</h4></li>
+</ul>
+<h2 id="八、系统设计开放性题目"><a href="#八、系统设计开放性题目" class="headerlink" title="八、系统设计开放性题目"></a>八、系统设计开放性题目</h2><ul>
+<li><h4 id="秒杀系统设计，超卖怎么搞"><a href="#秒杀系统设计，超卖怎么搞" class="headerlink" title="秒杀系统设计，超卖怎么搞;"></a>秒杀系统设计，超卖怎么搞;</h4></li>
+<li><h4 id="你们的图片时怎么存储的，对应在数据库中时如何保存图片的信息的？"><a href="#你们的图片时怎么存储的，对应在数据库中时如何保存图片的信息的？" class="headerlink" title="你们的图片时怎么存储的，对应在数据库中时如何保存图片的信息的？"></a>你们的图片时怎么存储的，对应在数据库中时如何保存图片的信息的？</h4></li>
+<li><h4 id="假如成都没有一座消防站，现在问你要建立几座消防站，每个消防站要配多少名消防官兵，多少辆消防车，请你拿出一个方案；"><a href="#假如成都没有一座消防站，现在问你要建立几座消防站，每个消防站要配多少名消防官兵，多少辆消防车，请你拿出一个方案；" class="headerlink" title="假如成都没有一座消防站，现在问你要建立几座消防站，每个消防站要配多少名消防官兵，多少辆消防车，请你拿出一个方案；"></a>假如成都没有一座消防站，现在问你要建立几座消防站，每个消防站要配多少名消防官兵，多少辆消防车，请你拿出一个方案；</h4></li>
+<li><h4 id="基于数组实现一个循环阻塞队列；"><a href="#基于数组实现一个循环阻塞队列；" class="headerlink" title="基于数组实现一个循环阻塞队列；"></a>基于数组实现一个循环阻塞队列；</h4></li>
+<li><h4 id="常见的ipv4地址的展现形式如“168-0-0-1”，请实现ip地址和int类型的相互转换。（使用位移的方式）"><a href="#常见的ipv4地址的展现形式如“168-0-0-1”，请实现ip地址和int类型的相互转换。（使用位移的方式）" class="headerlink" title="常见的ipv4地址的展现形式如“168.0.0.1”，请实现ip地址和int类型的相互转换。（使用位移的方式）"></a>常见的ipv4地址的展现形式如“168.0.0.1”，请实现ip地址和int类型的相互转换。（使用位移的方式）</h4></li>
+<li><h4 id="现网某个服务部署在多台Liunx服务器上，其中一台突然出现CPU-100-的情况，而其他服务器正常，请列举可能导致这种情况发生的原因？如果您遇到这样的情况，应如何定位？内存？CPU？发布？debug？请求量？"><a href="#现网某个服务部署在多台Liunx服务器上，其中一台突然出现CPU-100-的情况，而其他服务器正常，请列举可能导致这种情况发生的原因？如果您遇到这样的情况，应如何定位？内存？CPU？发布？debug？请求量？" class="headerlink" title="现网某个服务部署在多台Liunx服务器上，其中一台突然出现CPU 100%的情况，而其他服务器正常，请列举可能导致这种情况发生的原因？如果您遇到这样的情况，应如何定位？内存？CPU？发布？debug？请求量？"></a>现网某个服务部署在多台Liunx服务器上，其中一台突然出现CPU 100%的情况，而其他服务器正常，请列举可能导致这种情况发生的原因？如果您遇到这样的情况，应如何定位？内存？CPU？发布？debug？请求量？</h4></li>
+</ul>
+<h2 id="九、大数据量问题（后边会有专题单独讨论）"><a href="#九、大数据量问题（后边会有专题单独讨论）" class="headerlink" title="九、大数据量问题（后边会有专题单独讨论）"></a>九、大数据量问题（后边会有专题单独讨论）</h2><ul>
+<li><h4 id="给定a、b两个文件，各存放50亿个url，每个url各占64字节，内存限制是4G，让你找出a、b文件共同的url？"><a href="#给定a、b两个文件，各存放50亿个url，每个url各占64字节，内存限制是4G，让你找出a、b文件共同的url？" class="headerlink" title="给定a、b两个文件，各存放50亿个url，每个url各占64字节，内存限制是4G，让你找出a、b文件共同的url？"></a>给定a、b两个文件，各存放50亿个url，每个url各占64字节，内存限制是4G，让你找出a、b文件共同的url？</h4></li>
+<li><h4 id="海量日志数据，提取出某日访问百度次数最多的那个IP；"><a href="#海量日志数据，提取出某日访问百度次数最多的那个IP；" class="headerlink" title="海量日志数据，提取出某日访问百度次数最多的那个IP；"></a>海量日志数据，提取出某日访问百度次数最多的那个IP；</h4></li>
+<li><h4 id="一个文本文件，大约有一万行，每行一个词，要求统计出其中最频繁出现的前10个词，请给出思想，给出时间复杂度分析。"><a href="#一个文本文件，大约有一万行，每行一个词，要求统计出其中最频繁出现的前10个词，请给出思想，给出时间复杂度分析。" class="headerlink" title="一个文本文件，大约有一万行，每行一个词，要求统计出其中最频繁出现的前10个词，请给出思想，给出时间复杂度分析。"></a>一个文本文件，大约有一万行，每行一个词，要求统计出其中最频繁出现的前10个词，请给出思想，给出时间复杂度分析。</h4></li>
+<li><h4 id="此话题后边会有专门的文章探讨，如果有等不及的小伙伴，可以移步参考："><a href="#此话题后边会有专门的文章探讨，如果有等不及的小伙伴，可以移步参考：" class="headerlink" title="此话题后边会有专门的文章探讨，如果有等不及的小伙伴，可以移步参考："></a>此话题后边会有专门的文章探讨，如果有等不及的小伙伴，可以移步参考：</h4></li>
+<li><p><strong>1、<a href="https://blog.csdn.net/v_july_v/article/details/6279498" target="_blank" rel="noopener">https://blog.csdn.net/v_july_v/article/details/6279498</a></strong></p>
+</li>
+<li><p><strong>2、<a href="https://blog.csdn.net/v_july_v/article/details/7382693" target="_blank" rel="noopener">https://blog.csdn.net/v_july_v/article/details/7382693</a></strong></p>
+</li>
+</ul>
+<h2 id="十、逻辑思维题"><a href="#十、逻辑思维题" class="headerlink" title="十、逻辑思维题"></a>十、逻辑思维题</h2><ul>
+<li><h4 id="有两根粗细均匀的香（烧香拜佛的香），每一根烧完都花一个小时，怎么样能够得到15min？"><a href="#有两根粗细均匀的香（烧香拜佛的香），每一根烧完都花一个小时，怎么样能够得到15min？" class="headerlink" title="有两根粗细均匀的香（烧香拜佛的香），每一根烧完都花一个小时，怎么样能够得到15min？"></a>有两根粗细均匀的香（烧香拜佛的香），每一根烧完都花一个小时，怎么样能够得到15min？</h4></li>
+<li><h4 id="假定你有8个撞球，其中有1个球比其他的球稍重-如果只能利用天平来断定哪一个球重-要找到较重的球-要称几次-（2次）；"><a href="#假定你有8个撞球，其中有1个球比其他的球稍重-如果只能利用天平来断定哪一个球重-要找到较重的球-要称几次-（2次）；" class="headerlink" title="假定你有8个撞球，其中有1个球比其他的球稍重,如果只能利用天平来断定哪一个球重,要找到较重的球,要称几次?（2次）；"></a>假定你有8个撞球，其中有1个球比其他的球稍重,如果只能利用天平来断定哪一个球重,要找到较重的球,要称几次?（2次）；</h4></li>
+<li><h4 id="实验室里有1000个一模一样的瓶子，但是其中的一瓶有毒。可以用实验室的小白鼠来测试哪一瓶是毒药。如果小白鼠喝掉毒药的话，会在一个星期的时候死去，其他瓶子里的药水没有任何副作用。请问最少用多少只小白鼠可以在一个星期以内查出哪瓶是毒药；（答案是10只）"><a href="#实验室里有1000个一模一样的瓶子，但是其中的一瓶有毒。可以用实验室的小白鼠来测试哪一瓶是毒药。如果小白鼠喝掉毒药的话，会在一个星期的时候死去，其他瓶子里的药水没有任何副作用。请问最少用多少只小白鼠可以在一个星期以内查出哪瓶是毒药；（答案是10只）" class="headerlink" title="实验室里有1000个一模一样的瓶子，但是其中的一瓶有毒。可以用实验室的小白鼠来测试哪一瓶是毒药。如果小白鼠喝掉毒药的话，会在一个星期的时候死去，其他瓶子里的药水没有任何副作用。请问最少用多少只小白鼠可以在一个星期以内查出哪瓶是毒药；（答案是10只）"></a>实验室里有1000个一模一样的瓶子，但是其中的一瓶有毒。可以用实验室的小白鼠来测试哪一瓶是毒药。如果小白鼠喝掉毒药的话，会在一个星期的时候死去，其他瓶子里的药水没有任何副作用。请问最少用多少只小白鼠可以在一个星期以内查出哪瓶是毒药；（答案是10只）</h4></li>
+<li><h4 id="假设有一个池塘，里面有无穷多的水。现有2个空水壶，容积分别为5升和6升。问题是如何只用这2个水壶从池塘里取得3升的水；"><a href="#假设有一个池塘，里面有无穷多的水。现有2个空水壶，容积分别为5升和6升。问题是如何只用这2个水壶从池塘里取得3升的水；" class="headerlink" title="假设有一个池塘，里面有无穷多的水。现有2个空水壶，容积分别为5升和6升。问题是如何只用这2个水壶从池塘里取得3升的水；"></a>假设有一个池塘，里面有无穷多的水。现有2个空水壶，容积分别为5升和6升。问题是如何只用这2个水壶从池塘里取得3升的水；</h4></li>
+</ul>
+<h4 id="面试题前篇的链接：http-lrshuai-top-atc-show-109"><a href="#面试题前篇的链接：http-lrshuai-top-atc-show-109" class="headerlink" title="面试题前篇的链接：http://lrshuai.top/atc/show/109"></a>面试题前篇的链接：<a href="http://lrshuai.top/atc/show/109" target="_blank" rel="noopener">http://lrshuai.top/atc/show/109</a></h4>
+      
+    </div>
+
+    
+
+    
+    
+    
+	
+	    <div>
+	
+	<div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------本文结束 <i class="fa fa-heartbeat"></i> 感谢您的阅读-------------</div>
+    
+</div>
+	
+	</div>
+
+    
+
+    
+      
+    
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div></div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>打赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/blog/images/wechat_pay.jpg" alt="rstyro 微信支付">
+        <p>微信支付</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/blog/images/alipay.jpg" alt="rstyro 支付宝">
+        <p>支付宝</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+	
+	<div>    
+	 
+	 
+	<ul class="post-copyright">
+	  <li class="post-copyright-author">
+		  <strong>本文作者：</strong>rstyro
+	  </li>
+	  <li class="post-copyright-link">
+		<strong>本文链接：</strong>
+		<a href="/blog/2018/01/03/Java 面试题之后篇/" title="Java 面试题之后篇">https://rstyro.github.io/blog/2018/01/03/Java 面试题之后篇/</a>
+	  </li>
+	  <li class="post-copyright-license">
+		<strong>版权： </strong>
+		转载注明出处！
+	  </li>
+	</ul>
+	
+	</div>
+	
+
+      
+        <div class="post-tags">
+          
+            <a href="/blog/tags/Java/" rel="tag"><i class="fa fa-tag"></i> Java</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2018/01/03/Java 面试题之前篇/" rel="next" title="Java 面试题之前篇">
+                <i class="fa fa-chevron-left"></i> Java 面试题之前篇
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2018/01/04/Mysql 零散笔记/" rel="prev" title="Mysql 零散笔记">
+                Mysql 零散笔记 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+
+
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/blog/images/avatar.jpg" alt="rstyro">
+            
+              <p class="site-author-name" itemprop="name">rstyro</p>
+              <p class="site-description motion-element" itemprop="description">帅大叔个人站点，记录一路走来的坑坑坎坎。</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/blog/archives/">
+                
+                    <span class="site-state-item-count">129</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/blog/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">9</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/blog/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">24</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://github.com/rstyro" title="GitHub &rarr; https://github.com/rstyro" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="/blog/1006059906" title="QQ &rarr; 1006059906"><i class="fa fa-fw fa-qq"></i>QQ</a>
+                </span>
+              
+            </div>
+          
+
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-block">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                友链
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://rstyro.github.io/blog/" title="https://rstyro.github.io/blog/">帅大叔博客</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://www.zhyd.me/" title="https://www.zhyd.me/" rel="noopener" target="_blank">张亚东博客</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://www.devsong.org/" title="http://www.devsong.org/" rel="noopener" target="_blank">DevSONG</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://www.dalaoyang.cn/" title="https://www.dalaoyang.cn/" rel="noopener" target="_blank">dalaoyang</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://www.chenshuangyi.com/" title="https://www.chenshuangyi.com/" rel="noopener" target="_blank">陈双义博客</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Java-面试高级篇"><span class="nav-number">1.</span> <span class="nav-text">Java 面试高级篇</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#三、开源框架和容器"><span class="nav-number">2.</span> <span class="nav-text">三、开源框架和容器</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1、SSM-Servlet"><span class="nav-number">2.1.</span> <span class="nav-text">3.1、SSM/Servlet</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Servlet的生命周期"><span class="nav-number">2.1.1.</span> <span class="nav-text">Servlet的生命周期</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#转发与重定向的区别"><span class="nav-number">2.1.2.</span> <span class="nav-text">转发与重定向的区别</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Spring-中BeanFactory-和-ApplicationContext-有什么区别"><span class="nav-number">2.1.3.</span> <span class="nav-text">Spring 中BeanFactory 和 ApplicationContext 有什么区别</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Spring-Bean-的生命周期"><span class="nav-number">2.1.4.</span> <span class="nav-text">Spring Bean 的生命周期</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Spring的bean的创建时机？依赖注入的时机？"><span class="nav-number">2.1.5.</span> <span class="nav-text">Spring的bean的创建时机？依赖注入的时机？</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Spring-IOC-如何实现"><span class="nav-number">2.1.6.</span> <span class="nav-text">Spring IOC 如何实现</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Spring-IoC涉及到的设计模式；"><span class="nav-number">2.1.7.</span> <span class="nav-text">Spring IoC涉及到的设计模式；</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Spring中Bean的作用域，默认的是哪一个"><span class="nav-number">2.1.8.</span> <span class="nav-text">Spring中Bean的作用域，默认的是哪一个</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#说说-Spring-AOP、实现原理"><span class="nav-number">2.1.9.</span> <span class="nav-text">说说 Spring AOP、实现原理</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#动态代理（CGLib-与-JDK）、优缺点、性能对比、如何选择"><span class="nav-number">2.1.10.</span> <span class="nav-text">动态代理（CGLib 与 JDK）、优缺点、性能对比、如何选择</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Spring-事务实现方式、事务的传播机制、默认的事务类别"><span class="nav-number">2.1.11.</span> <span class="nav-text">Spring 事务实现方式、事务的传播机制、默认的事务类别</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Spring-事务底层原理"><span class="nav-number">2.1.12.</span> <span class="nav-text">Spring 事务底层原理</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Spring事务失效（事务嵌套），JDK动态代理给Spring事务埋下的坑"><span class="nav-number">2.1.13.</span> <span class="nav-text">Spring事务失效（事务嵌套），JDK动态代理给Spring事务埋下的坑</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#如何自定义注解实现功能"><span class="nav-number">2.1.14.</span> <span class="nav-text">如何自定义注解实现功能</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Spring-MVC-运行流程"><span class="nav-number">2.1.15.</span> <span class="nav-text">Spring MVC 运行流程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Spring-MVC-启动流程"><span class="nav-number">2.1.16.</span> <span class="nav-text">Spring MVC 启动流程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Spring-的单例实现原理"><span class="nav-number">2.1.17.</span> <span class="nav-text">Spring 的单例实现原理</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Spring-框架中用到了哪些设计模式"><span class="nav-number">2.1.18.</span> <span class="nav-text">Spring 框架中用到了哪些设计模式</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Spring-其他产品"><span class="nav-number">2.1.19.</span> <span class="nav-text">Spring 其他产品</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#有没有用到Spring-Boot，Spring-Boot的认识、原理"><span class="nav-number">2.1.20.</span> <span class="nav-text">有没有用到Spring Boot，Spring Boot的认识、原理</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Spring中-Resource注解和Autowired注解的区别"><span class="nav-number">2.1.21.</span> <span class="nav-text">Spring中 Resource注解和Autowired注解的区别</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#如果一个接⼝有2个不同的实现-那么怎么来Autowire一个指定的实现？"><span class="nav-number">2.1.22.</span> <span class="nav-text">如果一个接⼝有2个不同的实现, 那么怎么来Autowire一个指定的实现？</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Spring声明一个-bean-如何对其进行个性化定制；"><span class="nav-number">2.1.23.</span> <span class="nav-text">Spring声明一个 bean 如何对其进行个性化定制；</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#MyBatis有什么优势；"><span class="nav-number">2.1.24.</span> <span class="nav-text">MyBatis有什么优势；</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#MyBatis如何做事务管理；"><span class="nav-number">2.1.25.</span> <span class="nav-text">MyBatis如何做事务管理；</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#MyBatis怎么防止SQL注入；"><span class="nav-number">2.1.26.</span> <span class="nav-text">MyBatis怎么防止SQL注入；</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Mybatis-的工作原理"><span class="nav-number">2.1.27.</span> <span class="nav-text">Mybatis 的工作原理</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Mybtis缓存机制"><span class="nav-number">2.1.28.</span> <span class="nav-text">Mybtis缓存机制</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Mybtis-常用的动态标签"><span class="nav-number">2.1.29.</span> <span class="nav-text">Mybtis 常用的动态标签</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2、Netty"><span class="nav-number">2.2.</span> <span class="nav-text">3.2、Netty</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#为什么选择-Netty"><span class="nav-number">2.2.1.</span> <span class="nav-text">为什么选择 Netty</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#说说业务中，Netty-的使用场景"><span class="nav-number">2.2.2.</span> <span class="nav-text">说说业务中，Netty 的使用场景</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#原生的-NIO-在-JDK-1-7-版本存在-epoll-bug"><span class="nav-number">2.2.3.</span> <span class="nav-text">原生的 NIO 在 JDK 1.7 版本存在 epoll bug</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#什么是TCP-粘包-拆包"><span class="nav-number">2.2.4.</span> <span class="nav-text">什么是TCP 粘包/拆包</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#TCP粘包-拆包的解决办法"><span class="nav-number">2.2.5.</span> <span class="nav-text">TCP粘包/拆包的解决办法</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Netty-线程模型"><span class="nav-number">2.2.6.</span> <span class="nav-text">Netty 线程模型</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#说说-Netty-的零拷贝"><span class="nav-number">2.2.7.</span> <span class="nav-text">说说 Netty 的零拷贝</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Netty-内部执行流程"><span class="nav-number">2.2.8.</span> <span class="nav-text">Netty 内部执行流程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Netty-重连实现"><span class="nav-number">2.2.9.</span> <span class="nav-text">Netty 重连实现</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-3、Tomcat"><span class="nav-number">2.3.</span> <span class="nav-text">3.3、Tomcat</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Tomcat的基础架构（Server、Service、Connector、Container）"><span class="nav-number">2.3.1.</span> <span class="nav-text">Tomcat的基础架构（Server、Service、Connector、Container）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Tomcat如何加载Servlet的"><span class="nav-number">2.3.2.</span> <span class="nav-text">Tomcat如何加载Servlet的</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Pipeline-Valve机制"><span class="nav-number">2.3.3.</span> <span class="nav-text">Pipeline-Valve机制</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#四、分布式"><span class="nav-number">3.</span> <span class="nav-text">四、分布式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-1、Nginx"><span class="nav-number">3.1.</span> <span class="nav-text">4.1、Nginx</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#请解释什么是C10K问题或者知道什么是C10K问题吗？"><span class="nav-number">3.1.1.</span> <span class="nav-text">请解释什么是C10K问题或者知道什么是C10K问题吗？</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Nginx简介，可参考《Nginx简介》"><span class="nav-number">3.1.2.</span> <span class="nav-text">Nginx简介，可参考《Nginx简介》</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#正向代理和反向代理"><span class="nav-number">3.1.3.</span> <span class="nav-text">正向代理和反向代理.</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Nginx几种常见的负载均衡策略"><span class="nav-number">3.1.4.</span> <span class="nav-text">Nginx几种常见的负载均衡策略</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Nginx服务器上的Master和Worker进程分别是什么"><span class="nav-number">3.1.5.</span> <span class="nav-text">Nginx服务器上的Master和Worker进程分别是什么</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#使用“反向代理服务器”的优点是什么"><span class="nav-number">3.1.6.</span> <span class="nav-text">使用“反向代理服务器”的优点是什么?</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#常见的Nginx负载均衡策略；已有两台Nginx服务器了，倘若这时候再增加一台服务器，采用什么负载均衡算法比较好？"><span class="nav-number">3.1.7.</span> <span class="nav-text">常见的Nginx负载均衡策略；已有两台Nginx服务器了，倘若这时候再增加一台服务器，采用什么负载均衡算法比较好？</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2、分布式其他"><span class="nav-number">3.2.</span> <span class="nav-text">4.2、分布式其他</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#谈谈业务中使用分布式的场景"><span class="nav-number">3.2.1.</span> <span class="nav-text">谈谈业务中使用分布式的场景</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Session-分布式方案"><span class="nav-number">3.2.2.</span> <span class="nav-text">Session 分布式方案</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Session-分布式处理"><span class="nav-number">3.2.3.</span> <span class="nav-text">Session 分布式处理</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#分布式锁的应用场景、分布式锁的产生原因、基本概念"><span class="nav-number">3.2.4.</span> <span class="nav-text">分布式锁的应用场景、分布式锁的产生原因、基本概念</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#分布是锁的常见解决方案"><span class="nav-number">3.2.5.</span> <span class="nav-text">分布是锁的常见解决方案</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#分布式事务的常见解决方案"><span class="nav-number">3.2.6.</span> <span class="nav-text">分布式事务的常见解决方案</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#集群与负载均衡的算法与实现"><span class="nav-number">3.2.7.</span> <span class="nav-text">集群与负载均衡的算法与实现</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#说说分库与分表设计，可参考《数据库分库分表策略的具体实现方案》"><span class="nav-number">3.2.8.</span> <span class="nav-text">说说分库与分表设计，可参考《数据库分库分表策略的具体实现方案》</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#分库与分表带来的分布式困境与应对之策"><span class="nav-number">3.2.9.</span> <span class="nav-text">分库与分表带来的分布式困境与应对之策</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#如何保证分布式缓存的一致性-分布式缓存一致性hash算法-？分布式session实现？"><span class="nav-number">3.2.10.</span> <span class="nav-text">如何保证分布式缓存的一致性(分布式缓存一致性hash算法?)？分布式session实现？</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Solr如何实现全天24小时索引更新；"><span class="nav-number">3.2.11.</span> <span class="nav-text">Solr如何实现全天24小时索引更新；</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-3、Dubbo"><span class="nav-number">3.3.</span> <span class="nav-text">4.3、Dubbo</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#什么是Dubbo，可参考《Dubbo入门》"><span class="nav-number">3.3.1.</span> <span class="nav-text">什么是Dubbo，可参考《Dubbo入门》</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#什么是RPC、如何实现RPC、RPC-的实现原理，可参考《基于HTTP的RPC实现》"><span class="nav-number">3.3.2.</span> <span class="nav-text">什么是RPC、如何实现RPC、RPC 的实现原理，可参考《基于HTTP的RPC实现》</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Dubbo中的SPI是什么概念"><span class="nav-number">3.3.3.</span> <span class="nav-text">Dubbo中的SPI是什么概念</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Dubbo的基本原理、执行流程"><span class="nav-number">3.3.4.</span> <span class="nav-text">Dubbo的基本原理、执行流程</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#五、微服务"><span class="nav-number">4.</span> <span class="nav-text">五、微服务</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#5-1、微服务"><span class="nav-number">4.1.</span> <span class="nav-text">5.1、微服务</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#前后端分离是如何做的？"><span class="nav-number">4.1.1.</span> <span class="nav-text">前后端分离是如何做的？</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#微服务哪些框架"><span class="nav-number">4.1.2.</span> <span class="nav-text">微服务哪些框架</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Spring-Could的常见组件有哪些？可参考《Spring-Cloud概述》"><span class="nav-number">4.1.3.</span> <span class="nav-text">Spring Could的常见组件有哪些？可参考《Spring Cloud概述》</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#领域驱动有了解吗？什么是领域驱动模型？充血模型、贫血模型"><span class="nav-number">4.1.4.</span> <span class="nav-text">领域驱动有了解吗？什么是领域驱动模型？充血模型、贫血模型</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#JWT有了解吗，什么是JWT，可参考《前后端分离利器之JWT》"><span class="nav-number">4.1.5.</span> <span class="nav-text">JWT有了解吗，什么是JWT，可参考《前后端分离利器之JWT》</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#你怎么理解-RESTful"><span class="nav-number">4.1.6.</span> <span class="nav-text">你怎么理解 RESTful</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#说说如何设计一个良好的-API"><span class="nav-number">4.1.7.</span> <span class="nav-text">说说如何设计一个良好的 API</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#如何理解-RESTful-API-的幂等性"><span class="nav-number">4.1.8.</span> <span class="nav-text">如何理解 RESTful API 的幂等性</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#如何保证接口的幂等性"><span class="nav-number">4.1.9.</span> <span class="nav-text">如何保证接口的幂等性</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#说说-CAP-定理、BASE-理论"><span class="nav-number">4.1.10.</span> <span class="nav-text">说说 CAP 定理、BASE 理论</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#怎么考虑数据一致性问题"><span class="nav-number">4.1.11.</span> <span class="nav-text">怎么考虑数据一致性问题</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#说说最终一致性的实现方案"><span class="nav-number">4.1.12.</span> <span class="nav-text">说说最终一致性的实现方案</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#微服务的优缺点，可参考《微服务批判》"><span class="nav-number">4.1.13.</span> <span class="nav-text">微服务的优缺点，可参考《微服务批判》</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#微服务与-SOA-的区别"><span class="nav-number">4.1.14.</span> <span class="nav-text">微服务与 SOA 的区别</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#如何拆分服务、水平分割、垂直分割"><span class="nav-number">4.1.15.</span> <span class="nav-text">如何拆分服务、水平分割、垂直分割</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#如何应对微服务的链式调用异常"><span class="nav-number">4.1.16.</span> <span class="nav-text">如何应对微服务的链式调用异常</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#如何快速追踪与定位问题"><span class="nav-number">4.1.17.</span> <span class="nav-text">如何快速追踪与定位问题</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#如何保证微服务的安全、认证"><span class="nav-number">4.1.18.</span> <span class="nav-text">如何保证微服务的安全、认证</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-2、安全问题"><span class="nav-number">4.2.</span> <span class="nav-text">5.2、安全问题</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#如何防范常见的Web攻击、如何方式SQL注入"><span class="nav-number">4.2.1.</span> <span class="nav-text">如何防范常见的Web攻击、如何方式SQL注入</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#服务端通信安全攻防"><span class="nav-number">4.2.2.</span> <span class="nav-text">服务端通信安全攻防</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#HTTPS原理剖析、降级攻击、HTTP与HTTPS的对比"><span class="nav-number">4.2.3.</span> <span class="nav-text">HTTPS原理剖析、降级攻击、HTTP与HTTPS的对比</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-3、性能优化"><span class="nav-number">4.3.</span> <span class="nav-text">5.3、性能优化</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#性能指标有哪些"><span class="nav-number">4.3.1.</span> <span class="nav-text">性能指标有哪些</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#如何发现性能瓶颈"><span class="nav-number">4.3.2.</span> <span class="nav-text">如何发现性能瓶颈</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#性能调优的常见手段"><span class="nav-number">4.3.3.</span> <span class="nav-text">性能调优的常见手段</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#说说你在项目中如何进行性能调优"><span class="nav-number">4.3.4.</span> <span class="nav-text">说说你在项目中如何进行性能调优</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#六、其他"><span class="nav-number">5.</span> <span class="nav-text">六、其他</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#6-1、设计能力"><span class="nav-number">5.1.</span> <span class="nav-text">6.1、设计能力</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#说说你在项目中使用过的UML图"><span class="nav-number">5.1.1.</span> <span class="nav-text">说说你在项目中使用过的UML图</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#你如何考虑组件化、服务化、系统拆分"><span class="nav-number">5.1.2.</span> <span class="nav-text">你如何考虑组件化、服务化、系统拆分</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#秒杀场景如何设计"><span class="nav-number">5.1.3.</span> <span class="nav-text">秒杀场景如何设计</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#如何防止表单重复提交（Token令牌环等方式）；"><span class="nav-number">5.1.4.</span> <span class="nav-text">如何防止表单重复提交（Token令牌环等方式）；</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#有一个url白名单，需要使用正则表达式进行过滤，但是url量级很大，大概亿级，那么如何优化正则表达式？如何优化亿级的url匹配呢？"><span class="nav-number">5.1.5.</span> <span class="nav-text">有一个url白名单，需要使用正则表达式进行过滤，但是url量级很大，大概亿级，那么如何优化正则表达式？如何优化亿级的url匹配呢？</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-2、业务工程"><span class="nav-number">5.2.</span> <span class="nav-text">6.2、业务工程</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#说说你的开发流程、如何进行自动化部署的"><span class="nav-number">5.2.1.</span> <span class="nav-text">说说你的开发流程、如何进行自动化部署的</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#你和团队是如何沟通的"><span class="nav-number">5.2.2.</span> <span class="nav-text">你和团队是如何沟通的</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#你如何进行代码评审"><span class="nav-number">5.2.3.</span> <span class="nav-text">你如何进行代码评审</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#说说你对技术与业务的理解"><span class="nav-number">5.2.4.</span> <span class="nav-text">说说你对技术与业务的理解</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#说说你在项目中遇到感觉最难Bug，是如何解决的"><span class="nav-number">5.2.5.</span> <span class="nav-text">说说你在项目中遇到感觉最难Bug，是如何解决的</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#介绍一下工作中的一个你认为最有价值的项目，以及在这个过程中的角色、解决的问题、你觉得你们项目还有哪些不足的地方"><span class="nav-number">5.2.6.</span> <span class="nav-text">介绍一下工作中的一个你认为最有价值的项目，以及在这个过程中的角色、解决的问题、你觉得你们项目还有哪些不足的地方</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-3、软实力"><span class="nav-number">5.3.</span> <span class="nav-text">6.3、软实力</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#说说你的优缺点、亮点"><span class="nav-number">5.3.1.</span> <span class="nav-text">说说你的优缺点、亮点</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#说说你最近在看什么书、什么博客、在研究什么新技术、再看那些开源项目的源代码"><span class="nav-number">5.3.2.</span> <span class="nav-text">说说你最近在看什么书、什么博客、在研究什么新技术、再看那些开源项目的源代码</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#说说你觉得最有意义的技术书籍"><span class="nav-number">5.3.3.</span> <span class="nav-text">说说你觉得最有意义的技术书籍</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#工作之余做什么事情、平时是如何学习的，怎样提升自己的能力"><span class="nav-number">5.3.4.</span> <span class="nav-text">工作之余做什么事情、平时是如何学习的，怎样提升自己的能力</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#说说个人发展方向方面的思考"><span class="nav-number">5.3.5.</span> <span class="nav-text">说说个人发展方向方面的思考</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#说说你认为的服务端开发工程师应该具备哪些能力"><span class="nav-number">5.3.6.</span> <span class="nav-text">说说你认为的服务端开发工程师应该具备哪些能力</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#说说你认为的架构师是什么样的，架构师主要做什么"><span class="nav-number">5.3.7.</span> <span class="nav-text">说说你认为的架构师是什么样的，架构师主要做什么</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#如何看待加班的问题"><span class="nav-number">5.3.8.</span> <span class="nav-text">如何看待加班的问题</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#七、操作系统"><span class="nav-number">6.</span> <span class="nav-text">七、操作系统</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Linux静态链接和动态链接；"><span class="nav-number">6.0.1.</span> <span class="nav-text">Linux静态链接和动态链接；</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#什么是IO多路复用模型（select、poll、epoll）；"><span class="nav-number">6.0.2.</span> <span class="nav-text">什么是IO多路复用模型（select、poll、epoll）；</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Linux中的grep管道用处？Linux的常用命令？"><span class="nav-number">6.0.3.</span> <span class="nav-text">Linux中的grep管道用处？Linux的常用命令？</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#操作系统中虚拟地址、逻辑地址、线性地址、物理地址的概念及区别；"><span class="nav-number">6.0.4.</span> <span class="nav-text">操作系统中虚拟地址、逻辑地址、线性地址、物理地址的概念及区别；</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#内存的页面置换算法；"><span class="nav-number">6.0.5.</span> <span class="nav-text">内存的页面置换算法；</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#进程调度算法，操作系统是如何调度进程的；"><span class="nav-number">6.0.6.</span> <span class="nav-text">进程调度算法，操作系统是如何调度进程的；</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#父子进程、孤儿进程、僵死进程等概念；"><span class="nav-number">6.0.7.</span> <span class="nav-text">父子进程、孤儿进程、僵死进程等概念；</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#fork进程时的操作；"><span class="nav-number">6.0.8.</span> <span class="nav-text">fork进程时的操作；</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#kill用法，某个进程杀不掉的原因（僵死进程；进入内核态，忽略kill信号）；"><span class="nav-number">6.0.9.</span> <span class="nav-text">kill用法，某个进程杀不掉的原因（僵死进程；进入内核态，忽略kill信号）；</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#系统管理命令（如查看内存使用、网络情况）；"><span class="nav-number">6.0.10.</span> <span class="nav-text">系统管理命令（如查看内存使用、网络情况）；</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#find命令、awk使用；"><span class="nav-number">6.0.11.</span> <span class="nav-text">find命令、awk使用；</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Linux下排查某个死循环的线程；"><span class="nav-number">6.0.12.</span> <span class="nav-text">Linux下排查某个死循环的线程；</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#为什么要内存对齐；"><span class="nav-number">6.0.13.</span> <span class="nav-text">为什么要内存对齐；</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#为什么会有大端小端，htol这一类函数的作用；"><span class="nav-number">6.0.14.</span> <span class="nav-text">为什么会有大端小端，htol这一类函数的作用；</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#top显示出来的系统信息都是什么含义；（重要！）"><span class="nav-number">6.0.15.</span> <span class="nav-text">top显示出来的系统信息都是什么含义；（重要！）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Linux地址空间，怎么样进行寻址的；"><span class="nav-number">6.0.16.</span> <span class="nav-text">Linux地址空间，怎么样进行寻址的；</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Linux如何查找目录或者文件的；"><span class="nav-number">6.0.17.</span> <span class="nav-text">Linux如何查找目录或者文件的；</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Linux下可以在-proc目录下可以查看CPU的核心数等；cat-proc-下边会有很多系统内核信息可供显示；"><span class="nav-number">6.0.18.</span> <span class="nav-text">Linux下可以在/proc目录下可以查看CPU的核心数等；cat /proc/下边会有很多系统内核信息可供显示；</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#说一下栈的内存是怎么分配的；"><span class="nav-number">6.0.19.</span> <span class="nav-text">说一下栈的内存是怎么分配的；</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Linux各个目录有了解过吗？-etc、-bin、-dev、-lib、-sbin这些常见的目录主要作用是什么？"><span class="nav-number">6.0.20.</span> <span class="nav-text">Linux各个目录有了解过吗？/etc、/bin、/dev、/lib、/sbin这些常见的目录主要作用是什么？</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#说一下栈帧的内存是怎么分配的；"><span class="nav-number">6.0.21.</span> <span class="nav-text">说一下栈帧的内存是怎么分配的；</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Linux下排查某个死循环的线程；-1"><span class="nav-number">6.0.22.</span> <span class="nav-text">Linux下排查某个死循环的线程；</span></a></li></ol></li></ol><li class="nav-item nav-level-2"><a class="nav-link" href="#八、系统设计开放性题目"><span class="nav-number">7.</span> <span class="nav-text">八、系统设计开放性题目</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#秒杀系统设计，超卖怎么搞"><span class="nav-number">7.0.1.</span> <span class="nav-text">秒杀系统设计，超卖怎么搞;</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#你们的图片时怎么存储的，对应在数据库中时如何保存图片的信息的？"><span class="nav-number">7.0.2.</span> <span class="nav-text">你们的图片时怎么存储的，对应在数据库中时如何保存图片的信息的？</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#假如成都没有一座消防站，现在问你要建立几座消防站，每个消防站要配多少名消防官兵，多少辆消防车，请你拿出一个方案；"><span class="nav-number">7.0.3.</span> <span class="nav-text">假如成都没有一座消防站，现在问你要建立几座消防站，每个消防站要配多少名消防官兵，多少辆消防车，请你拿出一个方案；</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#基于数组实现一个循环阻塞队列；"><span class="nav-number">7.0.4.</span> <span class="nav-text">基于数组实现一个循环阻塞队列；</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#常见的ipv4地址的展现形式如“168-0-0-1”，请实现ip地址和int类型的相互转换。（使用位移的方式）"><span class="nav-number">7.0.5.</span> <span class="nav-text">常见的ipv4地址的展现形式如“168.0.0.1”，请实现ip地址和int类型的相互转换。（使用位移的方式）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#现网某个服务部署在多台Liunx服务器上，其中一台突然出现CPU-100-的情况，而其他服务器正常，请列举可能导致这种情况发生的原因？如果您遇到这样的情况，应如何定位？内存？CPU？发布？debug？请求量？"><span class="nav-number">7.0.6.</span> <span class="nav-text">现网某个服务部署在多台Liunx服务器上，其中一台突然出现CPU 100%的情况，而其他服务器正常，请列举可能导致这种情况发生的原因？如果您遇到这样的情况，应如何定位？内存？CPU？发布？debug？请求量？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#九、大数据量问题（后边会有专题单独讨论）"><span class="nav-number">8.</span> <span class="nav-text">九、大数据量问题（后边会有专题单独讨论）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#给定a、b两个文件，各存放50亿个url，每个url各占64字节，内存限制是4G，让你找出a、b文件共同的url？"><span class="nav-number">8.0.1.</span> <span class="nav-text">给定a、b两个文件，各存放50亿个url，每个url各占64字节，内存限制是4G，让你找出a、b文件共同的url？</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#海量日志数据，提取出某日访问百度次数最多的那个IP；"><span class="nav-number">8.0.2.</span> <span class="nav-text">海量日志数据，提取出某日访问百度次数最多的那个IP；</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#一个文本文件，大约有一万行，每行一个词，要求统计出其中最频繁出现的前10个词，请给出思想，给出时间复杂度分析。"><span class="nav-number">8.0.3.</span> <span class="nav-text">一个文本文件，大约有一万行，每行一个词，要求统计出其中最频繁出现的前10个词，请给出思想，给出时间复杂度分析。</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#此话题后边会有专门的文章探讨，如果有等不及的小伙伴，可以移步参考："><span class="nav-number">8.0.4.</span> <span class="nav-text">此话题后边会有专门的文章探讨，如果有等不及的小伙伴，可以移步参考：</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#十、逻辑思维题"><span class="nav-number">9.</span> <span class="nav-text">十、逻辑思维题</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#有两根粗细均匀的香（烧香拜佛的香），每一根烧完都花一个小时，怎么样能够得到15min？"><span class="nav-number">9.0.1.</span> <span class="nav-text">有两根粗细均匀的香（烧香拜佛的香），每一根烧完都花一个小时，怎么样能够得到15min？</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#假定你有8个撞球，其中有1个球比其他的球稍重-如果只能利用天平来断定哪一个球重-要找到较重的球-要称几次-（2次）；"><span class="nav-number">9.0.2.</span> <span class="nav-text">假定你有8个撞球，其中有1个球比其他的球稍重,如果只能利用天平来断定哪一个球重,要找到较重的球,要称几次?（2次）；</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#实验室里有1000个一模一样的瓶子，但是其中的一瓶有毒。可以用实验室的小白鼠来测试哪一瓶是毒药。如果小白鼠喝掉毒药的话，会在一个星期的时候死去，其他瓶子里的药水没有任何副作用。请问最少用多少只小白鼠可以在一个星期以内查出哪瓶是毒药；（答案是10只）"><span class="nav-number">9.0.3.</span> <span class="nav-text">实验室里有1000个一模一样的瓶子，但是其中的一瓶有毒。可以用实验室的小白鼠来测试哪一瓶是毒药。如果小白鼠喝掉毒药的话，会在一个星期的时候死去，其他瓶子里的药水没有任何副作用。请问最少用多少只小白鼠可以在一个星期以内查出哪瓶是毒药；（答案是10只）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#假设有一个池塘，里面有无穷多的水。现有2个空水壶，容积分别为5升和6升。问题是如何只用这2个水壶从池塘里取得3升的水；"><span class="nav-number">9.0.4.</span> <span class="nav-text">假设有一个池塘，里面有无穷多的水。现有2个空水壶，容积分别为5升和6升。问题是如何只用这2个水壶从池塘里取得3升的水；</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#面试题前篇的链接：http-lrshuai-top-atc-show-109"><span class="nav-number">9.0.5.</span> <span class="nav-text">面试题前篇的链接：http://lrshuai.top/atc/show/109</span></a></li></ol></li></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">rstyro</span>
+
+  
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-user"></i>
+    </span>
+    <span class="site-uv" title="总访客量">
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+    </span>
+  
+
+  
+    <span class="post-meta-divider">|</span>
+  
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-eye"></i>
+    </span>
+    <span class="site-pv" title="总访问量">
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/blog/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/blog/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/blog/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/blog/js/src/utils.js?v=6.7.0"></script>
+
+  <script src="/blog/js/src/motion.js?v=6.7.0"></script>
+
+
+
+  
+  
+
+  
+  <script src="/blog/js/src/scrollspy.js?v=6.7.0"></script>
+<script src="/blog/js/src/post-details.js?v=6.7.0"></script>
+
+
+
+  
+
+
+  <script src="/blog/js/src/bootstrap.js?v=6.7.0"></script>
+
+
+
+  
+  
+
+
+
+
+  
+
+<script src="//cdn1.lncld.net/static/js/3.11.1/av-min.js"></script>
+
+
+
+<script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+
+<script>
+  var GUEST = ['nick', 'mail', 'link'];
+  var guest = 'nick,mail,link';
+  guest = guest.split(',').filter(function (item) {
+    return GUEST.indexOf(item) > -1;
+  });
+  new Valine({
+    el: '#comments',
+    verify: false,
+    notify: false,
+    appId: 'LwEPiJFa7YMn2MrJdCwaUbmQ-gzGzoHsz',
+    appKey: 'JqS1y3RxYvDOki9r3NcqqoO5',
+    placeholder: '来都来了，不说几句就走，过分了啊！！！',
+    avatar: 'monsterid',
+    meta: guest,
+    pageSize: '10' || 10,
+    visitor: false
+  });
+</script>
+
+
+
+  
+
+  <script>
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/blog/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url).replace(/\/{2,}/g, '/');
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x"></i></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x"></i></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+  <script>
+    (function(){
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+      }
+      else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+      }
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+    })();
+  </script>
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

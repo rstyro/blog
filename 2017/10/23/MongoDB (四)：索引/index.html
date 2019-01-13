@@ -1,0 +1,1507 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/blog/css/main.css?v=6.7.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon.jpg?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon.jpg?v=6.7.0">
+
+
+  <link rel="mask-icon" href="/blog/images/logo.svg?v=6.7.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/blog/',
+    scheme: 'Mist',
+    version: '6.7.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+<script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+<link href="//cdn.bootcss.com/pace/1.0.2/themes/pink/pace-theme-flash.css" rel="stylesheet">
+  <style>
+      .pace .pace-progress {
+          background: #1E92FB; /*进度条颜色*/
+          height: 3px;
+      }
+      .pace .pace-progress-inner {
+           box-shadow: 0 0 10px #1E92FB, 0 0 5px     #1E92FB; /*阴影颜色*/
+      }
+      .pace .pace-activity {
+          border-top-color: #1E92FB;    /*上边框颜色*/
+          border-left-color: #1E92FB;    /*左边框颜色*/
+      }
+  </style>
+
+  <meta name="description" content="MongoDB 的索引MongoDB 的索引种类1、_id 索引2、单键索引3、复合索引4、多键索引5、过期索引6、全文索引7、地理位置索引查看索引的信息1db.test.getIndexes() 一、_id 索引这个索引绝大多数集合默认建立的索引，一个唯一的索引二、单键索引单键索引最普通的索引1、创建索引,给 name 这个列添加索引123456# 这个应该是V3.0 之前的方法了db.test">
+<meta name="keywords" content="MongoDB">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MongoDB (四)：索引">
+<meta property="og:url" content="https://rstyro.github.io/blog/2017/10/23/MongoDB (四)：索引/index.html">
+<meta property="og:site_name" content="帅大叔的博客">
+<meta property="og:description" content="MongoDB 的索引MongoDB 的索引种类1、_id 索引2、单键索引3、复合索引4、多键索引5、过期索引6、全文索引7、地理位置索引查看索引的信息1db.test.getIndexes() 一、_id 索引这个索引绝大多数集合默认建立的索引，一个唯一的索引二、单键索引单键索引最普通的索引1、创建索引,给 name 这个列添加索引123456# 这个应该是V3.0 之前的方法了db.test">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-01-13T04:41:21.251Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="MongoDB (四)：索引">
+<meta name="twitter:description" content="MongoDB 的索引MongoDB 的索引种类1、_id 索引2、单键索引3、复合索引4、多键索引5、过期索引6、全文索引7、地理位置索引查看索引的信息1db.test.getIndexes() 一、_id 索引这个索引绝大多数集合默认建立的索引，一个唯一的索引二、单键索引单键索引最普通的索引1、创建索引,给 name 这个列添加索引123456# 这个应该是V3.0 之前的方法了db.test">
+
+
+
+
+
+
+  <link rel="canonical" href="https://rstyro.github.io/blog/2017/10/23/MongoDB (四)：索引/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>MongoDB (四)：索引 | 帅大叔的博客</title>
+  
+
+
+
+
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?cd2197f8af1d69b326360027b8f93d92";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/blog/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">帅大叔的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">信你所信，为你所见</p>
+      
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/" rel="section">首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/about/" rel="section">关于</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/tags/" rel="section">标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/categories/" rel="section">分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/archives/" rel="section">归档</a>
+
+  </li>
+
+      
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            搜索</a>
+        </li>
+      
+    </ul>
+  
+
+  
+    
+
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://rstyro.github.io/blog/blog/2017/10/23/MongoDB (四)：索引/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="rstyro">
+      <meta itemprop="description" content="帅大叔个人站点，记录一路走来的坑坑坎坎。">
+      <meta itemprop="image" content="/blog/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="帅大叔的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">MongoDB (四)：索引
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2017-10-23 17:45:01" itemprop="dateCreated datePublished" datetime="2017-10-23T17:45:01+08:00">2017-10-23</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2019-01-13 12:41:21" itemprop="dateModified" datetime="2019-01-13T12:41:21+08:00">2019-01-13</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing"><a href="/blog/categories/数据库/" itemprop="url" rel="index"><span itemprop="name">数据库</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/blog/2017/10/23/MongoDB (四)：索引/#comments" itemprop="discussionUrl">
+                  <span class="post-meta-item-text">评论数：</span> <span class="post-comments-count valine-comment-count" data-xid="/blog/2017/10/23/MongoDB (四)：索引/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="post-meta-item-icon">
+            <i class="fa fa-eye"></i>
+             阅读次数： 
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="MongoDB-的索引"><a href="#MongoDB-的索引" class="headerlink" title="MongoDB 的索引"></a>MongoDB 的索引</h1><h2 id="MongoDB-的索引种类"><a href="#MongoDB-的索引种类" class="headerlink" title="MongoDB 的索引种类"></a>MongoDB 的索引种类</h2><h3 id="1、-id-索引"><a href="#1、-id-索引" class="headerlink" title="1、_id 索引"></a>1、_id 索引</h3><h3 id="2、单键索引"><a href="#2、单键索引" class="headerlink" title="2、单键索引"></a>2、单键索引</h3><h3 id="3、复合索引"><a href="#3、复合索引" class="headerlink" title="3、复合索引"></a>3、复合索引</h3><h3 id="4、多键索引"><a href="#4、多键索引" class="headerlink" title="4、多键索引"></a>4、多键索引</h3><h3 id="5、过期索引"><a href="#5、过期索引" class="headerlink" title="5、过期索引"></a>5、过期索引</h3><h3 id="6、全文索引"><a href="#6、全文索引" class="headerlink" title="6、全文索引"></a>6、全文索引</h3><h3 id="7、地理位置索引"><a href="#7、地理位置索引" class="headerlink" title="7、地理位置索引"></a>7、地理位置索引</h3><h4 id="查看索引的信息"><a href="#查看索引的信息" class="headerlink" title="查看索引的信息"></a>查看索引的信息</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">db.test.getIndexes()</span><br></pre></td></tr></table></figure>
+<h2 id="一、-id-索引"><a href="#一、-id-索引" class="headerlink" title="一、_id 索引"></a>一、_id 索引</h2><h4 id="这个索引绝大多数集合默认建立的索引，一个唯一的索引"><a href="#这个索引绝大多数集合默认建立的索引，一个唯一的索引" class="headerlink" title="这个索引绝大多数集合默认建立的索引，一个唯一的索引"></a>这个索引绝大多数集合默认建立的索引，一个唯一的索引</h4><h2 id="二、单键索引"><a href="#二、单键索引" class="headerlink" title="二、单键索引"></a>二、单键索引</h2><h4 id="单键索引最普通的索引"><a href="#单键索引最普通的索引" class="headerlink" title="单键索引最普通的索引"></a>单键索引最普通的索引</h4><h4 id="1、创建索引-给-name-这个列添加索引"><a href="#1、创建索引-给-name-这个列添加索引" class="headerlink" title="1、创建索引,给 name 这个列添加索引"></a>1、创建索引,给 <code>name</code> 这个列添加索引</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"># 这个应该是V3.0 之前的方法了</span><br><span class="line">db.test.ensureIndex(&#123;name:1&#125;)</span><br><span class="line"># 这个是V3.0后的新方法，推荐用这个</span><br><span class="line">db.test.createIndex(&#123;name:1&#125;)</span><br><span class="line"></span><br><span class="line">#一个值1指定以升序排列的索引。-1指定按降序排列的索引。</span><br></pre></td></tr></table></figure>
+<h4 id="2、创建索引的其他参数属性"><a href="#2、创建索引的其他参数属性" class="headerlink" title="2、创建索引的其他参数属性"></a>2、创建索引的其他参数属性</h4><h5 id="a-、name-指定，给索引命名"><a href="#a-、name-指定，给索引命名" class="headerlink" title="(a)、name 指定，给索引命名"></a>(a)、name 指定，给索引命名</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">db.test.createIndex(&#123;name:1&#125;,&#123;name:&quot;indexName&quot;&#125;)</span><br></pre></td></tr></table></figure>
+<h5 id="b-、unique-唯一性-为true-时-当插入已存在name-的值后，将报错"><a href="#b-、unique-唯一性-为true-时-当插入已存在name-的值后，将报错" class="headerlink" title="(b)、unique 唯一性 ,为true 时 当插入已存在name 的值后，将报错"></a>(b)、unique 唯一性 ,为true 时 当插入已存在name 的值后，将报错</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">db.test.createIndex(&#123;name:1&#125;,&#123;unique:true/false&#125;)</span><br></pre></td></tr></table></figure>
+<h5 id="c-、sparse-稀疏性，当为true时，索引字段不存在时将不创建索引，"><a href="#c-、sparse-稀疏性，当为true时，索引字段不存在时将不创建索引，" class="headerlink" title="(c)、sparse 稀疏性，当为true时，索引字段不存在时将不创建索引，"></a>(c)、sparse 稀疏性，当为true时，索引字段不存在时将不创建索引，</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">db.test.createIndex(&#123;name:1&#125;,&#123;sparse:true/false&#125;)</span><br></pre></td></tr></table></figure>
+<h5 id="d-、expireAfterSeconds-过期，-下面会讲到"><a href="#d-、expireAfterSeconds-过期，-下面会讲到" class="headerlink" title="(d)、expireAfterSeconds 过期， 下面会讲到"></a>(d)、expireAfterSeconds 过期， 下面会讲到</h5><h2 id="三、复合索引"><a href="#三、复合索引" class="headerlink" title="三、复合索引"></a>三、复合索引</h2><h4 id="复合索引可以支持与多个字段匹配的查询"><a href="#复合索引可以支持与多个字段匹配的查询" class="headerlink" title="复合索引可以支持与多个字段匹配的查询"></a>复合索引可以支持与多个字段匹配的查询</h4><h4 id="简单说就是把多个字段组合成一个单键索引"><a href="#简单说就是把多个字段组合成一个单键索引" class="headerlink" title="简单说就是把多个字段组合成一个单键索引"></a>简单说就是把多个字段组合成一个单键索引</h4><h2 id="四、多键索引"><a href="#四、多键索引" class="headerlink" title="四、多键索引"></a>四、多键索引</h2><h4 id="1、这个和单键的区别就是，索引可以是一个数组"><a href="#1、这个和单键的区别就是，索引可以是一个数组" class="headerlink" title="1、这个和单键的区别就是，索引可以是一个数组"></a>1、这个和单键的区别就是，索引可以是一个数组</h4><h4 id="2、栗子"><a href="#2、栗子" class="headerlink" title="2、栗子"></a>2、栗子</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"># 有这么一个数据</span><br><span class="line">&#123; _id: 1, item: &quot;ABC&quot;, ratings: [ 2, 5, 9 ] &#125;</span><br><span class="line"></span><br><span class="line"># 创建一个索引</span><br><span class="line">db.survey.createIndex( &#123; ratings: 1 &#125; )</span><br></pre></td></tr></table></figure>
+<p>或者这样的<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  _id: 1,</span><br><span class="line">  item: &quot;abc&quot;,</span><br><span class="line">  stock: [</span><br><span class="line">    &#123; size: &quot;S&quot;, color: &quot;red&quot;, quantity: 25 &#125;,</span><br><span class="line">    &#123; size: &quot;S&quot;, color: &quot;blue&quot;, quantity: 10 &#125;,</span><br><span class="line">    &#123; size: &quot;M&quot;, color: &quot;blue&quot;, quantity: 50 &#125;</span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br><span class="line">&#123;</span><br><span class="line">  _id: 2,</span><br><span class="line">  item: &quot;def&quot;,</span><br><span class="line">  stock: [</span><br><span class="line">    &#123; size: &quot;S&quot;, color: &quot;blue&quot;, quantity: 20 &#125;,</span><br><span class="line">    &#123; size: &quot;M&quot;, color: &quot;blue&quot;, quantity: 5 &#125;,</span><br><span class="line">    &#123; size: &quot;M&quot;, color: &quot;black&quot;, quantity: 10 &#125;,</span><br><span class="line">    &#123; size: &quot;L&quot;, color: &quot;red&quot;, quantity: 2 &#125;</span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br><span class="line">&#123;</span><br><span class="line">  _id: 3,</span><br><span class="line">  item: &quot;ijk&quot;,</span><br><span class="line">  stock: [</span><br><span class="line">    &#123; size: &quot;M&quot;, color: &quot;blue&quot;, quantity: 15 &#125;,</span><br><span class="line">    &#123; size: &quot;L&quot;, color: &quot;blue&quot;, quantity: 100 &#125;,</span><br><span class="line">    &#123; size: &quot;L&quot;, color: &quot;red&quot;, quantity: 25 &#125;</span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"># 创建索引</span><br><span class="line">db.inventory.createIndex( &#123; &quot;stock.size&quot;: 1, &quot;stock.quantity&quot;: 1 &#125; )</span><br><span class="line"></span><br><span class="line"># 可以复合查询，这样，quantity大于20，size 为S 码</span><br><span class="line">db.inventory.find( &#123; &quot;stock.size&quot;: &quot;S&quot;, &quot;stock.quantity&quot;: &#123; $gt: 20 &#125; &#125; )</span><br></pre></td></tr></table></figure></p>
+<h2 id="五、过期索引"><a href="#五、过期索引" class="headerlink" title="五、过期索引"></a>五、过期索引</h2><h5 id="过期索引又称-TTL（Time-To-Live，生存时间）索引，即在一段时间后会过期的索引（如登录信息、日志等）"><a href="#过期索引又称-TTL（Time-To-Live，生存时间）索引，即在一段时间后会过期的索引（如登录信息、日志等）" class="headerlink" title="过期索引又称 TTL（Time To Live，生存时间）索引，即在一段时间后会过期的索引（如登录信息、日志等）"></a>过期索引又称 TTL（Time To Live，生存时间）索引，即在一段时间后会过期的索引（如登录信息、日志等）</h5><h5 id="我们知道添加索引，对于数据库的-添加、修改、删除是有影响的。"><a href="#我们知道添加索引，对于数据库的-添加、修改、删除是有影响的。" class="headerlink" title="我们知道添加索引，对于数据库的 添加、修改、删除是有影响的。"></a>我们知道添加索引，对于数据库的 添加、修改、删除是有影响的。</h5><h5 id="当索引过期后，相应的数据将被删除"><a href="#当索引过期后，相应的数据将被删除" class="headerlink" title="当索引过期后，相应的数据将被删除"></a>当索引过期后，相应的数据将被删除</h5><h5 id="适合存贮一段时间过后，失效的数据"><a href="#适合存贮一段时间过后，失效的数据" class="headerlink" title="适合存贮一段时间过后，失效的数据"></a>适合存贮一段时间过后，失效的数据</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">#   参数一  --- 索引字段名称  ，参数二  ---- 过期时间 ，单位：秒</span><br><span class="line">db.item.createIndex( &#123;createTime: 1 &#125;, &#123; expireAfterSeconds: 60*60 &#125; )</span><br></pre></td></tr></table></figure>
+<h4 id="1、mongdb时间类型"><a href="#1、mongdb时间类型" class="headerlink" title="1、mongdb时间类型"></a>1、mongdb时间类型</h4><ul>
+<li>Date()     显示当前的时间</li>
+<li>new Date　 构建一个格林尼治时间   可以看到正好和Date()相差8小时，我们是+8时区，也就是时差相差8，所以+8小时就是系统当前时间</li>
+<li>ISODate()　格林尼治时间</li>
+</ul>
+<h4 id="2、过期索引的限制："><a href="#2、过期索引的限制：" class="headerlink" title="2、过期索引的限制："></a>2、过期索引的限制：</h4><p>1、存储在过期索引的字段必须是指定的时间类型</p>
+<ul>
+<li>时间类型必须为ISODate类型，或者ISODate 数组。不能使用时间戳，否则不能被自动删除</li>
+</ul>
+<p>2、如果指定了Date数组，则按照最小的时间进行删除<br>3、过期索引不能是复合索引<br>4、删除时间不是精确的</p>
+<ul>
+<li>说明：删除过程是由后台程序每60s执行一次，而且删除也需要一些时间所以存在误差</li>
+</ul>
+<h4 id="3、栗子"><a href="#3、栗子" class="headerlink" title="3、栗子"></a>3、栗子</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"># 创建一个时间索引，60秒后过期</span><br><span class="line">db.time.createIndex(&#123;time:1&#125;,&#123;expireAfterSeconds:60&#125;)</span><br><span class="line"># 插入一条数据</span><br><span class="line">db.time.insert(&#123;time:new Date()&#125;)</span><br><span class="line"># 查询数据</span><br><span class="line">db.time.find()</span><br><span class="line"># 60秒后再查询，发现数据没有了</span><br><span class="line">db.time.find()</span><br></pre></td></tr></table></figure>
+<h2 id="六、全文索引"><a href="#六、全文索引" class="headerlink" title="六、全文索引"></a>六、全文索引</h2><h4 id="对字符串与字符串数组创建全文可搜索的索引"><a href="#对字符串与字符串数组创建全文可搜索的索引" class="headerlink" title="对字符串与字符串数组创建全文可搜索的索引"></a>对字符串与字符串数组创建全文可搜索的索引</h4><h4 id="1、创建格式："><a href="#1、创建格式：" class="headerlink" title="1、创建格式："></a>1、创建格式：</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"># key 代表一个字段名称，`$**` 是全局匹配</span><br><span class="line">db.articles.createIndex(&#123;key:&quot;text&quot;&#125;)</span><br><span class="line">db.articles.createIndex(&#123;key_1:&quot;text&quot;,key_2:&quot;text&quot;&#125;)</span><br><span class="line">db.articles.createIndex(&#123;&quot;$**&quot;:&quot;text&quot;&#125;)</span><br></pre></td></tr></table></figure>
+<h4 id="2、栗子-1"><a href="#2、栗子-1" class="headerlink" title="2、栗子"></a>2、栗子</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"># 插入数据</span><br><span class="line">db.articles.insert(&#123;auther:&quot;lrshuai&quot;,title:&quot;mongdb&quot;,content:&quot;mongdb about&quot;&#125;)</span><br><span class="line">db.articles.insert(&#123;auther:&quot;lrshuai&quot;,title:&quot;mongdb&quot;,content:&quot;mongdb information&quot;&#125;)</span><br><span class="line">db.articles.insert(&#123;auther:&quot;lrshuai&quot;,title:&quot;mongdb&quot;,content:&quot;mongdb information content&quot;&#125;)</span><br><span class="line"># 查看所有信息</span><br><span class="line">db.articles.find()</span><br><span class="line"></span><br><span class="line"># 创建全文索引</span><br><span class="line">db.articles.createIndex(&#123;content:&quot;text&quot;&#125;)</span><br><span class="line"></span><br><span class="line"># 使用全局索引查找</span><br><span class="line"># 查找内容中包含mongodb 的数据</span><br><span class="line">db.articles.find(&#123;$text:&#123;$search:&quot;mongdb&quot;&#125;&#125;)</span><br><span class="line"># 查找内容中包含mongodb 或者 information 的数据</span><br><span class="line">db.articles.find(&#123;$text:&#123;$search:&quot;mongdb information&quot;&#125;&#125;)</span><br><span class="line"># 查找内容中包含mongodb 但不包含information的数据</span><br><span class="line">db.articles.find(&#123;$text:&#123;$search:&quot;mongdb -information&quot;&#125;&#125;)</span><br><span class="line"># 查找内容中包含mongodb 并且包含information 的数据</span><br><span class="line">db.articles.find(&#123;$text:&#123;$search:&quot;\&quot;mongdb\&quot; \&quot;information\&quot;&quot;&#125;&#125;)</span><br></pre></td></tr></table></figure>
+<h4 id="3、全文索引相似度查询"><a href="#3、全文索引相似度查询" class="headerlink" title="3、全文索引相似度查询"></a>3、全文索引相似度查询</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"># score 相似度值，越高越相似</span><br><span class="line">db.articles.find(&#123;$text:&#123;$search:&quot;mongdb&quot;&#125;&#125;,&#123;score:&#123;$meta:&quot;textScore&quot;&#125;&#125;)</span><br><span class="line"></span><br><span class="line"># 相似度排序，高在前</span><br><span class="line">db.articles.find(&#123;$text:&#123;$search:&quot;mongdb&quot;&#125;&#125;,&#123;score:&#123;$meta:&quot;textScore&quot;&#125;&#125;).sort(&#123;score:&#123;$meta:&quot;textScore&quot;&#125;&#125;)</span><br></pre></td></tr></table></figure>
+<h4 id="4、全文索引的限制"><a href="#4、全文索引的限制" class="headerlink" title="4、全文索引的限制"></a>4、全文索引的限制</h4><ul>
+<li>每次查询，只能指定一个$text 查询</li>
+<li>$text 查询不能出现在$nor 查询中</li>
+<li>查询中如果包含了$text,hine 不再起作用</li>
+</ul>
+<h2 id="七、地理位置索引"><a href="#七、地理位置索引" class="headerlink" title="七、地理位置索引"></a>七、地理位置索引</h2><h3 id="概念：将一些点的位置存储在Mongodb-中，创建索引后可以按照位置来查找其他的点"><a href="#概念：将一些点的位置存储在Mongodb-中，创建索引后可以按照位置来查找其他的点" class="headerlink" title="概念：将一些点的位置存储在Mongodb 中，创建索引后可以按照位置来查找其他的点"></a>概念：将一些点的位置存储在Mongodb 中，创建索引后可以按照位置来查找其他的点</h3><h3 id="子分类："><a href="#子分类：" class="headerlink" title="子分类："></a>子分类：</h3><h3 id="1、2d-索引：平面地理位置索引"><a href="#1、2d-索引：平面地理位置索引" class="headerlink" title="1、2d 索引：平面地理位置索引"></a>1、2d 索引：平面地理位置索引</h3><h4 id="用于存储和查找平面上的点"><a href="#用于存储和查找平面上的点" class="headerlink" title="用于存储和查找平面上的点"></a>用于存储和查找平面上的点</h4><h4 id="创建方式：db-locate-insert-width-经度-纬度"><a href="#创建方式：db-locate-insert-width-经度-纬度" class="headerlink" title="创建方式：db.locate.insert({width:[经度,纬度]})"></a>创建方式：db.locate.insert({width:[经度,纬度]})</h4><h4 id="取值范围：经度：-180-180-，纬度-90-90"><a href="#取值范围：经度：-180-180-，纬度-90-90" class="headerlink" title="取值范围：经度：[-180,180]，纬度:[-90,90]"></a>取值范围：经度：[-180,180]，纬度:[-90,90]</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"># 创建索引</span><br><span class="line">db.locate.createIndex(&#123;width:&quot;2d&quot;&#125;)</span><br><span class="line"></span><br><span class="line"># 查找离点[1,1] 最远是10 的范围点集合</span><br><span class="line">db.locate.find(&#123;width:&#123;$near:[1,1],$maxDistance:40&#125;&#125;)</span><br><span class="line"></span><br><span class="line"># 查找离点[1,1] 最远是40，最近是2 的范围点集合，3.X版本的 $minDiatance 才可以直接使用</span><br><span class="line">db.locate.find(&#123;width:&#123;$near:[1,1],$maxDistance:40,$minDistance: 2&#125;&#125;)</span><br><span class="line"></span><br><span class="line"># 矩形查询 </span><br><span class="line">db.locate.find(&#123;width:&#123;$geoWithin:&#123;$box:[[30,20],[33,30]]&#125;&#125;&#125;)</span><br><span class="line"></span><br><span class="line"># 圆，一个是圆心，第二个是半径</span><br><span class="line">db.locate.find(&#123;width:&#123;$geoWithin:&#123;$center:[[30,20],10&#125;&#125;&#125;)</span><br><span class="line"></span><br><span class="line"># 多边形</span><br><span class="line">db.locate.find(&#123;width:&#123;$geoWithin:&#123;$polygon:[[0,0],[-1,20],[30,30]]&#125;&#125;&#125;)</span><br><span class="line"></span><br><span class="line"># geoNear 查询，geoNear --- 集合名词，near -- 范围， num 是返回的数量</span><br><span class="line">db.runCommand(&#123;geoNear:&quot;locate&quot;,near:[30,20],maxDistance:20,minDistance:1,num:5&#125;)</span><br></pre></td></tr></table></figure>
+<h3 id="2、2dsphere-索引：球面地理位置索引"><a href="#2、2dsphere-索引：球面地理位置索引" class="headerlink" title="2、2dsphere 索引：球面地理位置索引"></a>2、2dsphere 索引：球面地理位置索引</h3><h4 id="用于存储和查找球面上的点"><a href="#用于存储和查找球面上的点" class="headerlink" title="用于存储和查找球面上的点"></a>用于存储和查找球面上的点</h4><h4 id="2dsphere需要插入GeoJson数据。GeoJson的格式是："><a href="#2dsphere需要插入GeoJson数据。GeoJson的格式是：" class="headerlink" title="2dsphere需要插入GeoJson数据。GeoJson的格式是："></a>2dsphere需要插入GeoJson数据。GeoJson的格式是：</h4><h4 id="type-‘GeoJSON-type’-coordinates-‘coordinates’"><a href="#type-‘GeoJSON-type’-coordinates-‘coordinates’" class="headerlink" title="{ type: ‘GeoJSON type’ , coordinates: ‘coordinates’ }"></a>{ type: ‘GeoJSON type’ , coordinates: ‘coordinates’ }</h4><ul>
+<li>其中type指的是类型，<ul>
+<li>Point（经纬度坐标点）</li>
+<li>LineString（两个坐标点，组成一条线）</li>
+<li>Polygon（多边形）</li>
+</ul>
+</li>
+<li>coordinates是一个坐标数组</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># 创建索引</span><br><span class="line">db.locate.createIndex(&#123;width:&quot;2dsphere&quot;&#125;)</span><br></pre></td></tr></table></figure>
+<h2 id="八、索引构建情况分析"><a href="#八、索引构建情况分析" class="headerlink" title="八、索引构建情况分析"></a>八、索引构建情况分析</h2><h4 id="索引的好处：加快索引相关的查询"><a href="#索引的好处：加快索引相关的查询" class="headerlink" title="索引的好处：加快索引相关的查询"></a>索引的好处：加快索引相关的查询</h4><h4 id="索引的缺点：增加磁盘空间消耗，降低写入性能"><a href="#索引的缺点：增加磁盘空间消耗，降低写入性能" class="headerlink" title="索引的缺点：增加磁盘空间消耗，降低写入性能"></a>索引的缺点：增加磁盘空间消耗，降低写入性能</h4><h3 id="评判索引构建的方法："><a href="#评判索引构建的方法：" class="headerlink" title="评判索引构建的方法："></a>评判索引构建的方法：</h3><h4 id="2、profile-集合"><a href="#2、profile-集合" class="headerlink" title="2、profile 集合"></a>2、profile 集合</h4><h5 id="当开启的时候-数据库就会有一个system-profile-的集合"><a href="#当开启的时候-数据库就会有一个system-profile-的集合" class="headerlink" title="当开启的时候 数据库就会有一个system.profile 的集合"></a>当开启的时候 数据库就会有一个system.profile 的集合</h5><ul>
+<li>1、db.getProfilingStatus() 查看状态</li>
+<li>2、db.getProfilingLevel() 获得级别<ul>
+<li>0 – 关闭</li>
+<li>1 – 记录符合 slowms 条件的记录</li>
+<li>2 — 记录所有</li>
+</ul>
+</li>
+<li>3、一般开发的调试的时候会开启，生产环境一般都是关闭的。因为会影响性能</li>
+</ul>
+<h4 id="3、日志介绍"><a href="#3、日志介绍" class="headerlink" title="3、日志介绍"></a>3、日志介绍</h4><h5 id="在配置文件中加入参数"><a href="#在配置文件中加入参数" class="headerlink" title="在配置文件中加入参数"></a>在配置文件中加入参数</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># 1- 5个v，v 越多，信息越详细</span><br><span class="line">verbose = vvvvv</span><br></pre></td></tr></table></figure>
+<h4 id="4、explain-分析"><a href="#4、explain-分析" class="headerlink" title="4、explain 分析"></a>4、explain 分析</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">db.test.find(&#123;sex:1&#125;).explain(&quot;executionStats&quot;)</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>参考文献：<a href="https://docs.mongodb.com/manual/tutorial/measure-index-use/" target="_blank" rel="noopener">https://docs.mongodb.com/manual/tutorial/measure-index-use/</a><br><a href="https://docs.mongodb.com/manual/reference/geojson/" target="_blank" rel="noopener">https://docs.mongodb.com/manual/reference/geojson/</a></p>
+</blockquote>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+	
+	    <div>
+	
+	<div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------本文结束 <i class="fa fa-heartbeat"></i> 感谢您的阅读-------------</div>
+    
+</div>
+	
+	</div>
+
+    
+
+    
+      
+    
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div></div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>打赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/blog/images/wechat_pay.jpg" alt="rstyro 微信支付">
+        <p>微信支付</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/blog/images/alipay.jpg" alt="rstyro 支付宝">
+        <p>支付宝</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+	
+	<div>    
+	 
+	 
+	<ul class="post-copyright">
+	  <li class="post-copyright-author">
+		  <strong>本文作者：</strong>rstyro
+	  </li>
+	  <li class="post-copyright-link">
+		<strong>本文链接：</strong>
+		<a href="/blog/2017/10/23/MongoDB (四)：索引/" title="MongoDB (四)：索引">https://rstyro.github.io/blog/2017/10/23/MongoDB (四)：索引/</a>
+	  </li>
+	  <li class="post-copyright-license">
+		<strong>版权： </strong>
+		转载注明出处！
+	  </li>
+	</ul>
+	
+	</div>
+	
+
+      
+        <div class="post-tags">
+          
+            <a href="/blog/tags/MongoDB/" rel="tag"><i class="fa fa-tag"></i> MongoDB</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2017/10/23/MongoDB (三)：基本命令操作/" rel="next" title="MongoDB (三)：基本命令操作">
+                <i class="fa fa-chevron-left"></i> MongoDB (三)：基本命令操作
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2017/10/24/MongoDB (五)：安全浅析/" rel="prev" title="MongoDB (五)：安全浅析">
+                MongoDB (五)：安全浅析 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+
+
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/blog/images/avatar.jpg" alt="rstyro">
+            
+              <p class="site-author-name" itemprop="name">rstyro</p>
+              <p class="site-description motion-element" itemprop="description">帅大叔个人站点，记录一路走来的坑坑坎坎。</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/blog/archives/">
+                
+                    <span class="site-state-item-count">129</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/blog/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">9</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/blog/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">24</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://github.com/rstyro" title="GitHub &rarr; https://github.com/rstyro" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="/blog/1006059906" title="QQ &rarr; 1006059906"><i class="fa fa-fw fa-qq"></i>QQ</a>
+                </span>
+              
+            </div>
+          
+
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-block">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                友链
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://rstyro.github.io/blog/" title="https://rstyro.github.io/blog/">帅大叔博客</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://www.zhyd.me/" title="https://www.zhyd.me/" rel="noopener" target="_blank">张亚东博客</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://www.devsong.org/" title="http://www.devsong.org/" rel="noopener" target="_blank">DevSONG</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://www.dalaoyang.cn/" title="https://www.dalaoyang.cn/" rel="noopener" target="_blank">dalaoyang</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://www.chenshuangyi.com/" title="https://www.chenshuangyi.com/" rel="noopener" target="_blank">陈双义博客</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#MongoDB-的索引"><span class="nav-number">1.</span> <span class="nav-text">MongoDB 的索引</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#MongoDB-的索引种类"><span class="nav-number">1.1.</span> <span class="nav-text">MongoDB 的索引种类</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1、-id-索引"><span class="nav-number">1.1.1.</span> <span class="nav-text">1、_id 索引</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2、单键索引"><span class="nav-number">1.1.2.</span> <span class="nav-text">2、单键索引</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3、复合索引"><span class="nav-number">1.1.3.</span> <span class="nav-text">3、复合索引</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4、多键索引"><span class="nav-number">1.1.4.</span> <span class="nav-text">4、多键索引</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5、过期索引"><span class="nav-number">1.1.5.</span> <span class="nav-text">5、过期索引</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6、全文索引"><span class="nav-number">1.1.6.</span> <span class="nav-text">6、全文索引</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7、地理位置索引"><span class="nav-number">1.1.7.</span> <span class="nav-text">7、地理位置索引</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#查看索引的信息"><span class="nav-number">1.1.7.1.</span> <span class="nav-text">查看索引的信息</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#一、-id-索引"><span class="nav-number">1.2.</span> <span class="nav-text">一、_id 索引</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#这个索引绝大多数集合默认建立的索引，一个唯一的索引"><span class="nav-number">1.2.0.1.</span> <span class="nav-text">这个索引绝大多数集合默认建立的索引，一个唯一的索引</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#二、单键索引"><span class="nav-number">1.3.</span> <span class="nav-text">二、单键索引</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#单键索引最普通的索引"><span class="nav-number">1.3.0.1.</span> <span class="nav-text">单键索引最普通的索引</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1、创建索引-给-name-这个列添加索引"><span class="nav-number">1.3.0.2.</span> <span class="nav-text">1、创建索引,给 name 这个列添加索引</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2、创建索引的其他参数属性"><span class="nav-number">1.3.0.3.</span> <span class="nav-text">2、创建索引的其他参数属性</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#a-、name-指定，给索引命名"><span class="nav-number">1.3.0.3.1.</span> <span class="nav-text">(a)、name 指定，给索引命名</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#b-、unique-唯一性-为true-时-当插入已存在name-的值后，将报错"><span class="nav-number">1.3.0.3.2.</span> <span class="nav-text">(b)、unique 唯一性 ,为true 时 当插入已存在name 的值后，将报错</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#c-、sparse-稀疏性，当为true时，索引字段不存在时将不创建索引，"><span class="nav-number">1.3.0.3.3.</span> <span class="nav-text">(c)、sparse 稀疏性，当为true时，索引字段不存在时将不创建索引，</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#d-、expireAfterSeconds-过期，-下面会讲到"><span class="nav-number">1.3.0.3.4.</span> <span class="nav-text">(d)、expireAfterSeconds 过期， 下面会讲到</span></a></li></ol></li></ol></li></ol><li class="nav-item nav-level-2"><a class="nav-link" href="#三、复合索引"><span class="nav-number">1.4.</span> <span class="nav-text">三、复合索引</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#复合索引可以支持与多个字段匹配的查询"><span class="nav-number">1.4.0.1.</span> <span class="nav-text">复合索引可以支持与多个字段匹配的查询</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#简单说就是把多个字段组合成一个单键索引"><span class="nav-number">1.4.0.2.</span> <span class="nav-text">简单说就是把多个字段组合成一个单键索引</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#四、多键索引"><span class="nav-number">1.5.</span> <span class="nav-text">四、多键索引</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1、这个和单键的区别就是，索引可以是一个数组"><span class="nav-number">1.5.0.1.</span> <span class="nav-text">1、这个和单键的区别就是，索引可以是一个数组</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2、栗子"><span class="nav-number">1.5.0.2.</span> <span class="nav-text">2、栗子</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#五、过期索引"><span class="nav-number">1.6.</span> <span class="nav-text">五、过期索引</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#过期索引又称-TTL（Time-To-Live，生存时间）索引，即在一段时间后会过期的索引（如登录信息、日志等）"><span class="nav-number">1.6.0.0.1.</span> <span class="nav-text">过期索引又称 TTL（Time To Live，生存时间）索引，即在一段时间后会过期的索引（如登录信息、日志等）</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#我们知道添加索引，对于数据库的-添加、修改、删除是有影响的。"><span class="nav-number">1.6.0.0.2.</span> <span class="nav-text">我们知道添加索引，对于数据库的 添加、修改、删除是有影响的。</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#当索引过期后，相应的数据将被删除"><span class="nav-number">1.6.0.0.3.</span> <span class="nav-text">当索引过期后，相应的数据将被删除</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#适合存贮一段时间过后，失效的数据"><span class="nav-number">1.6.0.0.4.</span> <span class="nav-text">适合存贮一段时间过后，失效的数据</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1、mongdb时间类型"><span class="nav-number">1.6.0.1.</span> <span class="nav-text">1、mongdb时间类型</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2、过期索引的限制："><span class="nav-number">1.6.0.2.</span> <span class="nav-text">2、过期索引的限制：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3、栗子"><span class="nav-number">1.6.0.3.</span> <span class="nav-text">3、栗子</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#六、全文索引"><span class="nav-number">1.7.</span> <span class="nav-text">六、全文索引</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#对字符串与字符串数组创建全文可搜索的索引"><span class="nav-number">1.7.0.1.</span> <span class="nav-text">对字符串与字符串数组创建全文可搜索的索引</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1、创建格式："><span class="nav-number">1.7.0.2.</span> <span class="nav-text">1、创建格式：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2、栗子-1"><span class="nav-number">1.7.0.3.</span> <span class="nav-text">2、栗子</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3、全文索引相似度查询"><span class="nav-number">1.7.0.4.</span> <span class="nav-text">3、全文索引相似度查询</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4、全文索引的限制"><span class="nav-number">1.7.0.5.</span> <span class="nav-text">4、全文索引的限制</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#七、地理位置索引"><span class="nav-number">1.8.</span> <span class="nav-text">七、地理位置索引</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#概念：将一些点的位置存储在Mongodb-中，创建索引后可以按照位置来查找其他的点"><span class="nav-number">1.8.1.</span> <span class="nav-text">概念：将一些点的位置存储在Mongodb 中，创建索引后可以按照位置来查找其他的点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#子分类："><span class="nav-number">1.8.2.</span> <span class="nav-text">子分类：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1、2d-索引：平面地理位置索引"><span class="nav-number">1.8.3.</span> <span class="nav-text">1、2d 索引：平面地理位置索引</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#用于存储和查找平面上的点"><span class="nav-number">1.8.3.1.</span> <span class="nav-text">用于存储和查找平面上的点</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#创建方式：db-locate-insert-width-经度-纬度"><span class="nav-number">1.8.3.2.</span> <span class="nav-text">创建方式：db.locate.insert({width:[经度,纬度]})</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#取值范围：经度：-180-180-，纬度-90-90"><span class="nav-number">1.8.3.3.</span> <span class="nav-text">取值范围：经度：[-180,180]，纬度:[-90,90]</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2、2dsphere-索引：球面地理位置索引"><span class="nav-number">1.8.4.</span> <span class="nav-text">2、2dsphere 索引：球面地理位置索引</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#用于存储和查找球面上的点"><span class="nav-number">1.8.4.1.</span> <span class="nav-text">用于存储和查找球面上的点</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2dsphere需要插入GeoJson数据。GeoJson的格式是："><span class="nav-number">1.8.4.2.</span> <span class="nav-text">2dsphere需要插入GeoJson数据。GeoJson的格式是：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#type-‘GeoJSON-type’-coordinates-‘coordinates’"><span class="nav-number">1.8.4.3.</span> <span class="nav-text">{ type: ‘GeoJSON type’ , coordinates: ‘coordinates’ }</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#八、索引构建情况分析"><span class="nav-number">1.9.</span> <span class="nav-text">八、索引构建情况分析</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#索引的好处：加快索引相关的查询"><span class="nav-number">1.9.0.1.</span> <span class="nav-text">索引的好处：加快索引相关的查询</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#索引的缺点：增加磁盘空间消耗，降低写入性能"><span class="nav-number">1.9.0.2.</span> <span class="nav-text">索引的缺点：增加磁盘空间消耗，降低写入性能</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#评判索引构建的方法："><span class="nav-number">1.9.1.</span> <span class="nav-text">评判索引构建的方法：</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#2、profile-集合"><span class="nav-number">1.9.1.1.</span> <span class="nav-text">2、profile 集合</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#当开启的时候-数据库就会有一个system-profile-的集合"><span class="nav-number">1.9.1.1.1.</span> <span class="nav-text">当开启的时候 数据库就会有一个system.profile 的集合</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3、日志介绍"><span class="nav-number">1.9.1.2.</span> <span class="nav-text">3、日志介绍</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#在配置文件中加入参数"><span class="nav-number">1.9.1.2.1.</span> <span class="nav-text">在配置文件中加入参数</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4、explain-分析"><span class="nav-number">1.9.1.3.</span> <span class="nav-text">4、explain 分析</span></a></li></ol></li></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">rstyro</span>
+
+  
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-user"></i>
+    </span>
+    <span class="site-uv" title="总访客量">
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+    </span>
+  
+
+  
+    <span class="post-meta-divider">|</span>
+  
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-eye"></i>
+    </span>
+    <span class="site-pv" title="总访问量">
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/blog/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/blog/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/blog/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/blog/js/src/utils.js?v=6.7.0"></script>
+
+  <script src="/blog/js/src/motion.js?v=6.7.0"></script>
+
+
+
+  
+  
+
+  
+  <script src="/blog/js/src/scrollspy.js?v=6.7.0"></script>
+<script src="/blog/js/src/post-details.js?v=6.7.0"></script>
+
+
+
+  
+
+
+  <script src="/blog/js/src/bootstrap.js?v=6.7.0"></script>
+
+
+
+  
+  
+
+
+
+
+  
+
+<script src="//cdn1.lncld.net/static/js/3.11.1/av-min.js"></script>
+
+
+
+<script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+
+<script>
+  var GUEST = ['nick', 'mail', 'link'];
+  var guest = 'nick,mail,link';
+  guest = guest.split(',').filter(function (item) {
+    return GUEST.indexOf(item) > -1;
+  });
+  new Valine({
+    el: '#comments',
+    verify: false,
+    notify: false,
+    appId: 'LwEPiJFa7YMn2MrJdCwaUbmQ-gzGzoHsz',
+    appKey: 'JqS1y3RxYvDOki9r3NcqqoO5',
+    placeholder: '来都来了，不说几句就走，过分了啊！！！',
+    avatar: 'monsterid',
+    meta: guest,
+    pageSize: '10' || 10,
+    visitor: false
+  });
+</script>
+
+
+
+  
+
+  <script>
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/blog/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url).replace(/\/{2,}/g, '/');
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x"></i></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x"></i></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+  <script>
+    (function(){
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+      }
+      else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+      }
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+    })();
+  </script>
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
