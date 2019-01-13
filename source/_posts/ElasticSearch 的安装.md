@@ -2,7 +2,7 @@
 title: ElasticSearch 的安装
 date: 2017-11-30 14:09:31
 tags: [ElasticSearch]
-categories: 其他
+categories: 搜索引擎
 ---
 # ElasticSearch 的安装
 #### 这个安装超级简单，下载解压就可以了。前提是你已经安装了 JDK ,关于jdk的安装可参看我的文章：[Linux 安装jdk](http://www.lrshuai.top/atc/show/8)

@@ -91,13 +91,8 @@ spring:
 	</div>
 </body>
 ```
-## 五、项目工程图片
-![](/upload/images/89062.png)
 
-![](/upload/images/18649.png)
-
-
-## 六、对`@ResponseBody` 接口返回值拦截
+## 五、对`@ResponseBody` 接口返回值拦截
 ##### 有一种需求就是对接口的返回值进行拦截,我们需要实现`ResponseBodyAdvice<T>` 接口，代码如下
 ```
 /**

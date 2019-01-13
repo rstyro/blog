@@ -2,7 +2,7 @@
 title: ElasticSearch 查询报错QueryPhaseExecutionException Result window is too large....
 date: 2018-01-13 14:34:22
 tags: [ElasticSearch]
-categories: 其他
+categories: 搜索引擎
 ---
 # ES 报错
 ## 一、QueryPhaseExecutionException

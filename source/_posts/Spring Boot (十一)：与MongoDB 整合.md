@@ -323,12 +323,6 @@ public class ApplicationTests {
 }
 
 ```
-### 打印结果：
-![](//Spring Boot (十一)：与MongoDB 整合/36047.png)
-![](//Spring Boot (十一)：与MongoDB 整合/57132.png)
-
-### 贴上工程图
-![](//Spring Boot (十一)：与MongoDB 整合/74982.png)
 
 
 > Github 示例代码：[https://github.com/rstyro/spring-boot/tree/master/springboot-mongodb](https://github.com/rstyro/spring-boot/tree/master/springboot-mongodb)

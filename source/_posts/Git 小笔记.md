@@ -1,8 +1,8 @@
 ---
 title: Git 小笔记
-date: 2019-01-05 10:00:13
+date: 2017-05-20 10:00:13
 tags: [Git]
-categories: 开发工具
+categories: 笔记
 ---
 ### git 删除远程idea 文件
 ```

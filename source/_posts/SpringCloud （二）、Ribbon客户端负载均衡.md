@@ -99,9 +99,7 @@ public class RuleConfig {
 	
 }
 ```
-我们看看IRule的实现类
-![](/SpringCloud （二）、Ribbon客户端负载均衡/32568.png)
-结合自己的需要，返回相应的Rule即可
+
 #### 2、启动类加注解
 `@RibbonClient`注解给哪个服务启动负载均衡策略，参数中的name 是服务名称，configuration 后面跟着是负载均衡自定义配置类
 ```

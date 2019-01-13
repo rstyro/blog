@@ -178,5 +178,3 @@ GRANT privileges ON databasename.tablename   TO 'username'@'localhost'；
 #刷新
 flush privileges;
 ```
-
-> 正文到此结束，谢谢观看，觉得有用，点个赞再走可好？，看官！

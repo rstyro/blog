@@ -63,8 +63,6 @@ sbin/nginx
 
 ```
 ### 浏览器访问，直接在地址栏写上服务器ip 即可，nginx 默认启动端口是80端口。
-### 如下图，说明安装成功
-![](/upload/images/54917.png)
 
 ## 五、Nginx 命令
 ### 1、信号控制
@@ -119,7 +117,6 @@ option, or install the PCRE library into the system, or build the PCRE library
 statically from the source with nginx by using --with-pcre=<path> option。
 
 
-![](/安装Nginx/03985.png)
 
 ```
 # 解决方法
@@ -132,7 +129,6 @@ You can either disable the module by using --without-http_gzip_module
 option, or install the zlib library into the system, or build the zlib library
 statically from the source with nginx by using --with-zlib=<path> option
 
-![](/安装Nginx/73594.png)
 
 ```
 # 解决方法

@@ -2,7 +2,7 @@
 title: Elasticsearch安装中文分词插件ik
 date: 2017-12-11 17:13:52
 tags: [ElasticSearch]
-categories: 其他
+categories: 搜索引擎
 ---
 # Elasticsearch安装中文分词插件ik
 ### 为了做搜索弄了一个星期，还是没有搜索到自己想要的内容。虽说各种查询都懂一点，但是就是查不到自己想要的。
@@ -12,13 +12,13 @@ categories: 其他
 ## 一、Windows 安装ik插件
 #### 1、下载地址：[https://github.com/medcl/elasticsearch-analysis-ik](https://github.com/medcl/elasticsearch-analysis-ik)
 下载你对应的版本
-![](/upload/images/89174.png)
+![](/Elasticsearch安装中文分词插件ik/89174.png)
 
-![](/upload/images/94607.png)
+![](/Elasticsearch安装中文分词插件ik/94607.png)
 #### 2、解压
 把下载的文件，解压
 #### 3、在elasticsearch 的plugins 目录下，新建一个名为：ik 的文件夹，把上面解压的东西放到ik文件内
-![](/upload/images/10743.png)
+![](/Elasticsearch安装中文分词插件ik/10743.png)
 #### 4、重启elasticsearch
 
 ## 二、Linux 安装ik插件

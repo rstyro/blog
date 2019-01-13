@@ -2,7 +2,7 @@
 title: Metasploit 的一些渗透命令记录
 date: 2017-08-12 11:51:36
 tags: [干货]
-categories: 其他
+categories: 笔记
 ---
 ## 学黑客技术必备啊
 ### 简单来说，Metasploit是一款开源的安全漏洞检测工具，它本身附带一千多个渗透方式，和数百种攻击载荷

@@ -7,7 +7,7 @@ categories: Java
 # Eureka 高可用
 **前面讲的例子，都离不开Eureka服务，如果说eureka 突然宕机了，那是不是所有的服务都没法用了。所以我们怎么也得弄几台才行啊**
 我们看看官方文档的例子：
-![](/upload/images/07841.png)
+![](/SpringCloud （四）、Eureka高可用/07841.png)
 
 [文档地址](http://cloud.spring.io/spring-cloud-static/Dalston.SR5/single/spring-cloud.html#_peer_awareness)
 
@@ -90,7 +90,7 @@ eureka:
 ```
 127.0.0.1       peer1 peer2 peer3
 ```
-![](/upload/images/47031.png)
+![](/SpringCloud （四）、Eureka高可用/47031.png)
 
 **如果这个不配的话，它们3个是ping不通的**
 

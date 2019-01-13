@@ -85,9 +85,9 @@ spring:
     name: customer-feign
 ```
 启动eureka 和两个生产者与feign,查看结果，还是实现了负载均衡
-![](/upload/images/26754.png)
-![](/upload/images/14630.png)
-![](/upload/images/08295.png)
+![](/SpringCloud （三）、Feign使用示例/26754.png)
+![](/SpringCloud （三）、Feign使用示例/14630.png)
+![](/SpringCloud （三）、Feign使用示例/08295.png)
 
 **上面我们用的是`SpringMVC` 的注解,下面我们用feign 默认的注解，查看[Github的地址](https://github.com/OpenFeign/feign) 里面介绍了基本用法**
 

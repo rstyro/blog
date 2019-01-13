@@ -21,7 +21,7 @@ categories: Java
 ![](/Spring Boot (四)：日志管理/1501062665966089016.png)
 #### 第二种方法：自定义logback.xml 文件
 ##### Spring Boot官方推荐优先使用带有-spring的文件名作为你的日志配置（如使用logback-spring.xml，而不是logback.xml），命名为logback-    spring.xml的日志配置文件，spring boot可以为它添加一些spring boot特有的配置项，如下图。
-![](/Spring Boot (四)：日志管理/1501062853342078111.png)
+
 
 ## 3、我的logback-spring.xml
 ```
@@ -152,8 +152,7 @@ public class UserController {
     }
 }
 ```
-#### 示例图片
-![](/Spring Boot (四)：日志管理/1501063038825065795.png)
+
 
 > 我的Github 地址： [https://github.com/rstyro/spring-boot/tree/master/springboot-log](https://github.com/rstyro/spring-boot/tree/master/springboot-log)
 

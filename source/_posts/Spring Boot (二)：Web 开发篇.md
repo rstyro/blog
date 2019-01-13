@@ -11,14 +11,16 @@ categories: Java
 
 ## 2、默认配置
 Spring Boot默认提供静态资源目录位置需置于classpath下，目录名需符合如下规则：
+
 ```
 /static
 /public
 /resources
 /META-INF/resources
 ```
+
 #### springboot 的源码如下：
-```
+```Java
 private static final String[] CLASSPATH_RESOURCE_LOCATIONS = {  
         "classpath:/META-INF/resources/", "classpath:/resources/",  
         "classpath:/static/", "classpath:/public/" };
@@ -46,7 +48,8 @@ private static final String[] CLASSPATH_RESOURCE_LOCATIONS = {
 ##### 当你使用上述模板引擎中的任何一个，它们默认的模板配置路径为：src/main/resources/templates。当然也可以修改这个路径，在application.properties中配置 ```spring.thymeleaf.prefix=classpath:/templates/```
 
 #### 更多的配置参数如下：
-```
+
+```xml
 # Enable template caching.
 spring.thymeleaf.cache=true 
 # Check that the templates location exists.
@@ -71,8 +74,10 @@ spring.thymeleaf.template-resolver-order=
 spring.thymeleaf.view-names=
 ```
 #### Demo 示例
+
 ##### html页面
-```
+
+```html
 <!DOCTYPE html>
 <html>
 <head>
@@ -85,8 +90,10 @@ spring.thymeleaf.view-names=
 </body>
 </html>
 ```
+
 ##### java 代码
-```
+
+```Java
 @Controller
 public class HelloController {
 

@@ -12,16 +12,14 @@ categories: 数据库
 + 大多数原则，集群存活节点小于二分之一是集群不可写，只可读
 + 从库无法写入数据
 + 自动容灾
-## 通过下面的一个图来简单的了解下
-![](/MongoDB (八)：副本集配置/78092.png)
+
 
 # 配置过程：
 ## 一、安装mongodb
 #### 安装过程略，不懂得可以看前面的教程
 
 ## 二、创建存储目录与配置文件
-#### 创建如下文件，结构图如下： 
-![](/MongoDB (八)：副本集配置/68435.png)
+
 #### 22222.conf 文件内容如下：
 ```
 dbpath=/data/mongodb1/dbdata
@@ -71,7 +69,7 @@ mongod -f /data/mongodb1/conf/22222.conf
 mongod -f /data/mongodb2/conf/33333.conf
 mongod -f /data/mongodb3/conf/44444.conf
 ```
-![](/MongoDB (八)：副本集配置/97834.png)
+
 ## 四、初始化副本集
 #### 随便连接一个，然后初始化副本集
 ```
@@ -83,9 +81,6 @@ use admin
 db.runCommand({"replSetInitiate":{_id:"copydb",members:[{_id:1,host:"127.0.0.1:22222"},{_id:2,host:"127.0.0.1:33333"},{_id:3,host:"127.0.0.1:44444"}]}})
 
 ```
-![](/MongoDB (八)：副本集配置/32940.png)
-
-![](/MongoDB (八)：副本集配置/45970.png)
 
 ### 初始化副本集的参数说明
 |_id|整数|id:0|
@@ -111,12 +106,6 @@ db.runCommand({"replSetInitiate":{_id:"copydb",members:[{_id:1,host:"127.0.0.1:2
 This allows the current connection to allow read operations to run on secondary members. See the readPref() method for more fine-grained control over read preference in the mongo shell.
 
 ## 五、关于副本集的工作流程
-> 图片来自慕客网视频
-
-![](/MongoDB (八)：副本集配置/32847.png)
-#### oplog的工作流程
-![](/MongoDB (八)：副本集配置/71695.png)
-
 
 #### oplog 是异步的，每个节点都有
 #### Oplog 的结构参数说明：
@@ -142,5 +131,4 @@ db.oplog.rs.stats()
 # 查询最后一条的记录
 db.oplog.rs.find().sort({$natural:-1}).limit(1).pretty()
 ```
-![](/MongoDB (八)：副本集配置/65207.png)
 

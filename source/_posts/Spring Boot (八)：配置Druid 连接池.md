@@ -191,8 +191,4 @@ public class DruidDBConfig {
     }
 }
 ```
-## 四、启动测试
-![](/Spring Boot (八)：配置Druid 连接池/1503022003240025637.png)
-> 登录后
 
-![](/Spring Boot (八)：配置Druid 连接池/1503022058703015527.png)

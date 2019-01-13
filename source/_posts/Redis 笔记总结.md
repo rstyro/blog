@@ -2,7 +2,7 @@
 title: Redis 笔记总结
 date: 2017-06-18 18:30:03
 tags: [Redis]
-categories: 网络运维
+categories: 笔记
 ---
 **很早之前就使用redis 了，但都没有好好总结过，来一次吧**
 ## 一、Redis 事务

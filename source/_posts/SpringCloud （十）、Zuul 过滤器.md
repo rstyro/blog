@@ -13,10 +13,8 @@ Zuul大部分功能都是通过过滤器来实现的。Zuul中定义了四种标
 +  **ERROR**：在其他阶段发生错误时执行该过滤器。
 
 **除了默认的过滤器类型，Zuul还允许我们创建自定义的过滤器类型。例如，我们可以定制一种STATIC类型的过滤器，直接在Zuul中生成响应，而不将请求转发到后端的微服务。**
-**下面时官方的示例图：**
-![](/upload/images/09712.png)
-上面时1.x 版本的zuul,下面这个是zuul2.x 的，通过netty 进行过滤
-![](/upload/images/60983.png)
+
+
 **下面讲的主要是zuul1.x**
 #### SpringCloud 启动过滤器，有两个注解`@EnableZuulServer`、`@EnableZuulProxy`
 ### 一、@EnableZuulServer过滤器

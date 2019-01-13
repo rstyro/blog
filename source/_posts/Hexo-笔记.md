@@ -2,7 +2,7 @@
 title: Hexo-笔记
 date: 2019-01-10 18:37:24
 tags: "Hexo"
-categories: 学习笔记
+categories: 笔记
 ---
 
 ## 一、前置条件
@@ -438,6 +438,53 @@ gulp.task('default',
 );
 ```
 
+### 十三、Hexo 新建文章插入图片
+##### 安装图片插件
+```
+npm install hexo-asset-image --save
+```
+> 如果控制台出现如下信息
+
+```
+found 1 low severity vulnerability
+  run `npm audit fix` to fix them, or `npm audit` for details
+```
+记得修复相关介绍如下
+>npm audit ： npm@5.10.0 & npm@6，允许开发人员分析复杂的代码，并查明特定的漏洞和缺陷。
+npm audit fix ：npm@6.1.0,  检测项目依赖中的漏洞并自动安装需要更新的有漏洞的依赖，而不必再自己进行跟踪和修复。
+
+##### 修复
+```
+# 修复命令
+npm audit fix
+```
+##### 插入图片
+当插件安装成功后，你新建文章 
+例：`hexo new "Hexo笔记" `，则在`\source\_posts` 会有一个名为 `Hexo笔记` 的文件夹
+只需把图片放里面即可引用
+1、把主页配置文件 `_config.yml` 里的`post_asset_folder:`这个选项设置为 `true`
+2、然后只需要在 `Hexo笔记.md` 中按照markdown的格式引入图片：`![你想输入的替代文字](/Hexo笔记/你要引用的图片名称.jpg)`
+
+### 十四、添加本地搜索
+##### 1、安装插件
+```
+npm install hexo-generator-searchdb --save
+```
+##### 2、站点配置文件`_config.yml` 
+在最后编辑或添加如下信息：
+```
+search:
+    path: search.xml
+    field: post
+    format: html
+    limit: 5000
+```
+##### 3、打开主题配置文件
+在`\themes\next\_config.yml` 查找`local_search` 修改如下
+```yml
+local_search:
+    enable: true
+```
 
 ## 五、部署到GitHub
 ### 准备工作
