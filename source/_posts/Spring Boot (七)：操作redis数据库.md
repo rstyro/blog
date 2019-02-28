@@ -322,7 +322,6 @@ public class SpringbootRedisApplicationTests {
  
 }
 ```
-##### 输出
-![](/Spring Boot (七)：操作redis数据库/1501492308653006620.png)
+
 
 > Github: [代码示例 : https://github.com/rstyro/spring-boot](https://github.com/rstyro/spring-boot)

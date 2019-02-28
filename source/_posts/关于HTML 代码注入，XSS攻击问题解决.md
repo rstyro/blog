@@ -20,8 +20,7 @@ categories: Java
    body.appendChild(img); 
 </script> 
 ```
-#### 页面就会变成这样的
-![](/upload/images/87291.png)
+
 #### 整个页面被整个图片覆盖掉
 #### 如果是其他的恶意攻击，是可以入侵到你的服务器然后获取到shell 。
 ## 二、解决方法：

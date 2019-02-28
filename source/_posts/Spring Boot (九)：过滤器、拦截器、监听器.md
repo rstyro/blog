@@ -135,7 +135,6 @@ public class SpringbootFilterListenerInterceptorApplication {
     }
 }
 ```
-## 六、输出
-![](/Spring Boot (九)：过滤器、拦截器、监听器/1503291502473059445.png)
+
 
 > Github 代码示例地址：[https://github.com/rstyro/spring-boot](https://github.com/rstyro/spring-boot)

@@ -192,8 +192,6 @@ db.articles.find({$text:{$search:"mongdb"}},{score:{$meta:"textScore"}}).sort({s
 #### 创建方式：db.locate.insert({width:[经度,纬度]})
 #### 取值范围：经度：[-180,180]，纬度:[-90,90]
 
-#### 栗子
-![](/upload/images/30269.png)
 ```
 # 创建索引
 db.locate.createIndex({width:"2d"})
@@ -238,8 +236,7 @@ db.locate.createIndex({width:"2dsphere"})
 #### 索引的缺点：增加磁盘空间消耗，降低写入性能
 
 ### 评判索引构建的方法：
-#### 1、mongostat 工具
-![](/upload/images/45127.png)
+
 #### 2、profile 集合
 ##### 当开启的时候 数据库就会有一个system.profile 的集合
 + 1、db.getProfilingStatus() 查看状态

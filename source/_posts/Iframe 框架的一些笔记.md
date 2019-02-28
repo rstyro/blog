@@ -2,7 +2,7 @@
 title: Iframe 框架的一些笔记
 date: 2017-08-25 15:22:59
 tags: [JavaScript, HTML]
-categories: Java
+categories: 笔记
 ---
 ## 一、Iframe 的自适应方法：
 ```

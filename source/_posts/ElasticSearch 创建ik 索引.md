@@ -2,7 +2,7 @@
 title: ElasticSearch 创建ik 索引
 date: 2017-12-12 16:53:30
 tags: [ElasticSearch]
-categories: 其他
+categories: 搜索引擎
 ---
 ## 简单粗暴，代码如下
 ```

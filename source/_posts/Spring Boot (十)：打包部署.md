@@ -15,7 +15,7 @@ categories: Java
 //命令打包（-Dmaven.test.skip=true 跳过测试）
 mvn clean package -Dmaven.test.skip=true
 ```
-![](/Spring Boot (十)：打包部署/1505457992522036957.png)
+
 #### 2.运行
 ##### 当前目录的target 就有一个.jar 文件
 ```
@@ -88,7 +88,7 @@ public class Application extends SpringBootServletInitializer{
 #### (b)、(还有一种，`mvn clean install -Dmaven.test.skip=true`) 
 > 如果是eclipse 则不用mvn
 
-![](/Spring Boot (十)：打包部署/1505459942179071444.png)
+
 ### 4、部署
 #### 放入tomcat 的webapps 目录下，启动tomcat,搞定
 

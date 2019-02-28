@@ -1,6 +1,6 @@
 ---
 title: 简单安装rocketmq
-date: 2018-11-27 16:22:20
+date: 2017-08-20 16:22:20
 tags: [MQ]
 categories: MQ
 ---

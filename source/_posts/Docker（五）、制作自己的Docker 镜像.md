@@ -52,9 +52,8 @@ docker build -t admin:1.0.0 .
 docker run --name=admin -p 8080:8080 -d admin:1.0.0
 ```
 #### 下面是我敲命令的过程
-![](/upload/images/50389.png)
-![](/upload/images/71806.png)
-![](/upload/images/65971.png)
+![](/Docker（五）、制作自己的Docker 镜像/71806.png)
+![](/Docker（五）、制作自己的Docker 镜像/65971.png)
 
 ## 六、Dockerfile 指令详解
 + FROM

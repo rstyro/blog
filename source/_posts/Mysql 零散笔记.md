@@ -2,7 +2,7 @@
 title: Mysql 零散笔记
 date: 2018-01-04 18:03:27
 tags: [MYSQL]
-categories: 数据库
+categories: 笔记
 ---
 # Mysql 零散笔记
 

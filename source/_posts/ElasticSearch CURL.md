@@ -2,7 +2,7 @@
 title: ElasticSearch CURL
 date: 2017-12-01 17:54:07
 tags: [ElasticSearch]
-categories: 其他
+categories: 搜索引擎
 ---
 # Elasticsearch 的语法
 

@@ -10,13 +10,13 @@ categories: Java
 ### 如果在Eclipse Markeplace 没有找到STS ,可以在eclipse 的浏览器中打开链接：https://marketplace.eclipse.org/search/site/sts 进行搜索安装。
 
 ### 在Eclipse Markeplace 最下面 点击 Browse for more solutions 进行搜索。
-![](http://lrshuai.top/upload/image/20170727/1501123145972030075.png)
+![](/Ecipse 安装Spring Boot插件/1501123145972030075.png)
 
 ### 安装过程简单 略..........
 
 ## 创建Spring Boot 项目
 ### File --> New --->other-->Spring Boot
 ![](/Ecipse 安装Spring Boot插件/1501124011856067697.png)
-![](/Ecipse 安装Spring Boot插件/20170727/1501124249235079764.png)
-![](/Ecipse 安装Spring Boot插件/20170727/1501124444346052993.png)
+![](/Ecipse 安装Spring Boot插件/1501124249235079764.png)
+![](/Ecipse 安装Spring Boot插件/1501124444346052993.png)
 ![](/Ecipse 安装Spring Boot插件/1501124600866039781.png)

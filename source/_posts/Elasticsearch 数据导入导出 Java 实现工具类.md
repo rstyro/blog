@@ -2,7 +2,7 @@
 title: Elasticsearch 数据导入导出 Java 实现工具类
 date: 2017-12-11 10:35:54
 tags: [ElasticSearch]
-categories: 其他
+categories: 搜索引擎
 ---
 # Elasticsearch 数据导入导出 Java 实现
 ## 最近学了elasticsearch 对它也不是非常的熟悉，它好像没有像 mongodb 有mongodump 这样的工具方便。

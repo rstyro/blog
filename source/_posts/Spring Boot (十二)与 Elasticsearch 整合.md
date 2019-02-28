@@ -1,5 +1,5 @@
 ---
-title: Spring Boot (十二)：与 Elasticsearch 整合
+title: Spring Boot (十二)与 Elasticsearch 整合
 date: 2017-12-02 22:54:20
 tags: [ElasticSearch, Spring Boot]
 categories: Java
@@ -342,7 +342,5 @@ public class ApplicationTests {
 }
 
 ```
-打印片段
-![](/Spring Boot (十二)：与 Elasticsearch 整合/17945.png)
 
 ## 示例代码：[Github](https://github.com/rstyro/spring-boot/tree/master/springboot-elasticsearch)

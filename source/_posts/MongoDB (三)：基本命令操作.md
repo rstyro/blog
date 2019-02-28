@@ -82,6 +82,5 @@ db.test.remove({name:"lrshuai"})
 ```
 db.test.drop()
 ```
-##### 演示片段图
-![](/MongoDB (三)：基本命令操作/53869.png)
+
 

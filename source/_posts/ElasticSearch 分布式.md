@@ -2,7 +2,7 @@
 title: ElasticSearch 分布式
 date: 2017-12-01 00:09:23
 tags: [ElasticSearch]
-categories: 其他
+categories: 搜索引擎
 ---
 # ElasticSearch 集群
 ## 这个也是超级简单的配置
