@@ -64,7 +64,9 @@ spring:
         basename: static/i18n/messages
 ```
 
-## 四、前端调用
+## 四、前端页面调用国际化
+在Thymeleaf模板中通过 `th:text`与`#{国际化文件的KEY}` 即可使用国际化   
+前端需要传的语言参数为`lang`示例如下：
 ```
 <body>
 	<div class="language">
@@ -92,8 +94,9 @@ spring:
 </body>
 ```
 
-## 五、对`@ResponseBody` 接口返回值拦截
-##### 有一种需求就是对接口的返回值进行拦截,我们需要实现`ResponseBodyAdvice<T>` 接口，代码如下
+## 五、接口返回值国际化 
+通过前端传上来的语言，我们接口返回值需要通过转上来的语言，返回对应的数据。
+在Spring中,我们只需要实现`ResponseBodyAdvice<T>` 接口即可，代码如下
 ```
 /**
 * 别忘了加注解，basePackages 是对哪些包进行扫描
@@ -145,4 +148,7 @@ public class I18nResponseAdvice implements ResponseBodyAdvice<Object> {
 
 }
 ```
-## [Github地址](https://github.com/rstyro/spring-boot/tree/master/SpringBoot-i18n)
+在上面的代码中 `getMessage(HttpServletRequest request, String key)` 就是获取国际化的值，通过`key` 获取对应国际化的文件值
+### 代码地址
++ Github地址:[https://github.com/rstyro/spring-boot/tree/master/SpringBoot-i18n](https://github.com/rstyro/spring-boot/tree/master/SpringBoot-i18n)
++ Gitee地址:[https://gitee.com/rstyro/spring-boot/tree/master/SpringBoot-i18n](https://gitee.com/rstyro/spring-boot/tree/master/SpringBoot-i18n)

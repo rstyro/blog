@@ -4,6 +4,29 @@ date: 2017-06-11 15:18:59
 tags: [Linux]
 categories: 网络运维
 ---
+## mv 命令
+```
+mv /opt/myproject.jar /data/myproject.jar		# 把/opt 下的 myproject.jar文件 剪切到 /data 下
+mv /opt/myproject.jar /data/newProject.jar		# 把/opt 下的 myproject.jar 剪切到 /data 下,并重命名为 newProject.jar
+mv /folds /data/folds							# 把folds 文件夹 剪切到 /data下，如果要重命名只需要在第二个路径改新的名字即可 
+```
+## cp 命令
+```
+cp /opt/myproject.jar /data/					# 把/opt 下的 myproject.jar文件 复制到 /data 下
+cp -r /folds /data/								# 把folds 文件夹 复制到 /data下，-r 参数相当于循环复制，复制文件夹的时候需要此参数
+```
+
+## rm 命令
+```
+rm test.txt 								# 删除当前目录下的test.txt 文件，这个会提示你是否删除文件 按Y 回车即可删除
+rm -r test.txt 								# 删除当前目录下的test.txt 文件，-r 代表 以递归方式删除目录及其内容
+rm -r folder 								# 删除当前目录下的folder 文件夹，这个会提示你是否删除文件夹 按Y 回车即可删除
+rm -rf test.txt 							# 删除当前目录下的test.txt 文件，-f 代表永远不会提示
+rm -rf /opt/myproject.jar 					# 删除/opt下的 myproject.jar
+rm -rf /folds/								# 删除/folds 文件夹下的所有文件，但是保留folds文件夹
+```
+
+
 ## cat 命令
 ```
 cat -n textfile1 > textfile2        #把 textfile1 的文档内容加上行号后输入 textfile2 这个文档里
@@ -84,6 +107,7 @@ rpm -qa pcre
 ##### -g GID 指定新用户组的组标识号（GID）。
 ##### -o 一般与-g选项同时使用，表示新用户组的GID可以与系统已有用户组的GID相同。
 ```
+
 # 创建一个用户组：superman
 groupadd superman
 ```

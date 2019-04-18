@@ -9,10 +9,10 @@ categories: 网络运维
 ## 1.下载源码包
 
 ```
-wget http://download.redis.io/releases/redis-3.2.1.tar.gz
-tar -zxvf redis-3.2.1.tar.gz -C /opt/
-cd /opt/redis-3.2.1/
-make PREFIX=/usr/local/redis-3.2.1 install      //指定安装的路径,
+wget http://download.redis.io/releases/redis-4.0.14.tar.gz
+tar -zxvf redis-4.0.14.tar.gz -C /opt/
+cd /opt/redis-4.0.14/
+make PREFIX=/usr/local/redis install      //指定安装的路径,
 ```
 #### 可能报错
 > zmalloc.h:50:31: error: jemalloc/jemalloc.h: No such file or directory
@@ -23,15 +23,15 @@ make: *** [all] Error 2
 
 #### 可以改成
 > make MALLOC=libc PREFIX=/usr/local/redis install   
-ll /usr/local/redis-3.2.1/bin
+ll /usr/local/redis/bin
 
 ## 2、添加服务
 ### a)、这个是centos6 的service 命令
 #### 1、创建服务脚本
 ```
-cp /opt/redis-3.0.6/utils/redis_init_script  /etc/rc.d/init.d/redis
+cp /opt/redis-4.0.14/utils/redis_init_script  /etc/rc.d/init.d/redis
 mkdir /etc/redis             #创建redis目录，是为了以后可以存放多个redis配置  
-cp /opt/redis-3.0.6/redis.conf /etc/redis/6379.conf      
+cp /opt/redis-4.0.14/redis.conf /etc/redis/6379.conf      
 vim /etc/rc.d/init.d/redis               #修改如下圈出来的地方
 ```
 ![](/Linux 安装redis　并配置服务/1497593356955096462.png)
@@ -112,11 +112,11 @@ systemctl daemon-reload
 
 #### 4、启动redis 服务
 ```
-systemctl start redis-server.service 
+systemctl start redis.service 
 ```
 
 #### 5、开机自启动 (可选)
 ```
-systemctl enable redis-server.service
+systemctl enable redis.service
 ```
 ###　结束，配置不成功，评论说明，不出意外　３分钟之内回复
