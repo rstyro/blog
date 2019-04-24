@@ -1,7 +1,7 @@
 ---
 title: SpringBoot-JWT
 date: 2019-04-16 17:41:59
-tags: [SpringBoot]
+tags: [Spring Boot]
 categories: Java
 ---
 
