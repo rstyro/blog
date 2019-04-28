@@ -20,7 +20,7 @@ categories: 前端
     </head>
     <body>  
         <div id="app">
-            {{ message }}
+            { { message } }
         </div>      
         <script>
           var app = new Vue({
@@ -37,11 +37,11 @@ categories: 前端
 
 ## 声明式渲染
 + Vue 是一种`MVVM 模式`，当vue 和一个`挂载点`绑定之后就可以操作这个`挂载点`之下的`DOM`元素  
-+ 挂载点，通俗的讲就是一个DOM元素，比如上面的代码,vue的`el`是`#app` 对应的`<div id="app"> {{ message }} </div>` 这个`div`就相当于一个挂载点  
-+ data中可以自定义任意变量，`{{}}`这就是vue的显示语法，
-+  `{{message}}` 这个的意思是，显示为vue中的 `message`字段对应的数据为：`hello vue`  
-+ 其实除了`<div id="app">{{ message }}</div>`这个之外，还可以用`<div id="app" v-html="message"></div>` 或者 `<div id="app" v-text="message"></div>`  
-+ 也就是说除了`{{}}`语法 还可以用`v-text="变量"` 或者 `v-html="变量"` 这种语法的。
++ 挂载点，通俗的讲就是一个DOM元素，比如上面的代码,vue的`el`是`#app` 对应的`<div id="app"> { { message } } </div>` 这个`div`就相当于一个挂载点  
++ data中可以自定义任意变量，`{ { } }`这就是vue的显示语法，
++  `{ {message } }` 这个的意思是，显示为vue中的 `message`字段对应的数据为：`hello vue`  
++ 其实除了`<div id="app">{ { message } }</div>`这个之外，还可以用`<div id="app" v-html="message"></div>` 或者 `<div id="app" v-text="message"></div>`  
++ 也就是说除了`{ {} }`语法 还可以用`v-text="变量"` 或者 `v-html="变量"` 这种语法的。
 
 ## 条件判断
 语法：`v-if`,如果`v-if=true`就显示，否则不显示  
@@ -102,11 +102,11 @@ categories: 前端
 <body>
     <div id="app">
         <ul >
-            <li v-for="item in items">{{item}}</li>
+            <li v-for="item in items">{ { item } }</li>
         </ul>
 
         <ul >
-            <li v-for="(item,index) of obj">{{item.age}}</li>
+            <li v-for="(item,index) of obj">{ {item.age } }</li>
         </ul>
     </div>
 
@@ -136,7 +136,7 @@ categories: 前端
 </body>
 ```
 + 用 `v-for` 指令根据一组数组的选项列表进行渲染。`v-for `指令需要使用` item in items` 形式的特殊语法，`items` 是源数据数组并且` item `是数组元素迭代的别名。  
-+ 后面第二种的写法也可`<li v-for="(item,index) of obj">{{item.age}}</li>` 就是加了一个index 索引字段
++ 后面第二种的写法也可`<li v-for="(item,index) of obj">{ { item.age } }</li>` 就是加了一个index 索引字段
 
 
 
@@ -145,7 +145,7 @@ categories: 前端
 ```
  Vue.component("fruit-item",{
 	props:["item"],
-	template: "<li>{{item.cn_name}}-->{{item.en_name}}</li>"
+	template: "<li>{ { item.cn_name } }-->{ { item.en_name } }</li>"
 });
 ```
 + 组件是可复用的 Vue 实例，且带有一个名字：在这个例子中是 `<fruit-item>`。我们可以在一个通过 new Vue 创建的 Vue 根实例中，把这个组件作为自定义元素来使用
@@ -175,7 +175,7 @@ categories: 前端
 <script>
     Vue.component("fruit-item",{
         props:["item"],
-        template: "<li @click='alertName(item.cn_name)'>{{item.cn_name}}-->{{item.en_name}}</li>",
+        template: "<li @click='alertName(item.cn_name)'>{ {item.cn_name} }-->{ {item.en_name} }</li>",
         methods: {
             alertName: function (name) {
                 alert(name);
@@ -220,25 +220,25 @@ categories: 前端
 </head>
 <body >
 <div id="app">
-    <p>text：{{text}}</p>
+    <p>text：{ {text} }</p>
     <textarea v-model="text" cols="50" rows="10" placeholder="随便输一点"></textarea>
 
     <br>
     <input type="radio" name="sex" v-model="sex" value="男">男<br>
     <input type="radio" name="sex" v-model="sex" value="女">女<br>
-    <label>性别：{{sex}}</label>
+    <label>性别：{ {sex} }</label>
     <br>
 
     <br><br><br>
     <select v-model="selected">
-        <option v-for="item in list" v-bind:value="item">{{item}}</option>
+        <option v-for="item in list" v-bind:value="item">{ {item} }</option>
     </select>
-    <span>selected：{{selected}}</span>
+    <span>selected：{ {selected} }</span>
     <br>
 
     <br><br><br><br><br>
     复选框：<input type="checkbox" id="checkbox" v-model="checked">
-    <label>{{ checked }}</label>
+    <label>{ { checked } }</label>
 
     <br><br><br><br><br>
     美女：<input type="checkbox" value="美女" v-model="checkeds"><br>
@@ -247,7 +247,7 @@ categories: 前端
     权利：<input type="checkbox" value="权利" v-model="checkeds"><br>
 
     <br>
-    <label>您选择了：{{ checkeds }}</label>
+    <label>您选择了：{ { checkeds } }</label>
 </div>
 <script>
     var vm = new Vue({
@@ -280,7 +280,7 @@ categories: 前端
 <div id="app">
     <div >当你点击按钮的时候，触发按钮事件按钮文字会反转</div>
     <br>
-    <button v-on:click="reverseMessage" >{{message}}</button>
+    <button v-on:click="reverseMessage" >{ {message} }</button>
 </div>
 <script>
     var app = new Vue({
@@ -463,9 +463,9 @@ categories: 前端
 <div id="app">
     <p>姓：<input v-model="firstName" /></p>
     <p>名：<input v-model="lastName" /></p>
-    <p>全名:{{firstName}} {{lastName}}</p>
-    <p>全名:{{fullName}}</p>
-    <p>修改名字的次数：{{count}}</p>
+    <p>全名:{ {firstName} } { {lastName} }</p>
+    <p>全名:{ {fullName} }</p>
+    <p>修改名字的次数：{ {count} }</p>
 </div>
 <script>
     var app = new Vue({
@@ -522,7 +522,7 @@ categories: 前端
 <script>
     Vue.component("fruit-item",{
         props:["item","index"],
-        template: "<li @click='liClick'>{{item.cn_name}}-->{{item.en_name}}</li>",
+        template: "<li @click='liClick'>{ {item.cn_name} }-->{ {item.en_name} }</li>",
         methods: {
             liClick: function () {
                 this.$emit("delete",this.index)
@@ -581,8 +581,8 @@ categories: 前端
 <div id="app">
     <button @click="getApiData">点击得到数据</button>
     <div v-for="item in result">
-        <h3>{{item.title}}</h3><i style="color: #ccc;">{{item.authors}}</i>
-        <p>{{item.content}}</p>
+        <h3>{ {item.title} }</h3><i style="color: #ccc;">{ {item.authors} }</i>
+        <p>{ {item.content} }</p>
         <br>
         <br>
         <br>

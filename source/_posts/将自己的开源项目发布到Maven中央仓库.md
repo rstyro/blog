@@ -24,7 +24,7 @@ categories: 笔记
 + Project URL
 	开源项目的地址
 + SCM url
-	开源项目的代码仓库地址
+	开源项目的代码仓库地址，比如`https://github.com/rstyro/encryption-tools.git`
 
 如下示例图：
 ![](/将自己的开源项目发布到Maven中央仓库/sonatype1.png)
@@ -73,8 +73,11 @@ gpg --gen-key
 	备注
 + Change (N)ame, (C)omment, (E)mail or (O)kay/(Q)uit? 
 	选择 O ，生成密钥对
++ you need a passphrase to protect your secret key
+	输入一个密钥（secret）,要记住哦，后面有用到。
 
-如果有默认值直接回车也可，或者调写括号内的值，示例图如下：
+> 如果有默认值直接回车也可，或者调写括号内的值，示例图如下：
+
 !["生成密钥对过程"](/将自己的开源项目发布到Maven中央仓库/sonatype4.png)
 
 最后的打印输出：
@@ -288,8 +291,9 @@ pom需要配置的属性：
 ## 六、发布控件
 #### 1、发布到OSS
 进入到开源项目的根目录运行如下命令：    
-+ 命令`mvn clean deploy -Dmaven.test.skip=true -Dmaven.javadoc.skip=true -P release -Dgpg.passphrase=你的Passphase`
++ 命令`mvn clean deploy -P release -Dgpg.passphrase=你的Passphase`
 
+> 你的Passphase：就是你在第四步，生成密钥对输入的secrt
 > 注意：此时上传的构件并未正式发布到中央仓库中，只是部署到 OSS 中了，还没有真正的发布
 
 #### 2、在OSS发布到中央仓库
@@ -302,13 +306,14 @@ pom需要配置的属性：
 !["发布流程"](/将自己的开源项目发布到Maven中央仓库/sonatype6.png)
 
 #### 3、通知 Sonatype 构件已成功发布
-+ 在comment中已经提示你了,`My repository had released!`
++ 在comment中回复你已经成功发布，比如：`My repository had released!`
 + 在Issue下面回复一条“构件已成功发布”的评论，这是为了通知 Sonatype 的工作人员为需要发布的构件做审批，发布后会关闭该Issue。
 !["通知 Sonatype 构件已成功发布"](/将自己的开源项目发布到Maven中央仓库/sonatype7.png)
 
 #### 4、等待审批
 + 当审批通过后，将会收到邮件通知。然后去 maven的中央仓库中搜索到自己发布的构件，看是否存在  
 + 至此就结束了
+!["审核成功，邮件通知"](/将自己的开源项目发布到Maven中央仓库/sonatype8.png)
 
 ## 七、升级控件
 当修改完成之后，直接走 `第六` 步骤进行构建发布即可。

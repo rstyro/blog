@@ -5,13 +5,6 @@ tags: [Vue]
 categories: 前端
 ---
 
----
-title: Vue使用Vue-cli工具
-date: 2019-04-26 17:12:28
-tags: [Vue]
-categories: 前端
----
-
 # 使用Vue-cli 开发
 下面是官方的Tip
 > 关于旧版本
