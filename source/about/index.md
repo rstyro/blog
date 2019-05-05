@@ -49,3 +49,8 @@ date: 2019-01-10 13:34:20
 
 #### 无聊开了个订阅号，扫码下方二维码，我们一起来吹水！！！
 ![](index/subscrbe_qrcode.jpg)
+
+#### 无聊弄了个小程序
+海量情话，撩妹撩汉神器，上天入地无所不能，撩不到另一半算我输
++ ![](index/small_routine1.jpg)
++ ![](index/small_routine2.jpg)
