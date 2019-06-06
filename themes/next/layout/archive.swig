@@ -40,7 +40,12 @@
         {% if post.year !== year %}
           {% set year = post.year %}
           <div class="collection-title">
-            <{% if theme.seo %}h2{% else %}h1{% endif %} class="archive-year" id="archive-year-{{ year }}">{{ year }}</{% if theme.seo %}h2{% else %}h1{% endif %}>
+			 <{% if theme.seo %}h2{% else %}h1{% endif %} class="archive-year" id="archive-year-{{ year }}">
+              {{ year }}
+              <div class="chinese-zodiac">
+                {% include '_partials/chinese-zodiac.swig' %}
+              </div>
+            </{% if theme.seo %}h2{% else %}h1{% endif %}>
           </div>
         {% endif %}
         {# endshow #}

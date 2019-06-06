@@ -60,7 +60,10 @@ git clone https://github.com/theme-next/hexo-theme-next themes/next
 |language|语言会对应的解析正在应用的主题中的languages文件夹下的不同语言文件。所以这里的名称要和languages文件夹下的语言文件名称一致。|
 |timezone|Asia/Shanghai //可不填写。|
 
-
+> 网站存放在子目录
+> 如果您的网站存放在子目录中，例如 `http://yoursite.com/blog`，则请将您的 :
+> + url 设为 `http://yoursite.com/blog` 并把
+> + root 设为 `/blog/`。
 
 ### 二、主题基本配置
 修改主题配置文件，在菜单项添加以下内容(把注释打开即可)
@@ -81,11 +84,104 @@ menu_settings:
   badges: false
 ```
 
-### 三、新建页面
+### 三、新建
+
+#### 1、新建页面
 ```sh
+# 生成标签页面
 hexo new page tags
+# 生成关于页面
 hexo new page about
+# 生成分类页面
 hexo new page categories
+```
+#### 2、新建文章
++ 新建文章命令：`hexo n 文章名`，成功之后在`~/source/_posts/` 下就会看到`.md`的文章
++ 打开文章会看到在头部有这样的信息
+```
+---
+title: 文章名
+date: 2019-01-10 18:37:24
+tags: "Hexo"
+---
+```
++ 这个意思下面有解析，而且也可以按需加其他字段
++ 文章头部解析：
+```
+/* ！！！！！！！！！！
+** 每一项的 : 后面均有一个空格
+** 且 : 为英文符号
+** ！！！！！！！！！！
+*/
+
+title:
+/* 文章标题，可以为中文 */
+
+date:
+/* 建立日期，如果自己手动添加，请按固定格式
+** 就算不写，页面每篇文章顶部的发表于……也能显示
+** 只要在主题配置文件中，配置了 created_at 就行
+** 那为什么还要自己加上？
+** 自定义文章发布的时间
+*/
+
+updated:
+/* 更新日期，其它与上面的建立日期类似
+** 不过在页面每篇文章顶部，是更新于……
+** 在主题配置文件中，是 updated_at
+*/
+
+permalink:
+/* 若站点配置文件下的 permalink 配置了 title
+** 则可以替换文章 URL 里面的 title（文章标题）
+*/
+
+categories:
+/* 分类，支持多级，比如：
+- technology
+- computer
+- computer-aided-art
+则为 technology/computer/computer-aided-art
+（不适用于 layout: page）
+*/
+
+tags:
+/* 标签
+** 多个可以这样写 [标签1,标签2,标签3]
+** （不适用于 layout: page）
+*/
+
+description:
+/* 文章的描述，在每篇文章标题下方显示
+** 并且作为网页的 description 元数据
+** 如果不写，则自动取 <!-- more -->
+** 之前的文字作为网页的 description 元数据
+*/
+
+keywords:
+/* 关键字，并且作为网页的 keywords 元数据
+** 如果不写，则自动取 tags 里的项
+** 作为网页的 keywords 元数据
+*/
+
+comments:
+/* 是否开启评论
+** 默认值是 true
+** 要关闭写 false
+*/
+
+layout:
+/* 页面布局，默认值是 post，默认值可以在
+** 站点配置文件中修改 default_layout
+** 另：404 页面可能用到，将其值改为 false
+*/
+
+type:
+/* categories，目录页面
+** tags，标签页面
+** picture，用来生成 group-pictures
+*/
+
 ```
 
 ### 四、设置头像
@@ -441,6 +537,9 @@ gulp.task('default',
 ### 十三、Hexo 新建文章插入图片
 ##### 安装图片插件
 ```
+# npm install -g cnpm --registry=https://registry.npm.taobao.org
+# cnpm install https://github.com/CodeFalling/hexo-asset-image --save
+
 npm install hexo-asset-image --save
 ```
 > 如果控制台出现如下信息
@@ -486,6 +585,93 @@ local_search:
     enable: true
 ```
 
+### 十五、在页面顶部，实现`fork me on GitHub`
+
+代码样式地址：
++ [https://github.blog/2008-12-19-github-ribbons/](https://github.blog/2008-12-19-github-ribbons/)
++ [http://tholman.com/github-corners/](http://tholman.com/github-corners/)
++ 打开如上的任意一个网站，选择自己喜欢的样式
++ 然后粘贴刚才复制的代码到`themes/next/layout/_layout.swig`文件中(放在`<div class="headband"></div>`的下面)，并把`href`改为你的`Github`地址,例如下
+```
+<a href="https://github.com/yourName" class="github-corner" aria-label="View source on GitHub"><svg width="80" height="80" viewBox="0 0 250 250" style="fill:#151513; color:#fff; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a><style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style>
+```
+
+### 十六、网站底部字数统计
+##### 1、安装插件
+```
+npm install hexo-wordcount --save
+```
+##### 2、然后在`/themes/next/layout/_partials/footer.swig`文件尾部加上：
+```
+<div class="theme-info">
+  <div class="powered-by"></div>
+  <span class="post-count">博客全站共{{ totalcount(site) }}字</span>
+</div>
+```
+
+### 十七、侧栏加入已运行的时间
++ 在文件`~/themes/next/layout/_custom/sidebar.swig` 中加入如下代码
+```
+<div id="days"></div>
+<script>
+function show_date_time(){
+window.setTimeout("show_date_time()", 1000);
+BirthDay=new Date("04/10/2017 15:13:14");
+today=new Date();
+timeold=(today.getTime()-BirthDay.getTime());
+sectimeold=timeold/1000
+secondsold=Math.floor(sectimeold);
+msPerDay=24*60*60*1000
+e_daysold=timeold/msPerDay
+daysold=Math.floor(e_daysold);
+e_hrsold=(e_daysold-daysold)*24;
+hrsold=setzero(Math.floor(e_hrsold));
+e_minsold=(e_hrsold-hrsold)*60;
+minsold=setzero(Math.floor((e_hrsold-hrsold)*60));
+seconds=setzero(Math.floor((e_minsold-minsold)*60));
+document.getElementById('days').innerHTML="已运行 "+daysold+" 天 "+hrsold+" 小时 "+minsold+" 分 "+seconds+" 秒";
+}
+function setzero(i){
+if (i<10)
+{i="0" + i};
+return i;
+}
+show_date_time();
+</script>
+```
++ 把`BirthDay` 改成你自己的即可  
++ 要是不喜欢颜色，感觉不好看在文件：`/themes/next/source/css/_custom/custom.styl` 添加
+```
+// 自定义的侧栏时间样式
+#days {
+    display: block;
+    color: #2cd724;
+    font-size: 13px;
+    margin-top: 15px;
+}
+```
+
+### 十八、让页脚的心跳起来
++ 修改文件位置：`/themes/next/_config.yml`找到`footer`修改如下
+```
+footer:
+  # Specify the date when the site was setup.
+  # If not defined, current year will be used.
+  #since: 2015
+
+  # Icon between year and copyright info.
+  icon:
+    # Icon name in fontawesome, see: https://fontawesome.com/v4.7.0/icons/
+    # `heart` is recommended with animation in red (#ff0000).
+    name: heart
+    # If you want to animate the icon, set it to true.
+    animated: true
+    # Change the color of icon, using Hex Code.
+    color: "#ff0000"
+```
+
+
+
 ## 五、部署到GitHub
 ### 准备工作
 在Github 创建一个仓库为blog,并从master 分支，新建一个dev分支
@@ -521,4 +707,7 @@ git push origin hexo  //更新分支
 hexo d -g   //push更新完分支之后将自己写的博客对接到自己搭的博客网站上，同时同步了Github中的master
 ```
 
-> 参考链接：http://theme-next.iissnan.com
+> 参考链接：
+> + http://theme-next.iissnan.com
+> + https://io-oi.me/tech/add-chinese-zodiac-to-next.html#main
+
