@@ -43,7 +43,7 @@ tags:
 ## 最新版安装
 在Github,[https://github.com/git/git/releases](https://github.com/git/git/releases) 下载最新版本。  
 在2019-5-5，最新版本为：`v2.21.0`  
-![](/Linux安装最新版Git/git0.png)
+![git0](/Linux安装最新版Git/git0.png)
 
 + 下载v2.21.0版本  
 `wget https://github.com/git/git/archive/v2.21.0.tar.gz`
