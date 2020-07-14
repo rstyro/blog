@@ -268,7 +268,7 @@ scheduler.scheduleJob(job, trigger);
 
 这样就可以启动一个 定时任务 很简单，其他的停止删除就不一一列出来了，具体的可以参看文章末尾我的代码链接。
 
-![后台示例图片](/Springboot2与Quartz的亲密接触/show.png)
+![后台示例图片](show.png)
 
 #### 代码地址：[https://github.com/rstyro/Springboot/tree/master/SpringBoot-Quartz](https://github.com/rstyro/Springboot/tree/master/SpringBoot-Quartz)
 

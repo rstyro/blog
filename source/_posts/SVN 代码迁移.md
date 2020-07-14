@@ -27,7 +27,7 @@ categories: 开发工具
 ```
 svnadmin create /usr/local/svnRepo/newblog
 ```
-![](/SVN 代码迁移/1502076979952076738.png)
+![](1502076979952076738.png)
 
 ### 4、加载备份文件
 ```
@@ -37,4 +37,4 @@ scp /root/blog.dump  root@192.168.1.1:/root/blog.dump        #192.168.1.1 就是
 #加载备份文件
 svnadmin load /usr/local/svnRepo/newblog </root/blog.dump
 ```
-![](/SVN 代码迁移/1502077491103063187.png)
+![](1502077491103063187.png)

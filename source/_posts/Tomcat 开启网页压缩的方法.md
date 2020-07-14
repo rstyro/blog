@@ -12,7 +12,7 @@ categories: 开发工具
 
 > 修改如下图所示： 添加4行代码
 
-![](/Tomcat 开启网页压缩的方法/1498817461236027397.png)
+![](1498817461236027397.png)
 
 ```
 compression="on"
@@ -22,5 +22,5 @@ compressableMimeType="text/html,text/xml,text/javascript,text/css,text/plain"
 ```
 > 保存退出，重启tomcat，然后去 http://seo.chinaz.com/lrshuai.top 检测检测
 
-![](/Tomcat 开启网页压缩的方法/1498817628605091457.png)
+![](1498817628605091457.png)
 

@@ -33,9 +33,9 @@ docker pull hello-world
 docker run hello-world
 ```
 
-![](/Docker（三）、运行一个 Hello World/16847.png)
+![](16847.png)
 
-![](/Docker（三）、运行一个 Hello World/32948.png)
+![](32948.png)
 
 #### 看到上面打印出来的信息，表示我们的hello world 已经成功运行了。
 ### 2、我们在试一个例子
@@ -113,7 +113,7 @@ docker push (image_name)
 ```
 
 
-![](/Docker（三）、运行一个 Hello World/96832.png)
+![](96832.png)
 
 ## 三、可能报的错
 ```
@@ -132,6 +132,6 @@ vim /etc/docker/daemon.json
 }
 ```
 ## 四、Docker 运行的流程图
-![](/Docker（三）、运行一个 Hello World/59310.png)
-![](/Docker（三）、运行一个 Hello World/71930.png)
+![](59310.png)
+![](71930.png)
 

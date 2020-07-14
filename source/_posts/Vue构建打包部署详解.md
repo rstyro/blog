@@ -14,7 +14,7 @@ categories: 前端
 `vue -V`
 
 ### 构建项目
-![](/Vue构建打包部署详解/create.png)
+![](create.png)
 
 构建命令：`vue init webpack 项目名`  
 + Project name  输入项目名称  
@@ -34,10 +34,10 @@ categories: 前端
 + 运行命令:`npm run dev`  
 + 然后访问：http://localhost:8080​，出现如下图片说明成功  
 
-![](/Vue构建打包部署详解/view.png)
+![](view.png)
 
 ### 打包部署
-![](/Vue构建打包部署详解/build.png)
+![](build.png)
 + 打包命令:`npm run build`  
 + 成功之后会在项目路径生成名为`dist`的文件夹
 + 把`dist` 复制到nginx 的html目录下，启动nginx即可

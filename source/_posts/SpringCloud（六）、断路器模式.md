@@ -6,7 +6,7 @@ categories: Java
 ---
 **在微服务架构中，我们将系统拆分成了一个个的服务单元，各单元间通过服务注册与订阅的方式互相依赖。由于每个单元都在不同的进程中运行，依赖通过远程调用的方式执行，这样就有可能因为网络原因或是依赖服务自身问题出现调用故障或延迟，而这些问题会直接导致调用方的对外服务也出现延迟，若此时调用方的请求不断增加，最后就会出现因等待出现故障的依赖方响应而形成任务积压，最终导致自身服务的瘫痪。这就是传说中的`雪崩效应` 或者叫 `级联失败`。**
 
-![](/SpringCloud （六）、断路器模式/98152.png)
+![](98152.png)
 
 #### 为了解决这种服务之间的级联失败，所以产生了一种模式叫做`断路器模式`
 
@@ -84,11 +84,11 @@ public class TestController {
 1、启动Eureka服务
 2、启动生产者服务
 2、启动这个hystrix 项目
-访问请求 `/provider/{id}` ,返回结果应该是正常的，然后把生产者服务停掉，再次请求看是否返回我们设置的回调内容。
-**
-![](/SpringCloud （六）、断路器模式/08632.png)
+访问请求 `/provider/{id}` ,返回结果应该是正常的，然后把生产者服务停掉，再次请求看是否返回我们设置的回调内容。**
 
-![](/SpringCloud （六）、断路器模式/21489.png)
+![](08632.png)
+
+![](21489.png)
 
 ##### [Github代码示例](https://github.com/rstyro/SpringCloud/tree/master/SpringCloud-customer-ribbon-hystrix)
 
@@ -118,7 +118,7 @@ public class CustomerFeignHystrixApplication {
 ```
 #### 3、在feign接口客户端上添加注解
 ##### 方法一：使用fallback
-** 1、在feign服务接口的`@FeignClient` 注解添加fallback 参数，后面是一个配置类名**
+**1、在feign服务接口的`@FeignClient` 注解添加fallback 参数，后面是一个配置类名**
 ```
 @FeignClient(name="producer",fallback=MyHystrixFallback.class)
 public interface MyFeignClient {
@@ -141,7 +141,7 @@ public class MyHystrixFallback implements MyFeignClient{
 }
 ```
 ##### 方法二：使用fallbackFactory
-** 1、在feign服务接口的`@FeignClient` 注解添加fallbackFactory 参数，后面是一个配置类名**
+**1、在feign服务接口的`@FeignClient` 注解添加fallbackFactory 参数，后面是一个配置类名**
 ```
 @FeignClient(name="producer",fallbackFactory=MyHystrixFallbackFactory.class)
 public interface MyFeignClient2 {

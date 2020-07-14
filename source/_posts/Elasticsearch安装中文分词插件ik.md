@@ -12,13 +12,13 @@ categories: 搜索引擎
 ## 一、Windows 安装ik插件
 #### 1、下载地址：[https://github.com/medcl/elasticsearch-analysis-ik](https://github.com/medcl/elasticsearch-analysis-ik)
 下载你对应的版本
-![](/Elasticsearch安装中文分词插件ik/89174.png)
+![](89174.png)
 
-![](/Elasticsearch安装中文分词插件ik/94607.png)
+![](94607.png)
 #### 2、解压
 把下载的文件，解压
 #### 3、在elasticsearch 的plugins 目录下，新建一个名为：ik 的文件夹，把上面解压的东西放到ik文件内
-![](/Elasticsearch安装中文分词插件ik/10743.png)
+![](10743.png)
 #### 4、重启elasticsearch
 
 ## 二、Linux 安装ik插件

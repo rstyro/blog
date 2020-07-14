@@ -31,15 +31,15 @@ tags:
 + 8、之后创建一个用户
 + 9、创建用户之后，就可以使用jenkins了
 
-![](/Jenkins安装配置使用/jenkins1.png)
-![](/Jenkins安装配置使用/jenkins3.png)
-![](/Jenkins安装配置使用/jenkins4.png)
+![](jenkins1.png)
+![](jenkins3.png)
+![](jenkins4.png)
 
 > 除了放在servlet 容器，也可以通过`java -jar jenkins.war &` 的方式启动。
 > 如果插件安装失败的话，可以去镜像地址：[https://mirrors.tuna.tsinghua.edu.cn/jenkins/](https://mirrors.tuna.tsinghua.edu.cn/jenkins/)   
 > 手动下载然后通过插件管理中的高级选择进行上传
 
-![](/Jenkins安装配置使用/jenkins5.png)
+![](jenkins5.png)
 
 ## 三、全局工具配置
 在Jenkins 中的全局工具配置中，配置  
@@ -47,7 +47,7 @@ tags:
 + Git
 + Maven  
 配置上面几个工具的路径
-![](/Jenkins安装配置使用/jenkins8.png)
+![](jenkins8.png)
 
 ## 四、Github 配置
 在Jenkins 访问Github 项目的时候，有时需要授权，为了保险 所以我们在Github上给Jenkins 生成一个令牌（`Personal access tokens`）。
@@ -60,9 +60,9 @@ tags:
 + 最后点击下方`Generate token` 绿色按钮生成token
 + 生成一个token字符串，记录下来，后面不显示的
 
-![](/Jenkins安装配置使用/jenkins9.png)
-![](/Jenkins安装配置使用/jenkins9-1.png)
-![](/Jenkins安装配置使用/jenkins9-2.png)
+![](jenkins9.png)
+![](jenkins9-1.png)
+![](jenkins9-2.png)
 
 
 #### 2、生成凭据
@@ -71,7 +71,7 @@ tags:
 + 添加凭据
 + 然后类型选择`Secret text`,Secret 选项就是在Github生成的token,描述那里随便写，然后添加
 
-![](/Jenkins安装配置使用/jenkins-credentials.png)
+![](jenkins-credentials.png)
 
 #### 3、配置Jenkins 的Github Server
 进入Jenkins 的系统设置
@@ -80,13 +80,13 @@ tags:
 + 点击右边`连接测试`
 + 没问题，保存
 
-![](/Jenkins安装配置使用/jenkins10-1.png)
+![](jenkins10-1.png)
 
 
 ## 五、构建任务
 准备工作都准备好了，开始构建吧。 
  
-![](/Jenkins安装配置使用/jenkins-build.png)
+![](jenkins-build.png)
 
 ### 1、手动构建
 这个的意思就是，当你推送代码了，但是Jenkins不会帮你立即部署，需要你主动去点一下构建  
@@ -105,12 +105,12 @@ tags:
 maven 目标选择
 + 7、最后就可以保存了
 
-![](/Jenkins安装配置使用/jenkins-build2.png)
-![](/Jenkins安装配置使用/jenkins-build3.png)
-![](/Jenkins安装配置使用/jenkins-build-p0.png)
+![](jenkins-build2.png)
+![](jenkins-build3.png)
+![](jenkins-build-p0.png)
 > `Started by rstyro` 这个是通过用户触发的
 
-![](/Jenkins安装配置使用/jenkins-build-p1.png)
+![](jenkins-build-p1.png)
 
 #### `test_run.sh` 内容如下
 ```
@@ -201,10 +201,10 @@ nohup java -jar $JAR_NAME.$FILE_TYPE >print.out 2>&1 &
 + 然后当我们推送项目的时候，Github就会通知 Jenkins 进行构建
 
 
-![](/Jenkins安装配置使用/jenkins-webhooks.png)
-![](/Jenkins安装配置使用/jenkins-build-auto.png)
+![](jenkins-webhooks.png)
+![](jenkins-build-auto.png)
 
-![](/Jenkins安装配置使用/jenkins-build-p2.png)
+![](jenkins-build-p2.png)
 
 > `Started by GitHub push by rstyro` 这个打印说明通过Github 推送触发的，说明Webhooks 配置成功。搞定    
 
@@ -217,7 +217,7 @@ nohup java -jar $JAR_NAME.$FILE_TYPE >print.out 2>&1 &
 + 3、当插件安装好的时候，授权策略会多出一个`Role-Based Strategy`选项
 + 4、选择该项并保存
 
-![](/Jenkins安装配置使用/jenkins-auth.png)
+![](jenkins-auth.png)
 
 #### 2、管理分配角色
 + 1、系统管理中有一个 `Manage and Assign Roles` 的选项
@@ -232,10 +232,10 @@ nohup java -jar $JAR_NAME.$FILE_TYPE >print.out 2>&1 &
 + 7、在 `User/group to add` 后面指定一个用户，点击`Add`
 + 8、之后给这个用户选择一个角色即可
 
-![](/Jenkins安装配置使用/jenkins-auth-role.png)
-![](/Jenkins安装配置使用/jenkins-auth-role-manage.png)
-![](/Jenkins安装配置使用/jenkins-auth-role2.png)
-![](/Jenkins安装配置使用/jenkins-auth-role3.png)
+![](jenkins-auth-role.png)
+![](jenkins-auth-role-manage.png)
+![](jenkins-auth-role2.png)
+![](jenkins-auth-role3.png)
 
 #### 3、角色选项说明
 + Overall(全部)	

@@ -30,7 +30,7 @@ docker run -d --name mynginx -P 80:80 nginx
 #### nginx 默认启动的端口为 80 
 #### 通过命令`docker ps` 或者 `docker ps | grep nginx`，查看端口的映射情况
 #### 浏览器访问：http://localhost/ 或者 curl http://localhost/
-![](/Docker（四）、运行Nginx/13248.png)
+![](13248.png)
 
 ## 四、修改index.html 页面
 
@@ -88,7 +88,7 @@ docker run -d -p 80:80 --name mynginx -v "$PWD/html":/usr/share/nginx/html docke
 ```
 打开浏览器，访问 [http://localhost/](http://localhost/)，应该就能看到 Hello Docker!!! 了
 我们可以在我们的主机上修改 index.html 的内容，然后刷新浏览器，看是否浏览器也更新了。
-![](/Docker（四）、运行Nginx/47063.png)
+![](47063.png)
 
 ## 五、挂载配置文件
 #### 1、拷贝nginx容器的配置文件

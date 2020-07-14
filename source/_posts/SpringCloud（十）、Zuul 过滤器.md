@@ -136,7 +136,7 @@ public class SpringcloudZuulFilterApplication {
 完整的 [Github代码地址](https://github.com/rstyro/SpringCloud/tree/master/SpringCloud-zuul-filter)
 请求服务时，拦截
 
-![](/SpringCloud （十）、Zuul 过滤器/13624.png)
+![](13624.png)
 参考链接：
 [https://github.com/Netflix/zuul/wiki/How-It-Works](https://github.com/Netflix/zuul/wiki/How-It-Works)、
 [http://www.itmuch.com/spring-cloud/zuul/zuul-filter-in-spring-cloud/](http://www.itmuch.com/spring-cloud/zuul/zuul-filter-in-spring-cloud/)

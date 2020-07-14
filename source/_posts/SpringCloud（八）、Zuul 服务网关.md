@@ -6,9 +6,9 @@ categories: Java
 ---
 **举个栗子，在一个大型的购物网站中，以微服务架构进行拆分，会分为很多种服务，比如购物车、订单服务、评论服务、库存服务、用户服务等等，服务相互之间调用，那么就会产生很多个链接地址，如果有成百上千个服务之间进行调用，那么维护起来是很麻烦的，所以根据环境需要就产生了服务网关。
 什么是服务网关，简单的说它就是一个中转站或者叫转发器，我们每次请求只需要去网关即可，而不需要去具体的服务请求，为了方便理解，看下面两张图**
-![](/upload/images/14068.png)
+![](14068.png)
 下面是加了网关API之后
-![](/upload/images/32768.png)
+![](32768.png)
 
 **API 网关负责服务请求路由、组合及协议转换。客户端的所有请求都首先经过 API 网关，然后由它将请求路由到合适的微服务。API 网关经常会通过调用多个微服务并合并结果来处理一个请求。它可以在 web 协议（如 HTTP 与 WebSocket）与内部使用的非 web 友好协议之间转换。**
 
@@ -209,7 +209,7 @@ ribbon:
  访问`producer`服务的接口`/producer/vipAddress` 请求地址为 `http://192.168.1.101:8980/producer/vipAddress`，也可以这样`http://192.168.1.101:8980/zuul/producer/vipAddress`
  
  前缀加上`/zuul` 这个可以绕过Spring 的DispatcherServlet，比如上传文件时，绕过文件上传的大小限制。看文档
- ![](/upload/images/97810.png)
+ ![](97810.png)
  我们可以测试下
  上传的代码如下：
  上传成功后返回成功后的文件路径
@@ -250,7 +250,7 @@ spring:
 ##### 完整的上传 [Github代码地址](https://github.com/rstyro/SpringCloud/tree/master/SpringCloud-file-upload)
 ##### 3、测试
 Eureka 服务注册情况，下面的`红字`，代表eureka进入了 `自我保护模式`
-![](/upload/images/83215.png)
+![](83215.png)
 **准备工作**
 需要`curl` 工具，window 可在[https://curl.haxx.se/download.html](https://curl.haxx.se/download.html)进行下载
 启动zuul ,使用如上的项目，配置选择 `zuul_demo12` 的 profiles
@@ -260,5 +260,5 @@ Eureka 服务注册情况，下面的`红字`，代表eureka进入了 `自我保
 但是上传一个大文件`a11.wnv` 报了` because its size (551282098) exceeds the configured maximum (10485760)` 的错误，
 意思是超过文件上传的大小限制 `10485760 b` ，
 后面我们在上传的地址前加了 `/zuul` 发现上传成功了。测试过程如下图：
-![](/SpringCloud （八）、Zuul 服务网关/26879.png)
+![](26879.png)
 

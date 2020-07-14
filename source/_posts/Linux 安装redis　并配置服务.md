@@ -34,7 +34,7 @@ mkdir /etc/redis             #创建redis目录，是为了以后可以存放多
 cp /opt/redis-4.0.14/redis.conf /etc/redis/6379.conf      
 vim /etc/rc.d/init.d/redis               #修改如下圈出来的地方
 ```
-![](/Linux 安装redis　并配置服务/1497593356955096462.png)
+![](1497593356955096462.png)
 
 > 前面两行注释是：redis服务必须在运行级2，3，4，5下被启动或关闭，启动的优先级是90，关闭的优先级是10。
 
@@ -101,7 +101,7 @@ WantedBy=multi-user.target
 
 ##### 先说明一下啊，上面的：
 ##### PIDFile   这个值要和 上面配置脚本中的 `ExecStart `命令启动 redis 的配置文件（/etc/redis/6379.conf）里的pidfile 一样，比如下图：
-![](/Linux 安装redis　并配置服务/40316.png)
+![](40316.png)
 
 ##### ExecStart 前面是redis启动的服务脚本 空格 之后是启动需要的配置文件路径
 

@@ -4,7 +4,7 @@ date: 2017-07-30 11:02:11
 tags: [Spring Boot, Java]
 categories: Java
 ---
-#Springboot  使用 JavaMailSender 发邮件
+# Springboot  使用 JavaMailSender 发邮件
 #### 发邮件功能，使用还是很普遍的，比如注册，找回密码，留言，推送......................我们来看看springboot 是怎么发邮件的。
 
 ## 1、添加依赖

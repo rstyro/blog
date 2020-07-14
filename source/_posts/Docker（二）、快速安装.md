@@ -90,4 +90,4 @@ $ docker version
 # 查看docker 的信息
 $ docker info
 ```
-![](/Docker（二）、快速安装/90816.png)
+![](90816.png)

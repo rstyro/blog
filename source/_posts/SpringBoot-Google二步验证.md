@@ -28,11 +28,11 @@ tags:
 
 > + 客户端每30秒就会生成新的验证码
 > + 界面大概如下：
-> + ![Google Authenticator界面](/SpringBoot-Google二步验证/0.png)
+> + ![Google Authenticator界面](0.png)
 
 
 ## 三、代码实现
-![全部接口](/SpringBoot-Google二步验证/1.png)
+![全部接口](1.png)
 #### 1、前言
 + 为了比较真实所以添加了注册和登录接口 
 + 为了方便集成了`Swagger-ui` 和全部是`GET`请求，不会用`Swagger-ui`,就直接地址栏请求或者`Postman`都可
@@ -462,11 +462,11 @@ public class GoogleAuthenticator {
 ```
 
 #### 主要流程图
-![登录](/SpringBoot-Google二步验证/2.png)
-![生成google密钥](/SpringBoot-Google二步验证/3.png)
-![扫描二维码](/SpringBoot-Google二步验证/4.png)
-![Google验证器动态验证码](/SpringBoot-Google二步验证/5.png)
-![绑定Google](/SpringBoot-Google二步验证/6.png)
+![登录](2.png)
+![生成google密钥](3.png)
+![扫描二维码](4.png)
+![Google验证器动态验证码](5.png)
+![绑定Google](6.png)
 
 #### 代码地址
 + Github: [https://github.com/rstyro/Springboot/tree/master/SpringBoot-Google-Check](https://github.com/rstyro/Springboot/tree/master/SpringBoot-Google-Check)

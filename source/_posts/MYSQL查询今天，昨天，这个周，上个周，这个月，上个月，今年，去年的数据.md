@@ -4,9 +4,9 @@ date: 2017-04-10 21:02:42
 tags: [MYSQL]
 categories: 数据库
 ---
-##一般后台做报表什么的，可能会用到
-#####createTime ---- 创建时间， 就是你要对比的时间，表的字段类型为 datetime
-###直接上代码
+## 一般后台做报表什么的，可能会用到
+##### createTime ---- 创建时间， 就是你要对比的时间，表的字段类型为 datetime
+### 直接上代码
 ```
 -- 查询上周的数据 
 -- SELECT count(id) as count FROM user WHERE YEARWEEK(date_format(createTime,'%Y-%m-%d')) = YEARWEEK(now())-1; 
@@ -46,7 +46,7 @@ categories: 数据库
 (select count(id) as count from `user` where YEAR(createTime)=YEAR(NOW())-1) tt4,
 (select count(id) as count from user) t
 ```
-###统计当前月，后12个月，各个月的数据
+### 统计当前月，后12个月，各个月的数据
 ####下面是创建对照视图 sql
 ```
 CREATE
@@ -77,10 +77,10 @@ on
 group by 
     v.month
 ```
-###顺便把我上次遇到的一个排序小问题也写出来
+### 顺便把我上次遇到的一个排序小问题也写出来
 
-#####数据表有一个sort_num 字段来代表排序，但这个字段有些值是null，现在的需求是,返回结果集按升序返回，如果sort_num 为null 则放在最后面mysql null 默认是最小的值，如果按升序就会在前面.
-####解决方法：
+##### 数据表有一个sort_num 字段来代表排序，但这个字段有些值是null，现在的需求是,返回结果集按升序返回，如果sort_num 为null 则放在最后面mysql null 默认是最小的值，如果按升序就会在前面.
+#### 解决方法：
 ```
 SELECT * from table_name 
 ORDER BY 
@@ -91,7 +91,7 @@ ORDER BY
   else 0 end, sort_num asc
 ```
 
-####再写一个吧
+#### 再写一个吧
 #### case when 统计个数
 ```
 SELECT 

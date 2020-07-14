@@ -13,4 +13,4 @@ categories: 开发工具
 ### 进去conf/server.xml  在设置端口的那个地方添加  maxPostSize=“-1” 就可以了
 
 #### 如下图，我用的是eclipse 
-![](/取消Tomcat 上传文件限制/1500025058758049154.png)
+![](1500025058758049154.png)

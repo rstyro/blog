@@ -5,8 +5,8 @@ tags: [开发工具, 系统装机, Linux]
 categories: 网络运维
 ---
 # 一、下载源码包
-###官网：[https://tomcat.apache.org/download-80.cgi](https://tomcat.apache.org/download-80.cgi)
-####复制下载地址，到 linux 用 wget下载
+### 官网：[https://tomcat.apache.org/download-80.cgi](https://tomcat.apache.org/download-80.cgi)
+#### 复制下载地址，到 linux 用 wget下载
 ```
 wget http://mirrors.hust.edu.cn/apache/tomcat/tomcat-8/v8.5.14/bin/apache-tomcat-8.5.14.tar.gz
 ```
@@ -24,7 +24,7 @@ mv apache-tomcat-8.5.14 tomcat
 ```
 vim /etc/profile
 ```
-###在最后加入,下面两行代码
+### 在最后加入,下面两行代码
 ```
 export CATALINA_HOME=/usr/local/tomcat
 export CATALINA_BASE=/usr/local/tomcat
@@ -38,8 +38,8 @@ vim /usr/local/tomcat/bin/catalina.sh
 ```
 CATALINA_PID="$CATALINA_BASE/tomcat.pid"
 ```
-#####如下图所示：
-![示例图说明](/Centos7 安装tomcat，并添加服务/1494743565799068934.png)
+##### 如下图所示：
+![示例图说明](1494743565799068934.png)
 
 #### (3)、创建tomcat.service
 ```

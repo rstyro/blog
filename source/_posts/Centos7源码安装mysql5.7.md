@@ -109,7 +109,7 @@ cd /usr/local/mysql
 bin/mysqld --initialize --user=mysql --basedir=/usr/local/mysql --datadir=/usr/local/mysql/data
 ```
 ##### 随机密码图如下：
-![](/Centos7源码安装mysql5.7/1494762278916005105.png)
+![](1494762278916005105.png)
 
 #### 5、初始化配置
 ##### 1、进入安装路径，将默认生成的my.cnf备份
@@ -166,7 +166,7 @@ service mysql stop11
 ```
 ### 访问mysql数据库连接mysql， 输入初始化生成的随机密码
 #### 然后修改密码
-![](/Centos7源码安装mysql5.7/1494762422649025642.png)
+![](1494762422649025642.png)
 
 ```
 #mysql创建用户

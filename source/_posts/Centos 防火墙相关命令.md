@@ -27,7 +27,7 @@ service iptables stop
 chkconfig iptables off
 
 ```
-####可能发生的异常
+#### 可能发生的异常
 ```
 具体的异常现象： 
 #1.启动或者关闭防火墙没任何的提示
@@ -46,8 +46,8 @@ iptable_filter          2173  0
 ip_tables               9567  1 iptable_filter
 ```
 ## Centos 7
-###Centos7 的firewalld 取代了centos6 的iptables
-####端口命令
+### Centos7 的firewalld 取代了centos6 的iptables
+#### 端口命令
 ```
 #查看开放端口
 firewall-cmd --list-ports
@@ -68,7 +68,7 @@ firewall-cmd --zone= public --remove-port=80/tcp --permanent
 |--zone|作用域|
 |--add-port=80/tcp |添加端口，格式为：端口/通讯协议|
 |--permanent|设置永久生效，没有此参数重启后失效|
-####防火墙命令
+#### 防火墙命令
 ```
 firewall-cmd --reload                  #重启firewall
 firewall-cmd  --state                  #查看防火墙状态
@@ -84,7 +84,7 @@ vi /etc/sysconfig/network-scripts/ifcfg-ens33
 # 重启网卡
 service network restart
 ```
-![](/Centos 防火墙相关命令/1503627585949070215.png)
+![](1503627585949070215.png)
 ##### 就像我们所知道的，“ifconfig”命令用于配置GNU/Linux系统的网络接口。它显示网络接口卡的详细信息，包括IP地址，MAC地址，以及网络接口卡状态之类。但是，该命令已经过时了，而且在最小化版本的RHEL 7以及它的克隆版本CentOS 7，Oracle Linux 7和Scientific Linux 7中也找不到该命令。
 ##### 我们可以用
 ```

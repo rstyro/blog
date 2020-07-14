@@ -35,4 +35,4 @@ mvn -v
 #### 3、新建系统变量MAVEN_HOME，变量值为 E:\installPath\maven\apache-maven-3.3.9
 #### 4、需要在Path前面加上%MAVEN_HOME%\bin;
 #### 5、验证是否配置成功：如果显示如下，说明成功，需要注意的是要先配置好JDK的路径。
-![](/安装maven/1499321122690022124.png)
+![](1499321122690022124.png)

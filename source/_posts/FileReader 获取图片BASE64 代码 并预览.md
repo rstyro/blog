@@ -8,16 +8,11 @@ categories: Java
 ### FileReader ，老实说我也不怎么熟悉。在这里只是记录使用方法。
 
 |方法名|参数| 描述|
-|---|--|
+|---|--|--|
 |abort| none|中断读取|
 |readAsBinaryString|file（blob）|将文件读取为二进制码|
 |readAsDataURL|file（blob）|将文件读取为 DataURL|
 |readAsText|file, （blob）|将文件读取为文本|
-
-
-
-
-
 
 
 ### FileReader 包含了一套完整的事件模型，用于捕获读取文件时的状态

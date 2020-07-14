@@ -33,7 +33,7 @@ EMERGENCY! EUREKA MAY BE INCORRECTLY CLAIMING INSTANCES ARE UP WHEN TH
 eureka.instance.leaseRenewalIntervalInSeconds
 ```
 [参考文档](http://cloud.spring.io/spring-cloud-static/Camden.SR1/#_why_is_it_so_slow_to_register_a_service)
-** 原文：**
+**原文：**
 > Why is it so Slow to Register a Service?
 Being an instance also involves a periodic heartbeat to the registry (via the client’s serviceUrl) with default duration 30 seconds. A service is not available for discovery by clients until the instance, the server and the client all have the same metadata in their local cache (so it could take 3 heartbeats). You can change the period using eureka.instance.leaseRenewalIntervalInSeconds and this will speed up the process of getting clients connected to other services. In production it’s probably better to stick with the default because there are some computations internally in the server that make assumptions about the lease renewal period.
 
@@ -92,8 +92,8 @@ https://github.com/spring-cloud/spring-cloud-netflix/issues/203
 `eureka.client.healthcheck.enabled=true` 只应该在`application.yml`中设置。如果设置在`bootstrap.yml`中将会导致一些不良的`副作用`，例如在Eureka中注册的应用名称是`UNKNOWN`等。**
 
 ### 8.Ribbon
-** 1.自定义配置时，`@Configuration`和`@ComponentScan`包不应重叠** 
-** 2.使用`RestTemplate`时，想要获得一个List时，应该用数组，而不应该直接用List** 
+**1.自定义配置时，`@Configuration`和`@ComponentScan`包不应重叠** 
+**2.使用`RestTemplate`时，想要获得一个List时，应该用数组，而不应该直接用List** 
 
 ### 9.Feign
 **1.自定义配置时，`@Configuration`和`@ComponentScan`包不应重叠**

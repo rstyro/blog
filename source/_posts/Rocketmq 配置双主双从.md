@@ -9,21 +9,21 @@ categories: MQ
 > 具体可参考：http://www.lrshuai.top/atc/show/48  只需要修改第三步骤的配置文件就可。
 
 ## 1、环境
-####　4台电脑
+#### 4台电脑
 + 192.168.12.132  主（broker-a）,开启nameserver
 + 192.168.12.133  主（broker-b）,开启nameserver
 + 192.168.12.134  从（broker-a）
 + 192.168.12.135  从（broker-b）
 
 ## 2、修改配置文件
-###　注意： 比如　编译什么的和配置双master 一样我就不重复了。
+### 注意： 比如　编译什么的和配置双master 一样我就不重复了。
 
 ### rocketmq/conf 下的文件说明：
 + 2m-2s-async     -----------   异步复制
 + 2m-2s-sync	 ------------  同步双写
 + 2m-noslave      ------------  多master模式
 
-####　我今天演示的是同步双写，所以修改 2m-2s-sync 目录下的配置文件
+#### 我今天演示的是同步双写，所以修改 2m-2s-sync 目录下的配置文件
 
 ##### broker-a.properties
 ```
@@ -177,5 +177,5 @@ flushDiskType=SYNC_FLUSH
 > 10911（Broker 对外服务的监听端口）
 > 10912 (Master 和Slave同步的数据的端口，)
 
-![](/Rocketmq 配置双主双从/1504513028537098743.png)
+![](1504513028537098743.png)
 

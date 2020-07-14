@@ -2,7 +2,7 @@
 title: Javascript 模拟CC攻击与防范浅析
 date: 2017-10-15 18:13:17
 tags: [干货, JavaScript]
-categories: Java
+categories: Web
 ---
 # CC攻击的原理与防范浅析
 #### 本人菜鸟一枚，如果说得不对，请见谅，欢迎指正。

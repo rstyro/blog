@@ -73,7 +73,7 @@ categories: 开发工具
 ### 5、Registry
 ##### Registry/Hub（镜像仓库）：你可以在Docker Hub上轻松下载大量已经容器化好的应用镜像，即拉即用，有些是Docker官方维护的，有些是开发者自发上传分享的。
 
-![](/Docker（一）、Docker是什么/76049.png)
+![](76049.png)
 
 > 若有不对的地方，欢迎指正
 

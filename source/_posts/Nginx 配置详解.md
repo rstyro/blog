@@ -7,7 +7,7 @@ categories: 开发工具
 # Nginx 配置参数详解
 
 ### 默认配置文件在 nginx 目录下的 `conf/nginx.conf` 内容大概如下：
-![](/Nginx 配置详解/85946.png)
+![](85946.png)
 # 所有我就把它分为 全局配置、events 、http 吧
 ## 一、全局区配置
 

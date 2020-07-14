@@ -150,7 +150,7 @@ categories: Java
 ```
 
 ## 二、解决线程安全问题
-###利用ThreadLocal,设置当前线程使用的是哪个dataSource
+### 利用ThreadLocal,设置当前线程使用的是哪个dataSource
 ```
 public class CustomerContextHolder {
      
@@ -177,8 +177,8 @@ public class CustomerContextHolder {
 }
 ```
 ## 三、自定义一个动态数据源
-####创建DynamicDataSource类继承AbstractRoutingDataSource
-####并实现determineCurrentLookupKey方法
+#### 创建DynamicDataSource类继承AbstractRoutingDataSource
+#### 并实现determineCurrentLookupKey方法
 ```
 public class DynamicDataSource extends AbstractRoutingDataSource {
  

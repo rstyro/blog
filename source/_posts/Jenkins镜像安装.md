@@ -64,11 +64,11 @@ systemctl start/stop/restart jenkins
 > + `Job for jenkins.service failed because the control process exited with error code. See "systemctl status jenkins.service" and "journalctl -xe" for details`  
 > + 检查自己的JDK是否安装  
 > + 如果已经安装，检查 /etc/init.d/jenkins 文件（可通过vim编辑器修改）中JDK路径是否与本地路径一致，不一致则将JDK的正确路径加入。
-> ![配置java环境](/Jenkins镜像安装/java-conf.png)
+> ![配置java环境](java-conf.png)
 
 
 
-![初始化Jenkins](/Jenkins镜像安装/jenkins_node1.png)
+![初始化Jenkins](jenkins_node1.png)
 
 + Jenkins 的根目录为：`/var/lib/jenkins/`
 + Jenkins 的工作目录为: `/var/lib/jenkins/workspace/`
@@ -78,16 +78,16 @@ systemctl start/stop/restart jenkins
 + 不可能，需要部署应用的服务器都部署Jenkins
 + 配置节点很简单，填写一下服务器的地址与用户名密码即可
 + 首页 --> 系统管理--> 节点管理--> 新建节点
-+ ![jenkins_node1.png](/Jenkins镜像安装/jenkins_node1.png)
++ ![jenkins_node1.png](jenkins_node1.png)
 
-+ ![jenkins_node2.png](/Jenkins镜像安装/jenkins_node2.png)
++ ![jenkins_node2.png](jenkins_node2.png)
 
 + 远程工作目录，顾名思义就是jenkins的部署的工作目录，可以自定义(存在这个目录就行)  
 + 工具位置，就是远程服务器的应用路径
 + 远程服务器要安装Git,但是不需要在这里配路径
 + 构建任务时，选择如下：限制项目运行节点为，远程节点名称即可。
 
-![jenkins_node3.png](/Jenkins镜像安装/jenkins_node3.png)
+![jenkins_node3.png](jenkins_node3.png)
 
 + 其他的步骤和在本地节点配置的是一样的，不太明白可以看我-[上一篇文章](https://rstyro.github.io/blog/2019/05/06/Jenkins%E5%AE%89%E8%A3%85%E9%85%8D%E7%BD%AE%E4%BD%BF%E7%94%A8/)
 

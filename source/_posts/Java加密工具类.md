@@ -4,8 +4,8 @@ date: 2017-10-10 20:46:49
 tags: [Java]
 categories: Java
 ---
-#导包
-##maven依赖
+# 导包
+## maven依赖
 ```
 <!-- jdk-->
 <dependency>
@@ -19,8 +19,8 @@ categories: Java
 	<version>1.58</version>
 </dependency>
 ```
-#代码示例
-##MD5加密算法 示例
+# 代码示例
+## MD5加密算法 示例
 ```
 package top.lrshuai.blog.util;
 
@@ -91,12 +91,12 @@ public class MDUtil {
 }
 
 ```
-##SHA1加密算法 示例
-###SHA 分为
-####SHA1
-####SHA2 
-#####SHA2又分有 SHA-224、SHA-256、SHA-384，和SHA-512。
-###所以SHA 的算法可以说有5种
+## SHA1加密算法 示例
+### SHA 分为
+#### SHA1
+#### SHA2 
+##### SHA2又分有 SHA-224、SHA-256、SHA-384，和SHA-512。
+### 所以SHA 的算法可以说有5种
 ```
 package top.lrshuai.blog.util;
 

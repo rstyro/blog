@@ -18,7 +18,7 @@ categories: Java
 
 ## 2、把日志写入文件
 #### 第一种方法：在application.properties 添加 logging.file="文件路径" 或者 logging.path="文件路径"  的属性
-![](/Spring Boot (四)：日志管理/1501062665966089016.png)
+![](1501062665966089016.png)
 #### 第二种方法：自定义logback.xml 文件
 ##### Spring Boot官方推荐优先使用带有-spring的文件名作为你的日志配置（如使用logback-spring.xml，而不是logback.xml），命名为logback-    spring.xml的日志配置文件，spring boot可以为它添加一些spring boot特有的配置项，如下图。
 

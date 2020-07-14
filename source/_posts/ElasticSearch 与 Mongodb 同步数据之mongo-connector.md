@@ -47,7 +47,7 @@ mongo-connector -m 127.0.0.1:2222 -t 127.0.0.1:9201 -d elastic2_doc_manager
 |-d|doc manager的名称，2.x版本为： elastic2-doc-manager。|
 
 ## 五、在mongo 中插入数据验证
-![](/ElasticSearch 与 Mongodb 同步数据之mongo-connector/59286.png)
+![](59286.png)
 
-![](/ElasticSearch 与 Mongodb 同步数据之mongo-connector/64927.png)
-![](/ElasticSearch 与 Mongodb 同步数据之mongo-connector/76281.png)
+![](64927.png)
+![](76281.png)

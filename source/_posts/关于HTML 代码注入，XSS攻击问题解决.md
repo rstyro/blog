@@ -71,7 +71,7 @@ public static void main(String[] args) {
 	System.out.println("content="+content);
 }
 ```
-![](/关于HTML 代码注入，XSS攻击问题解决/62904.png)
+![](62904.png)
 
 ##### 但这样有个问题，就是它全部的html标签都不解析了。
 ##### 可能这不是你想要的，你想要的是一部分解析，一部分不解析。好看下面。

@@ -14,7 +14,7 @@ categories: 开发工具
 > 默认是在用户文件夹下的.m2/repository 文件夹。我不希望放在那里，所以修改它
 > 在标签 settings 里加入如下代码,如下图所示    E:\lrs_repe（这个地址是你的仓库新地址）
 
-![](/修改eclipse 默认的maven配置/1499321650598078817.png)
+![](1499321650598078817.png)
 
 ##### 2、修改镜像地址
 > 在mirrors 标签中加入
@@ -42,17 +42,17 @@ categories: 开发工具
 		<url>http://maven.oschina.net/content/repositories/thirdparty/</url>
     </mirror>
 ```
-![](/修改eclipse 默认的maven配置/1499321779916044850.png)
+![](1499321779916044850.png)
 
 ##### 3、替换eclipse 的配置文件
 > 打开eclipse--->window-->preferences-->Maven--->User Settings,选择我们刚才更改的文件（mysettings.xml）。
 
-![](/修改eclipse 默认的maven配置/1499321872747070615.png)
+![](1499321872747070615.png)
 
-![](/修改eclipse 默认的maven配置/1499321966329044703.png)
+![](1499321966329044703.png)
 
 > 同时你也可以把eclipse自带的换成我们自己安装的
 
-![](/修改eclipse 默认的maven配置/1499322192285088904.png)
+![](1499322192285088904.png)
 
-![](/修改eclipse 默认的maven配置/1499322261803052089.png)
+![](1499322261803052089.png)

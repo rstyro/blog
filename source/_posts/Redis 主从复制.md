@@ -39,7 +39,7 @@ bin/redis-server config/redis6380.conf
 bin/redis-server config/redis6381.conf
 ```
 **开启3个客户端连接各个不同端口的服务器，身份都是master**
-![](/Redis 主从复制/63519.png)
+![](63519.png)
 ## 四、配置主从关系
 **通过`slaveof ip 端口` 的命令，把6380和6381当slave的身份。
 在两台从服务器上运行如下命令：**
@@ -47,12 +47,12 @@ bin/redis-server config/redis6381.conf
 SLAVEOF 127.0.0.1 6379
 ```
 如下图：
-![](/Redis 主从复制/04687.png)
+![](04687.png)
 > 除了手动写命令连接之外，也可以在redis6380.conf(和redis6381.conf)配置文件中配置:  `slaveof <masterip> <masterport>` 配置这行为：
 > `SLAVEOF 127.0.0.1 6379`
 
 **现在在6379端口设置值，我们测试在6380和6381端口能不能获取值**
-![](/Redis 主从复制/12938.png)
+![](12938.png)
 
 + 如果master 宕机了，slave 还是slave
 + 如果master 又重新启动了，它还是会变成原来的master
@@ -77,14 +77,14 @@ bin/redis-sentinel config/sentinel.conf
 ```
 #### 3、监听测试
 **现在我们让6379死机，看一下哨兵会发生什么**
-![](/Redis 主从复制/39624.png)
+![](39624.png)
 
 **看看哨兵的情况，是否发生变化**
-![](/Redis 主从复制/72549.png)
+![](72549.png)
 
 **看上面的日志，我们可以看到6381变成主机了，如下图：**
-![](/Redis 主从复制/72583.png)
+![](72583.png)
 
 **然后当6379启动的时候，变成了从机，而不是主机了**
-![](/Redis 主从复制/38065.png)
+![](38065.png)
 

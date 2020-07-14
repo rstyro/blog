@@ -10,7 +10,7 @@ categories: 笔记
 
 ## 二、创建一个Issues
 登录Sonatype[网站](https://issues.sonatype.org/secure/Dashboard.jspa)，创建一个Issues，直接点击`Create`按钮即可，如下图：
-![](/将自己的开源项目发布到Maven中央仓库/sonatype0.png)
+![](sonatype0.png)
 + project 
 	选择`Community Suport - Open Source Project Repository Hosting` 
 + Issue Type
@@ -27,12 +27,12 @@ categories: 笔记
 	开源项目的代码仓库地址，比如`https://github.com/rstyro/encryption-tools.git`
 
 如下示例图：
-![](/将自己的开源项目发布到Maven中央仓库/sonatype1.png)
+![](sonatype1.png)
 
 ## 三、等待工作人员审核
 点击Issues 下面可看到，刚才创建的Issues,查看状态，如果状态变成`RESOLVED`即可下一步
-!["刚开始的状态"](/将自己的开源项目发布到Maven中央仓库/sonatype2.png)
-!["成功的状态"](/将自己的开源项目发布到Maven中央仓库/sonatype3.png)
+!["刚开始的状态"](sonatype2.png)
+!["成功的状态"](sonatype3.png)
 
 > 如果你的`Group Id`写的是你自己的域名，可能会有工作人员询问你是否是你自己的域名
 > 如果是自己的域名，那就去服务器域名解析那，配置一条TXT 记录即可
@@ -78,7 +78,7 @@ gpg --gen-key
 
 > 如果有默认值直接回车也可，或者调写括号内的值，示例图如下：
 
-!["生成密钥对过程"](/将自己的开源项目发布到Maven中央仓库/sonatype4.png)
+!["生成密钥对过程"](sonatype4.png)
 
 最后的打印输出：
 ```
@@ -303,17 +303,17 @@ pom需要配置的属性：
 + 如果成功变成Closed 就可以发布了，点击`Release`进行发布，ok
 
 > 如果有问题，会在下面提示你那里有问题，加入有问题你可以点击`drop`按钮删掉这个构件,然后重新发布
-!["发布流程"](/将自己的开源项目发布到Maven中央仓库/sonatype6.png)
+!["发布流程"](sonatype6.png)
 
 #### 3、通知 Sonatype 构件已成功发布
 + 在comment中回复你已经成功发布，比如：`My repository had released!`
 + 在Issue下面回复一条“构件已成功发布”的评论，这是为了通知 Sonatype 的工作人员为需要发布的构件做审批，发布后会关闭该Issue。
-!["通知 Sonatype 构件已成功发布"](/将自己的开源项目发布到Maven中央仓库/sonatype7.png)
+!["通知 Sonatype 构件已成功发布"](sonatype7.png)
 
 #### 4、等待审批
 + 当审批通过后，将会收到邮件通知。然后去 maven的中央仓库中搜索到自己发布的构件，看是否存在  
 + 至此就结束了
-!["审核成功，邮件通知"](/将自己的开源项目发布到Maven中央仓库/sonatype8.png)
+!["审核成功，邮件通知"](sonatype8.png)
 
 ## 七、升级控件
 当修改完成之后，直接走 `第六` 步骤进行构建发布即可。

@@ -6,20 +6,20 @@ categories: Java
 ---
 ## Spring 面试相关问题
 #### 1. 什么是spring?
-** Spring 是个java企业级应用的开源开发框架。Spring主要用来开发Java应用，但是有些扩展是针对构建J2EE平台的web应用。Spring 框架目标是简化Java企业级应用开发，并通过POJO为基础的编程模型促进良好的编程习惯。**
+**Spring 是个java企业级应用的开源开发框架。Spring主要用来开发Java应用，但是有些扩展是针对构建J2EE平台的web应用。Spring 框架目标是简化Java企业级应用开发，并通过POJO为基础的编程模型促进良好的编程习惯。**
 
 #### 2. 使用Spring框架的好处是什么？
-+ ** 轻量：Spring 是轻量的，基本的版本大约2MB**
-+ ** 控制反转：Spring通过控制反转实现了松散耦合，对象们给出它们的依赖，而不是创建或查找依赖的对象们**
-+ ** 面向切面的编程(AOP)：Spring支持面向切面的编程，并且把应用业务逻辑和系统服务分开**
-+ ** 容器：Spring 包含并管理应用中对象的生命周期和配置**
-+ ** MVC框架：Spring的WEB框架是个精心设计的框架，是Web框架的一个很好的替代品**
-+ ** 事务管理：Spring 提供一个持续的事务管理接口，可以扩展到上至本地事务下至全局事务（JTA）**
-+ ** 异常处理：Spring 提供方便的API把具体技术相关的异常（比如由JDBC，Hibernate or JDO抛出的）转化为一致的unchecked 异常**
++ **轻量：Spring 是轻量的，基本的版本大约2MB**
++ **控制反转：Spring通过控制反转实现了松散耦合，对象们给出它们的依赖，而不是创建或查找依赖的对象们**
++ **面向切面的编程(AOP)：Spring支持面向切面的编程，并且把应用业务逻辑和系统服务分开**
++ **容器：Spring 包含并管理应用中对象的生命周期和配置**
++ **MVC框架：Spring的WEB框架是个精心设计的框架，是Web框架的一个很好的替代品**
++ **事务管理：Spring 提供一个持续的事务管理接口，可以扩展到上至本地事务下至全局事务（JTA）**
++ **异常处理：Spring 提供方便的API把具体技术相关的异常（比如由JDBC，Hibernate or JDO抛出的）转化为一致的unchecked 异常**
 
 #### 3.  Spring由哪些模块组成？
-** 以下是Spring 框架的基本模块：**
-+ ** Core module **
+**以下是Spring 框架的基本模块：**
++ **Core module**
 + **Bean module**
 + **Context module**
 + **Expression Language module**
@@ -34,14 +34,14 @@ categories: Java
 + **Web-Portlet module**
 
 #### 4. 核心容器（应用上下文) 模块
-** 这是基本的Spring模块，提供spring 框架的基础功能，BeanFactory 是 任何以spring为基础的应用的核心。Spring 框架建立在此模块之上，它使Spring成为一个容器。**
+**这是基本的Spring模块，提供spring 框架的基础功能，BeanFactory 是 任何以spring为基础的应用的核心。Spring 框架建立在此模块之上，它使Spring成为一个容器。**
 
 #### 5. BeanFactory – BeanFactory 实现举例
-** Bean 工厂是工厂模式的一个实现，提供了控制反转功能，用来把应用的配置和依赖从正真的应用代码中分离。
+**Bean 工厂是工厂模式的一个实现，提供了控制反转功能，用来把应用的配置和依赖从正真的应用代码中分离。
 最常用的BeanFactory 实现是XmlBeanFactory 类。**
 
 #### 6. XMLBeanFactory 
-** 最常用的就是org.springframework.beans.factory.xml.XmlBeanFactory ，它根据XML文件中的定义加载beans。该容器从XML 文件读取配置元数据并用它去创建一个完全配置的系统或应用。**
+**最常用的就是org.springframework.beans.factory.xml.XmlBeanFactory ，它根据XML文件中的定义加载beans。该容器从XML 文件读取配置元数据并用它去创建一个完全配置的系统或应用。**
 
 #### 7. 解释AOP模块
 AOP模块用于发给我们的Spring应用做面向切面的开发， 很多支持由AOP联盟提供，这样就确保了Spring和其他AOP框架的共通性。这个模块将元数据编程引入Spring。
@@ -59,13 +59,13 @@ AOP模块用于发给我们的Spring应用做面向切面的开发， 很多支�
 **Spring配置文件是个XML 文件，这个文件包含了类信息，描述了如何配置它们，以及如何相互调用。**
 
 #### 13.  什么是Spring IOC 容器？
-** Spring IOC 负责创建对象，管理对象（通过依赖注入（DI），装配对象，配置对象，并且管理这些对象的整个生命周期。**
+**Spring IOC 负责创建对象，管理对象（通过依赖注入（DI），装配对象，配置对象，并且管理这些对象的整个生命周期。**
 
 #### 14.  IOC的优点是什么？
-** IOC 或 依赖注入把应用的代码量降到最低。它使应用容易测试，单元测试不再需要单例和JNDI查找机制。最小的代价和最小的侵入性使松散耦合得以实现。IOC容器支持加载服务时的饿汉式初始化和懒加载。**
+**IOC 或 依赖注入把应用的代码量降到最低。它使应用容易测试，单元测试不再需要单例和JNDI查找机制。最小的代价和最小的侵入性使松散耦合得以实现。IOC容器支持加载服务时的饿汉式初始化和懒加载。**
 
 #### 15. ApplicationContext通常的实现是什么？
-** FileSystemXmlApplicationContext ：此容器从一个XML文件中加载beans的定义，XML Bean 配置文件的全路径名必须提供给它的构造函数。
+**FileSystemXmlApplicationContext ：此容器从一个XML文件中加载beans的定义，XML Bean 配置文件的全路径名必须提供给它的构造函数。
 ClassPathXmlApplicationContext：此容器也从一个XML文件中加载beans的定义，这里，你需要正确设置classpath因为这个容器将在classpath里找bean配置。
 WebXmlApplicationContext：此容器加载一个XML文件，此文件定义了一个WEB应用的所有bean。**
 
@@ -110,7 +110,7 @@ Spring 框架定义的beans都是单件beans。在bean tag中有个属性”sing
 + **基于java的配置。**
 
 #### 24. 你怎样定义类的作用域？
-** 当定义一个`<bean>` 在Spring里，我们还能给这个bean声明一个作用域。它可以通过bean 定义中的scope属性来定义。如，当Spring要在需要的时候每次生产一个新的bean实例，bean的scope属性被指定为prototype。另一方面，一个bean每次使用的时候必须返回同一个实例，这个bean的scope 属性 必须设为 singleton。**
+**当定义一个`<bean>` 在Spring里，我们还能给这个bean声明一个作用域。它可以通过bean 定义中的scope属性来定义。如，当Spring要在需要的时候每次生产一个新的bean实例，bean的scope属性被指定为prototype。另一方面，一个bean每次使用的时候必须返回同一个实例，这个bean的scope 属性 必须设为 singleton。**
 
 #### 25. 解释Spring支持的几种bean的作用域
 **Spring框架支持以下五种bean的作用域：**
@@ -149,10 +149,10 @@ The bean 标签有两个重要的属性（init-method和destroy-method）。用�
 + **`<props>`类型用于注入一组键值对，键和值都只能为String类型。**
 
 #### 31. 什么是bean装配？
-** 装配，或bean 装配是指在Spring 容器中把bean组装到一起，前提是容器需要知道bean的依赖关系，如何通过依赖注入来把它们装配到一起。**
+**装配，或bean 装配是指在Spring 容器中把bean组装到一起，前提是容器需要知道bean的依赖关系，如何通过依赖注入来把它们装配到一起。**
 
 #### 32. 什么是bean的自动装配？
-** Spring 容器能够自动装配相互合作的bean，这意味着容器不需要`<constructor-arg>`和`<property>`配置，能通过Bean工厂自动处理bean之间的协作。**
+**Spring 容器能够自动装配相互合作的bean，这意味着容器不需要`<constructor-arg>`和`<property>`配置，能通过Bean工厂自动处理bean之间的协作。**
 
 #### 33. 解释不同方式的自动装配
 **有五种自动装配的方式，可以用来指导Spring容器用自动装配方式来进行依赖注入**
@@ -189,7 +189,7 @@ The bean 标签有两个重要的属性（init-method和destroy-method）。用�
 **这个注解表明bean的属性必须在配置的时候设置，通过一个bean定义的显式的属性值或通过自动装配，若`@Required`注解的`bean`属性未被设置，容器将抛出`BeanInitializationException`。**
 
 #### 40. @Autowired 注解
-** `@Autowired` 注解提供了更细粒度的控制，包括在何处以及如何完成自动装配。它的用法和`@Required`一样，修饰`setter`方法、构造器、属性或者具有任意名称和/或多个参数的PN方法。**
+**`@Autowired` 注解提供了更细粒度的控制，包括在何处以及如何完成自动装配。它的用法和`@Required`一样，修饰`setter`方法、构造器、属性或者具有任意名称和/或多个参数的PN方法。**
 
 #### 41. @Qualifier 注解
 **当有多个相同类型的bean却只有一个需要自动装配时，将`@Qualifier` 注解和`@Autowire `注解结合使用以消除这种混淆，指定需要装配的确切的`bean`。**
@@ -232,8 +232,7 @@ The bean 标签有两个重要的属性（init-method和destroy-method）。用�
 + **声明式事务管理：这意味着你可以将业务代码和事务管理分离，你只需用注解和XML配置来管理事务。**
 
 #### 49. Spring框架的事务管理有哪些优点？
-**
-它为不同的事务API  如 JTA，JDBC，Hibernate，JPA 和JDO，提供一个不变的编程模式。
+**它为不同的事务API  如 JTA，JDBC，Hibernate，JPA 和JDO，提供一个不变的编程模式。
 它为编程式事务管理提供了一套简单的API而不是一些复杂的事务API如
 它支持声明式事务管理。
 它和Spring各种数据访问抽象层很好得集成。**
@@ -315,7 +314,7 @@ The bean 标签有两个重要的属性（init-method和destroy-method）。用�
 **该注解表明该类扮演控制器的角色，Spring不需要你继承任何其他控制器基类或引用Servlet API。**
 
 #### 69. @RequestMapping 注解
-** 该注解是用来映射一个URL到一个类或一个特定的方处理法上。**
+**该注解是用来映射一个URL到一个类或一个特定的方处理法上。**
 
 ### springMVC的工作原理：
 

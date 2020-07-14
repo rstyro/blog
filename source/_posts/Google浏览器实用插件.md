@@ -38,7 +38,7 @@ Google插件地址：
 ### 四、`Google翻译`、`划词翻译`
 + 对于英语不怎么好的同学来说，看英文网页还是挺不错的。
 
-### 五、`JSON Viewer`
+### 五、`JSON Viewer` 或者 `JSON Viewer Awesome`
 + 这个也还好，浏览器请求时，把返回的数据Json格式化
 
 ### 六、`FireShot`
@@ -61,14 +61,16 @@ Google插件地址：
 + 这个我也喜欢，自己刚好需要用ElasticSearch ,以前都是去:[https://github.com/mobz/elasticsearch-head](https://github.com/mobz/elasticsearch-head) 下载的    
 + 现在有插件了，方便多了。
 
-### 十一、Native HLS Playback
+### 十一、`Native HLS Playback`
 + 直接在地址栏播放m3u8 格式的视频。
 
-### 十二、Extension Manager
+### 十二、`Extension Manager`
 + 装了那么多插件，不装一个来管理它们，还真有点不方便  
 + 想关闭都得去更多工具然后点击扩展程序关掉，有点麻烦呀。
 + 这个插件顾名思义就是管理插件的，启动关闭插件都很方便
 
+### 十三、`Unix Timestamp Converter`
++ 时间戳格式化
 
 ### 结束
 + 以上的插件都可在Google应用商店找到

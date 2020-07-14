@@ -124,9 +124,9 @@ cd /usr/local/rocketmq/conf && sed -i 's#${user.home}#/usr/local/rocketmq#g' *.x
 
 ## 六、修改启动脚本（可不用修改，我是用虚拟机,内存不够,所以改改）
 ### 1、修改 bin/runserver.sh
-![](/RocketMQ 配置双master/1503655178352098012.png)
+![](1503655178352098012.png)
 ### 2、修改 bin/runbroker.sh
-![](/RocketMQ 配置双master/1503655219756096848.png)
+![](1503655219756096848.png)
 #### 都是改成1G 和 512M 
 
 
