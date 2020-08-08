@@ -99,13 +99,13 @@ categories: Java
 	  - 拉链法：
 		就是把具有相同散列地址的索引值放在同一个单链表中。
 
-		![拉链法.png](https://upload-images.jianshu.io/upload_images/2433198-3f6be27fcc4d7cd6.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+		![拉链法.png](拉链法.png)
 	图中，”John Smith”和”Sandra Dee”通过散列函数都指向152这个索引，该索引又指向了一个链表，在链表中依次存储了这两个字符串。
 	该方法就是链地址法，查找分为两步：首先是根据散列值找到对应的链表，然后沿着链表的顺序找到相应的键。
 
 	  - 开放寻址法：
 		就是如果存在相同的散列地址索引时，如果Key被占用了，那就把索引值+1 ，如果是空那就存入，否则继续+1寻找。
-		![开放寻址法.png](https://upload-images.jianshu.io/upload_images/2433198-adbef10ee684afe2.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+		![开放寻址法.png](开放寻址法.png)
 		在该图中，”Ted Baker”有唯一哈希值153的，但是由于153被”Sandra Dee”占用了。而原先”Sandra Dee”和”John Smith”的哈希值都是152的，但是在对”Sandra Dee”进行哈希的是偶发现152已经被占用了，所以往下找发现153没有被占用，就将其存放在153。后面”Ted Baker”哈希到153上，发现被占用了，就会往下找，发现154没有被占用，所以将其存放到154上面。
 		> 图片原文链接：https://blog.csdn.net/iva_brother/article/details/82253989
 
@@ -213,7 +213,7 @@ categories: Java
 
 		```
 		比如cap=9时，进行，无符号位移是怎样的，如下图：
-![tableSizeFor.png](https://upload-images.jianshu.io/upload_images/2433198-a02140a283bf91b1.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+![tableSizeFor.png](tableSizeFor.png)
 
 		由上图可知，当执行到 `n |= n >>> 16` 时，n 的二进制为：`0000 1111`，由最后一步知道n 不是大于 `MAXIMUM_CAPACITY`的，所以：`n=n+1` 转换为二进制为 `0001 0000` 转换为十进制:` 2^4 = 16`。这个是哪位大佬想出来的算法确实牛掰！！！
 
@@ -224,11 +224,11 @@ categories: Java
 	        return (key == null) ? 0 : (h = key.hashCode()) ^ (h >>> 16);
 	    }
 		```
-		![hash.png](https://upload-images.jianshu.io/upload_images/2433198-7644d43e143a155a.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+		![hash.png](hash.png)
 
 		为啥这样设计呢？，这个和HashMap 的table下标计算有关，在代码里多处地方会看到这样的代码`tab[i = (n - 1) & hash]` 因为，table的长度都是2的幂，因此index仅与hash值的低n位有关，hash值的高位都被与操作置为0了。 
 		假设table.length=2^4=16.
-![hash2.png](https://upload-images.jianshu.io/upload_images/2433198-f156c8a7d122ec0b.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+![hash2.png](hash2.png)
 
 		由上图可以看到，只有hash值的低4位参与了运算。 
 		这样做很容易产生碰撞。设计者权衡了speed, utility, and quality，将高16位与低16位异或来减少这种影响。设计者考虑到现在的hashCode分布的已经很不错了，而且当发生较大碰撞时也用树形存储降低了冲突。仅仅异或一下，既减少了系统的开销，也不会造成的因为高位没有参与下标的计算(table长度比较小时)，从而引起的碰撞。接下来看看HashMap的存储,put 方法，源码分析：
