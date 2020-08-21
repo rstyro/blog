@@ -60,7 +60,7 @@ sudo EXTERNAL_URL="http://你的ip地址" yum install -y gitlab-ce
 2、运行：sudo systemctl restart gitlab-runsvdir
 3、再次执行：sudo gitlab-ctl reconfigure
 ```
-![git2.png](https://upload-images.jianshu.io/upload_images/2433198-a98c81d55ad319e5.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+![git2.png](git2.png)
 
 #### 安装成功，访问：http://你的ip地址
 
