@@ -28,10 +28,10 @@ vim config/jvm.options
 ```
 > 但是官方是不推荐更改JVM 的配置的，看如下图：
 
-![](/Elasticsearch5.0+ 安装问题集锦/31548.png)
+![](31548.png)
 
 ## 二、用root 用户启动报错
-![](/Elasticsearch5.0+ 安装问题集锦/59786.png)
+![](59786.png)
 
 #### 因为安全问题elasticsearch 不让用root用户直接运行，所以要创建新用户
 #### 建议创建一个单独的用户用来运行ElasticSearch
@@ -45,7 +45,7 @@ useradd elsearch -g elsearch -p elasticsearch
 Exception in thread "main" 2017-11-30 12:09:31,518 main ERROR No log4j2 configuration file found. Using default configuration: logging only errors to the console. Set system property 'log4j2.debug' to show Log4j2 internal initialization logging.
 2017-11-30 12:09:31,697 main ERROR Could not register mbeans java.security.AccessControlException: access denied ("javax.management.MBeanTrustPermission" "register")
 
-![](/Elasticsearch5.0+ 安装问题集锦/18725.png)
+![](18725.png)
 
 ### 这个只需把elasticsearch 目录拥有者 修改为运行的用户即可。
 ### 解决方案：切换到root用户 执行chown 命令
@@ -58,7 +58,7 @@ chown -R elsearch:elsearch /usr/local/elasticsearch
 [1]: max file descriptors [4096] for elasticsearch process is too low, increase to at least [65536]
 [2]: max virtual memory areas vm.max_map_count [65530] is too low, increase to at least [262144]
 
-![](/Elasticsearch5.0+ 安装问题集锦/84529.png)
+![](84529.png)
 
 ### 解决方案：
 ### 1、切换到root用户，编辑limits.conf 添加类似如下内容
