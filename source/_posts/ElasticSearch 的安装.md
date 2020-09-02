@@ -26,6 +26,14 @@ cd /usr/local/elasticsearch-6.0.0
 # 启动
 bin/elasticsearch -d 
 ```
+> 上次装了个7.9版本的时候，发现有个问题我环境的JDK是1.8的，7.9这个版本是需要JDK11的，得改一下ES的jdk环境。我下载的7.9是自带JDK的，在解压的目录下有一个命名为jdk的文件夹。
+> 修改bin目录下的elasticsearch.sh，在最前面添加
+>```
+# 这个下面的路径改成你es下jdk的路径即可
+export JAVA_HOME=/opt/elasticsearch/elasticsearch-7.9.0/jdk
+export PATH=$JAVA_HOME/bin:$PATH
+```
+
 ### 如果报错的话，可以参看我的文章：[Elasticsearch5.0+ 安装问题集锦](http://www.lrshuai.top/atc/show/84)
 ### 2、在浏览器访问 http://localhost:9200 或者 用命令 `curl http://localhost:9200`
 一般返回类似如下信息：

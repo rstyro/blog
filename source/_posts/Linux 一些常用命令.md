@@ -13,7 +13,7 @@ mv /folds /data/folds							# 把folds 文件夹 剪切到 /data下，如果要�
 ## cp 命令
 ```
 cp /opt/myproject.jar /data/					# 把/opt 下的 myproject.jar文件 复制到 /data 下
-cp -r /folds /data/								# 把folds 文件夹 复制到 /data下，-r 参数相当于循环复制，复制文件夹的时候需要此参数
+cp -r /folds /data/								# 把folds 文件夹 复制到 /data下，-r 参数相当于循环复制，复制文件夹（多个文件）的时候需要此参数
 ```
 
 ## rm 命令
@@ -93,6 +93,25 @@ scp /mnt/backup/gdweb.war  root@192.168.1.1:/root/gdweb.war        #192.168.1.1 
 ```
 # 杀掉所有mongod 的所有进程，-2 比较好，-9 有点暴力
 kill -2 $(pidof mongod)
+
+# 杀掉所有tomcat 的所有进程，-2 比较好，-9 有点暴力
+kill -2 $(pidof tomcat)
+```
+
+## CPU命令
+```
+# CPU的详细信息
+cat /proc/cpuinfo
+
+# 查看物理CPU个数
+cat /proc/cpuinfo| grep "physical id"| sort| uniq| wc -l
+
+# 查看逻辑CPU个数
+cat /proc/cpuinfo| grep "processor"| wc -l
+
+# 查看每个物理CPU中核心数(即核数)
+cat /proc/cpuinfo| grep "cpu cores"| uniq
+
 ```
 
 ## rpm 命令
