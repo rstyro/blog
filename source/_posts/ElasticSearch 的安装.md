@@ -20,6 +20,7 @@ tar -zxvf elasticsearch-6.0.0.tar.gz -C /usr/local/
 ```
 
 ## 三、启动
+
 ### 1、进入elasticsearch 的目录，运行
 ```
 cd /usr/local/elasticsearch-6.0.0
@@ -34,7 +35,40 @@ export JAVA_HOME=/opt/elasticsearch/elasticsearch-7.9.0/jdk
 export PATH=$JAVA_HOME/bin:$PATH
 ```
 
-### 如果报错的话，可以参看我的文章：[Elasticsearch5.0+ 安装问题集锦](http://www.lrshuai.top/atc/show/84)
+## 四、其他问题
+
+### 1、如果是7.9版本的话
+> 我就用过5.6.4 和7.9.0 版本，其他版本不多说。
+
+7.9版本得配置initial_master_nodes，添加如下配置
+
+```
+cluster.name: "youClusterName"
+node.name: "youNode1"
+cluster.initial_master_nodes: ["youNode1"]
+```
+
+我的`7.9` 开发环境全部配置：
+```
+cluster.name: "mySearch"
+node.name: "myNode1"
+cluster.initial_master_nodes: ["myNode1"]
+# 跨域问题
+http.cors.enabled: true
+http.cors.allow-origin: "*"
+#http.cors.allow-headers: Authorization
+
+network.host: 0.0.0.0
+http.port: 9200
+transport.tcp.port: 9300
+
+# 日志
+path.logs: /home/elastic/eslogs
+```
+
+> 官方文档：[https://www.elastic.co/guide/en/elasticsearch/reference/current/targz.html](https://www.elastic.co/guide/en/elasticsearch/reference/current/targz.html)
+
+### 2、如果报错的话，可以参看我的文章：[Elasticsearch5.0+ 安装问题集锦](http://www.lrshuai.top/atc/show/84)
 ### 2、在浏览器访问 http://localhost:9200 或者 用命令 `curl http://localhost:9200`
 一般返回类似如下信息：
 ```
@@ -55,8 +89,9 @@ export PATH=$JAVA_HOME/bin:$PATH
 }
 
 ```
-### 如果浏览器访问不了的话，可以修改配置文件 添加
+### 3、如果浏览器访问不了的话，可以修改配置文件 添加
 ```
 http.cors.enabled: true
 http.cors.allow-origin: "*"
 ```
+
