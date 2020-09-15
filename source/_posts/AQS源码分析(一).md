@@ -1,7 +1,7 @@
 ---
-title: AQS源码分析
+title: AQS源码分析(一)
 date: 2020-08-21 18:00:29
-tags: [多线程]
+tags: [多线程,AQS]
 categories: Java
 ---
 ### 一、AQS是什么
@@ -59,7 +59,7 @@ Node的重要属性如下：
 
 ### 3、源码分析
 如果直接讲`AbstractQueuedSynchronizer` 的源码可能有点不知道从哪讲好，所以通过一个Demo来进行分析。Demo如下：
-```
+```java
 package com.amico.contract.trade.controller;
 
 import java.util.concurrent.locks.Lock;
@@ -80,7 +80,7 @@ public class LockTest {
 ```
 
 **以ReentrantLock类demo来分析AQS源码，`lock()`上锁，`unlock()` 解锁。`lock()`方法调用的是ReentrantLock抽象静态内部类Sync的`lock()`方法。**
-```
+```java
  static final class FairSync extends Sync {
         private static final long serialVersionUID = -3000897897090466540L;
 
@@ -91,7 +91,7 @@ public class LockTest {
 ```
 
 而Sync继承了AbstractQueuedSynchronizer，最终调用的是AQS的`acquire(int)`方法。代码如下：
-```
+```java
 public final void acquire(int arg) {
 	if (!tryAcquire(arg) &&
 		acquireQueued(addWaiter(Node.EXCLUSIVE), arg))
@@ -106,7 +106,7 @@ acquire方法的代码很少功能却很强大复杂,这个方法其实可以拆
 
 #### acquire方法
 先说说`acquire(int)` 方法的总体功能与流程，看代码注释：
-```
+```java
 /*
 acquire()的作用是获取同步状态(state)，这里同步状态的含义等价于锁
 tryAcquire()方法是尝试获取同步状态，如果该方法返回true，表示获取同步状态成功；返回false表示获取同步状态失败
@@ -143,7 +143,7 @@ public final void acquire(int arg) {
 ```
 #### tryAcquire 方法
 先看上面代码的注释，接下来分析`tryAcquire(arg)` 方法，源码如下：
-```
+```java
 protected final boolean tryAcquire(int acquires) {
 	// 获取当前线程，如果获取到锁就把当前线程设置为独占拥有权限执行的线程
 	final Thread current = Thread.currentThread();
@@ -184,7 +184,7 @@ protected final boolean tryAcquire(int acquires) {
 
 #### addWaiter 方法
 之前也分析了，这个方法不一定会执行，得看`!tryAcquire(arg)` 是否是true。看方法名就猜到应该是把线程封装成Node节点添加到队列中等待执行。来看源码：
-```
+```java
  private Node addWaiter(Node mode) {
 	// 把当前线程封装成Node
 	Node node = new Node(Thread.currentThread(), mode);
@@ -210,7 +210,7 @@ protected final boolean tryAcquire(int acquires) {
 }
 ```
 来看看`end`方法的代码：
-```
+```java
 private Node enq(final Node node) {
 	// 一个死循环，自旋操作
 	for (;;) {
@@ -236,7 +236,7 @@ private Node enq(final Node node) {
 
 #### acquireQueued 方法
 没有获取到锁就没法执行，一直等到获取到锁了才行执行。那如何让线程等待呢，就是这个方法里面的代码，源码如下：
-```
+```java
 final boolean acquireQueued(final Node node, int arg) {
 	// 这个状态是是否是线程关闭的状态
 	boolean failed = true;
@@ -275,7 +275,7 @@ final boolean acquireQueued(final Node node, int arg) {
 }
 ```
 看完上面代码的注释，接下来看看`shouldParkAfterFailedAcquire`方法的源码：
-```
+```java
 private static boolean shouldParkAfterFailedAcquire(Node pred, Node node) {
 	// 在初始情况下，所有的Node节点的waitStatus均为0，因为在初始化时，waitStatus字段是int类型，我们没有显示给它赋值，所以它默认是0
 	int ws = pred.waitStatus;
@@ -309,7 +309,7 @@ private static boolean shouldParkAfterFailedAcquire(Node pred, Node node) {
 }
 ```
 如果`shouldParkAfterFailedAcquire` 方法返回true,那就会调用`parkAndCheckInterrupt`方法使线程挂起。来看看源码：
-```
+```java
 private final boolean parkAndCheckInterrupt() {
 	// 将线程挂起，直到当前线程被唤醒并获取到锁以后，acquireQueued()方法才会返回。
 	LockSupport.park(this);
@@ -319,7 +319,7 @@ private final boolean parkAndCheckInterrupt() {
 **对于`acquireQueued()`方法而言，只有线程获取到了锁或者被中断，线程才会从这个方法里面返回，否则它会一直阻塞在里面。**
 
 如果在中途报异常了什么的，就会调用`cancelAcquire`方法，来看看做了什么操作
-```
+```java
 private void cancelAcquire(Node node) {
 	// Ignore if node doesn't exist
 	if (node == null)
@@ -382,7 +382,7 @@ private void cancelAcquire(Node node) {
 
 #### release 方法
 lock()上完锁之后，还是得释放锁的，ReentrantLock的unlock()方法释放锁，最终调用的是FairSync的release()方法。release()方法是AQS里面的方法，源码如下：
-```
+```java
 public final boolean release(int arg) {
 	if (tryRelease(arg)) {
 		Node h = head;
@@ -396,7 +396,7 @@ public final boolean release(int arg) {
 }
 ```
 在release()方法中会先调用AQS子类的tryRelease()方法，也就是调用ReentrantLock类中Sync的tryRelease()方法，该方法就是让当前线程释放锁。方法源码如下。
-```
+```java
 protected final boolean tryRelease(int releases) {
 	int c = getState() - releases;
 	// 判断当前线程是不是持有锁的线程，如果不是就抛出异常,讲道理这种情况是不会发生的吧
@@ -414,7 +414,7 @@ protected final boolean tryRelease(int releases) {
 }
 ```
 之后来看看唤醒之后线程的方法unparkSuccessor，源码如下：
-```
+```java
  private void unparkSuccessor(Node node) {
 	/*
 	 * If status is negative (i.e., possibly needing signal) try
@@ -448,4 +448,14 @@ protected final boolean tryRelease(int releases) {
 ```
 
 ### 总结
-本文主要分析了独占模式下的同步队列相关代码，防止篇幅过长，共享式的条件等待队列等等下篇继续。
++ AQS中用state属性表示锁，如果能成功将state属性通过CAS操作从0设置成1即获取了锁
++ 当线程抢到锁时将线程设置为持有锁线程setExclusiveOwnerThread，也就是Head节点
++ 也就是说head节点的下一个节点，才是同步等待队列的第一个节点。
++ tryAcquire() 尝试获取锁
++ addWaiter() 把线程封装成Node节点添加到队列中等待执行
++ acquireQueued() 如果没获取到锁，调用parkAndCheckInterrupt()挂起,自旋等待获取到锁或中断
++ selfInterrupt() 此线程中断唤醒的，需要调此方法把中断标识重新设置为中断状态
++ cancelAcquire() 移除CANCELLED状态的节点，更新队列的关联关系
++ release() 释放锁，unparkSuccessor() 唤醒后续节点
+
+**本文主要分析了独占模式下的同步队列相关代码，防止篇幅过长，共享式的条件等待队列等等下篇继续。**

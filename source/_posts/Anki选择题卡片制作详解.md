@@ -55,7 +55,7 @@ Anki中国地址：[http://www.ankichina.net/](http://www.ankichina.net/) 或者
 写完代码之后就显示如上图所示。下面给出完整的代码：
 - 5、正面模板的代码
 把它全部复制到正面模板的位置。
-```
+```html
 <div id="classify" class="classify">单选题：</div>
 <div class="text">{{Question}}</div>
 {{#Options}}
@@ -105,7 +105,7 @@ Anki中国地址：[http://www.ankichina.net/](http://www.ankichina.net/) 或者
 ```
 可能刚放进去的时候会报错不用理会，因为我们还没有填写中间的分享格式刷代码
 - 6、中间部分，格式刷-卡片格式共享 代码
-```
+```html
 .card{
     font-family:Arial;
     font-size:22px;
@@ -277,7 +277,7 @@ Anki中国地址：[http://www.ankichina.net/](http://www.ankichina.net/) 或者
 ```
 讲道理，填完这个正面模板那边应该是不报错了。
 - 7、反面模板的代码
-```
+```html
 <div id="classify" class="classify">单选题：</div>
 <div class="text">{{Question}}</div>
 {{#Options}}
@@ -374,7 +374,7 @@ Anki中国地址：[http://www.ankichina.net/](http://www.ankichina.net/) 或者
 感觉大多数都是这类型的人，像考研什么的特别多。如果一点编程经验都没有的话，要改还是稍微有点点难度。
 但是可以改皮肤，也就是更改背景和字体大小颜色成自己的颜色，什么护眼色呀，炫酷黑呀等等。
 Anki 默认有一个卡片的`CSS样式` 我们只需要改那个属性即可,位置在中间的代码第一个`.card`。
-```
+```css
 .card{
     font-family:Arial;
     font-size:22px;
@@ -404,7 +404,7 @@ Anki 默认有一个卡片的`CSS样式` 我们只需要改那个属性即可,�
 再说一下这个吧，有些人不需要，有些人需要
 - 1、去掉倒计时功能
 这个简单在正面模板找到如下代码片段进行修改
-```
+```js
     initOptions();
     var endTime="2020/08/29 00:00:00";
     countDown(endTime);
@@ -416,7 +416,7 @@ Anki 默认有一个卡片的`CSS样式` 我们只需要改那个属性即可,�
 ```
 - 2、修改倒计时的结束时间
 还是上面的代码
-```
+```js
 	initOptions();
     var endTime="2020/08/29 00:00:00";
     countDown(endTime);

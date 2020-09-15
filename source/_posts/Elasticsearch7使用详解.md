@@ -21,6 +21,7 @@ Elasticsearch是一个基于Lucene的搜索服务器。它提供了一个分布�
 Elasticsearch有点长，下文直接简称ES。
 
 ES7这个版本在创建mapping的时候不能指定type了，对应映射改成如下：
+
 |Elasticsearch7.9|MYSQL|说明|
 |--|--|--|
 |Index|table|ES的索引对应MYSQL的表|
@@ -132,7 +133,7 @@ PUT http://172.16.1.236:9200/topic
 }
 ```
 
->  "term_vector":"with_positions_offsets" 这个属性是为了高亮能用fvh(`fast-vector-highlighter`)显示类型
+"term_vector":"with_positions_offsets" 这个属性是为了高亮能用fvh(`fast-vector-highlighter`)显示类型
 
 #### 2、操作mapping
 ```
@@ -153,7 +154,7 @@ GET http://172.16.1.236:9200/topic/_mapping
 GET http://172.16.1.236:9200/topic/_mapping/field/content
 ```
 
-> mapping 字段无法修改类型
+mapping 字段无法修改类型
 
 #### 3、添加数据
 ```
@@ -342,7 +343,7 @@ http://172.16.1.236:9200/_nodes/process
 ### 六、Java API
 关键一环代码调用，Java 代码有3个客户端可以使用：
 + TransportClient 
-这个使用的是ES的`transport.tcp.port` 端口进行传输数据。在ES`7.0.0`弃用，到`8.0.0`将删除
+这个使用的是ES的`transport.tcp.port` 端口进行传输数据。**在ES`7.0.0`弃用，到`8.0.0`将删除**
 + Java Low Level REST Client 
 Rest低级别客户端，使用的是ES的`http.port`端口进行传输数据。
 + Java High  Level REST Client 
@@ -480,6 +481,7 @@ public class EsClientConfig {
 
 }
 ```
+因为我没有使用Spring框架所有自己搞了个单例模式的Client,如果是Spring直接使用在方法上使用`@Bean`注解即可，贼方便。
 
 #### 3、辅助工具类
 贴完整点的代码吧
@@ -610,6 +612,8 @@ public class FastJsonHumpSerialize {
     }
 }
 ```
+这个序列化类主要是想把对象的属性名称驼峰与下划线互转。
+**如果你没有这个需求那可以不需要这个，直接存的就是属性名的字段。**
 
 #### 4、抽象的增删改查类
 主要写了一些平常可能用到的方法，还有很多查询没写，
@@ -1002,6 +1006,8 @@ public abstract class BaseEsService<T> {
     }
 }
 ```
+**这里写的不是那么全的查询，但是是常用的查询，还有很多查询，像前缀查询，聚合查询，多字段查询....等等**
+按需添加！！！
 
 #### 5、测试Demo
 ```
@@ -1023,6 +1029,8 @@ public class TopicService extends EsBaseService<Topic> {
     
 }
 ```
+简单的测试一下保存功能！
+
 
 **官方文档：[https://www.elastic.co/guide/en/elasticsearch/client/java-rest/7.9/java-rest-high-search.html](https://www.elastic.co/guide/en/elasticsearch/client/java-rest/7.9/java-rest-high-search.html)**
 
