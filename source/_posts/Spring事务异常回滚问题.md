@@ -7,7 +7,7 @@ categories: Java
 # Spring  try...catch 捕获异常不抛出就不会回滚
 
 ## 比如:第一个删除成功了，第二个失败。事务不回滚
-```
+```java
 try {
     roleDao.delRole(roleId);
     int i = 1/0;
@@ -19,7 +19,7 @@ try {
 ```
 ### 解决方法：
 #### 第一种：主动抛出RuntimeException
-```
+```java
 try {
     roleDao.delRole(roleId);
     int i = 1/0;
@@ -32,7 +32,7 @@ try {
 }
 ```
 #### 第二种：手动回滚（推荐做法）
-```
+```java
 try {
     roleDao.delRole(roleId);
     int i = 1/0;

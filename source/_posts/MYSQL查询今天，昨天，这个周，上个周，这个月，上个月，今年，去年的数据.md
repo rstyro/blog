@@ -7,7 +7,7 @@ categories: 数据库
 ## 一般后台做报表什么的，可能会用到
 ##### createTime ---- 创建时间， 就是你要对比的时间，表的字段类型为 datetime
 ### 直接上代码
-```
+```sql
 -- 查询上周的数据 
 -- SELECT count(id) as count FROM user WHERE YEARWEEK(date_format(createTime,'%Y-%m-%d')) = YEARWEEK(now())-1; 
 -- 查询这个周的数据
@@ -48,7 +48,7 @@ categories: 数据库
 ```
 ### 统计当前月，后12个月，各个月的数据
 ####下面是创建对照视图 sql
-```
+```sql
 CREATE
     ALGORITHM = UNDEFINED 
     DEFINER = `tyro`@`%` 
@@ -67,7 +67,7 @@ CREATE
     UNION SELECT DATE_FORMAT((CURDATE() - INTERVAL 11 MONTH), '%Y-%m') AS `month`
 ```
 ####然后和你想要统计的表进行关联查询,如下的demo
-```
+```sql
 select 
     v.month,    ifnull(b.minute,0) count from 
     past_12_month_view v 
@@ -93,7 +93,7 @@ ORDER BY
 
 #### 再写一个吧
 #### case when 统计个数
-```
+```sql
 SELECT 
     count(*) as total,
     sum(case when a.notice_type='praise' THEN 1 else 0 end) as praiseNum,

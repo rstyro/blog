@@ -6,7 +6,7 @@ categories: Java
 ---
 # Js 点击复制文本内容
 ## 一、利用第三方插件 clipboard.js
-```
+```html
 <!DOCTYPE html>
 <html>
 <head lang="en">
@@ -44,7 +44,7 @@ clipboard.off('success',function(e) {
 详细用法：https://github.com/zenorocha/clipboard.js
 
 ## 二、execCommand
-```
+```html
 <!DOCTYPE html>
 <html>
 <head lang="en">

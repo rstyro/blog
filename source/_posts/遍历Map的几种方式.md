@@ -6,14 +6,14 @@ categories: Java
 ---
 #遍历Map的几种方式
 ## 方法一
-```
+```java
 for (String key : map.keySet()){
      System.out.println("key= "+ key + " and value= " + map.get(key));
 }
 ```
 
 ## 方法二
-```
+```java
 Iterator<Map.Entry<String, String>> it = map.entrySet().iterator();
  while (it.hasNext()) {
      Map.Entry<String, String> entry = it.next();
@@ -22,14 +22,14 @@ Iterator<Map.Entry<String, String>> it = map.entrySet().iterator();
 ```
 
 ## 方法三 （推荐）
-```
+```java
 for (Map.Entry<String, String> entry : map.entrySet()) {
     System.out.println("key= " + entry.getKey() + " and value= " + entry.getValue());
 }
 ```
 
 ## 方法四
-```
+```java
 for (String v : map.values()) {
     System.out.println("value= " + v);
 }
@@ -38,12 +38,12 @@ for (String v : map.values()) {
 # 顺便把遍历proerties也说下，有点类似
 
 ## 初始化proerties
-```
+```java
 Properties prop = new Properties();
 //TODO....
 ```
 ## 方法一：
-```
+```java
 Enumeration<String> eee = (Enumeration<String>) prop.propertyNames();
 while (eee.hasMoreElements()) {
     String key = (String) eee.nextElement();
@@ -53,7 +53,7 @@ while (eee.hasMoreElements()) {
 ```
 
 ## 方法二：
-```
+```java
 Enumeration<Object> enu = prop.elements();  
 while (enu.hasMoreElements()) {  
     Object value = enu.nextElement();  
@@ -62,7 +62,7 @@ while (enu.hasMoreElements()) {
 ````
 
 ## 方法三：
-```
+```java
 Iterator<Entry<Object, Object>> it = prop.entrySet().iterator();  
 while (it.hasNext()) {  
     Entry<Object, Object> entry = it.next();  

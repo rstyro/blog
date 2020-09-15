@@ -30,7 +30,7 @@ categories: Java
 
 ## 五、代码示例
 ### (1)、过滤器
-```
+```java
 /**
  * 
  * 使用注解标注过滤器
@@ -64,7 +64,7 @@ public class MyFilter implements Filter{
 
 ### (2)、拦截器
 ##### a)、自定义拦截器
-```
+```java
 public class MyInterceptor implements HandlerInterceptor{
  
     @Override
@@ -88,7 +88,7 @@ public class MyInterceptor implements HandlerInterceptor{
 }
 ```
 ##### b)、注册拦截器 继承 WebMvcConfigurerAdapter
-```
+```java
 @Configuration
 public class WebConfigurer extends WebMvcConfigurerAdapter {
  
@@ -103,7 +103,7 @@ public class WebConfigurer extends WebMvcConfigurerAdapter {
 ```
 
 ### (3)、监听器
-```
+```java
 @WebListener
 public class SessionListener implements HttpSessionListener{
  
@@ -120,7 +120,7 @@ public class SessionListener implements HttpSessionListener{
 }
 ```
 ### (4)、启动类
-```
+```java
 /**
  * @ServletComponentScan 扫描我们自定义的servlet
  * @author tyro

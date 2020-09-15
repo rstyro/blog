@@ -54,7 +54,7 @@ nohub java -jar xxxx.jar >/dev/null 2>&1 &
 ```
 ### 2、修改启动类
 #### 继承SpringBootServletInitializer 类，重写configure（）方法
-```
+```java
 package top.lrshuai.blog;
 
 import org.mybatis.spring.annotation.MapperScan;

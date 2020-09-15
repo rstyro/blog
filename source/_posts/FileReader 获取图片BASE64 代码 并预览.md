@@ -30,7 +30,7 @@ categories: Java
 #### 文件一旦开始读取，无论成功或失败，实例的 result 属性都会被填充。如果读取失败，则 result 的值为 null ，否则即是读取的结果，绝大多数的程序都会在成功读取文件的时候，抓取这个值。
 
 ## demo
-```
+```html
 <!DOCTYPE html>
 <html>
 <head>

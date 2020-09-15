@@ -113,7 +113,7 @@ maven 目标选择
 ![](jenkins-build-p1.png)
 
 #### `test_run.sh` 内容如下
-```
+```shell
 #!/bin/bash
 BUILD_ID=DONTKILLME
 # jenkins 构建之后的jar 根路径

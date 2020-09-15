@@ -17,7 +17,7 @@ categories: Java
 为了让它看起来逼格高一点，所以以自定义注解的方式实现  
 
 ### `@RequestLimit` 注解
-```
+```java
 import java.lang.annotation.*;
 
 /**
@@ -59,7 +59,7 @@ public @interface RequestLimit {
 
 ### `RequestLimitIntercept` 拦截器
 自定义一个拦截器，请求之前，进行请求次数校验
-```
+```java
 import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -155,7 +155,7 @@ public class RequestLimitIntercept extends HandlerInterceptorAdapter {
 如果是`springboot1.*` 那就继承自 `WebMvcConfigurerAdapter`  
 然后重写`addInterceptors()` 添加自定义拦截器即可。
 
-```
+```java
 @Slf4j
 @Component
 public class WebMvcConfig implements WebMvcConfigurer {
@@ -180,7 +180,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
 > maxCount 最大的请求数、second 代表时间，单位是秒  
 
 默认1秒内，每个接口只能请求一次
-```
+```java
 @RestController
 @RequestMapping("/index")
 @RequestLimit(maxCount = 5,second = 1)

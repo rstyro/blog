@@ -40,7 +40,7 @@ spring.redis.timeout=0
 #### (1)、自定义一个配置类
 > @Value 是从配置文件引入值
 
-```
+```java
 package top.lrshuai.config;
  
 import org.springframework.beans.factory.annotation.Value;
@@ -122,7 +122,7 @@ public class RedisConfig {
 ```
 
 ##### JedisPoolConfig 的参数详情如下：
-```
+```java
 JedisPoolConfig config = new JedisPoolConfig();
   
 //连接耗尽时是否阻塞, false报异常,ture阻塞直到超时, 默认true
@@ -171,7 +171,7 @@ config.setTestWhileIdle(false);
 config.setTimeBetweenEvictionRunsMillis(-1);
 ```
 #### (2)、为了能让redis 存储对象，我们要实现对象的序列化接口
-```
+```java
 package top.lrshuai.config;
  
 import org.springframework.core.convert.converter.Converter;
@@ -219,7 +219,7 @@ public class RedisObjectSerializer implements RedisSerializer<Object> {
 
 ## 四、代码示例
 #####  测试类如下：
-```
+```java
 package top.lrshuai;
  
 import java.util.ArrayList;

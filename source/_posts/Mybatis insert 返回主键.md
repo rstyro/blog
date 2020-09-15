@@ -6,7 +6,7 @@ categories: 数据库
 ---
 # Mybatis 主键自增的时候，保存时返回主键。
 ## 如下demo,在mapper.xml 中定义
-```
+```sql
 <!-- 保存文章 -->
 	<insert id="saveArticle" parameterType="pm" useGeneratedKeys="true" keyProperty="article_id">
 		insert into blog_article(

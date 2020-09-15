@@ -46,7 +46,7 @@ elasticsearch.host=127.0.0.1:9300,127.0.0.1:9301
 
 ## 三、自定义Elasticsearch 配置类
 这个配置类是为了获取TransportClient 
-```
+```java
 package top.lrshuai.es.config;
 
 import org.elasticsearch.client.transport.TransportClient;
@@ -95,7 +95,7 @@ public class ElasticsearchConfig {
 ## 四、自定义查询的接口与实现
 下面是我的一个例子，可以参考下，然后按照自己的需求定制查询接口
 #### 1、PersonDao 接口
-```
+```java
 package top.lrshuai.es.dao;
 
 
@@ -111,7 +111,7 @@ public interface PersonDao {
 
 ```
 #### 2、PersonDaoImpl 接口的实现类
-```
+```java
 package top.lrshuai.es.dao.impl;
 
 import java.io.IOException;
@@ -276,7 +276,7 @@ public class PersonDaoImpl implements PersonDao{
 ```
 
 ## 五测试类
-```
+```java
 package top.lrshuai.es;
 
 import java.util.Date;

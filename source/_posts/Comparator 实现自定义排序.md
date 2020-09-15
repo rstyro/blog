@@ -10,7 +10,7 @@ categories: Java
 
 ## 第一种方式：
 #### 实现Comparable 接口，重写compareTo 方法，然后调用Collections.sort(list) 方法即可
-```
+```java
 package top.lrshuai.blog.util;
 
 import java.util.ArrayList;
@@ -97,7 +97,7 @@ Player [userId=p1, userName=abc, level=1]]
 ```
 ## 第二种方式：
 #### 不用实现Comparable 接口，但在排序的时候在实现Comparable 接口
-```
+```java
 package top.lrshuai.blog.util;
 
 import java.util.ArrayList;
@@ -189,7 +189,7 @@ Player [userId=p1, userName=abc, level=1]]
 ### 一、上面的排序方式都是：按照level 降序排序，其次按照 userName 升序，如果你有多个参数比较就在compare 里继续在else 里写就可以了。
 ### 二、关于return 的问题 
 ### 1、int 类型的比较
-```
+```java
 return o1.getLevel() < o2.getLevel() ? 1:-1; //这个是按照 Level 降序排序（大到小）
 return o1.getLevel() > o2.getLevel() ? 1:-1; //这个是按照 Level 升序序排序（小到大）
 

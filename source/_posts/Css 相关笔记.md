@@ -7,7 +7,7 @@ categories: 前端
 # 笔记
 
 ## 一、滚动条样式
-```
+```css
 /* 滚动条样式 */	
 ::-webkit-scrollbar {  
     width: 5px;  
@@ -44,7 +44,7 @@ html {
 ```
 
 ## 二、绘制三角形
-```
+```css
 /*
 	主要样式
 	border-width  是改变三角形的大小

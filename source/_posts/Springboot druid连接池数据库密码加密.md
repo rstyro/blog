@@ -15,7 +15,7 @@ categories: Java
 </dependency>
 ```
 ## 二、加解密工具类
-```
+```java
 import org.jasypt.encryption.pbe.StandardPBEStringEncryptor;
 import org.jasypt.encryption.pbe.config.EnvironmentStringPBEConfig;
 
@@ -98,7 +98,7 @@ spring.datasource.connectionProperties=druid.stat.mergeSql=true;druid.stat.slowS
 ```
 
 ## 四、修改配置阿里连接池的配置文件
-```
+```java
 @ConfigurationProperties(prefix = "spring.druid.datasource")
 @Configuration
 public class DruidDBConfig {  

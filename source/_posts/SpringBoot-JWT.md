@@ -200,7 +200,7 @@ try {
 ```
 
 因为 RS256 加密，需要一个公私钥对，我们可以通过 `KeyPairGenerator` 随机获取一个公私钥对，工具类如下：
-```
+```java
 import sun.misc.BASE64Decoder;
 import sun.misc.BASE64Encoder;
 import top.lrshuai.jwt.entity.RSA256Key;

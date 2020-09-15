@@ -82,7 +82,7 @@ RedissonClient redisson = Redisson.create(config);
 
 
 ##### 我个人比较喜欢程序化方式，全部代码如下：
-```
+```java
 package top.lrshuai.redisson.config;
 
 import org.redisson.Redisson;
@@ -132,7 +132,7 @@ public class RedissonConfig {
 以`Bean`的方式注入，然后在想用的地方创建一个变量即可
 
 ### 4、代码使用Redisson
-```
+```java
 
     @Autowired
     private RedissonClient redissonClient;
@@ -147,7 +147,7 @@ public class RedissonConfig {
 
 > 废话真多，代码撸起
 
-```
+```java
  /**
      * 如果只有一个线程来访问，那么在rLock.tryLock() 这个方法就会阻塞，等锁释放然后再继续下面的操作，
      * 如果是多线程访问，那么在rLock.tryLock() 这个方法会直接返回false不阻塞了,继续往下执行
@@ -185,7 +185,7 @@ public class RedissonConfig {
     }
 ```
 
-![测试图片](https://upload-images.jianshu.io/upload_images/2433198-fad8075ac9ed73c3.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+![测试图片](lock.png)
 
 
 Redisson 提供的锁有那么几个，按需使用
@@ -201,7 +201,7 @@ Redisson 提供的锁有那么几个，按需使用
 
 ## 四、Redisson消息的发布订阅
 这个简单，一个发布，一个接受，简单代码如下：
-```
+```java
 //发布
 public long publish(MyObjectDTO myObjectDTO){
 	RTopic rTopic = redissonClient.getTopic(Consts.TopicName);
@@ -222,7 +222,7 @@ public void subscribe(){
     }
 ```
 > `MyObjectDTO` 就是发布的消息体，随意一个对象就行，命名有点`LOW`
-![示例图](https://upload-images.jianshu.io/upload_images/2433198-25d4ef068f19748c.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+![示例图](test1.png)
 
 
 #### 完整代码地址

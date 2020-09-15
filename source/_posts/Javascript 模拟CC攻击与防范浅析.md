@@ -16,7 +16,7 @@ categories: Web
 ##### 我就一台电脑，没肉鸡。
 > js 代码如下：
 
-```
+```html
 <html>
 <head>
 <meta charset="UTF-8">

@@ -58,7 +58,7 @@ spring.druid.datasource.connectionProperties=druid.stat.mergeSql=true;druid.stat
 
 ## 三、新建Druid 配置类
 #### 在Spring Boot1.4.0中驱动配置信息没有问题，但是连接池的配置信息不再支持这里的配置项，即无法通过配置项直接支持相应的连接池；这里列出的这些配置项可以通过定制化DataSource来实现。目前Spring Boot中默认支持的连接池有dbcp,dbcp2, tomcat, hikari三种连接池。 由于Druid暂时不在Spring Bootz中的直接支持，故需要进行配置信息的定制：
-```
+```java
 package com.greatdrive.admin.config;
  
  

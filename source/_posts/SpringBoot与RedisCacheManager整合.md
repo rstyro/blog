@@ -31,7 +31,7 @@ categories: Java
 因为需要用`RedisCacheManager` 所以导入Redis依赖
 
 ### 2、配置Redis并开启缓存支持
-```
+```java
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -127,7 +127,7 @@ public class RedisConfig extends CachingConfigurerSupport {
 ### 3、注解解析
 
 注解的几个属性说明：
-```
+```java
 //指定缓存组件的名字
 @AliasFor("cacheNames")
 String[] value() default {};
@@ -180,7 +180,7 @@ boolean beforeInvocation() default false;
 
 
 ### 4、使用方法
-```
+```java
 @CacheConfig(cacheNames = "act")  //这个注解表示类中共同放入到act 模块中
 @Service
 public class ActicleService implements IActicleService {
@@ -288,7 +288,7 @@ public class ActicleService implements IActicleService {
 + 在`CacheAutoConfiguration` 中的`CacheConfigurationImportSelector`会导入很多缓存组件配置类
 + 通过debug看源码,知道imports 的内容如下
 > 
-```
+```java
 static class CacheConfigurationImportSelector implements ImportSelector {
 	CacheConfigurationImportSelector() {
 	}

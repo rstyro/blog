@@ -31,7 +31,7 @@ categories: Java
 ```
 #### 2、添加注解
 在启动类添加`@EnableCircuitBreaker` 注解
-```
+```java
 @SpringBootApplication
 @EnableEurekaClient
 @EnableCircuitBreaker
@@ -51,7 +51,7 @@ public class CustomerRibbonHystrixApplication {
 #### 3、设置请求回调
 ##### 3.1 在方法上添加`@HystrixCommand` 注解
 ##### 3.2 在`@HystrixCommand` 注解中定义回调方法名称，并实现其方法
-```
+```java
 @RestController
 public class TestController {
 
@@ -103,7 +103,7 @@ public class TestController {
 ```
 #### 2、添加注解
 在启动类上添加`@EnableCircuitBreaker` 注解因为是feign 所以也是需要`@EnableFeignClients` 注解
-```
+```java
 @EnableCircuitBreaker
 @EnableEurekaClient
 @EnableFeignClients
@@ -119,7 +119,7 @@ public class CustomerFeignHystrixApplication {
 #### 3、在feign接口客户端上添加注解
 ##### 方法一：使用fallback
 **1、在feign服务接口的`@FeignClient` 注解添加fallback 参数，后面是一个配置类名**
-```
+```java
 @FeignClient(name="producer",fallback=MyHystrixFallback.class)
 public interface MyFeignClient {
 
@@ -129,7 +129,7 @@ public interface MyFeignClient {
 ```
 **2、实现fallback 配置的自定义类**
 实现feign 服务接口，重写其所有方法的回调
-```
+```java
 @Component
 public class MyHystrixFallback implements MyFeignClient{
 
@@ -142,7 +142,7 @@ public class MyHystrixFallback implements MyFeignClient{
 ```
 ##### 方法二：使用fallbackFactory
 **1、在feign服务接口的`@FeignClient` 注解添加fallbackFactory 参数，后面是一个配置类名**
-```
+```java
 @FeignClient(name="producer",fallbackFactory=MyHystrixFallbackFactory.class)
 public interface MyFeignClient2 {
 
@@ -152,7 +152,7 @@ public interface MyFeignClient2 {
 ```
 
 **2、实现fallbackFactory 定义的类**
-```
+```java
 @Component
 public class MyHystrixFallbackFactory implements FallbackFactory<MyFeignClient2> {
 	private static final Logger log = LoggerFactory.getLogger(MyHystrixFallbackFactory.class);
@@ -165,7 +165,7 @@ public class MyHystrixFallbackFactory implements FallbackFactory<MyFeignClient2>
 }
 ```
 这个MyHystrixFeignClient2Fallback 类是其实现类，fallbackFactory 可以说时fallback 的增加版
-```
+```java
 public class MyHystrixFeignClient2Fallback implements MyFeignClient2{
 	@Override
 	public Object search(String id) {

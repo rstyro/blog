@@ -24,7 +24,7 @@ categories: Java
 
 
 ## 3、我的logback-spring.xml
-```
+```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
   <!-- 控制台打印日志的相关配置 --> 
@@ -112,7 +112,7 @@ categories: Java
 ```
 
 ## 4、java 代码调用示例
-```
+```java
 package top.lrshuai.helloword.controller;
  
 import org.apache.log4j.Logger;

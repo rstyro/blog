@@ -45,7 +45,7 @@ tags:
 ##### UserController
 + 控制层接口
 + 流程从上往下执行即可
-```
+```java
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -142,7 +142,7 @@ public class UserController extends BaseController {
 
 ##### UserService
 + 服务层，业务代码
-```
+```java
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -313,7 +313,7 @@ public class UserService {
 ```
 #### GoogleAuthenticator
 + Google身份验证器工具类
-```
+```java
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.WriterException;

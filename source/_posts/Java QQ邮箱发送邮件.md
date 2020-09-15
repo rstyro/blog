@@ -19,57 +19,57 @@ categories: Java
 </dependency>
 ```
 ## 四、代码示例
-```
-    /**
-      * 发送验证码
-      * @param message 邮件的内容
-      * @param title 邮件的标题
-      * @param toAddress 接收人的邮箱地址
-      */
-     public void sendEmail(String message,String title,String toAddress){
-         Properties props = new Properties();
-         // 开启debug调试
-         props.setProperty("mail.debug", "false");
-         // 发送服务器需要身份验证
-         props.setProperty("mail.smtp.auth", "true");
-         // 设置邮件服务器主机名
-         props.setProperty("mail.host", "smtp.qq.com");
-         // 发送邮件协议名称
-         props.setProperty("mail.transport.protocol", "smtp");
-         MailSSLSocketFactory sf;
-         Transport transport =null;
-         try {
-             sf = new MailSSLSocketFactory();
-             sf.setTrustAllHosts(true);
-             props.put("mail.smtp.ssl.enable", "true");
-             props.put("mail.smtp.ssl.socketFactory", sf);
-             Session session = Session.getInstance(props);
-             Message msg = new MimeMessage(session);
-             msg.setSubject(title);
-             StringBuilder builder = new StringBuilder();
-             builder.append(message);
-             builder.append("\n\n 时间: " + DateUtil.getTime());
+```java
+/**
+  * 发送验证码
+  * @param message 邮件的内容
+  * @param title 邮件的标题
+  * @param toAddress 接收人的邮箱地址
+  */
+ public void sendEmail(String message,String title,String toAddress){
+	 Properties props = new Properties();
+	 // 开启debug调试
+	 props.setProperty("mail.debug", "false");
+	 // 发送服务器需要身份验证
+	 props.setProperty("mail.smtp.auth", "true");
+	 // 设置邮件服务器主机名
+	 props.setProperty("mail.host", "smtp.qq.com");
+	 // 发送邮件协议名称
+	 props.setProperty("mail.transport.protocol", "smtp");
+	 MailSSLSocketFactory sf;
+	 Transport transport =null;
+	 try {
+		 sf = new MailSSLSocketFactory();
+		 sf.setTrustAllHosts(true);
+		 props.put("mail.smtp.ssl.enable", "true");
+		 props.put("mail.smtp.ssl.socketFactory", sf);
+		 Session session = Session.getInstance(props);
+		 Message msg = new MimeMessage(session);
+		 msg.setSubject(title);
+		 StringBuilder builder = new StringBuilder();
+		 builder.append(message);
+		 builder.append("\n\n 时间: " + DateUtil.getTime());
 //              msg.setText(builder.toString());
-             msg.setFrom(new InternetAddress("你的邮箱地址"));
-             msg.setContent(builder.toString(), "text/html;charset=utf-8"); // 设置邮件格式  
-             transport = session.getTransport();
-             transport.connect("smtp.qq.com", "你的邮箱地址", "你的授权码");
-             transport.sendMessage(msg, new Address[] { new InternetAddress(toAddress)});//这里可以发送给多个人
-         } catch (GeneralSecurityException e) {
-             log.info("ssl 验证错误");
-             e.printStackTrace();
-         }catch (Exception e) {
-             log.info("程序异常", e);
-         }finally{
-             if(transport != null){
-                 try {
-                     transport.close();
-                 } catch (MessagingException e) {
-                     log.info("transport 关闭异常", e);
-                     e.printStackTrace();
-                 }
-             }
-         }
-         log.info("邮件发送成功!");
-     }
+		 msg.setFrom(new InternetAddress("你的邮箱地址"));
+		 msg.setContent(builder.toString(), "text/html;charset=utf-8"); // 设置邮件格式  
+		 transport = session.getTransport();
+		 transport.connect("smtp.qq.com", "你的邮箱地址", "你的授权码");
+		 transport.sendMessage(msg, new Address[] { new InternetAddress(toAddress)});//这里可以发送给多个人
+	 } catch (GeneralSecurityException e) {
+		 log.info("ssl 验证错误");
+		 e.printStackTrace();
+	 }catch (Exception e) {
+		 log.info("程序异常", e);
+	 }finally{
+		 if(transport != null){
+			 try {
+				 transport.close();
+			 } catch (MessagingException e) {
+				 log.info("transport 关闭异常", e);
+				 e.printStackTrace();
+			 }
+		 }
+	 }
+	 log.info("邮件发送成功!");
+ }
 ```

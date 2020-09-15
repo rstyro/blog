@@ -8,7 +8,7 @@ categories: Java
 > 有时我们需要重复利用输入流，比如图片上传时获取 图片的宽高...... 还有很多.........
 
 ### 1、代码示例
-```
+```java
 // 拿到上传文件的输入流
 InputStream in = files[i].getInputStream();
 ByteArrayOutputStream baos = new ByteArrayOutputStream();  
@@ -26,7 +26,7 @@ InputStream input = new ByteArrayInputStream(baos.toByteArray());
 ## 3、通过Inputstream 获取图片的宽高
 > 一般做图片上传之类的用得挺多的
 
-```
+```java
 int height = "0";
 int width = "0";
 BufferedImage bi = ImageIO.read(new ByteArrayInputStream(baos.toByteArray()));

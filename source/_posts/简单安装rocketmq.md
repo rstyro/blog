@@ -5,7 +5,7 @@ tags: [MQ]
 categories: MQ
 ---
 ## 下载
-```
+```shell
 # 下载，在http://www-us.apache.org/dist/rocketmq/ 选择合适的版本下载
 wget http://www-us.apache.org/dist/rocketmq/4.3.2/rocketmq-all-4.3.2-bin-release.zip
 

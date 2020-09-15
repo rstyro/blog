@@ -6,7 +6,7 @@ categories: 数据库
 ---
 #### 栗子：
 ### 1、address.xml
-```
+```xml
 <select>  
 	<option value="AL">阿尔巴尼亚</option>  
 	<option value="DZ">阿尔及利亚</option>  

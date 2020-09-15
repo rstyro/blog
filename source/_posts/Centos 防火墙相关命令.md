@@ -8,7 +8,7 @@ categories: 网络运维
 #### 顺便说一下最小化安装centos7后 上不了网的问题
 
 ## Centos 6
-```
+```shell
 #查看开放端口
 service iptables status
 

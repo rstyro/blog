@@ -93,7 +93,7 @@ spring.thymeleaf.view-names=
 
 ##### java 代码
 
-```Java
+```java
 @Controller
 public class HelloController {
 

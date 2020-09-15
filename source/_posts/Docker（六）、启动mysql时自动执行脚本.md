@@ -43,7 +43,7 @@ RUN chmod a+x $AUTO_RUN_DIR/$INIT_SQL
 ```
 
 ## 二、admin.sql 文件
-```
+```sql
 DROP DATABASE IF EXISTS `admin`;
 CREATE DATABASE `admin` character set utf8mb4;
 USE `admin`;

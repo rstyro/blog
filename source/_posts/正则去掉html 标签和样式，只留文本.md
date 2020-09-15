@@ -6,7 +6,7 @@ categories: Java
 ---
 ## 在工作中遇到，记录一下
 ### demo
-```
+```html
 <!DOCTYPE html>
 <html>
 <head>

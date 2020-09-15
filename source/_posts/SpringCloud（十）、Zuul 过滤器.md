@@ -61,7 +61,7 @@ zuul:
 
 ### 自定义过滤器的代码示例
 #### 1、自定义一个过滤器 MyPreZuulFileter
-```
+```java
 @Component
 public class MyPreZuulFileter extends ZuulFilter{
 
@@ -117,7 +117,7 @@ public class MyPreZuulFileter extends ZuulFilter{
 ```
 #### 2、加注解
 在启动类加`@EnableZuulProxy`注解,并注入上面自定义的bean
-```
+```java
 @SpringBootApplication
 @EnableZuulProxy
 public class SpringcloudZuulFilterApplication {

@@ -6,7 +6,7 @@ categories: Java
 ---
 # 这个是spring+springmvc+mybatis框架的方法
 ## 一、编辑配置文件：spring-mybatis.xml
-```
+```xml
 <beans xmlns="http://www.springframework.org/schema/beans" 
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns:context="http://www.springframework.org/schema/context" 
@@ -151,7 +151,7 @@ categories: Java
 
 ## 二、解决线程安全问题
 ### 利用ThreadLocal,设置当前线程使用的是哪个dataSource
-```
+```java
 public class CustomerContextHolder {
      
         public static final String DATA_SOURCE_A = "dataSourceA";  
@@ -179,7 +179,7 @@ public class CustomerContextHolder {
 ## 三、自定义一个动态数据源
 #### 创建DynamicDataSource类继承AbstractRoutingDataSource
 #### 并实现determineCurrentLookupKey方法
-```
+```java
 public class DynamicDataSource extends AbstractRoutingDataSource {
  
     @Override

@@ -11,7 +11,7 @@ categories: 前端
 新手学习，只需要以引入`<script>`的方式即可。  
 在`.html` 中的`head`中加上`<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>`即可  
 学编程怎么能少了`hello world`
-```
+```html
 <html>
     <head>
         <meta charset="UTF-8">
@@ -45,7 +45,7 @@ categories: 前端
 
 ## 条件判断
 语法：`v-if`,如果`v-if=true`就显示，否则不显示  
-```
+```html
 <body>
     <div id="app">
         <ul>
@@ -74,7 +74,7 @@ categories: 前端
 
 
 ## 数据绑定
-```
+```html
 <body>
     <div id="app2" v-bind:title="message" >你还要我怎样 要怎样，你突然来的短信就够我悲伤</div>
 <script>
@@ -98,7 +98,7 @@ categories: 前端
 `<div id="app2"  :title="message" >你还要我怎样 要怎样，你突然来的短信就够我悲伤</div>`
 
 ## 列表循环
-```
+```html
 <body>
     <div id="app">
         <ul >
@@ -151,7 +151,7 @@ categories: 前端
 + 组件是可复用的 Vue 实例，且带有一个名字：在这个例子中是 `<fruit-item>`。我们可以在一个通过 new Vue 创建的 Vue 根实例中，把这个组件作为自定义元素来使用
 + Prop 是你可以在组件上注册的一些自定义特性。当一个值传递给一个 prop 特性的时候，它就变成了那个组件实例的一个属性。如上就是`item` 属性就是，我们就可以通过`item` 自定义我们的数据  
 + prop是一个数组类型，我们可以从外面传多个数据进来  
-```
+```html
 <!DOCTYPE html>
 <html lang="en" >
 <head>
@@ -202,7 +202,7 @@ categories: 前端
 那我们是不是可以说，每个`Vue`示例就是一个组件呢？是
 
 ## 表单绑定
-```
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -275,7 +275,7 @@ categories: 前端
 
 
 ## 事件处理
-```
+```html
 <body>
 <div id="app">
     <div >当你点击按钮的时候，触发按钮事件按钮文字会反转</div>
@@ -300,7 +300,7 @@ categories: 前端
 可以用 v-on 指令监听 DOM 事件，并在触发时运行一些 JavaScript 代码。上述代码按钮绑定的事件方法名为：`reverseMessage`  
 + 语法：`v-on:click="方法名"`
 + 缩写语法：`@click` ,代码如下  
-```
+```html
 <div id="app">
     <button @click="eventClick">可以获得DOM原生的事件</button>
     <button @click="say('hi')">Say hi</button>
@@ -335,7 +335,7 @@ categories: 前端
 ```
 
 ## 样式渲染
-```
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -389,7 +389,7 @@ categories: 前端
 `<li class="error" v-bind:class="classObject">西红柿</li>`   
 结果渲染为`<li class="error active">西红柿</li>`
 + 还有组件样式：  如下示例
-```
+```html
 <!DOCTYPE html>
 <html lang="en" >
 <head>
@@ -443,7 +443,7 @@ categories: 前端
 组件中可以包含`class`
 
 ## 计算与监听
-```
+```html
 <!DOCTYPE html>
 <html lang="en" >
 <head>
@@ -495,7 +495,7 @@ categories: 前端
 
 
 ## 组件之间的数据传递
-```
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -561,7 +561,7 @@ categories: 前端
 
 
 ## HTTP 请求
-```
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>

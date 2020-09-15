@@ -30,7 +30,7 @@ categories: Java
 ```
 #### 2、加上注解
 **只需要在客户端的RestTemplate `bean`上加上注解`@LoadBalanced`即可用默认的负载均衡策略（轮询）。**
-```
+```java
 @SpringBootApplication
 @EnableEurekaClient
 public class CustomerRibbonApplication {
@@ -49,7 +49,7 @@ public class CustomerRibbonApplication {
 
 #### 3、控制层访问生产者
 **常规我们的restTemplate.getForObject()的第一个参数地址是写死的，这里我们写上`服务名称` producer即可**
-```
+```java
 @RestController
 public class TestController {
 
@@ -67,7 +67,7 @@ public class TestController {
 ![](78912.png)
 
 因为我们知道`生产者`有一个片段代码是长这样的：
-```
+```java
 @GetMapping("/item/{id}")
 public Object test(@PathVariable("id")String id,HttpServletRequest request) {
 	int port = request.getServerPort();
@@ -87,7 +87,7 @@ public Object test(@PathVariable("id")String id,HttpServletRequest request) {
 #### 1、创建一个自定义的配置类RuleConfig
 > 这个配置类的路径，不要在启动类的包路径之下
 
-```
+```java
 @Configurable
 public class RuleConfig {
 	@Bean
@@ -101,7 +101,7 @@ public class RuleConfig {
 
 #### 2、启动类加注解
 `@RibbonClient`注解给哪个服务启动负载均衡策略，参数中的name 是服务名称，configuration 后面跟着是负载均衡自定义配置类
-```
+```java
 @Configuration
 @RibbonClient(name="producer2",configuration=RuleConfig.class)
 @SpringBootApplication
@@ -120,7 +120,7 @@ public class CustomerRibbonApplication {
 }
 ```
 #### 3、测试是否生效
-```
+```java
 @RestController
 public class TestController {
 

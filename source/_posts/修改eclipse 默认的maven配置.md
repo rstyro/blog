@@ -19,7 +19,7 @@ categories: 开发工具
 ##### 2、修改镜像地址
 > 在mirrors 标签中加入
 
-```
+```xml
  <!-- 阿里云Maven镜像 你有更好更快的镜像地址更好 -->
    <mirror>
       <id>nexus-aliyun</id>

@@ -32,7 +32,7 @@ spring.data.mongodb.uri=mongodb://192.168.12.133:22222/test
 
 
 #### User
-```
+```java
 public class User {
 	@Id
 	private Long id;	
@@ -43,7 +43,7 @@ public class User {
 ```
 
 #### UserRepository.class 
-```
+```java
 package top.lrshuai.mongodb.repository;
 
 import org.springframework.data.mongodb.repository.MongoRepository;
@@ -63,7 +63,7 @@ public interface UserRepository extends MongoRepository<User, Long>{
 ##### 使用 MongoTemplate 自己封装方法，可实现复杂的查询方法。
 
 #### UserDao.class
-```
+```java
 package top.lrshuai.mongodb.dao;
 
 import java.util.List;
@@ -88,7 +88,7 @@ public interface UserDao {
 ```
 
 UserDaoImpl.class 
-```
+```java
 package top.lrshuai.mongodb.dao.impl;
 
 import java.util.List;
@@ -195,7 +195,7 @@ public class UserDaoImpl implements UserDao{
 
 ## 四、测试类
 #### 完整代码：
-```
+```java
 package top.lrshuai.mongodb;
 
 import java.util.ArrayList;

@@ -30,7 +30,7 @@ spring.mail.default-encoding=UTF-8
 
 ## 3、代码示例
 #### 实现类如下：
-```
+```java
 package top.lrshuai.service.impl;
  
 import org.slf4j.Logger;
@@ -168,7 +168,7 @@ public class MailServiceImpl implements MailService{
 ```
 
 #### 测试类
-```
+```java
 package top.lrshuai.test;
 
 import org.junit.Test;

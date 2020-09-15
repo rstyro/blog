@@ -38,7 +38,7 @@ spring:
 
 所以需要一些表，在数据库导入如下SQL脚本，我的是mysql 的
 
-```
+```sql
 DROP TABLE IF EXISTS `qrtz_blob_triggers`;
 CREATE TABLE `qrtz_blob_triggers` (
   `SCHED_NAME` varchar(120) NOT NULL,
@@ -232,7 +232,7 @@ CREATE TABLE `qrtz_triggers` (
 
 #### 三、撸代码
 新建一个类 实现 `org.quartz.Job` 的 `execute` 方法即可，如下
-```
+```java
 @DisallowConcurrentExecution
 public class HelloJob implements Job, Serializable {
   
@@ -254,7 +254,7 @@ public class HelloJob implements Job, Serializable {
 
 #### 四、触发任务
 片段代码
-```
+```java
 Class cls = Class.forName("top.lrshuai.HelloJob") ;
 cls.newInstance();
 //构建job信息

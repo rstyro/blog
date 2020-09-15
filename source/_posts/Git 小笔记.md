@@ -5,7 +5,7 @@ tags: [Git]
 categories: 笔记
 ---
 ### git 删除远程idea 文件
-```
+```bash
 1、查看远程分支
 $ git branch -a 
 

@@ -7,7 +7,7 @@ categories: Java
 # SpringBoot 国际化配置
 
 ## 一、配置LocaleResolver
-```
+```java
 @Configuration
 public class LocaleConfig extends WebMvcConfigurerAdapter{
 
@@ -67,7 +67,7 @@ spring:
 ## 四、前端页面调用国际化
 在Thymeleaf模板中通过 `th:text`与`#{国际化文件的KEY}` 即可使用国际化   
 前端需要传的语言参数为`lang`示例如下：
-```
+```html
 <body>
 	<div class="language">
 	<div th:switch="${#locale.getCountry()}">
@@ -97,7 +97,7 @@ spring:
 ## 五、接口返回值国际化 
 通过前端传上来的语言，我们接口返回值需要通过转上来的语言，返回对应的数据。
 在Spring中,我们只需要实现`ResponseBodyAdvice<T>` 接口即可，代码如下
-```
+```java
 /**
 * 别忘了加注解，basePackages 是对哪些包进行扫描
 */

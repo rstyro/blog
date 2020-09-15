@@ -81,7 +81,7 @@ ps -ef | grep redis         #查看是否启动成功
 vim /lib/systemd/system/redis.service
 ```
 #### 2、编辑内容
-```
+```shell
 [Unit]
 Description=Redis
 After=syslog.target network.target remote-fs.target nss-lookup.target

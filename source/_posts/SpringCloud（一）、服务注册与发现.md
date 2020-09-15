@@ -80,7 +80,7 @@ SpringCloud 有几个版本，我现在用的是`Dalston SR5`
 ```
 ### 二、加入注解
 **在启动类加入 `@EnableEurekaServer` 注解,如下例子**
-```
+```java
 @SpringBootApplication
 @EnableEurekaServer
 public class SpringcloudEurekaApplication {
@@ -97,7 +97,7 @@ public class SpringcloudEurekaApplication {
 `eureka.client.serviceUrl.defaultZone` ：设置与Eureka Server交互的地址，查询服务和注册服务都需要依赖这个地址。默认是http://localhost:8761/eureka ；多个地址可使用 , 分隔。**
 
 **Eureka的配置类所在类**
-```
+```java
 org.springframework.cloud.netflix.eureka.EurekaInstanceConfigBean
 org.springframework.cloud.netflix.eureka.EurekaClientConfigBean
 org.springframework.cloud.netflix.eureka.server.EurekaServerConfigBean
@@ -163,7 +163,7 @@ eureka:
 ```
 ### 二、加入注解
 **在启动类加入`@EnableEurekaClient`注解**
-```
+```java
 @SpringBootApplication
 @EnableEurekaClient
 public class ProducerApplication {

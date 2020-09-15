@@ -79,7 +79,7 @@ public static void main(String[] args) {
 #### (b)、自己用正则来完成你的需求
 > 下面给你demo ,根据你自己的需求来改就好了。
 
-```
+```java
 package top.lrshuai.blog.util;
 
 import java.util.regex.Matcher;

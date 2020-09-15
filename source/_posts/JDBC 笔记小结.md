@@ -53,7 +53,7 @@ Java.sql.CallableStatement	用于执行数据库中存储过程的调用
 java.sql.ResultSet			对于给定声明取得结果的途径**
 
 ### 4、代码示例
-```
+```java
 public class Demo {
 
 	/**
@@ -189,7 +189,7 @@ JDBC 的数据库连接池使用 javax.sql.DataSource 来表示，DataSource 只
 
 ### 5、简单的代码示例
 **c3p0配置文件c3po-config.xml**
-```
+```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <c3p0-config>
 
@@ -220,7 +220,7 @@ JDBC 的数据库连接池使用 javax.sql.DataSource 来表示，DataSource 只
 </c3p0-config>
 ```
 **修改获取连接，通过连接池获取connection**
-```
+```java
 	private static DataSource dataSource = null;
 	// 数据库连接池应只被初始化一次.
 	static{

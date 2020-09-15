@@ -7,7 +7,7 @@ categories: Java
 # Spring 或springboot 定时任务
 
 ## 1、demo 代码示例
-```
+```java
 package top.lrshuai.task;
  
 import org.springframework.scheduling.annotation.Scheduled;
@@ -28,7 +28,7 @@ public class TimeTask{
 ### (1)、spring 配置
 > 配置文件的代码片段,主要是添加最下面两行
 
-```
+```xml
 <beans xmlns="http://www.springframework.org/schema/beans" 
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns:context="http://www.springframework.org/schema/context" 
@@ -56,7 +56,7 @@ public class TimeTask{
 ```
 ### (2)、springboot
 #### 这个比较简单，在Spring Boot的主类中加入`@ EnableScheduling`注解，启用定时任务的配置
-```
+```java
 @SpringBootApplication
 @MapperScan("top.lrshuai.blog.dao")
 @EnableScheduling

@@ -54,7 +54,7 @@ white-space:nowrap; /* 强制文本在一行内显示 */
 |cubic-bezier(n,n,n,n)|	在 cubic-bezier 函数中定义自己的值。可能的值是 0 至 1 之间的数值。|
 
 ## 七、动画 -webkit-keyframes
-```
+```css
 /*这里是使一个div 进行旋转动画*/
 #divId{
 	-webkit-animation:myRotate 3s infinite linear ;
@@ -75,7 +75,7 @@ white-space:nowrap; /* 强制文本在一行内显示 */
 ```
 
 ## 八、各个属性 demo 集合
-```
+```html
 <!DOCTYPE html>
 <html>
 <meta charset="UTF-8">

@@ -57,7 +57,7 @@ cd docker-nginx
 ```
 
 ##### 2、在html目录下创建一个index.html页面
-```
+```html
 vim html/index.html
 
 # 编辑内容如下：

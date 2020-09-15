@@ -16,7 +16,7 @@ categories: Java
 ```
 
 ### java 操作jxl 工具类
-```
+```java
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -248,13 +248,13 @@ public class ExcelUtils {
 ## 二、其他
 
 ### 1、设置字体
-```
+```java
 WritableFont font1= new WritableFont(WritableFont.TIMES, 16, WritableFont.BOLD); //设置字体格式为excel支持的格式 WritableFont font3=new WritableFont(WritableFont.createFont("楷体 _GB2312"), 12, WritableFont.NO_BOLD);
 WritableCellFormat format1=new WritableCellFormat(font1);
 Label label=new Label(0, 0, "data 4 test", format1);
 ```
 ### 2、对齐方式
-```
+```java
 //把水平对齐方式指定为居中
 format1.setAlignment(jxl.format.Alignment.CENTRE);
 //把垂直对齐方式指定为居中
@@ -264,7 +264,7 @@ format1.setWrap(true);
 ```
 
 ### 3、合并单元格
-```
+```java
 WritableSheet sheet = book.createSheet("sheet1", 0);  
 //合并第一列第一行到第六列第一行的所有单元格
 //合并既可以是横向的，也可以是纵向的。合并后的单元格不能再次进行合并，否则会触发异常。
@@ -272,7 +272,7 @@ sheet.mergeCells(0, 0, 5, 0);
 ```
 
 ### 4、指定单元格 行高与列宽
-```
+```java
 //作用是指定第i+1行的高度
 WritableSheet.setRowView(int i, int height);
 //比如：将第一行的高度设为200

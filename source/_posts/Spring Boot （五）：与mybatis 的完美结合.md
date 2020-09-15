@@ -36,7 +36,7 @@ spring.datasource.password = toor
 ### 3、在启动类 添加 @MapperScan("你mapper文件所在的包路径")
 > 括号内修改为你mapper文件所在的包路径
 
-```
+```java
 @SpringBootApplication
 @MapperScan("top.lrshuai.blog.dao")
 public class Application{

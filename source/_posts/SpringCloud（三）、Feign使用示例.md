@@ -22,7 +22,7 @@ categories: Java
 ```
 ### 2、加注解
 在启动类上加注解`@EnableFeignClients`
-```
+```java
 @SpringBootApplication
 @EnableEurekaClient
 @EnableFeignClients
@@ -36,7 +36,7 @@ public class CustomerFeignApplication {
 ```
 ### 3、创建服务接口类
 定义一个 `producer` 服务的接口类
-```
+```java
 @FeignClient(name="producer")
 public interface FeignClientService {
 
@@ -50,7 +50,7 @@ public interface FeignClientService {
 ```
 
 ### 4、控制层调用
-```
+```java
 @RestController
 public class TestController {
 	
@@ -93,7 +93,7 @@ spring:
 
 ## 二、使用默认的注解
 ### 1、自定义一个配置类FeignConfig
-```
+```java
 @Configuration
 public class FeignConfig {
 
@@ -120,7 +120,7 @@ public class FeignConfig {
 }
 ```
 ### 2、自定义一个服务接口类FeignClientService
-```
+```java
 @FeignClient(name="producer",configuration=FeignConfig.class)
 public interface FeignClientService {
 
@@ -135,7 +135,7 @@ public interface FeignClientService {
 ```
 
 ### 3、调用
-```
+```java
 @RestController
 public class TestController {
 	

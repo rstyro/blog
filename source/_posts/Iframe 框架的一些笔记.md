@@ -5,7 +5,7 @@ tags: [JavaScript, HTML]
 categories: 笔记
 ---
 ## 一、Iframe 的自适应方法：
-```
+```html
 <iframe name="mainFrame" id="mainBodyFrame" src="/main" 
 frameborder="0" scrolling="no" width="100%" height="900px" onload="setIframeHeight(this)"></iframe>
  
@@ -31,7 +31,7 @@ window.onload = function() {
 </script>
 ```
 ## 二、刷新页面
-```
+```html
 //刷新本页：
 <script language=javascript>window.location.href=window.location.href;</script>
  
@@ -42,7 +42,7 @@ window.onload = function() {
 <script language=javascript>window.location.href='yourpage.aspx';</script>
 ```
 ## 三、top.location.href和localtion.href有什么不同
-```
+```html
 //在顶层页面打开url（跳出框架）
 top.location.href=”url”          
  
@@ -62,7 +62,7 @@ this.location.href=”url”
 ![](1504841825227030037.png)
 
 ### 解决方法：
-```
+```html
 <script type="text/javascript">
     //TOCMAT重启之后 在ifrme框架登录后，重新跳出框架显示页面
     if (window != top) {
@@ -72,7 +72,7 @@ this.location.href=”url”
 ```
 
 ## 四、jquery动态加载html页面
-```
+```html
 <script type="text/javascript">
  
 $(function() {

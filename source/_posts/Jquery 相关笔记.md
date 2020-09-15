@@ -7,7 +7,7 @@ categories: 笔记
 # 笔记
 
 ## 一、获取各种宽高
-```
+```html
 console.log($(window).height()); //浏览器时下窗口可视区域高度
 console.log($(document).height()); //浏览器时下窗口文档的高度
 console.log($(document.body).height());//浏览器时下窗口文档body的高度
@@ -27,13 +27,13 @@ console.log($(document).position().left); //获取相对父级元素的坐标
 ```
 
 ## 二、窗口变化时触发的方法
-```
+```js
 $(window).resize(function(){
 	console.log("窗口变化了");
 });
 ```
 ## 三、获取复选框选中的值
-```
+```html
 <p><input type='checkbox' name='ids' value='value1'> <span>文字提醒1</span></p>
 <p><input type='checkbox' name='ids' value='value2'> <span>文字提醒2</span></p>
 

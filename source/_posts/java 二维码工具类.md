@@ -19,7 +19,7 @@ categories: Java
 ```
 
 ### 二维码工具类
-```
+```java
 package top.lrshuai.blog.code;
 
 import java.awt.BasicStroke;  

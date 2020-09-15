@@ -36,7 +36,7 @@ categories: Java
 ```
 ### 二、添加注解
 在启动类添加`@EnableZuulProxy`注解
-```
+```java
 @SpringBootApplication
 @EnableZuulProxy
 public class SpringcloudZuulApplication {
@@ -215,7 +215,7 @@ ribbon:
  上传成功后返回成功后的文件路径
  #### 上传项目
  ##### 1、代码片段
- ```
+ ```java
  @RestController
 public class UploadController {
 

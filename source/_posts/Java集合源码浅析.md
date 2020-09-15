@@ -33,7 +33,7 @@ categories: Java
 			源码：`int newCapacity = oldCapacity +  ((capacityIncrement > 0) ? capacityIncrement : oldCapacity);`
 			- Stack 
 				栈是Vector的一个子类，它实现了一个标准的后进先出的栈。也是线程安全的。常用方法：
-				```
+				```java
 					E push(E item) //入栈、
 					synchronized E pop() //栈顶元素出栈、
 					boolean empty() //判定栈是否为空、
@@ -44,7 +44,7 @@ categories: Java
 		接口： 仅接收一次，不可重复，并做内部排序
 		- HashSet
 			如果看源码会发现，当创建HashSet时，内部会初始化一个HashMap,片段代码如下:
-			```
+			```java
 			 	private transient HashMap<E,Object> map;
 
 
@@ -126,7 +126,7 @@ categories: Java
 	我是一个很懒的程序员，会用不就好了吗，管它怎么实现的。但是面试被面试官吊打，痛定思痛觉得研究一番。
 	在集合里面HashMap才是大佬（渣男），和Collection下的几个子类都有一腿。来吧扒一扒它身体构造。
 	下面是一些部分的源码：
-		```
+		```java
 		// 初始化容量，左移N位，就等于乘于2的N次方
 		static final int DEFAULT_INITIAL_CAPACITY = 1 << 4; // aka 16
 
@@ -183,7 +183,7 @@ categories: Java
 		在JDK1.8中，HashMap采用数组+链表+红黑树实现，当链表长度大于8，并且数组大小大于等于 `MIN_TREEIFY_CAPACITY=64` 时，链表转为红黑树。
 		而红黑树的个数小于`UNTREEIFY_THRESHOLD=6`时又转为链表。HashMap的初始化默认大小是16，负载因子是0.75， 如果自己传入初始大小x，初始化大小为 大于x的 2的整数次方，例如如果传10，大小为16。来看源码：
 
-		```
+		```java
 		//如果我们指定大小，最终走的是这个方法
 		 public HashMap(int initialCapacity, float loadFactor) {
 	        if (initialCapacity < 0)
@@ -232,7 +232,7 @@ categories: Java
 
 		由上图可以看到，只有hash值的低4位参与了运算。 
 		这样做很容易产生碰撞。设计者权衡了speed, utility, and quality，将高16位与低16位异或来减少这种影响。设计者考虑到现在的hashCode分布的已经很不错了，而且当发生较大碰撞时也用树形存储降低了冲突。仅仅异或一下，既减少了系统的开销，也不会造成的因为高位没有参与下标的计算(table长度比较小时)，从而引起的碰撞。接下来看看HashMap的存储,put 方法，源码分析：
-		```
+		```java
 		public V put(K key, V value) {
 			// 将key 散列传入
 	        return putVal(hash(key), key, value, false, true);
@@ -294,7 +294,7 @@ categories: Java
 	    }
 		```
 		看了源码，感觉没想象中的那么复杂吧？你确定不复杂？？？ 在来看看链表转为红黑树的方法`treeifyBin(tab, hash)` 源码分析:
-		```
+		```java
 		final void treeifyBin(Node<K,V>[] tab, int hash) {
 	        int n, index; Node<K,V> e;
 	        // 这里还有一个限制条件，当table的长度小于MIN_TREEIFY_CAPACITY（64）时，只是进行扩容
@@ -388,7 +388,7 @@ categories: Java
 
 		```
 		老实说链表转换为红黑树的代码还是有点东西的，有兴趣自己看，还是看相对简单的，扩容方法resize() :
-		```
+		```java
 		final Node<K,V>[] resize() {
 	        Node<K,V>[] oldTab = table;
 	        int oldCap = (oldTab == null) ? 0 : oldTab.length;
@@ -489,7 +489,7 @@ categories: Java
 	- ConcurrentHashMap
 		这个可以说是HashMap和Hashtable的结合优化版本。JDK1.5后为了改进Hashtable的痛点，ConcurrentHashMap应运而生，那时候的它使用的是分段锁技术（`将锁一段一段的存储，然后给每一段数据配一把锁（segment），当一个线程占用一把锁（segment）访问其中一段数据的时候，其他段的数据也能被其它的线程访问，默认分配16个segment。默认比Hashtable效率提高16倍。`）。但在JDK1.8 取消了segment分段锁，而采用CAS和synchronized来保证并发安全。数据结构跟HashMap1.8的结构一样，数组+链表+红黑二叉树。别看后面也有个HashMap，但是它可不是继承自HashMap的哦。它继承自AbstractMap。
 		ConcurrentHashMap 结构和HashMap 类似，下面列出HashMap没有的几个属性
-		```
+		```java
 			/*
 
 		    这个sizeCtl是volatile的，那么他是线程可见的
@@ -518,7 +518,7 @@ categories: Java
 		    static final int TREEBIN   = -2; // hash值是-2  表示这时一个TreeBin节点
 		```
 		ConcurrentHashMap 如何利用CAS和Synchronized进行高效的同步更新数据的。看看put 方法。
-		```
+		```java
 		public V put(K key, V value) {
 	        return putVal(key, value, false);
 	    }
@@ -605,7 +605,7 @@ categories: Java
 	    }
 		```
 		看看初始化数组的源码，initTable()。
-		```
+		```java
 		private final Node<K,V>[] initTable() {
 	        Node<K,V>[] tab; int sc;
 	        while ((tab = table) == null || tab.length == 0) {
@@ -632,7 +632,7 @@ categories: Java
 	    }
 		```
 		HashMap 的扩容方法是 resize(),而ConcurrentHashMap 则是tryPresize与 transfer :
-		```
+		```java
 		private final void tryPresize(int size) {
 			// 判断是否大于最大值，否则计算最小的2次幂，tableSizeFor 方法之前讲过贼经典
 	        int c = (size >= (MAXIMUM_CAPACITY >>> 1)) ? MAXIMUM_CAPACITY :

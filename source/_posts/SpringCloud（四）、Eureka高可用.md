@@ -30,7 +30,7 @@ categories: Java
 
 ## 二、添加注解
 **给启动类添加`@EnableEurekaServer`注解**
-```
+```java
 @SpringBootApplication
 @EnableEurekaServer
 public class SpringcloudEurekaPeerApplication {

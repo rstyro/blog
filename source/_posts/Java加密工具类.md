@@ -21,7 +21,7 @@ categories: Java
 ```
 # 代码示例
 ## MD5加密算法 示例
-```
+```java
 package top.lrshuai.blog.util;
 
 import java.security.MessageDigest;
@@ -97,7 +97,7 @@ public class MDUtil {
 #### SHA2 
 ##### SHA2又分有 SHA-224、SHA-256、SHA-384，和SHA-512。
 ### 所以SHA 的算法可以说有5种
-```
+```java
 package top.lrshuai.blog.util;
 
 import java.security.MessageDigest;

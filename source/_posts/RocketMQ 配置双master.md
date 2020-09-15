@@ -171,7 +171,7 @@ tail -n 200 /usr/local/rocketmq/logs/rocketmqlogs/broker.log
 
 ## 八、代码示例
 #### 1、 Consumer类
-```
+```java
 package com.alibaba.rocketmq.example.quickstart;
  
 import java.io.UnsupportedEncodingException;
@@ -229,7 +229,7 @@ public class Consumer {
 ```
 
 ### 2、Producer类
-```
+```java
 package com.alibaba.rocketmq.example.quickstart;
  
 import com.alibaba.rocketmq.client.exception.MQClientException;
@@ -264,6 +264,6 @@ public class Producer {
     }
 }
 ```
-![](http://lrshuai.top/upload/image/20170831/1504160283634075289.png)
+![](1504160283634075289.png)
 
 
