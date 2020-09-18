@@ -42,8 +42,9 @@ useradd elsearch -g elsearch -p elasticsearch
 ```
 ## 三、 权限不够
 > grep: /usr/local/elasticsearch/config/jvm.options: 权限不够
-Exception in thread "main" 2017-11-30 12:09:31,518 main ERROR No log4j2 configuration file found. Using default configuration: logging only errors to the console. Set system property 'log4j2.debug' to show Log4j2 internal initialization logging.
+> ```Exception in thread "main" 2017-11-30 12:09:31,518 main ERROR No log4j2 configuration file found. Using default configuration: logging only errors to the console. Set system property 'log4j2.debug' to show Log4j2 internal initialization logging.
 2017-11-30 12:09:31,697 main ERROR Could not register mbeans java.security.AccessControlException: access denied ("javax.management.MBeanTrustPermission" "register")
+```
 
 ![](18725.png)
 
@@ -54,9 +55,11 @@ chown -R elsearch:elsearch /usr/local/elasticsearch
 ```
 
 ## 四、 ERROR: [2] bootstrap checks failed
-> ERROR: [2] bootstrap checks failed
+> ```ERROR: [2] bootstrap checks failed
 [1]: max file descriptors [4096] for elasticsearch process is too low, increase to at least [65536]
 [2]: max virtual memory areas vm.max_map_count [65530] is too low, increase to at least [262144]
+```
+
 
 ![](84529.png)
 
@@ -67,7 +70,7 @@ vi /etc/security/limits.conf
 ```
 
 #### 添加如下内容:
-```
+```yml
 * soft nofile 65536
 * hard nofile 65536
 * soft nproc 2048
@@ -87,7 +90,7 @@ sysctl -p
 ```
 ## 五、浏览器访问不了虚拟机的elasticsearch
 #### 如果在虚拟机中安装elasticSearch, 然后本地访问不了，可在elasticsearch 的配置文件（config/elasticsearch.yml）中加入
-```
+```yml
 # 这个是跨域的配置
 http.cors.enabled: true
 http.cors.allow-origin: "*"
