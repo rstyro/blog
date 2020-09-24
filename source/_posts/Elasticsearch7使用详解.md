@@ -31,7 +31,7 @@ ES7这个版本在创建mapping的时候不能指定type了，对应映射改成
 虽然创建的时候没有指定type,但是查看索引信息的时候，发现她变成了`_doc`(可能是为了和之前的版本兼容？),ES8版本就应该是删除了，看官方文档：
 [https://www.elastic.co/guide/en/elasticsearch/reference/current/removal-of-types.html#_schedule_for_removal_of_mapping_types](https://www.elastic.co/guide/en/elasticsearch/reference/current/removal-of-types.html#_schedule_for_removal_of_mapping_types)
 
-**怎么安装配置ES就不说了之前文章有：[ES系列文章](https://rstyro.github.io/blog/tags/ElasticSearch/)**
+**怎么安装配置ES就不说了之前文章有：[ES系列文章](http://rstyro.gitee.io/blog/tags/ElasticSearch/)**
 
 ### 三、索引
 就我的理解，ES7的索引就类似于传统关系数据库中的表了。索引 (index) 的复数词为 indices 或 indexes 。
@@ -75,6 +75,7 @@ geo_point		经纬度坐标
 Mappings常用的设置参数：
 ```
 properties	定义属性
+dynamic_templates 动态模板定义
 analyzer	只有text才有的参数属性：文本分析器
 search_analyzer	搜索分词器
 boost		权重，在5.0.0 已弃用
@@ -83,6 +84,7 @@ dynamic		是否可以动态添加类型，默认true
 format		格式化，日期之类的：epoch_millis、date_optional_time 、strict_date_optional_time
 index		是否对字段简历索引，默认true
 term_vector	向量，如果使用高亮搜索类型为fvh ，则需要配置这个。配置这个
+
 ```
 
 ### 五、API
@@ -92,7 +94,7 @@ term_vector	向量，如果使用高亮搜索类型为fvh ，则需要配置这�
 
 #### 1、创建索引
 索引有点区别，因为type没有了
-```
+```yml
 PUT http://172.16.1.236:9200/topic
 
 {
@@ -157,7 +159,7 @@ GET http://172.16.1.236:9200/topic/_mapping/field/content
 mapping 字段无法修改类型
 
 #### 3、添加数据
-```
+```yml
 # 指定ID：0ab92409ea7843c89983ada5f7bc2524 添加数据
 PUT http://172.16.1.236:9200/topic/_create/0ab92409ea7843c89983ada5f7bc2524
 {
@@ -201,7 +203,7 @@ POST http://172.16.1.236:9200/topic/_doc
 }
 ```
 #### 4、更新数据
-```
+```yml
 # 修改title为：“测试更新”，status为2
 POST http://172.16.1.236:9200/topic/_doc/450b4fd5e65f4004a4a96149e50d9e8b/_update
 {
@@ -213,7 +215,7 @@ POST http://172.16.1.236:9200/topic/_doc/450b4fd5e65f4004a4a96149e50d9e8b/_updat
 ```
 
 #### 5、删除数据
-```
+```yml
 # 删除指定ID：450b4fd5e65f4004a4a96149e50d9e8b
 DELETE http://172.16.1.236:9200/topic/_doc/450b4fd5e65f4004a4a96149e50d9e8b
 
@@ -229,7 +231,7 @@ POST http://172.16.1.236:9200/topic/_delete_by_query
 ```
 
 #### 6、查询数据
-```
+```yml
 # 查询所有数据
 GET http://172.16.1.236:9200/topic/_search
 {
@@ -320,10 +322,54 @@ GET http://172.16.1.236:9200/topic/_search
     }
   }
 }
+
+
+
+# 经纬度圆点范围2km查询，并由近到远排序其次按时间降序
+GET http://172.16.1.236:9200/topic/_search
+{
+    "from": 0,
+    "size": 10,
+    "query": {
+        "geo_distance": {
+            "location": [
+                113.99,
+                23
+            ],
+            "distance": "2km",
+            "distance_type": "arc",
+            "validation_method": "STRICT",
+            "ignore_unmapped": false,
+            "boost": 1
+        }
+    },
+    "sort": [
+        {
+            "_geo_distance": {
+                "location": [
+                    {
+                        "lat": 23,
+                        "lon": 113.99
+                    }
+                ],
+                "unit": "km",
+                "distance_type": "arc",
+                "order": "asc",
+                "validation_method": "STRICT",
+                "ignore_unmapped": false
+            }
+        },
+        {
+            "create_date": {
+                "order": "desc"
+            }
+        }
+    ]
+}
 ```
 
 #### 7、节点信息查询
-```
+```yml
 # 查询集群设置
 GET http://172.16.1.236:9200/_cluster/settings
 
@@ -338,6 +384,9 @@ POST http://172.16.1.236:9200/_cluster/reroute
 
 # 查询节点 PROCESS
 http://172.16.1.236:9200/_nodes/process
+
+# 查看节点出现unassigned 原因
+http://172.16.1.236:9200/_cluster/allocation/explain
 
 ```
 ### 六、Java API
@@ -356,7 +405,7 @@ Rest高级别客户端，使用的是ES的`http.port`端口进行传输数据。
 **既然TransportClient即将删除，那就用 RestHighLevelClient 了**
 
 #### 1、导入依赖
-```
+```xml
  <dependency>
 	<groupId>org.elasticsearch.client</groupId>
 	<artifactId>elasticsearch-rest-high-level-client</artifactId>
@@ -385,7 +434,7 @@ Rest高级别客户端，使用的是ES的`http.port`端口进行传输数据。
 #### 2、配置RestHighLevelClient
 RestHighLevelClient 就是高级别客户端。
 
-```
+```java
 import com.jfinal.kit.Prop;
 import com.jfinal.kit.PropKit;
 import org.apache.http.HttpHost;
@@ -486,7 +535,7 @@ public class EsClientConfig {
 #### 3、辅助工具类
 贴完整点的代码吧
 ##### EsUtils 工具类
-```
+```java
 public class EsUtils {
 
     private static Pattern humpPattern = Pattern.compile("[A-Z]");
@@ -575,7 +624,7 @@ public class EsUtils {
 ```
 ##### 对象属性名称驼峰与下划线互转序列化类
 fastjson 序列化类
-```
+```java
 /**
  * 驼峰序列化配置
  *  https://github.com/alibaba/fastjson/wiki/PropertyNamingStrategy_cn
@@ -617,7 +666,7 @@ public class FastJsonHumpSerialize {
 
 #### 4、抽象的增删改查类
 主要写了一些平常可能用到的方法，还有很多查询没写，
-```
+```java
 /**
  * 操作ES 基础类
  * @since 2020-08-28
@@ -900,6 +949,12 @@ public abstract class BaseEsService<T> {
         //以某点为中心，搜索指定范围
         searchSourceBuilder.query(QueryBuilders.geoDistanceQuery(field)
                 .point(lat,lon).distance(distance,DistanceUnit.KILOMETERS));//distance km
+//        GeoDistanceSortBuilder geoDistanceSort = SortBuilders.geoDistanceSort("location", new GeoPoint(dto.getLat(), dto.getLon()))
+//                .order(SortOrder.ASC).geoDistance(GeoDistance.ARC).unit(DistanceUnit.KILOMETERS);
+//        if(StrUtil.isNotEmpty(dto.getUnit())){
+//            geoDistanceSort.unit(DistanceUnit.parseUnit(dto.getUnit(),DistanceUnit.KILOMETERS));
+//        }
+//        searchSourceBuilder.sort(geoDistanceSort);
         SearchRequest searchRequest = new SearchRequest(indexName);
         SearchResponse response = excuteSearch(searchRequest, searchSourceBuilder);
         addItem(results, response.getHits().getHits());
@@ -1010,7 +1065,7 @@ public abstract class BaseEsService<T> {
 按需添加！！！
 
 #### 5、测试Demo
-```
+```java
 public class TopicService extends EsBaseService<Topic> {
     public TopicService(String indexName) {
         super(indexName);

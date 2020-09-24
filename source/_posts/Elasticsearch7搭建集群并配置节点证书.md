@@ -80,6 +80,10 @@ transport.tcp.compress: true
 # 集群种子主机地址，如果是7.*版本之前可以用 discovery.zen.ping.unicast.hosts 这个参数，7版本用这个也是兼容的，但后期可能会删掉
 discovery.seed_hosts: ["172.16.1.236:9300","172.16.1.236:9301","172.16.1.236:9302"]
 
+# 防止脑裂，要选举一个Master需要多少个节点(最少候选节点数)，一般设置成 N/2 + 1（N是集群中节点的数量）
+discovery.zen.minimum_master_nodes: 2
+
+
 # 用于获取启动发现过程的种子节点的地址。默认情况下，是基于设置的种子主机提供程序也就是上面的种子地址，
 # 还有一种基于文件的，需要在安装目录下新建unicast_hosts.txt 文件
 discovery.seed_providers: file
@@ -298,14 +302,14 @@ bin/elasticsearch-setup-passwords interactive
 查看文章链接：[ES安装问题集锦](http://rstyro.gitee.io/blog/2017/11/30/Elasticsearch5.0+%20%E5%AE%89%E8%A3%85%E9%97%AE%E9%A2%98%E9%9B%86%E9%94%A6/)
 
 ##### 2、修改运行ES的Java环境
-因为ES7.9.0需要JDK11版本以上，所以分别修改ES启动的JDK 环境。
+在启动`ES7.9.0`的时候，会提示：`future versions of Elasticsearch will require Java 11; your Java version from [/usr/local/jdk1.8.0/jre] does not meet this requirement` 也就是说ES未来版本需要JDK11,我目前的环境是JDK8不符合要求。我这个包是自带JDK的，我干脆只把把自动的JDK指定为ES的JDK运行环境：
 修改3个节点下的 bin/elasticsearch 文件，在最前面添加如下：
-
 ```yml
 # 这个下面的路径改成你es节点下jdk的路径即可
 export JAVA_HOME=/opt/elasticsearch-cluster/elasticsearch-9301/jdk
 export PATH=$JAVA_HOME/bin:$PATH
 ```
+不修改也是可以启动的，但是建议改算了，毕竟官方包都自带了，那肯定是推荐我们使用新版本。
 
 ##### 3、`elastic-certificates.p12`文件位置踩坑
 + 因为我只是一台主机，打算是另外把这个证书凭证放在 `elasticsearch-cluster` 下弄个`config`文件夹保存的，但是呢，不尽人意
