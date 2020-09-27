@@ -296,6 +296,19 @@ bin/elasticsearch-setup-passwords interactive
 我们设置密码之后会有一个名为`.security-7`的索引文档。
 
 
+**之后可以修改密码：**
+```yml
+
+# 随便一个节点地址修改即可，一个集群共用一个账号密码
+# 用Postman 请求时，选择 Authorization -> 选择 Basic Auth -> 右边选择上面设置的账号密码：elastic用户与密码
+POST http://172.16.1.236:9201/_xpack/security/user/elastic/_password
+
+{
+  "password": "yourNewPassword"
+}
+```
+
+
 #### 4、踩坑记录
 
 ##### 1、安装可能报错的问题：
