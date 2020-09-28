@@ -1,6 +1,6 @@
 ---
 title: Elasticsearch7之Rollover使用详解
-date: 2020-09-27 14:32:17
+date: 2020-09-27 18:32:17
 tags: [ElasticSearch]
 categories: 搜索引擎
 ---
@@ -337,7 +337,10 @@ POST http://172.16.1.236:9201/testdate/_rollover
 
 ![](datetest2.png)
 
-**发现日期没有改变，因为日期格式最小时间单位是天，所以至少明天才能是时间部分的索引改变**
+**发现日期没有改变，因为日期格式最小时间单位是天，所以至少明天才能使时间部分的索引改变**
+
+> **特别要注意的: 这个时间是以你rollover成功时开始算的，比如你今天`12:00:00`这个时间点rollover成功，那么`1d（一天）`也就是到明天的`12:00:00` 这个时间或之后rollover才会改变成功。值得注意的是：0点之后是不会改变的**
+
 
 **但是写篇笔记还得等明天这个接受不了，那就改一下日期索引精确到年月日时分秒不就行了吗！详情如下**
 
@@ -400,3 +403,6 @@ POST http://172.16.1.236:9201/testdateymdhms/_rollover?dry_run
 ```
 
 自此，rollover基本讲完了。时分秒的索引只是为了演示使用，实际生产还是不建议使用的，因为没有意义。
+参考链接：
++ [https://www.elastic.co/guide/en/elasticsearch/reference/current/date-math-index-names.html](https://www.elastic.co/guide/en/elasticsearch/reference/current/date-math-index-names.html)
++ [https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-rollover-index.html](https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-rollover-index.html)
