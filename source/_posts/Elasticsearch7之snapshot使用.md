@@ -322,7 +322,7 @@ POST http://172.16.1.236:9201/_snapshot/my_backup/snapshot_1/_restore
   "include_aliases": false
 }
 ```
-
++ `partial:false`可选，默认：false，如果快照包含一个或多个索引没有所有主碎片可用，则整个还原操作将失败。 如果为true，则允许恢复具有不可用碎片的索引的部分快照。将只恢复快照中成功包含的碎片。所有丢失的碎片将重新创建为空 。
 + `include_global_state:false` 将还原快照中的所有数据流和索引，但不还原群集状态 。
 + 如果`ignore_unavailable:false`时，当缺少topic索引时报错
 + `include_aliases` 是否需要别名，true恢复，false不恢复别名
@@ -374,6 +374,12 @@ DELETE http://172.16.1.236:9201/_snapshot/my_backup/snapshot_2,snapshot_3,snapsh
 ```
 DELETE http://172.16.1.236:9201/_snapshot/my_backup/snaps*
 ```
+
+#### 4、过期快照清理
+```
+POST http://172.16.1.236:9201/_snapshot/my_backup/_cleanup
+```
+
 
 本文只是在同一个集群做快照保存与恢复，不同集群的快照恢复，有兴趣的同学可以看[官方文档](https://www.elastic.co/guide/en/elasticsearch/reference/current/snapshots-register-repository.html#snapshots-repository-plugins)和[repository插件](https://www.elastic.co/guide/en/elasticsearch/plugins/7.9/repository.html)。
 
