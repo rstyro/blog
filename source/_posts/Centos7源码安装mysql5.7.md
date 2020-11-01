@@ -173,7 +173,7 @@ service mysql stop11
 CREATE  USER  'username'@'localhost'   IDENTIFIEDBY   'password';
 
 #授权
-GRANT privileges ON databasename.tablename   TO 'username'@'localhost'；
+GRANT All privileges ON databasename.tablename   TO 'username'@'localhost'；
 
 #刷新
 flush privileges;
