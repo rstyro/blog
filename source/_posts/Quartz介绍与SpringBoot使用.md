@@ -248,7 +248,51 @@ spring:
 + 这里有3个值可选：`ALWAYS`（每次都生成）、`EMBEDDED`（仅初始化嵌入式数据源）、`NEVER`（不初始化数据源）。
 + 表生成之后，再改为never即可。
 
-### 3、怎么使用
+### 3、表的说明
+
+会自动生成的表如下：
+```js
+//以Blob 类型存储的触发器。 
+qrtz_blob_triggers
+
+//存放日历信息， quartz可配置一个日历来指定一个时间范围。 
+qrtz_calendars
+
+//存放cron类型的触发器。 
+qrtz_cron_triggers
+//存储已经触发的trigger相关信息，trigger随着时间的推移状态发生变化，直到最后trigger执行完成，从表中被删除。 
+qrtz_fired_triggers	
+
+//存放一个jobDetail信息。 
+qrtz_job_details
+
+//job**监听器**。 
+qrtz_job_listeners
+
+//Quartz提供的锁表，为多个节点调度提供分布式锁，实现分布式调度，默认有2个锁
+qrtz_locks
+
+//存放暂停掉的触发器。
+qrtz_paused_trigger_graps
+
+//存储所有节点的scheduler，会定期检查scheduler是否失效
+qrtz_scheduler_state
+
+//存储SimpleTrigger 
+qrtz_simple_triggers
+
+//触发器监听器。 
+qrtz_trigger_listeners
+
+//触发器的基本信息。
+qrtz_triggers
+
+//存储CalendarIntervalTrigger和DailyTimeIntervalTrigger两种类型的触发器
+qrtz_simprop_triggers		
+```
+
+
+### 4、怎么使用
 + 当我们引入`spring-boot-starter-quartz`的依赖后，springboot在启动的时候会自动加载配置类：`org.springframework.boot.autoconfigure.quartz.QuartzAutoConfiguration`。
 + 会帮我们初始化好调度器,源码：`SchedulerFactoryBean`实现`InitializingBean`，重写`afterPropertiesSet()` 里面就有了。
 + 而且Scheduler,Spring默认是帮我们启动的，不需要手动启动。
@@ -409,7 +453,7 @@ public class JobService {
 + 当部署多个服务时，也不会重复执行。且任务会负载均衡分配。
 
 
-### 4、时间演练
+### 5、时间演练
 Quartz 提供了下一次运行的时间，我们可以通过下一次运行的时间，比对是否符合我们的预期
 ```
 public class Test {

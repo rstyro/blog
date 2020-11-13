@@ -62,8 +62,9 @@ sudo EXTERNAL_URL="http://你的ip地址" yum install -y gitlab-ce
 ```
 ![git2.png](git2.png)
 
-#### 安装成功，访问：http://你的ip地址
-
+#### 安装成功
++ 访问：http://你的ip地址，即可，看到登陆页面
++ 首先会让你输入root用户的密码，也就是管理员的密码
 
 ### 5、GitLab常用命令
 ```
@@ -94,5 +95,100 @@ find / -name *gitlab*|xargs rm -rf    
 # 删除所有包含gitlab的文件及目录
 find / -name gitlab |xargs rm -rf 
 
-
 ```
+
+### 7、取消注册功能
+流程：`Admin Area`(顶部小扳手) -> `Settings`  -> `Sign-up restrictions` -> `去掉 Sign-up enabled 的勾选`-> 保存更改。
+如下图：
+
+![](register-setting.png)
+
+
+![](register-save.png)
+
+重新访问登陆页面，就没有注册的选项了。
+
+### 8、添加组与用户与项目
+这些都有可视化界面了，如下图：
+
+![](add.png)
+
++ 很简单点击 NEW 那个按钮即可添加组或用户或项目
++ 新建用户需要再编辑一次才能设置密码
+
+#### 8.1、给组添加或移除用户
+进入组的详情，然后选择`Members` 进行邀请添加或移除即可。
+如图：
+
+![](group-add-del.png)
+
+#### 8.2、给项目添加或移除用户
+这个和上面一样，先进入项目详情，然后也是选择`Members`，进行邀请添加或移除即可。
+如图：
+
+![](project-add-del.png)
+
+#### 8.3、给项目更新分支保护设置
++ 项目新建，一般`master`分支（以后可能改成`main`分支）会有一个分支保护的功能
++ 防止其他人推送删除合并等操作，所以需要修改一下
++ 可能会使 Developer 没法push代码。
++ 这个和上面一样，先进入项目详情，然后选择`Settings`之后选择`repository`之后`protected branches`。
++ 如下图：推送的地方选择：`Developers + Maintainers`
+
+![](protect.png)
+
+这样之后开发者也就可以有权限了。
+
+### 9、权限浅析
+简单解释下权限
+
+**Gitlab用户在组中的权限**
+
++ Guest：可以创建issue、发表评论，不能读写版本库
++ Reporter：可以克隆代码，不能提交，QA、PM可以赋予这个权限
++ Developer：可以克隆代码、开发、提交、push，RD可以赋予这个权限
++ Maintainer：可以创建项目、添加tag、保护分支、添加项目成员、编辑项目，核心RD负责人可以赋予这个权限
++ Owner：可以设置项目访问权限 - Visibility Level、删除项目、迁移项目、管理组成员，开发组leader可以赋予这个权限
+
+**Gitlab中的组和项目的权限**
+
++ Private：只有组成员才能看到
++ Internal：只要登录的用户就能看到
++ Public：所有人都能看到
+
+### 10、数据迁移
+可能会发生服务器迁移，项目代码也需要迁移
+
+#### 10.1、备份旧数据
+
++ 备份时需要保持gitlab处于正常运行状态，直接执行：
+```
+gitlab-rake gitlab:backup:create
+```
++ 使用以上命令会在`/var/opt/gitlab/backups`目录下创建一个`时间戳_日期.tar`的压缩包.
++ 压缩包完整名称：`1605253846_2020_11_13_13.5.3_gitlab_backup.tar`
+
+![](backup.png)
+
+#### 10.2、恢复数据
+
++ 把这个压缩包放到新服务器的`/var/opt/gitlab/backups`目录下（这个是默认的备份路径）
++ 然后执行
+```yml
+# 停止相关数据传输
+gitlab-ctl stop unicorn
+gitlab-ctl stop sidekiq
+
+# 恢复备份数据，只需要调前面的日期，后面不需要填，之后输入两次 YES 即可
+gitlab-rake gitlab:backup:restore BACKUP=1605253846_2020_11_13_13.5.3
+```
+
+![](restore.png)
+
+#### 10.3、注意点
++ 如果新服务器未恢复前有项目了，记得备份好，因为会覆盖项目的。
++ 还有就是新旧的Gitlab版本要一致，否则恢复可能会失败
++ 恢复时有个警告的大致意思是：敏感性信息（`gitlab.rb,gitlab-secrets.json`）不会包含在备份中
++ 恢复之后，可能需要修改`gitlab.rb`,比如 `external_url`参数
+
+**基本用法到此结束**
