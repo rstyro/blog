@@ -92,6 +92,40 @@ systemctl start/stop/restart jenkins
 + 其他的步骤和在本地节点配置的是一样的，不太明白可以看我-[上一篇文章](https://rstyro.github.io/blog/2019/05/06/Jenkins%E5%AE%89%E8%A3%85%E9%85%8D%E7%BD%AE%E4%BD%BF%E7%94%A8/)
 
 
+## 五、Nginx 代理
++ 一般可能使用nginx作为代理，但是不是使用 `/` 而是用其他的路径代理jenkins,比如：`/jenkins`。
++ 这样代理之后可能会出现静态资源是404，
++ 所以需要修改配置`/etc/sysconfig/jenkins`在最后面修改：`JENKINS_ARGS="--prefix=/jenkins"`
+
+![](nginx-proxy.png)
+
++ 这样之后访问就不知`http://ip:port`的格式，而是：`http://ip:port/jenkins`这样的。
++ nginx代理配置如下：
+```
+location /jenkins {
+	proxy_pass http://localhost:8080/jenkins;
+	proxy_redirect  off;
+	proxy_set_header Host $host;
+	proxy_set_header X-Real-IP $remote_addr;
+	proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+}
+
+```
++ 这样子静态资源的路径就对应上了，如果直接用`/`比较简单
+
+
+## 六、卸载Jenkins
+```js
+// rpm卸载
+rpm -e jenkins
+
+// 检查是否卸载成功
+rpm -ql jenkins 
+
+
+// 彻底删除残留文件：
+find / -iname jenkins | xargs -n 1000 rm -rf
+```
 
 > 参考：
 > + [https://wiki.jenkins.io/display/JENKINS/Installing+Jenkins+on+Red+Hat+distributions](https://wiki.jenkins.io/display/JENKINS/Installing+Jenkins+on+Red+Hat+distributions)    

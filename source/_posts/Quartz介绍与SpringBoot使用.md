@@ -217,10 +217,42 @@ spring官方自己都帮我们搞好了一些配置。
 如下：
 ```
 spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/quartz?serverTimezone=GMT&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&allowMultiQueries=true
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    type: com.alibaba.druid.pool.DruidDataSource
+    druid:
+      initialSize: 5
+      minIdle: 5
+      maxActive: 30
+      max-wait: 6000
+      pool-prepared-statements: true
+      max-pool-prepared-statement-per-connection-size: 20
+      time-between-eviction-runs-millis: 60000
+      min-evictable-idle-time-millis: 300000
+      #validation-query: SELECT 1 FROM DUAL
+      test-while-idle: true
+      test-on-borrow: false
+      test-on-return: false
+      stat-view-servlet:
+        enabled: true
+        url-pattern: /druid/*
+        #login-username: admin
+        #login-password: admin
+      filter:
+        stat:
+          log-slow-sql: true
+          slow-sql-millis: 1000
+          merge-sql: false
+        wall:
+          config:
+            multi-statement-allow: true
   quartz:
     job-store-type: jdbc #数据库方式
     jdbc:
-      initialize-schema: NEVER #不初始化表结构
+      initialize-schema: ALWAYS #不初始化表结构
     properties:
       org:
         quartz:
@@ -244,9 +276,9 @@ spring:
 ```
 + 这里打算搞个集群版的，就算你部署多台服务器，定时任务会自己负载均衡，不会每台服务器都执行。
 + 表的生成，其实可以修改配置，启动的时候自己在数据库生成表。操作方法：
-+ 修改:`spring.quartz.jdbc.initialize-schema: ALWAYS`、说明一下，
++ 修改:`spring.quartz.jdbc.initialize-schema: ALWAYS`、说明一下
 + 这里有3个值可选：`ALWAYS`（每次都生成）、`EMBEDDED`（仅初始化嵌入式数据源）、`NEVER`（不初始化数据源）。
-+ 表生成之后，再改为never即可。
++ 表生成之后，再改为never即可。注意一点就是我测试了下，发现只有使用`druid`数据库连接池才会自动生成表
 
 ### 3、表的说明
 

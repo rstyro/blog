@@ -88,6 +88,8 @@ sudo rpm -e gitlab-ce
 #查看gitlab进程，杀掉进程
 ps -ef|grep gitlab
 
+# 杀掉所有
+ps -ef | grep gitlab | xargs kill -s 9
 
 # 删除gitlab文件
 find / -name *gitlab*|xargs rm -rf     
