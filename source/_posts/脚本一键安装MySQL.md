@@ -78,10 +78,26 @@ echo '==结束安装mysql=='
 赋予脚本执行权限：`chmod +x install-mysql.sh`
 
 #### 3、执行脚本
-+ 账号密码是：root@rstyro123456
++ 上面配置的账号密码是：root@rstyro123456
 + 执行脚本即可
 ```
 ./install-mysql.sh
 ```
+### 三、不进入 MySQL 控制台，执行 MySQL 命令
+如下例子：
+```
+# 直接使用-e命令，显示数据库列表
+mysql -uroot -prstyro123456 -e "show databases;"
+
+
+# 直接使用-e命令
+mysql -uroot -prstyro123456 -e "source /data/init.sql;"
+
+# 新建用户并授权
+mysql -uroot -prstyro123456 -e "grant all on *.* to rstyro@'%' identified by 'rstyro';"
+mysql -uroot -prstyro123456 -e "flush privileges;"
+```
+
+![](mysql.png)
 
 **结束！！！**
