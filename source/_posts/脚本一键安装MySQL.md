@@ -21,15 +21,17 @@ categories: 网络运维
 
 #### 2、创建脚本
 + 在创建脚本之前把上面加载好的压缩包（`mysql-5.7.30-linux-glibc2.12-x86_64.tar.gz`）放在`/opt`路径下.
-+ 创建脚本`install-mysql.sh`
++ 创建脚本`install-mysql.sh` 放在和压缩包同目录
 + 编辑如下内容：
 
 ```bash
 #!/bin/bash
 echo '==开始安装mysql=='
+# 得到当前脚本所在绝对路径
+DIR=$( cd ${0%/*} && pwd )
 useradd mysql -s /sbin/nologin -M
-tar -zxvf /opt/mysql-5.7.30-linux-glibc2.12-x86_64.tar.gz -C /opt/
-mv /opt/mysql-5.7.30-linux-glibc2.12-x86_64 /usr/local/mysql-5.7.30
+tar -zxvf $DIR/mysql-5.7.30-linux-glibc2.12-x86_64.tar.gz -C $DIR/
+mv $DIR/mysql-5.7.30-linux-glibc2.12-x86_64 /usr/local/mysql-5.7.30
 ln -s /usr/local/mysql-5.7.30  /usr/local/mysql
 rpm -e --nodeps mariadb-libs
 cat >/etc/my.cnf<<EOF
