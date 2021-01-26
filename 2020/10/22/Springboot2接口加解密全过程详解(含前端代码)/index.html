@@ -1,0 +1,1658 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/blog/css/main.css?v=6.7.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon.jpg?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon.jpg?v=6.7.0">
+
+
+  <link rel="mask-icon" href="/blog/images/logo.svg?v=6.7.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/blog/',
+    scheme: 'Mist',
+    version: '6.7.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":true},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+<script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+<link href="//cdn.bootcss.com/pace/1.0.2/themes/pink/pace-theme-flash.css" rel="stylesheet">
+  <style>
+      .pace .pace-progress {
+          background: #1E92FB; /*进度条颜色*/
+          height: 3px;
+      }
+      .pace .pace-progress-inner {
+           box-shadow: 0 0 10px #1E92FB, 0 0 5px     #1E92FB; /*阴影颜色*/
+      }
+      .pace .pace-activity {
+          border-top-color: #1E92FB;    /*上边框颜色*/
+          border-left-color: #1E92FB;    /*左边框颜色*/
+      }
+  </style>
+
+  <meta name="description" content="一、接口为什么要加密接口加密传输，主要作用：  敏感数据防止泄漏、 保护隐私、 防伪装攻击、 防篡改攻击、 防重放攻击  等等… 4个字概括：保护数据！  当然不是说接口加密后，就能完完全全的保护我们的数据，但至少能防一部分人拿到我们的数据。而且接口加密感觉逼格是不是高过一点！！！ 二、加密思路1、加密简介加密算法有很多，在能加密又能解密的算法可分为：  非对称加密算法，常见：RSA、DSA、EC">
+<meta name="keywords" content="Spring Boot">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Springboot2接口加解密全过程详解(含前端代码)">
+<meta property="og:url" content="https://rstyro.github.io/blog/2020/10/22/Springboot2接口加解密全过程详解(含前端代码)/index.html">
+<meta property="og:site_name" content="帅大叔的博客">
+<meta property="og:description" content="一、接口为什么要加密接口加密传输，主要作用：  敏感数据防止泄漏、 保护隐私、 防伪装攻击、 防篡改攻击、 防重放攻击  等等… 4个字概括：保护数据！  当然不是说接口加密后，就能完完全全的保护我们的数据，但至少能防一部分人拿到我们的数据。而且接口加密感觉逼格是不是高过一点！！！ 二、加密思路1、加密简介加密算法有很多，在能加密又能解密的算法可分为：  非对称加密算法，常见：RSA、DSA、EC">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://rstyro.github.io/blog/2020/10/22/Springboot2接口加解密全过程详解(含前端代码)/test.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2020/10/22/Springboot2接口加解密全过程详解(含前端代码)/postman.png">
+<meta property="og:updated_time" content="2021-01-22T01:37:01.591Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Springboot2接口加解密全过程详解(含前端代码)">
+<meta name="twitter:description" content="一、接口为什么要加密接口加密传输，主要作用：  敏感数据防止泄漏、 保护隐私、 防伪装攻击、 防篡改攻击、 防重放攻击  等等… 4个字概括：保护数据！  当然不是说接口加密后，就能完完全全的保护我们的数据，但至少能防一部分人拿到我们的数据。而且接口加密感觉逼格是不是高过一点！！！ 二、加密思路1、加密简介加密算法有很多，在能加密又能解密的算法可分为：  非对称加密算法，常见：RSA、DSA、EC">
+<meta name="twitter:image" content="https://rstyro.github.io/blog/2020/10/22/Springboot2接口加解密全过程详解(含前端代码)/test.png">
+
+
+
+  <link rel="alternate" href="/blog/atom.xml" title="帅大叔的博客" type="application/atom+xml">
+
+
+
+
+  <link rel="canonical" href="https://rstyro.github.io/blog/2020/10/22/Springboot2接口加解密全过程详解(含前端代码)/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>Springboot2接口加解密全过程详解(含前端代码) | 帅大叔的博客</title>
+  
+
+
+
+
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?cd2197f8af1d69b326360027b8f93d92";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+	<a href="https://github.com/rstyro" class="github-corner" aria-label="View source on GitHub"><svg width="80" height="80" viewbox="0 0 250 250" style="fill:#151513; color:#fff; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"/><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"/><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"/></svg></a><style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/blog/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">帅大叔的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">信你所信，为你所见</p>
+      
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/" rel="section">首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/about/" rel="section">关于</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/tags/" rel="section">标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/categories/" rel="section">分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/archives/" rel="section">归档</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-guestbook">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/guestbook/" rel="section">留言</a>
+
+  </li>
+
+      
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            搜索</a>
+        </li>
+      
+    </ul>
+  
+
+  
+    
+
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://rstyro.github.io/blog/blog/2020/10/22/Springboot2接口加解密全过程详解(含前端代码)/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="rstyro">
+      <meta itemprop="description" content="帅大叔个人站点，记录学习到的一些技术笔记等。">
+      <meta itemprop="image" content="/blog/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="帅大叔的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Springboot2接口加解密全过程详解(含前端代码)
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2020-10-22 14:25:11" itemprop="dateCreated datePublished" datetime="2020-10-22T14:25:11+08:00">2020-10-22</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2021-01-22 09:37:01" itemprop="dateModified" datetime="2021-01-22T09:37:01+08:00">2021-01-22</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/blog/categories/Java/" itemprop="url" rel="index"><span itemprop="name">Java</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/blog/2020/10/22/Springboot2接口加解密全过程详解(含前端代码)/#comments" itemprop="discussionUrl">
+                  <span class="post-meta-item-text">评论数：</span> <span class="post-comments-count valine-comment-count" data-xid="/blog/2020/10/22/Springboot2接口加解密全过程详解(含前端代码)/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="post-meta-item-icon">
+            <i class="fa fa-eye"></i>
+             阅读次数： 
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h3 id="一、接口为什么要加密"><a href="#一、接口为什么要加密" class="headerlink" title="一、接口为什么要加密"></a>一、接口为什么要加密</h3><p>接口加密传输，主要作用：</p>
+<ul>
+<li>敏感数据防止泄漏、</li>
+<li>保护隐私、</li>
+<li>防伪装攻击、</li>
+<li>防篡改攻击、</li>
+<li>防重放攻击 </li>
+<li>等等…</li>
+<li>4个字概括：<strong>保护数据！</strong></li>
+</ul>
+<p>当然不是说接口加密后，就能完完全全的保护我们的数据，但至少能防一部分人拿到我们的数据。<br>而且接口加密感觉逼格是不是高过一点！！！</p>
+<h3 id="二、加密思路"><a href="#二、加密思路" class="headerlink" title="二、加密思路"></a>二、加密思路</h3><h4 id="1、加密简介"><a href="#1、加密简介" class="headerlink" title="1、加密简介"></a>1、加密简介</h4><p>加密算法有很多，在能加密又能解密的算法可分为：</p>
+<ul>
+<li>非对称加密算法，常见：<code>RSA</code>、<code>DSA</code>、<code>ECC</code><br>特点：算法复杂，加解密速度慢，但安全性高，一般与对称加密结合使用(对称加密对内容加密，非对称对对称所使用的密钥加密)</li>
+<li>对称加密算法，常见：<code>DES</code>、<code>3DES</code>、<code>AES</code>、<code>Blowfish</code>、<code>IDEA</code>、<code>RC5</code>、<code>RC6</code><br>特点：加密解密效率高，速度快，适合进行大数据量的加解密</li>
+</ul>
+<h4 id="2、加密流程"><a href="#2、加密流程" class="headerlink" title="2、加密流程"></a>2、加密流程</h4><p><strong>思路：</strong><br>假设现在客户端是A，服务端是B，现在A要去B请求接口</p>
+<ul>
+<li>1、A要向B发送信息，A和B都要产生一对用于加密的非对称加密公私钥（AB各自生成自己的公私钥）</li>
+<li>2、A的私钥保密，A的公钥告诉B；B的私钥保密，B的公钥告诉A。(AB互换公钥)</li>
+<li>3、A要给B发送信息时，A用B的公钥加密信息，因为A知道B的公钥。(公钥加密只有私钥能解)</li>
+<li>4、A将这个消息发给B（已经用B的公钥加密消息）。</li>
+<li>5、B收到这个消息后，B用自己的私钥解密A的消息。其他人收到这个报文都无法解密，因为只有B才有B的私钥。</li>
+</ul>
+<p>虽然这样就实现了接口的加密方式，但是呢，非对称加密的加解密速度相比对称加密速度很慢，当传输的数据很大时就更加明显了。<br>所以我们对称与非对称一起用，理解上面的流程之后，我们在其基础稍微改下：</p>
+<ul>
+<li>在A给B发信息的时候，随机生成一个对称加密的密钥，然后用刚生成的密钥加密信息，然后用B的公钥加密刚生成的对称密钥。</li>
+<li>A把加密的两个信息发送给B。B收到数据之后，先用自己的私钥解开得到对称密钥，然后再用解开的对称密钥解开对称加密的信息，最终得到A传来的信息。</li>
+</ul>
+<h3 id="三、代码实现"><a href="#三、代码实现" class="headerlink" title="三、代码实现"></a>三、代码实现</h3><ul>
+<li>在当下Java还是SpringBoot为主流框架工作面试必备，今天还是以它来举例。</li>
+<li>加解密代码怎么写，这个时候网上已经有很多现成的库了，不用我们操心，我们想的是如何在接口加解密的时候不影响我们自己的业务，也就是不用更改我们已经写好的代码。</li>
+<li>很多人的第一反应应该就是AOP吧，对的没错可以使用AOP进行环绕增强。也可以使用<code>@ControllerAdvice</code> 对Controller进行增强（本文以它来做为例子）。</li>
+<li>Spring 提供两个接口<code>RequestBodyAdvice</code>、<code>ResponseBodyAdvice</code>。实现它们，即可对<code>Controller</code>进行增强，第一个是在controller之前增强，第二个就是对controller 的返回值进行增强。</li>
+<li>在spring启动的时候会对<code>RequestMappingHandlerAdapter</code>的<code>initControllerAdviceCache()</code>方法进行初始化。会去把有<code>@ControllerAdvice</code>的类进行注入。</li>
+</ul>
+<h4 id="1、自定义类"><a href="#1、自定义类" class="headerlink" title="1、自定义类"></a>1、自定义类</h4><p>下面就来实现上面的两个接口实现类代码</p>
+<h5 id="EncryptRequestAdvice-java"><a href="#EncryptRequestAdvice-java" class="headerlink" title="EncryptRequestAdvice.java"></a>EncryptRequestAdvice.java</h5><ul>
+<li>这个类的功能就是在请求到controller之前就把前端传上来的数据解密好</li>
+<li>我们还要校验是否有必要解密</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@ControllerAdvice</span>(basePackages = &#123;<span class="string">"top.lrshuai.encrypt.controller"</span>&#125;)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">EncryptRequestAdvice</span> <span class="keyword">implements</span> <span class="title">RequestBodyAdvice</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> KeyConfig keyConfig;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 是否需要解码</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">boolean</span> isDecode;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">supports</span><span class="params">(MethodParameter methodParameter, Type type, Class&lt;? extends HttpMessageConverter&lt;?&gt;&gt; aClass)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 方法或类上有注解</span></span><br><span class="line">        <span class="keyword">if</span> (Utils.hasMethodAnnotation(methodParameter,<span class="keyword">new</span> Class[]&#123;Encrypt<span class="class">.<span class="keyword">class</span>,<span class="title">Decode</span>.<span class="title">class</span>&#125;)) </span>&#123;</span><br><span class="line">            isDecode=<span class="keyword">true</span>;</span><br><span class="line">            <span class="comment">// 这里返回true 才支持</span></span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> HttpInputMessage <span class="title">beforeBodyRead</span><span class="params">(HttpInputMessage httpInputMessage, MethodParameter methodParameter, Type type, Class&lt;? extends HttpMessageConverter&lt;?&gt;&gt; aClass)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(isDecode)&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">new</span> DecodeInputMessage(httpInputMessage, keyConfig);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> httpInputMessage;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Object <span class="title">afterBodyRead</span><span class="params">(Object obj, HttpInputMessage httpInputMessage, MethodParameter methodParameter, Type type, Class&lt;? extends HttpMessageConverter&lt;?&gt;&gt; aClass)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 这里就是已经读取到body了，obj就是</span></span><br><span class="line">        <span class="keyword">return</span> obj;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Object <span class="title">handleEmptyBody</span><span class="params">(Object obj, HttpInputMessage httpInputMessage, MethodParameter methodParameter, Type type, Class&lt;? extends HttpMessageConverter&lt;?&gt;&gt; aClass)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// body 为空的时候调用</span></span><br><span class="line">        <span class="keyword">return</span> obj;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>在上面实现类中需要重写：<code>supports()</code>、<code>beforeBodyRead()</code>、<code>afterBodyRead()</code>、<code>handleEmptyBody()</code> 方法</li>
+<li>只有在<code>supports()</code> 返回<code>true</code> 后面的方法才会支持执行。在<code>RequestResponseBodyAdviceChain</code>有判断</li>
+<li>我们可以在<code>beforeBodyRead()</code>这个方法进行解密处理。</li>
+<li>在上面的代码中，我加了自定义注解，因为可能需求是这样的，有些接口加密有些接口不加密，用自定义注解比较方便。</li>
+<li>然后<code>DecodeInputMessage</code> 这个类是自定义实现了<code>HttpInputMessage</code>接口，解码逻辑都在里面。如下：</li>
+</ul>
+<h5 id="DecodeInputMessage-java"><a href="#DecodeInputMessage-java" class="headerlink" title="DecodeInputMessage.java"></a>DecodeInputMessage.java</h5><p>这个类就是具体的解码逻辑了</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DecodeInputMessage</span> <span class="keyword">implements</span> <span class="title">HttpInputMessage</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> HttpHeaders headers;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> InputStream body;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">DecodeInputMessage</span><span class="params">(HttpInputMessage httpInputMessage, KeyConfig keyConfig)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 这里是body 读取之前的处理</span></span><br><span class="line">        <span class="keyword">this</span>.headers = httpInputMessage.getHeaders();</span><br><span class="line">        String encodeAesKey = <span class="string">""</span>;</span><br><span class="line">        List&lt;String&gt; keys = <span class="keyword">this</span>.headers.get(Result.KEY);</span><br><span class="line">        <span class="keyword">if</span> (keys != <span class="keyword">null</span> &amp;&amp; keys.size() &gt; <span class="number">0</span>) &#123;</span><br><span class="line">            encodeAesKey = keys.get(<span class="number">0</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="comment">// 1、解码得到aes 密钥</span></span><br><span class="line">            String decodeAesKey = RsaUtils.decodeBase64ByPrivate(keyConfig.getRsaPrivateKey(), encodeAesKey);</span><br><span class="line">            <span class="comment">// 2、从inputStreamReader 得到aes 加密的内容</span></span><br><span class="line">            String encodeAesContent = <span class="keyword">new</span> BufferedReader(<span class="keyword">new</span> InputStreamReader(httpInputMessage.getBody())).lines().collect(Collectors.joining(System.lineSeparator()));</span><br><span class="line">            <span class="comment">// 3、AES通过密钥CBC解码</span></span><br><span class="line">            String aesDecode = AesUtils.decodeBase64(encodeAesContent, decodeAesKey, keyConfig.getAesIv().getBytes(), AesUtils.CIPHER_MODE_CBC_PKCS5PADDING);</span><br><span class="line">            <span class="keyword">if</span> (!StringUtils.isEmpty(aesDecode)) &#123;</span><br><span class="line">                <span class="comment">// 4、重新写入到controller</span></span><br><span class="line">                <span class="keyword">this</span>.body = <span class="keyword">new</span> ByteArrayInputStream(aesDecode.getBytes());</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> InputStream <span class="title">getBody</span><span class="params">()</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> body;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> HttpHeaders <span class="title">getHeaders</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> headers;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>上面的代码注释我觉得都写的清楚了，不多介绍。</li>
+</ul>
+<h5 id="EncryptResponseAdvice-java"><a href="#EncryptResponseAdvice-java" class="headerlink" title="EncryptResponseAdvice.java"></a>EncryptResponseAdvice.java</h5><ul>
+<li>这个类的主要功能就是对返回值进行加密操作</li>
+<li>直接在<code>beforeBodyWrite()</code>里面执行具体的加密操作即可</li>
+<li><code>supports()</code>方法也是需要返回<code>true</code>,在<code>RequestResponseBodyAdviceChain.processBody()</code>中有个判断只有<code>supports()</code>返回<code>true</code>才会执行<code>beforeBodyWrite()</code></li>
+</ul>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Slf</span>4j</span><br><span class="line"><span class="meta">@ControllerAdvice</span>(basePackages = &#123;<span class="string">"top.lrshuai.encrypt.controller"</span>&#125;)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">EncryptResponseAdvice</span> <span class="keyword">implements</span> <span class="title">ResponseBodyAdvice</span>&lt;<span class="title">Object</span>&gt; </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> KeyConfig keyConfig;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">supports</span><span class="params">(MethodParameter methodParameter, Class&lt;? extends HttpMessageConverter&lt;?&gt;&gt; aClass)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// return true 有效</span></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 返回结果加密</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> obj 接口返回的对象</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> methodParameter method</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> mediaType  mediaType</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> aClass HttpMessageConverter class</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> serverHttpRequest request</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> serverHttpResponse response</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> obj</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Object <span class="title">beforeBodyWrite</span><span class="params">(Object obj, MethodParameter methodParameter, MediaType mediaType, Class&lt;? extends HttpMessageConverter&lt;?&gt;&gt; aClass, ServerHttpRequest serverHttpRequest, ServerHttpResponse serverHttpResponse)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 方法或类上有注解</span></span><br><span class="line">        <span class="keyword">if</span> (Utils.hasMethodAnnotation(methodParameter,<span class="keyword">new</span> Class[]&#123;Encrypt<span class="class">.<span class="keyword">class</span>, <span class="title">Encode</span>.<span class="title">class</span>&#125;)) </span>&#123;</span><br><span class="line">            <span class="comment">// 这里假设已经定义好返回的model就是Result</span></span><br><span class="line">            <span class="keyword">if</span> (obj <span class="keyword">instanceof</span> Result) &#123;</span><br><span class="line">                <span class="keyword">try</span> &#123;</span><br><span class="line">                    <span class="comment">// 1、随机aes密钥</span></span><br><span class="line">                    String randomAesKey = AesUtils.generateSecret(<span class="number">256</span>);</span><br><span class="line">                    <span class="comment">// 2、数据体</span></span><br><span class="line">                    Object data = ((Result) obj).getData();</span><br><span class="line">                    <span class="comment">// 3、转json字符串</span></span><br><span class="line">                    String jsonString = JSON.toJSONString(data);</span><br><span class="line">                    <span class="comment">// 4、aes加密数据体</span></span><br><span class="line">                    String aesEncode = AesUtils.encodeBase64(jsonString, randomAesKey,keyConfig.getAesIv().getBytes(),AesUtils.CIPHER_MODE_CBC_PKCS5PADDING);</span><br><span class="line">                    <span class="comment">// 5、重新设置数据体</span></span><br><span class="line">                    ((Result) obj).put(Result.DATA,aesEncode);</span><br><span class="line">                    <span class="comment">// 6、使用前端的rsa公钥加密 aes密钥 返回给前端</span></span><br><span class="line">                    ((Result) obj).put(Result.KEY,RsaUtils.encodeBase64PublicKey(keyConfig.getFrontRsaPublicKey(),randomAesKey));</span><br><span class="line">                    <span class="comment">// 7、返回</span></span><br><span class="line">                    <span class="keyword">return</span> obj;</span><br><span class="line">                &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">                   log.error(<span class="string">"加密失败："</span>,e);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> obj;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>看代码注释，不说了。</p>
+<h4 id="2、加密工具类"><a href="#2、加密工具类" class="headerlink" title="2、加密工具类"></a>2、加密工具类</h4><p>加密工具类，我在网上收集整理了一下，搞了个jar。直接在pom.xml 引入即可。如下：</p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>top.lrshuai.encryption<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>encryption-tools<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">version</span>&gt;</span>1.0.3<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>自此核心代码都讲完了，这里只是给出了个demo，可以参考一下（代码写的也不是很好，很多地方也没有封装），加密方式多种多样，都是可以自由更改，这种加密方式不喜欢就改。<br>差点忘记了，前端代码呢。</p>
+<h4 id="3、前端代码"><a href="#3、前端代码" class="headerlink" title="3、前端代码"></a>3、前端代码</h4><p>前端也是在Github分别找了两个库：</p>
+<ul>
+<li><a href="https://github.com/lsxlsxxslxsl/encryptlong" target="_blank" rel="noopener">jsencrypt</a><br>这个是RSA加密库，这个是在原版的<code>jsencrypt</code>进行增强修改，原版的我用过太长数据加密失败，多此加密解密失败，所以就用了这个库。</li>
+<li><a href="https://github.com/sytelus/CryptoJS" target="_blank" rel="noopener">CryptoJS</a><br>AES加密库，这个库是Google开源的，有AES、MD5、SHA 等加密方法</li>
+</ul>
+<p>然后我使用的是Vue写的简单页面（业余前端）</p>
+<h5 id="html"><a href="#html" class="headerlink" title="html"></a>html</h5><figure class="highlight html"><table><tr><td class="code"><pre><span class="line"><span class="meta">&lt;!DOCTYPE <span class="meta-keyword">html</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">html</span> <span class="attr">lang</span>=<span class="string">"en"</span> <span class="attr">xmlns:th</span>=<span class="string">"http://www.thymeleaf.org"</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">head</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">meta</span> <span class="attr">charset</span>=<span class="string">"UTF-8"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">title</span>&gt;</span>请求<span class="tag">&lt;/<span class="name">title</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">style</span>&gt;</span></span><br><span class="line"><span class="css">        <span class="selector-id">#app</span> &#123;</span></span><br><span class="line">            width: 500px;</span><br><span class="line">            height: 500px;</span><br><span class="line">            margin: 100px auto;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line"><span class="css">        <span class="selector-class">.mytable</span> &#123;</span></span><br><span class="line"><span class="css">            <span class="selector-tag">border</span>: 1<span class="selector-tag">px</span> <span class="selector-tag">solid</span> <span class="selector-id">#A6C1E4</span>;</span></span><br><span class="line">            font-family: Arial;</span><br><span class="line">            border-collapse: collapse;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        table th &#123;</span><br><span class="line">            border: 1px solid black;</span><br><span class="line"><span class="css">            <span class="selector-tag">background-color</span>: <span class="selector-id">#71c1fb</span>;</span></span><br><span class="line">            width: 100px;</span><br><span class="line">            height: 20px;</span><br><span class="line">            font-size: 15px;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        table td &#123;</span><br><span class="line"><span class="css">            <span class="selector-tag">border</span>: 1<span class="selector-tag">px</span> <span class="selector-tag">solid</span> <span class="selector-id">#A6C1E4</span>;</span></span><br><span class="line">            text-align: center;</span><br><span class="line">            height: 15px;</span><br><span class="line">            padding-top: 5px;</span><br><span class="line">            font-size: 12px;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line"><span class="css">        <span class="selector-class">.double</span> &#123;</span></span><br><span class="line"><span class="css">            <span class="selector-tag">background-color</span>: <span class="selector-id">#c7dff6</span>;</span></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        input &#123;</span><br><span class="line">            width: 95%;</span><br><span class="line">            padding-left: 10px;</span><br><span class="line">        &#125;</span><br><span class="line">    <span class="tag">&lt;/<span class="name">style</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">"app"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">table</span> <span class="attr">class</span>=<span class="string">"mytable"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">tr</span> <span class="attr">class</span>=<span class="string">"double"</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">th</span>&gt;</span>字段:<span class="tag">&lt;/<span class="name">th</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">th</span>&gt;</span>Value:<span class="tag">&lt;/<span class="name">th</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">tr</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">tr</span> <span class="attr">class</span>=<span class="string">"double"</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">td</span>&gt;</span>userId:<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">td</span>&gt;</span><span class="tag">&lt;<span class="name">input</span> <span class="attr">v-model</span>=<span class="string">"userInfo.userId"</span>&gt;</span><span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">tr</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">tr</span> <span class="attr">class</span>=<span class="string">"double"</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">td</span>&gt;</span>userName:<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">td</span>&gt;</span><span class="tag">&lt;<span class="name">input</span> <span class="attr">v-model</span>=<span class="string">"userInfo.userName"</span>&gt;</span><span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">tr</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">tr</span> <span class="attr">class</span>=<span class="string">"double"</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">td</span>&gt;</span>age:<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">td</span>&gt;</span><span class="tag">&lt;<span class="name">input</span> <span class="attr">v-model</span>=<span class="string">"userInfo.age"</span>&gt;</span><span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">tr</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">tr</span> <span class="attr">class</span>=<span class="string">"double"</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">td</span>&gt;</span>info:<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">td</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">textarea</span> <span class="attr">v-model</span>=<span class="string">"userInfo.info"</span> <span class="attr">cols</span>=<span class="string">"50"</span> <span class="attr">rows</span>=<span class="string">"5"</span> <span class="attr">placeholder</span>=<span class="string">"随便输一点"</span>&gt;</span><span class="tag">&lt;/<span class="name">textarea</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">tr</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">tr</span> <span class="attr">class</span>=<span class="string">"double"</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">td</span>&gt;</span>AES密钥:<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">td</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">textarea</span> <span class="attr">v-model</span>=<span class="string">"aes.key"</span> <span class="attr">cols</span>=<span class="string">"50"</span> <span class="attr">rows</span>=<span class="string">"2"</span> <span class="attr">placeholder</span>=<span class="string">"AES密钥"</span>&gt;</span><span class="tag">&lt;/<span class="name">textarea</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">tr</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">tr</span> <span class="attr">class</span>=<span class="string">"double"</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">td</span>&gt;</span>AES向量:<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">td</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">textarea</span> <span class="attr">v-model</span>=<span class="string">"aes.iv"</span> <span class="attr">cols</span>=<span class="string">"50"</span> <span class="attr">rows</span>=<span class="string">"1"</span> <span class="attr">placeholder</span>=<span class="string">"向量的长度为16位"</span>&gt;</span><span class="tag">&lt;/<span class="name">textarea</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">tr</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">table</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">button</span> @<span class="attr">click</span>=<span class="string">"testRequest"</span>&gt;</span>发送测试请求<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">br</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">p</span>&gt;</span>要发送的数据：<span class="tag">&lt;<span class="name">span</span>&gt;</span>&#123;&#123;parameter&#125;&#125;<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">p</span>&gt;</span>加密后的数据：&#123;&#123;encodeContent&#125;&#125;<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">br</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">p</span>&gt;</span>收到服务端的内容：&#123;&#123;result&#125;&#125;<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">p</span>&gt;</span>解密服务端AES密钥内容：&#123;&#123;decodeAes&#125;&#125;<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">p</span>&gt;</span>最终拿到服务端的内容：&#123;&#123;decodeContent&#125;&#125;<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">"../static/js/vue.min.js"</span> <span class="attr">th:src</span>=<span class="string">"@&#123;js/vue.min.js&#125;"</span>&gt;</span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">"../static/js/rsa/jsencrypt.min.js"</span> <span class="attr">th:src</span>=<span class="string">"@&#123;js/rsa/jsencrypt.min.js&#125;"</span>&gt;</span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">"../static/js/aes/aes.js"</span> <span class="attr">th:src</span>=<span class="string">"@&#123;js/aes/aes.js&#125;"</span>&gt;</span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span> =<span class="string">"https://unpkg.com/axios/dist/axios.min.js"</span>&gt;</span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="javascript">    <span class="built_in">window</span>.onload = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span></span><br><span class="line"><span class="actionscript">        <span class="keyword">var</span> vm = <span class="keyword">new</span> Vue(&#123;</span></span><br><span class="line"><span class="actionscript">            el: <span class="string">'#app'</span>,</span></span><br><span class="line">            data: &#123;</span><br><span class="line">                rsa: &#123;</span><br><span class="line"><span class="actionscript">                    <span class="comment">// 自己的rsa公私钥</span></span></span><br><span class="line"><span class="actionscript">                    mePublicKey: <span class="string">"MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCf0B4Al2wIuGK9Bj9Ao23siR2mMfkvdrxEGu2j0tNeA1LSyKOuw7FLmreRMYLCQMI4BTJNYsxUqvdS8IxFpD5hOx9mx6OqY2GQSIZq5a1lt3Rx4SpDiuuVGm7h5uuLN7bvMfaLBW3g4E5DAKapuZ/u5ULO+y2jczVXkaSb1IjNnwIDAQAB"</span>,</span></span><br><span class="line"><span class="actionscript">                    mePrivateKey:<span class="string">"MIICdQIBADANBgkqhkiG9w0BAQEFAASCAl8wggJbAgEAAoGBAJ/QHgCXbAi4Yr0GP0CjbeyJHaYx+S92vEQa7aPS014DUtLIo67DsUuat5ExgsJAwjgFMk1izFSq91LwjEWkPmE7H2bHo6pjYZBIhmrlrWW3dHHhKkOK65UabuHm64s3tu8x9osFbeDgTkMApqm5n+7lQs77LaNzNVeRpJvUiM2fAgMBAAECgYAq4FxcTkPm5wleq4Fm5zIDxxnUUA4J5PJH122wiUy6KWwcL0ZzCf/UR/M+Gil50oQJIaPITVyCzsfCUdVgjdtKL7x8e1dQwlI3/DLEat02Njj4fl6KsMq9EqLyleq0UdgYtevZOOoi+ZKXlqZjkM3yOsbwyu9u0D+s77KfHihwuQJBAODhWKTLywJwSXPC6CvlSoyCjscWgUadk8IN+ELyLq591DYFCQllYQPyMj8Cy0dY5OC9GvwRLZurs9LGi6C9d0UCQQC17a76RNHqmmGKsEEGIx3XIzvDrjSRmE3v+NLMcf+JUaUJiKmedDZeWnJuxIXVmFbHi2bzCb2NXUYqhuXsuJ2TAkBHxSO5VKEx4gxPOcFHYSJtva07tN8FXn0tza+SDiD/54C2zNyZdxWDYOTQX1/pIWHKqA/YqtLXf/EgL+WYI1/RAkAk+RwRgsECo8NlEzLz01kyKtfvicznNgPI3FHC+PwM5UncKSkHqeiOvmT5O/lTEnW4cg1HIVijjSxAYlACDvb/AkBmwlv6+gLoKpCU6h7+J6OxB9GKM2Hjs3Mh5tgXgveCwMg2Knz+RPIj92jq7CLm20xs2654yYnyHc4V+kzr3Zu1"</span>,</span></span><br><span class="line"><span class="actionscript">                    <span class="comment">// 后端的rsa公钥</span></span></span><br><span class="line"><span class="actionscript">                    backPublicKey: <span class="string">"MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCJvCDW9GIBsiv9ma9r2btffIxQQHB98Pl1S2RV2PrQsK1O2yFSUf8P43l5EfAh+jiEn/k5egKEoeMRLdDZkt5afNgPYbNjiRFJP8NZTw4f3Yxp91+d04GGkeFcj59QIn/rqqHo2JLOESNae8IC1tKKQTqkwVIjLRwTIDcVmsq9NwIDAQAB"</span></span></span><br><span class="line">                &#125;,</span><br><span class="line">                aes: &#123;</span><br><span class="line"><span class="actionscript">                    iv: <span class="string">"123456789abcdefh"</span>,</span></span><br><span class="line"><span class="actionscript">                    key:<span class="string">""</span>,</span></span><br><span class="line"><span class="actionscript">                    encodeKey:<span class="string">""</span></span></span><br><span class="line">                &#125;,</span><br><span class="line">                userInfo: &#123;</span><br><span class="line"><span class="actionscript">                    userId: <span class="string">"1"</span>,</span></span><br><span class="line"><span class="actionscript">                    userName: <span class="string">"rstyro"</span>,</span></span><br><span class="line">                    age: 20,</span><br><span class="line"><span class="actionscript">                    info: <span class="string">"信息内容......"</span>,</span></span><br><span class="line">                &#125;,</span><br><span class="line"><span class="actionscript">                parameter: <span class="string">""</span>,</span></span><br><span class="line"><span class="actionscript">                encodeContent: <span class="string">""</span>,</span></span><br><span class="line"><span class="actionscript">                decodeContent: <span class="string">""</span>,</span></span><br><span class="line"><span class="actionscript">                decodeAes: <span class="string">""</span>,</span></span><br><span class="line"><span class="actionscript">                result: <span class="string">""</span></span></span><br><span class="line">            &#125;,</span><br><span class="line">            http: &#123;</span><br><span class="line"><span class="actionscript">                root: <span class="string">'/'</span>,</span></span><br><span class="line">                headers: &#123;</span><br><span class="line"><span class="actionscript">                    loginToken: <span class="string">"asdb"</span>,</span></span><br><span class="line">                &#125;</span><br><span class="line">            &#125;,</span><br><span class="line">            methods: &#123;</span><br><span class="line"><span class="actionscript">                testRequest: <span class="function"><span class="keyword">function</span> <span class="params">()</span> </span>&#123;</span></span><br><span class="line"><span class="actionscript">                    <span class="comment">// 随机生成32位  aes 密钥</span></span></span><br><span class="line"><span class="actionscript">                    <span class="keyword">this</span>.aes.key=generateKey();</span></span><br><span class="line"><span class="actionscript">                    <span class="comment">// 参数转json 字符串</span></span></span><br><span class="line"><span class="javascript">                    <span class="keyword">this</span>.parameter = <span class="built_in">JSON</span>.stringify(<span class="keyword">this</span>.userInfo);</span></span><br><span class="line"><span class="actionscript">                    <span class="comment">// aes 加密</span></span></span><br><span class="line"><span class="actionscript">                    <span class="keyword">this</span>.encodeContent = aesEncode(<span class="keyword">this</span>.parameter,<span class="keyword">this</span>.aes.iv,<span class="keyword">this</span>.aes.key);</span></span><br><span class="line"><span class="actionscript">                    <span class="comment">// rsa 后端公钥加密aes密钥</span></span></span><br><span class="line"><span class="javascript">                    <span class="keyword">let</span> encodeAesKey = rsaEncode(<span class="keyword">this</span>.rsa.backPublicKey,<span class="keyword">this</span>.aes.key);</span></span><br><span class="line"><span class="actionscript">                    <span class="keyword">this</span>.aes.encodeKey=encodeAesKey;</span></span><br><span class="line"><span class="javascript">                    <span class="built_in">console</span>.log(<span class="string">"encodeAeskey:"</span>,<span class="keyword">this</span>.aes.encodeKey);</span></span><br><span class="line"><span class="actionscript">                    axios.post(<span class="string">'http://localhost:8800/test1'</span>, <span class="keyword">this</span>.encodeContent,&#123;</span></span><br><span class="line">                        headers: &#123;</span><br><span class="line"><span class="actionscript">                            <span class="string">"Content-Type"</span>: <span class="string">"application/json;charset=utf-8"</span>,</span></span><br><span class="line">                            key:encodeAesKey</span><br><span class="line">                        &#125;</span><br><span class="line"><span class="actionscript">                    &#125;).then(<span class="function"><span class="keyword">function</span> <span class="params">(response)</span> </span>&#123;</span></span><br><span class="line"><span class="javascript">                        <span class="built_in">console</span>.log(<span class="string">"response:"</span>,response);</span></span><br><span class="line"><span class="actionscript">                        <span class="comment">// 1、服务端返回的数据</span></span></span><br><span class="line">                        vm.result=response.data;</span><br><span class="line"><span class="actionscript">                        <span class="comment">// 2、rsa 解密拿到aes密钥</span></span></span><br><span class="line">                        vm.decodeAes = rsaDecode(vm.rsa.mePrivateKey,vm.result.key);</span><br><span class="line"><span class="actionscript">                        <span class="comment">// 3、aes 解密</span></span></span><br><span class="line">                        vm.decodeContent = aesDecode(vm.result.data,vm.aes.iv,vm.decodeAes);</span><br><span class="line"><span class="actionscript">                    &#125;).catch(<span class="function"><span class="keyword">function</span> <span class="params">(error)</span> </span>&#123;</span></span><br><span class="line"><span class="javascript">                        <span class="built_in">console</span>.log(<span class="string">"error:"</span>,error);</span></span><br><span class="line">                    &#125;);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"><span class="actionscript">    <span class="comment">// aes 加密</span></span></span><br><span class="line"><span class="actionscript">    <span class="function"><span class="keyword">function</span> <span class="title">aesEncode</span><span class="params">(content,iv,aesKey)</span></span>&#123;</span></span><br><span class="line">        iv = CryptoJS.enc.Utf8.parse(iv);</span><br><span class="line">        aesKey = CryptoJS.enc.Utf8.parse(aesKey);</span><br><span class="line"><span class="javascript">        <span class="keyword">let</span> encrypted = CryptoJS.AES.encrypt(content, aesKey, &#123;</span></span><br><span class="line">            iv: iv,</span><br><span class="line">            mode: CryptoJS.mode.CBC,</span><br><span class="line">            padding: CryptoJS.pad.Pkcs7</span><br><span class="line">        &#125;);</span><br><span class="line"><span class="actionscript">        <span class="keyword">return</span>  encrypted.toString();</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"><span class="actionscript">    <span class="comment">// aes 解密</span></span></span><br><span class="line"><span class="actionscript">    <span class="function"><span class="keyword">function</span> <span class="title">aesDecode</span><span class="params">(encrypted,iv,aesKey)</span></span>&#123;</span></span><br><span class="line">        iv = CryptoJS.enc.Utf8.parse(iv);</span><br><span class="line">        aesKey = CryptoJS.enc.Utf8.parse(aesKey);</span><br><span class="line"><span class="actionscript">        <span class="keyword">var</span> decrypted = CryptoJS.AES.decrypt(encrypted, aesKey, &#123;</span></span><br><span class="line">            iv: iv,</span><br><span class="line">            mode: CryptoJS.mode.CBC,</span><br><span class="line">            padding: CryptoJS.pad.Pkcs7</span><br><span class="line">        &#125;);</span><br><span class="line"><span class="actionscript">        <span class="comment">// 转换为 utf8 字符串</span></span></span><br><span class="line"><span class="actionscript">        <span class="keyword">return</span> CryptoJS.enc.Utf8.stringify(decrypted);</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"><span class="actionscript">    <span class="comment">// rsa 公钥加密</span></span></span><br><span class="line"><span class="actionscript">    <span class="function"><span class="keyword">function</span> <span class="title">rsaEncode</span><span class="params">(publicKey,content)</span></span>&#123;</span></span><br><span class="line"><span class="actionscript">        <span class="comment">// 加密+base64</span></span></span><br><span class="line"><span class="actionscript">        <span class="keyword">const</span> encrypt = <span class="keyword">new</span> JSEncrypt();</span></span><br><span class="line"><span class="actionscript">        <span class="comment">// 设置公钥</span></span></span><br><span class="line"><span class="actionscript">        encrypt.setPublicKey(<span class="string">'-----BEGIN PUBLIC KEY-----'</span> + publicKey + <span class="string">'-----END PUBLIC KEY-----'</span>);</span></span><br><span class="line"><span class="actionscript">        <span class="keyword">return</span> encrypt.encryptLong(content);</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"><span class="actionscript">    <span class="comment">// rsa 私钥解密</span></span></span><br><span class="line"><span class="actionscript">    <span class="function"><span class="keyword">function</span> <span class="title">rsaDecode</span><span class="params">(privateKey,content)</span></span>&#123;</span></span><br><span class="line"><span class="actionscript">        <span class="comment">// 加密+base64</span></span></span><br><span class="line"><span class="actionscript">        <span class="keyword">const</span> encrypt = <span class="keyword">new</span> JSEncrypt();</span></span><br><span class="line">        encrypt.setPrivateKey(privateKey);</span><br><span class="line"><span class="actionscript">        <span class="keyword">return</span> encrypt.decryptLong(content);</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"><span class="actionscript">    <span class="comment">//随机生成aes 密钥</span></span></span><br><span class="line"><span class="actionscript">    <span class="function"><span class="keyword">function</span> <span class="title">generateKey</span><span class="params">()</span></span>&#123;</span></span><br><span class="line"><span class="actionscript">        <span class="keyword">return</span> CryptoJS.lib.WordArray.random(<span class="number">128</span>/<span class="number">8</span>).toString();</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>主要看<code>testRequest()</code> 这个方法就行了，都有代码注释。</p>
+<h5 id="注意点"><a href="#注意点" class="headerlink" title="注意点"></a>注意点</h5><ul>
+<li><p>后端需要注意的就是，controller参数需要用<code>@RequestBody</code>包起来,如下：</p>
+<figure class="highlight less"><table><tr><td class="code"><pre><span class="line"><span class="variable">@PostMapping</span>(<span class="string">"/test1"</span>)</span><br><span class="line"><span class="variable">@ResponseBody</span></span><br><span class="line">public Object test1(<span class="variable">@RequestBody</span>(required = false) TestDto dto)&#123;</span><br><span class="line">	<span class="selector-tag">System</span><span class="selector-class">.out</span><span class="selector-class">.println</span>(<span class="string">"dto="</span>+dto);</span><br><span class="line">	<span class="selector-tag">return</span> <span class="selector-tag">Result</span><span class="selector-class">.ok</span>(dto);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>而前端传上来的时候<code>header</code>需要设置<code>&quot;Content-Type&quot;: &quot;application/json;charset=utf-8&quot;</code></p>
+</li>
+</ul>
+<h5 id="最终效果"><a href="#最终效果" class="headerlink" title="最终效果"></a>最终效果</h5><p><img src="test.png" alt></p>
+<p><img src="postman.png" alt></p>
+<p><strong>在上面的postman中</strong></p>
+<ul>
+<li><code>data</code>：里面的数据就是aes加密后的数据</li>
+<li><code>key</code>：里面就是前端RSA公钥加密后的AES密钥(前端需要用私钥解密得到aes密钥，然后再用密钥解开data里面的数据)</li>
+<li><code>status</code>：这个是状态码，如果报错了就不是200，不然报错了返回的数据，前端解几百年都解不开。</li>
+</ul>
+<h4 id="4、Github地址"><a href="#4、Github地址" class="headerlink" title="4、Github地址"></a>4、Github地址</h4><p>很多细节，可能我没讲明白，所以我把项目放在Github了，有兴趣的同学可以下载运行一波就知道了。</p>
+<ul>
+<li><a href="https://github.com/rstyro/Springboot/tree/master/Springboot2-api-encrypt" target="_blank" rel="noopener">Github</a></li>
+<li><a href="https://gitee.com/rstyro/spring-boot/tree/master/Springboot2-api-encrypt" target="_blank" rel="noopener">Gitee</a></li>
+</ul>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+	
+	    <div>
+	
+	<div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------本文结束 <i class="fa fa-heartbeat"></i> 感谢您的阅读-------------</div>
+    
+</div>
+	
+	</div>
+
+    
+
+    
+      
+    
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div></div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>打赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/blog/images/wechat_pay.jpg" alt="rstyro 微信支付">
+        <p>微信支付</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/blog/images/alipay.jpg" alt="rstyro 支付宝">
+        <p>支付宝</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+	
+	<div>    
+	 
+	 
+	<ul class="post-copyright">
+	  <li class="post-copyright-author">
+		  <strong>本文作者：</strong>rstyro
+	  </li>
+	  <li class="post-copyright-link">
+		<strong>本文链接：</strong>
+		<a href="/blog/2020/10/22/Springboot2接口加解密全过程详解(含前端代码)/" title="Springboot2接口加解密全过程详解(含前端代码)">https://rstyro.github.io/blog/2020/10/22/Springboot2接口加解密全过程详解(含前端代码)/</a>
+	  </li>
+	  <li class="post-copyright-license">
+		<strong>版权： </strong>
+		转载注明出处！
+	  </li>
+	</ul>
+	
+	</div>
+	
+
+      
+        <div class="post-tags">
+          
+            <a href="/blog/tags/Spring-Boot/" rel="tag"><i class="fa fa-tag"></i> Spring Boot</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2020/10/17/敏感词过滤之DFA算法Java版/" rel="next" title="敏感词过滤之DFA算法Java版">
+                <i class="fa fa-chevron-left"></i> 敏感词过滤之DFA算法Java版
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2020/10/23/Elasticsearch7之Reindex数据迁移详解/" rel="prev" title="Elasticsearch7之Reindex数据迁移详解">
+                Elasticsearch7之Reindex数据迁移详解 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+
+
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+      <div id="sidebar-dimmer"></div>
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/blog/images/avatar.jpg" alt="rstyro">
+            
+              <p class="site-author-name" itemprop="name">rstyro</p>
+              <p class="site-description motion-element" itemprop="description">帅大叔个人站点，记录学习到的一些技术笔记等。</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/blog/archives/">
+                
+                    <span class="site-state-item-count">177</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/blog/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">12</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/blog/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">35</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+            <div class="feed-link motion-element">
+              <a href="/blog/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://github.com/rstyro" title="GitHub &rarr; https://github.com/rstyro" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://gitee.com/rstyro" title="Gitee &rarr; https://gitee.com/rstyro" rel="noopener" target="_blank"><i class="fa fa-fw fa-codiepie"></i>Gitee</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="/blog/1006059906" title="QQ &rarr; 1006059906"><i class="fa fa-fw fa-qq"></i>QQ</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://www.jianshu.com/u/651c15a1758a" title="简书 &rarr; https://www.jianshu.com/u/651c15a1758a" rel="noopener" target="_blank"><i class="fa fa-fw fa-book"></i>简书</a>
+                </span>
+              
+            </div>
+          
+
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-block">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                友链
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://rstyro.github.io/blog/" title="https://rstyro.github.io/blog/">帅大叔博客</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://www.zhyd.me/" title="https://www.zhyd.me/" rel="noopener" target="_blank">张亚东博客</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://www.devsong.org/" title="http://www.devsong.org/" rel="noopener" target="_blank">DevSONG</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://www.dalaoyang.cn/" title="https://www.dalaoyang.cn/" rel="noopener" target="_blank">dalaoyang</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://www.chenshuangyi.com/" title="https://www.chenshuangyi.com/" rel="noopener" target="_blank">陈双义博客</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+            
+          
+          <div id="days"></div>
+<script>
+function show_date_time(){
+window.setTimeout("show_date_time()", 1000);
+BirthDay=new Date("04/10/2017 15:13:14");
+today=new Date();
+timeold=(today.getTime()-BirthDay.getTime());
+sectimeold=timeold/1000
+secondsold=Math.floor(sectimeold);
+msPerDay=24*60*60*1000
+e_daysold=timeold/msPerDay
+daysold=Math.floor(e_daysold);
+e_hrsold=(e_daysold-daysold)*24;
+hrsold=setzero(Math.floor(e_hrsold));
+e_minsold=(e_hrsold-hrsold)*60;
+minsold=setzero(Math.floor((e_hrsold-hrsold)*60));
+seconds=setzero(Math.floor((e_minsold-minsold)*60));
+document.getElementById('days').innerHTML="已运行 "+daysold+" 天 "+hrsold+" 小时 "+minsold+" 分 "+seconds+" 秒";
+}
+function setzero(i){
+if (i<10)
+{i="0" + i};
+return i;
+}
+show_date_time();
+</script>
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#一、接口为什么要加密"><span class="nav-number">1.</span> <span class="nav-text">一、接口为什么要加密</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#二、加密思路"><span class="nav-number">2.</span> <span class="nav-text">二、加密思路</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1、加密简介"><span class="nav-number">2.1.</span> <span class="nav-text">1、加密简介</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2、加密流程"><span class="nav-number">2.2.</span> <span class="nav-text">2、加密流程</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#三、代码实现"><span class="nav-number">3.</span> <span class="nav-text">三、代码实现</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1、自定义类"><span class="nav-number">3.1.</span> <span class="nav-text">1、自定义类</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#EncryptRequestAdvice-java"><span class="nav-number">3.1.1.</span> <span class="nav-text">EncryptRequestAdvice.java</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#DecodeInputMessage-java"><span class="nav-number">3.1.2.</span> <span class="nav-text">DecodeInputMessage.java</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#EncryptResponseAdvice-java"><span class="nav-number">3.1.3.</span> <span class="nav-text">EncryptResponseAdvice.java</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2、加密工具类"><span class="nav-number">3.2.</span> <span class="nav-text">2、加密工具类</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3、前端代码"><span class="nav-number">3.3.</span> <span class="nav-text">3、前端代码</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#html"><span class="nav-number">3.3.1.</span> <span class="nav-text">html</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#注意点"><span class="nav-number">3.3.2.</span> <span class="nav-text">注意点</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#最终效果"><span class="nav-number">3.3.3.</span> <span class="nav-text">最终效果</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4、Github地址"><span class="nav-number">3.4.</span> <span class="nav-text">4、Github地址</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">rstyro</span>
+
+  
+
+  
+</div>
+
+
+
+
+
+
+
+
+<div class="theme-info">
+  <div class="powered-by"></div>
+  <span class="post-count">博客全站共282.3k字</span>
+</div>
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-user"></i>
+    </span>
+    <span class="site-uv" title="总访客量">
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+    </span>
+  
+
+  
+    <span class="post-meta-divider">|</span>
+  
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-eye"></i>
+    </span>
+    <span class="site-pv" title="总访问量">
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/blog/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/blog/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/blog/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/blog/js/src/utils.js?v=6.7.0"></script>
+
+  <script src="/blog/js/src/motion.js?v=6.7.0"></script>
+
+
+
+  
+  
+
+  
+  <script src="/blog/js/src/scrollspy.js?v=6.7.0"></script>
+<script src="/blog/js/src/post-details.js?v=6.7.0"></script>
+
+
+
+  
+
+
+  <script src="/blog/js/src/bootstrap.js?v=6.7.0"></script>
+
+
+
+  
+  
+
+
+
+
+  
+
+<script src="//cdn1.lncld.net/static/js/3.11.1/av-min.js"></script>
+
+
+
+  
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/valine/1.3.4/Valine.min.js"></script>
+
+<script>
+  var GUEST = ['nick', 'mail', 'link'];
+  var guest = 'nick,mail,link';
+  guest = guest.split(',').filter(function (item) {
+    return GUEST.indexOf(item) > -1;
+  });
+  new Valine({
+    el: '#comments',
+    verify: false,
+    notify: false,
+    appId: 'LwEPiJFa7YMn2MrJdCwaUbmQ-gzGzoHsz',
+    appKey: 'JqS1y3RxYvDOki9r3NcqqoO5',
+    placeholder: '来都来了，不说几句就走，过分了啊！！！',
+    avatar: 'monsterid',
+    meta: guest,
+    pageSize: '10' || 10,
+    visitor: false
+  });
+</script>
+
+
+
+  
+
+  <script>
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/blog/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url).replace(/\/{2,}/g, '/');
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x"></i></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x"></i></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+  <script>
+    (function(){
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+      }
+      else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+      }
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+    })();
+  </script>
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

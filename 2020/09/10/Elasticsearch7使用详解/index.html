@@ -1,0 +1,1669 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/blog/css/main.css?v=6.7.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon.jpg?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon.jpg?v=6.7.0">
+
+
+  <link rel="mask-icon" href="/blog/images/logo.svg?v=6.7.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/blog/',
+    scheme: 'Mist',
+    version: '6.7.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":true},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+<script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+<link href="//cdn.bootcss.com/pace/1.0.2/themes/pink/pace-theme-flash.css" rel="stylesheet">
+  <style>
+      .pace .pace-progress {
+          background: #1E92FB; /*进度条颜色*/
+          height: 3px;
+      }
+      .pace .pace-progress-inner {
+           box-shadow: 0 0 10px #1E92FB, 0 0 5px     #1E92FB; /*阴影颜色*/
+      }
+      .pace .pace-activity {
+          border-top-color: #1E92FB;    /*上边框颜色*/
+          border-left-color: #1E92FB;    /*左边框颜色*/
+      }
+  </style>
+
+  <meta name="description" content="一、前言Elasticsearch是一个基于Lucene的搜索服务器。它提供了一个分布式多用户能力的全文搜索引擎，基于RESTful web接口。Elasticsearch是用Java语言开发的，并作为Apache许可条款下的开放源码发布，是一种流行的企业级搜索引擎。在全文检索领域， Lucene可谓是独领风骚数十年。倒排索引构成全文检索的根基。  本篇不研究底层，只介绍用法  二、Elastic">
+<meta name="keywords" content="ElasticSearch">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Elasticsearch7使用详解">
+<meta property="og:url" content="https://rstyro.github.io/blog/2020/09/10/Elasticsearch7使用详解/index.html">
+<meta property="og:site_name" content="帅大叔的博客">
+<meta property="og:description" content="一、前言Elasticsearch是一个基于Lucene的搜索服务器。它提供了一个分布式多用户能力的全文搜索引擎，基于RESTful web接口。Elasticsearch是用Java语言开发的，并作为Apache许可条款下的开放源码发布，是一种流行的企业级搜索引擎。在全文检索领域， Lucene可谓是独领风骚数十年。倒排索引构成全文检索的根基。  本篇不研究底层，只介绍用法  二、Elastic">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2021-01-22T01:37:01.108Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Elasticsearch7使用详解">
+<meta name="twitter:description" content="一、前言Elasticsearch是一个基于Lucene的搜索服务器。它提供了一个分布式多用户能力的全文搜索引擎，基于RESTful web接口。Elasticsearch是用Java语言开发的，并作为Apache许可条款下的开放源码发布，是一种流行的企业级搜索引擎。在全文检索领域， Lucene可谓是独领风骚数十年。倒排索引构成全文检索的根基。  本篇不研究底层，只介绍用法  二、Elastic">
+
+
+
+  <link rel="alternate" href="/blog/atom.xml" title="帅大叔的博客" type="application/atom+xml">
+
+
+
+
+  <link rel="canonical" href="https://rstyro.github.io/blog/2020/09/10/Elasticsearch7使用详解/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>Elasticsearch7使用详解 | 帅大叔的博客</title>
+  
+
+
+
+
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?cd2197f8af1d69b326360027b8f93d92";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+	<a href="https://github.com/rstyro" class="github-corner" aria-label="View source on GitHub"><svg width="80" height="80" viewbox="0 0 250 250" style="fill:#151513; color:#fff; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"/><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"/><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"/></svg></a><style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/blog/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">帅大叔的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">信你所信，为你所见</p>
+      
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/" rel="section">首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/about/" rel="section">关于</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/tags/" rel="section">标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/categories/" rel="section">分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/archives/" rel="section">归档</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-guestbook">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/guestbook/" rel="section">留言</a>
+
+  </li>
+
+      
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            搜索</a>
+        </li>
+      
+    </ul>
+  
+
+  
+    
+
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://rstyro.github.io/blog/blog/2020/09/10/Elasticsearch7使用详解/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="rstyro">
+      <meta itemprop="description" content="帅大叔个人站点，记录学习到的一些技术笔记等。">
+      <meta itemprop="image" content="/blog/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="帅大叔的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Elasticsearch7使用详解
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2020-09-10 18:57:27" itemprop="dateCreated datePublished" datetime="2020-09-10T18:57:27+08:00">2020-09-10</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2021-01-22 09:37:01" itemprop="dateModified" datetime="2021-01-22T09:37:01+08:00">2021-01-22</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/blog/categories/搜索引擎/" itemprop="url" rel="index"><span itemprop="name">搜索引擎</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/blog/2020/09/10/Elasticsearch7使用详解/#comments" itemprop="discussionUrl">
+                  <span class="post-meta-item-text">评论数：</span> <span class="post-comments-count valine-comment-count" data-xid="/blog/2020/09/10/Elasticsearch7使用详解/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="post-meta-item-icon">
+            <i class="fa fa-eye"></i>
+             阅读次数： 
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h3 id="一、前言"><a href="#一、前言" class="headerlink" title="一、前言"></a>一、前言</h3><p>Elasticsearch是一个基于Lucene的搜索服务器。它提供了一个分布式多用户能力的全文搜索引擎，基于RESTful web接口。Elasticsearch是用Java语言开发的，并作为Apache许可条款下的开放源码发布，是一种流行的企业级搜索引擎。<br>在全文检索领域， Lucene可谓是独领风骚数十年。倒排索引构成全文检索的根基。</p>
+<blockquote>
+<p>本篇不研究底层，只介绍用法</p>
+</blockquote>
+<h3 id="二、Elasticsearch7与Mysql的对比"><a href="#二、Elasticsearch7与Mysql的对比" class="headerlink" title="二、Elasticsearch7与Mysql的对比"></a>二、Elasticsearch7与Mysql的对比</h3><table>
+<thead>
+<tr>
+<th>Elasticsearch5</th>
+<th>MYSQL</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Index</td>
+<td>databases</td>
+<td>ES的索引对应MYSQL的是一个数据库</td>
+</tr>
+<tr>
+<td>type</td>
+<td>table</td>
+<td>ES的类型对应MYSQL的表</td>
+</tr>
+<tr>
+<td>Documents</td>
+<td>Rows</td>
+<td>ES的文档对应MYSQL的一条数据</td>
+</tr>
+</tbody></table>
+<p>Elasticsearch有点长，下文直接简称ES。</p>
+<p>ES7这个版本在创建mapping的时候不能指定type了，对应映射改成如下：</p>
+<table>
+<thead>
+<tr>
+<th>Elasticsearch7.9</th>
+<th>MYSQL</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Index</td>
+<td>table</td>
+<td>ES的索引对应MYSQL的表</td>
+</tr>
+<tr>
+<td>Documents</td>
+<td>Rows</td>
+<td>ES的文档对应MYSQL的一条数据</td>
+</tr>
+</tbody></table>
+<p>去掉type,每个索引相当与MYSQL这种关系型数据库的表，索引之下就是属性了，对应着表的字段。<br>虽然创建的时候没有指定type,但是查看索引信息的时候，发现她变成了<code>_doc</code>(可能是为了和之前的版本兼容？),ES8版本就应该是删除了，看官方文档：<br><a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/removal-of-types.html#_schedule_for_removal_of_mapping_types" target="_blank" rel="noopener">https://www.elastic.co/guide/en/elasticsearch/reference/current/removal-of-types.html#_schedule_for_removal_of_mapping_types</a></p>
+<p><strong>怎么安装配置ES就不说了之前文章有：<a href="http://rstyro.gitee.io/blog/tags/ElasticSearch/" target="_blank" rel="noopener">ES系列文章</a></strong></p>
+<h3 id="三、索引"><a href="#三、索引" class="headerlink" title="三、索引"></a>三、索引</h3><p>就我的理解，ES7的索引就类似于传统关系数据库中的表了。索引 (index) 的复数词为 indices 或 indexes 。<br>索引<strong>常用</strong>的配置如下：</p>
+<figure class="highlight dts"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 分片个数</span></span><br><span class="line"><span class="symbol">number_of_shards:</span><span class="number">5</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 分片副本，副本分片数的最大值是 n -1（其中 n 为节点数，因为分片的副本不能分配到相同的节点）</span></span><br><span class="line"><span class="symbol">number_of_replicas:</span><span class="number">0</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//多久执行一次刷新操作，使搜索到的索引最近更改可见。默认为1s。可以设置-1为禁用刷新</span></span><br><span class="line"><span class="symbol">refresh_interval:</span><span class="number">10</span>s</span><br><span class="line"></span><br><span class="line"><span class="comment">//控制单次查询返回的最大结果数</span></span><br><span class="line"><span class="symbol">max_result_window:</span><span class="number">20000</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="四、Mappings"><a href="#四、Mappings" class="headerlink" title="四、Mappings"></a>四、Mappings</h3><p>mappings 就我的理解就是相当于传统关系数据库的表字段设计。就是字段的映射关系。<br>常用类型有：</p>
+<figure class="highlight cs"><table><tr><td class="code"><pre><span class="line">text			非结构化文本，默认会进行分词，支持模糊查询</span><br><span class="line">keyword			这个字段好像是从text拆分出来的，不进行分词</span><br><span class="line">constant_keyword	常量关键字是的关键字字段的专用化,索引中所有文档的值都相同的情况</span><br><span class="line">boolean			布尔值，<span class="literal">true</span> 或<span class="literal">false</span></span><br><span class="line">date			日期类型</span><br><span class="line">date_nanos		日期类型，精确到纳秒</span><br><span class="line"><span class="keyword">long</span>			数字类型，一个有符号的<span class="number">64</span>位整数，最小值为<span class="number">-2</span>的<span class="number">63</span>次方，最大值为<span class="number">2</span>的<span class="number">63</span>次方<span class="number">-1</span></span><br><span class="line"><span class="keyword">double</span>			双精度</span><br><span class="line">integer			<span class="keyword">int</span>  最小值为<span class="number">-2</span>的<span class="number">3</span>次方，最大值为<span class="number">2</span>的<span class="number">31</span>次方<span class="number">-1</span></span><br><span class="line"><span class="keyword">short</span>			取值范围<span class="number">-32768</span>到 <span class="number">32768</span></span><br><span class="line"><span class="keyword">byte</span>			取值范围<span class="number">-128</span> <span class="number">127</span></span><br><span class="line"><span class="keyword">object</span>			对象类型 JSON <span class="keyword">object</span>.</span><br><span class="line">nested			对象类型，和<span class="keyword">object</span> 的区别，它允许以可以查询的方式对对象数组进行索引 </span><br><span class="line"><span class="keyword">join</span>			在相同索引下定义父子关系</span><br><span class="line">geo_point		经纬度坐标</span><br><span class="line"></span><br><span class="line">...等等，文档地址：https:<span class="comment">//www.elastic.co/guide/en/elasticsearch/reference/current/mapping-types.html</span></span><br></pre></td></tr></table></figure>
+
+<p>Mappings常用的设置参数：</p>
+<figure class="highlight livecodeserver"><table><tr><td class="code"><pre><span class="line">properties	定义属性</span><br><span class="line">dynamic_templates 动态模板定义</span><br><span class="line">analyzer	只有<span class="keyword">text</span>才有的参数属性：文本分析器</span><br><span class="line">search_analyzer	搜索分词器</span><br><span class="line">boost		权重，在<span class="number">5.0</span><span class="number">.0</span> 已弃用</span><br><span class="line">coerce		强制转型，如果你是<span class="keyword">integer</span>类型，当设置了coerce=<span class="literal">false</span>,那你传一个字符串类型的数字（<span class="string">"10"</span>）就会失败</span><br><span class="line">dynamic		是否可以动态添加类型，默认<span class="literal">true</span></span><br><span class="line"><span class="built_in">format</span>		格式化，日期之类的：epoch_millis、date_optional_time 、strict_date_optional_time</span><br><span class="line">index		是否对字段简历索引，默认<span class="literal">true</span></span><br><span class="line">term_vector	向量，如果使用高亮搜索类型为fvh ，则需要配置这个。配置这个</span><br></pre></td></tr></table></figure>
+
+<h3 id="五、API"><a href="#五、API" class="headerlink" title="五、API"></a>五、API</h3><p>直接用<code>5.6.*版本</code>写过一篇笔记，虽然和现在<code>7.9.*</code>有点不同,我就不重复写了,笔记链接：</p>
+<ul>
+<li><a href="https://rstyro.github.io/blog/2017/12/01/ElasticSearch%20CURL/">Github挂载 ElasticSearch CURL</a></li>
+<li><a href="https://rstyro.gitee.io/blog/2017/12/01/ElasticSearch%20CURL/" target="_blank" rel="noopener">Gitee挂载 ElasticSearch CURL</a></li>
+</ul>
+<h4 id="1、创建索引"><a href="#1、创建索引" class="headerlink" title="1、创建索引"></a>1、创建索引</h4><p>索引有点区别，因为type没有了</p>
+<figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="string">PUT</span> <span class="string">http://172.16.1.236:9200/topic</span></span><br><span class="line"></span><br><span class="line"><span class="string">&#123;</span></span><br><span class="line">	<span class="string">"settings"</span><span class="string">:&#123;</span></span><br><span class="line">		<span class="string">"number_of_shards"</span><span class="string">:5,</span></span><br><span class="line">		<span class="string">"number_of_replicas"</span><span class="string">:0</span></span><br><span class="line">	<span class="string">&#125;,</span></span><br><span class="line">    <span class="string">"mappings"</span><span class="string">:&#123;</span></span><br><span class="line">        <span class="string">"properties"</span><span class="string">:&#123;</span></span><br><span class="line">            <span class="string">"id"</span><span class="string">:&#123;</span></span><br><span class="line">                <span class="string">"type"</span><span class="string">:"keyword"</span></span><br><span class="line">            <span class="string">&#125;,</span></span><br><span class="line">			<span class="string">"user_id"</span><span class="string">:&#123;</span></span><br><span class="line">                <span class="string">"type"</span><span class="string">:"long"</span></span><br><span class="line">            <span class="string">&#125;,</span></span><br><span class="line">			<span class="string">"title"</span><span class="string">:&#123;</span></span><br><span class="line">                <span class="string">"type"</span><span class="string">:"keyword"</span></span><br><span class="line">            <span class="string">&#125;,</span></span><br><span class="line">			<span class="string">"content"</span><span class="string">:&#123;</span></span><br><span class="line">                <span class="string">"type"</span><span class="string">:"text",</span></span><br><span class="line">                <span class="string">"analyzer"</span><span class="string">:"ik_max_word",</span></span><br><span class="line">                <span class="string">"search_analyzer"</span><span class="string">:"ik_smart",</span></span><br><span class="line">                <span class="string">"term_vector"</span><span class="string">:"with_positions_offsets"</span></span><br><span class="line">            <span class="string">&#125;,</span></span><br><span class="line">			<span class="string">"is_del"</span><span class="string">:&#123;</span></span><br><span class="line">                <span class="string">"type"</span><span class="string">:"boolean"</span></span><br><span class="line">            <span class="string">&#125;,</span></span><br><span class="line">			<span class="string">"update_time"</span><span class="string">:&#123;</span></span><br><span class="line">                <span class="string">"type"</span><span class="string">:"date",</span></span><br><span class="line">                <span class="string">"format"</span><span class="string">:"yyyy-MM-dd</span> <span class="string">HH:mm:ss</span> <span class="string">||</span> <span class="string">yyyy-MM-dd</span> <span class="string">||</span> <span class="string">epoch_millis"</span></span><br><span class="line">            <span class="string">&#125;,</span></span><br><span class="line">            <span class="string">"create_time"</span><span class="string">:&#123;</span></span><br><span class="line">                <span class="string">"type"</span><span class="string">:"date",</span></span><br><span class="line">                <span class="string">"format"</span><span class="string">:"yyyy-MM-dd</span> <span class="string">HH:mm:ss</span> <span class="string">||</span> <span class="string">yyyy-MM-dd</span> <span class="string">||</span> <span class="string">epoch_millis"</span></span><br><span class="line">            <span class="string">&#125;</span></span><br><span class="line">        <span class="string">&#125;</span></span><br><span class="line">    <span class="string">&#125;</span></span><br><span class="line"><span class="string">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>“term_vector”:”with_positions_offsets” 这个属性是为了高亮能用fvh(<code>fast-vector-highlighter</code>)显示类型</p>
+<h4 id="2、操作mapping"><a href="#2、操作mapping" class="headerlink" title="2、操作mapping"></a>2、操作mapping</h4><figure class="highlight awk"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 给索引添加 location 定位属性</span></span><br><span class="line">PUT http:<span class="regexp">//</span><span class="number">172.16</span>.<span class="number">1.236</span>:<span class="number">9200</span><span class="regexp">/topic/</span>_mapping</span><br><span class="line">&#123;</span><br><span class="line">    <span class="string">"properties"</span>:&#123;</span><br><span class="line">        <span class="string">"location"</span>:&#123;</span><br><span class="line">            <span class="string">"type"</span>:<span class="string">"geo_point"</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># topic查看mapping</span></span><br><span class="line">GET http:<span class="regexp">//</span><span class="number">172.16</span>.<span class="number">1.236</span>:<span class="number">9200</span><span class="regexp">/topic/</span>_mapping</span><br><span class="line"></span><br><span class="line"><span class="comment"># es 获取mapping单个content属性的信息</span></span><br><span class="line">GET http:<span class="regexp">//</span><span class="number">172.16</span>.<span class="number">1.236</span>:<span class="number">9200</span><span class="regexp">/topic/</span>_mapping<span class="regexp">/field/</span>content</span><br></pre></td></tr></table></figure>
+
+<p>mapping 字段无法修改类型</p>
+<h4 id="3、添加数据"><a href="#3、添加数据" class="headerlink" title="3、添加数据"></a>3、添加数据</h4><figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 指定ID：0ab92409ea7843c89983ada5f7bc2524 添加数据</span></span><br><span class="line"><span class="string">PUT</span> <span class="string">http://172.16.1.236:9200/topic/_create/0ab92409ea7843c89983ada5f7bc2524</span></span><br><span class="line"><span class="string">&#123;</span></span><br><span class="line">    <span class="attr">"content":</span> <span class="string">"测试内容之-虽然我走得很慢,但我从不后退!"</span><span class="string">,</span></span><br><span class="line">    <span class="attr">"create_time":</span> <span class="string">"2020-09-10 14:20:31"</span><span class="string">,</span></span><br><span class="line">    <span class="attr">"id":</span> <span class="string">"0ab92409ea7843c89983ada5f7bc2524"</span><span class="string">,</span></span><br><span class="line">    <span class="attr">"is_del":</span> <span class="literal">false</span><span class="string">,</span></span><br><span class="line">    <span class="attr">"location":</span> <span class="string">"22.541144,113.952953"</span><span class="string">,</span></span><br><span class="line">    <span class="attr">"status":</span> <span class="number">1</span><span class="string">,</span></span><br><span class="line">    <span class="attr">"title":</span> <span class="string">"测试标题"</span><span class="string">,</span></span><br><span class="line">    <span class="attr">"update_time":</span> <span class="string">"2020-09-10 14:20:31"</span><span class="string">,</span></span><br><span class="line">    <span class="attr">"user_id":</span> <span class="number">1</span></span><br><span class="line"><span class="string">&#125;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 指定ID：0ab92409ea7843c89983ada5f7bc2524 添加数据</span></span><br><span class="line"><span class="string">POST</span> <span class="string">http://172.16.1.236:9200/topic/_doc/0ab92409ea7843c89983ada5f7bc2524</span></span><br><span class="line"><span class="string">&#123;</span></span><br><span class="line">    <span class="attr">"content":</span> <span class="string">"测试内容之-虽然我走得很慢,但我从不后退!"</span><span class="string">,</span></span><br><span class="line">    <span class="attr">"create_time":</span> <span class="string">"2020-09-10 14:20:31"</span><span class="string">,</span></span><br><span class="line">    <span class="attr">"id":</span> <span class="string">"0ab92409ea7843c89983ada5f7bc2524"</span><span class="string">,</span></span><br><span class="line">    <span class="attr">"is_del":</span> <span class="literal">false</span><span class="string">,</span></span><br><span class="line">    <span class="attr">"location":</span> <span class="string">"22.541144,113.952953"</span><span class="string">,</span></span><br><span class="line">    <span class="attr">"status":</span> <span class="number">1</span><span class="string">,</span></span><br><span class="line">    <span class="attr">"title":</span> <span class="string">"测试标题"</span><span class="string">,</span></span><br><span class="line">    <span class="attr">"update_time":</span> <span class="string">"2020-09-10 14:20:31"</span><span class="string">,</span></span><br><span class="line">    <span class="attr">"user_id":</span> <span class="number">1</span></span><br><span class="line"><span class="string">&#125;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 随机ID生成数据</span></span><br><span class="line"><span class="string">POST</span> <span class="string">http://172.16.1.236:9200/topic/_doc</span></span><br><span class="line"><span class="string">&#123;</span></span><br><span class="line">    <span class="attr">"content":</span> <span class="string">"测试内容之-虽然我走得很慢,但我从不后退!"</span><span class="string">,</span></span><br><span class="line">    <span class="attr">"create_time":</span> <span class="string">"2020-09-10 14:20:31"</span><span class="string">,</span></span><br><span class="line">    <span class="attr">"id":</span> <span class="string">"0ab92409ea7843c89983ada5f7bc2524"</span><span class="string">,</span></span><br><span class="line">    <span class="attr">"is_del":</span> <span class="literal">false</span><span class="string">,</span></span><br><span class="line">    <span class="attr">"location":</span> <span class="string">"22.541144,113.952953"</span><span class="string">,</span></span><br><span class="line">    <span class="attr">"status":</span> <span class="number">1</span><span class="string">,</span></span><br><span class="line">    <span class="attr">"title":</span> <span class="string">"测试标题"</span><span class="string">,</span></span><br><span class="line">    <span class="attr">"update_time":</span> <span class="string">"2020-09-10 14:20:31"</span><span class="string">,</span></span><br><span class="line">    <span class="attr">"user_id":</span> <span class="number">1</span></span><br><span class="line"><span class="string">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="4、更新数据"><a href="#4、更新数据" class="headerlink" title="4、更新数据"></a>4、更新数据</h4><figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 修改title为：“测试更新”，status为2</span></span><br><span class="line"><span class="string">POST</span> <span class="string">http://172.16.1.236:9200/topic/_doc/450b4fd5e65f4004a4a96149e50d9e8b/_update</span></span><br><span class="line"><span class="string">&#123;</span></span><br><span class="line">    <span class="string">"doc"</span><span class="string">:&#123;</span></span><br><span class="line">        <span class="string">"title"</span><span class="string">:"测试更新",</span></span><br><span class="line">        <span class="string">"status"</span><span class="string">:2</span></span><br><span class="line">    <span class="string">&#125;</span></span><br><span class="line"><span class="string">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="5、删除数据"><a href="#5、删除数据" class="headerlink" title="5、删除数据"></a>5、删除数据</h4><figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 删除指定ID：450b4fd5e65f4004a4a96149e50d9e8b</span></span><br><span class="line"><span class="string">DELETE</span> <span class="string">http://172.16.1.236:9200/topic/_doc/450b4fd5e65f4004a4a96149e50d9e8b</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 模糊删除</span></span><br><span class="line"><span class="string">POST</span> <span class="string">http://172.16.1.236:9200/topic/_delete_by_query</span></span><br><span class="line"><span class="string">&#123;</span></span><br><span class="line">    <span class="string">"query"</span><span class="string">:&#123;</span></span><br><span class="line">        <span class="string">"match"</span><span class="string">:&#123;</span></span><br><span class="line">            <span class="string">"content"</span><span class="string">:"测试"</span></span><br><span class="line">        <span class="string">&#125;</span></span><br><span class="line">    <span class="string">&#125;</span></span><br><span class="line"><span class="string">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="6、查询数据"><a href="#6、查询数据" class="headerlink" title="6、查询数据"></a>6、查询数据</h4><figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 查询所有数据</span></span><br><span class="line"><span class="string">GET</span> <span class="string">http://172.16.1.236:9200/topic/_search</span></span><br><span class="line"><span class="string">&#123;</span></span><br><span class="line">	<span class="string">"query"</span><span class="string">:&#123;</span></span><br><span class="line">		<span class="string">"match_all"</span><span class="string">:&#123;&#125;</span></span><br><span class="line">	<span class="string">&#125;</span></span><br><span class="line"><span class="string">&#125;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 分页查询所有数据</span></span><br><span class="line"><span class="string">GET</span> <span class="string">http://172.16.1.236:9200/topic/_search</span></span><br><span class="line"><span class="string">&#123;</span></span><br><span class="line">	<span class="string">"query"</span><span class="string">:&#123;</span></span><br><span class="line">		<span class="string">"match_all"</span><span class="string">:&#123;&#125;</span></span><br><span class="line">	<span class="string">&#125;,</span></span><br><span class="line">    <span class="string">"from"</span><span class="string">:1,</span></span><br><span class="line">	<span class="string">"size"</span><span class="string">:2</span></span><br><span class="line"><span class="string">&#125;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 高亮搜索</span></span><br><span class="line"><span class="string">GET</span> <span class="string">http://172.16.1.236:9200/topic/_search</span></span><br><span class="line"><span class="string">&#123;</span></span><br><span class="line">    <span class="string">"query"</span> <span class="string">:</span> <span class="string">&#123;</span> <span class="string">"match"</span> <span class="string">:</span> <span class="string">&#123;</span> <span class="string">"content"</span> <span class="string">:</span> <span class="string">"测试"</span> <span class="string">&#125;&#125;,</span></span><br><span class="line">    <span class="string">"highlight"</span> <span class="string">:</span> <span class="string">&#123;</span></span><br><span class="line">        <span class="string">"pre_tags"</span> <span class="string">:</span> <span class="string">["&lt;tag1&gt;",</span> <span class="string">"&lt;tag2&gt;"</span><span class="string">],</span></span><br><span class="line">        <span class="string">"post_tags"</span> <span class="string">:</span> <span class="string">["&lt;/tag1&gt;",</span> <span class="string">"&lt;/tag2&gt;"</span><span class="string">],</span></span><br><span class="line">        <span class="string">"fields"</span> <span class="string">:</span> <span class="string">&#123;</span></span><br><span class="line">            <span class="string">"content"</span> <span class="string">:</span> <span class="string">&#123;&#125;</span></span><br><span class="line">        <span class="string">&#125;</span></span><br><span class="line">    <span class="string">&#125;</span></span><br><span class="line"><span class="string">&#125;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 高亮搜索加排序与分页</span></span><br><span class="line"><span class="string">GET</span> <span class="string">http://172.16.1.236:9200/topic/_search</span></span><br><span class="line"><span class="string">&#123;</span></span><br><span class="line">    <span class="attr">"from":</span> <span class="number">0</span><span class="string">,</span></span><br><span class="line">    <span class="attr">"size":</span> <span class="number">3</span><span class="string">,</span></span><br><span class="line">    <span class="attr">"timeout":</span> <span class="string">"60s"</span><span class="string">,</span></span><br><span class="line">    <span class="attr">"query":</span> <span class="string">&#123;</span></span><br><span class="line">        <span class="attr">"match":</span> <span class="string">&#123;</span></span><br><span class="line">            <span class="attr">"content":</span> <span class="string">&#123;</span></span><br><span class="line">                <span class="attr">"query":</span> <span class="string">"测试"</span></span><br><span class="line">            <span class="string">&#125;</span></span><br><span class="line">        <span class="string">&#125;</span></span><br><span class="line">    <span class="string">&#125;,</span></span><br><span class="line">    <span class="attr">"sort":</span> <span class="string">[</span></span><br><span class="line">        <span class="string">&#123;</span></span><br><span class="line">            <span class="attr">"_score":</span> <span class="string">&#123;</span></span><br><span class="line">                <span class="attr">"order":</span> <span class="string">"desc"</span></span><br><span class="line">            <span class="string">&#125;</span></span><br><span class="line">        <span class="string">&#125;,</span></span><br><span class="line">        <span class="string">&#123;</span></span><br><span class="line">            <span class="attr">"create_time":</span> <span class="string">&#123;</span></span><br><span class="line">                <span class="attr">"order":</span> <span class="string">"desc"</span></span><br><span class="line">            <span class="string">&#125;</span></span><br><span class="line">        <span class="string">&#125;</span></span><br><span class="line">    <span class="string">],</span></span><br><span class="line">    <span class="attr">"highlight":</span> <span class="string">&#123;</span></span><br><span class="line">        <span class="attr">"fields":</span> <span class="string">&#123;</span></span><br><span class="line">            <span class="attr">"content":</span> <span class="string">&#123;</span></span><br><span class="line">                <span class="attr">"pre_tags":</span> <span class="string">[</span></span><br><span class="line">                    <span class="string">"&lt;em1&gt;"</span><span class="string">,</span></span><br><span class="line">                    <span class="string">"&lt;em2&gt;"</span></span><br><span class="line">                <span class="string">],</span></span><br><span class="line">                <span class="attr">"post_tags":</span> <span class="string">[</span></span><br><span class="line">                    <span class="string">"&lt;/em1&gt;"</span><span class="string">,</span></span><br><span class="line">                    <span class="string">"&lt;/em2&gt;"</span></span><br><span class="line">                <span class="string">],</span></span><br><span class="line">                <span class="attr">"type":</span> <span class="string">"plain"</span></span><br><span class="line">            <span class="string">&#125;</span></span><br><span class="line">        <span class="string">&#125;</span></span><br><span class="line">    <span class="string">&#125;</span></span><br><span class="line"><span class="string">&#125;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 经纬度圆点范围2km查询</span></span><br><span class="line"><span class="string">GET</span> <span class="string">http://172.16.1.236:9200/topic/_search</span></span><br><span class="line"><span class="string">&#123;</span></span><br><span class="line">  <span class="attr">"query":</span> <span class="string">&#123;</span></span><br><span class="line">    <span class="attr">"geo_distance":</span> <span class="string">&#123;</span> </span><br><span class="line">      <span class="attr">"distance":</span> <span class="string">"2km"</span><span class="string">,</span></span><br><span class="line">       <span class="attr">"location":</span> <span class="string">&#123;</span> </span><br><span class="line">            <span class="attr">"lat":</span> <span class="number">22.54</span><span class="string">,</span> </span><br><span class="line">            <span class="attr">"lon":</span> <span class="number">113.95</span></span><br><span class="line">        <span class="string">&#125;</span></span><br><span class="line">    <span class="string">&#125;</span></span><br><span class="line">  <span class="string">&#125;</span></span><br><span class="line"><span class="string">&#125;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 经纬度圆点范围2km查询，并由近到远排序其次按时间降序</span></span><br><span class="line"><span class="string">GET</span> <span class="string">http://172.16.1.236:9200/topic/_search</span></span><br><span class="line"><span class="string">&#123;</span></span><br><span class="line">    <span class="attr">"from":</span> <span class="number">0</span><span class="string">,</span></span><br><span class="line">    <span class="attr">"size":</span> <span class="number">10</span><span class="string">,</span></span><br><span class="line">    <span class="attr">"query":</span> <span class="string">&#123;</span></span><br><span class="line">        <span class="attr">"geo_distance":</span> <span class="string">&#123;</span></span><br><span class="line">            <span class="attr">"location":</span> <span class="string">[</span></span><br><span class="line">                <span class="number">113.99</span><span class="string">,</span></span><br><span class="line">                <span class="number">23</span></span><br><span class="line">            <span class="string">],</span></span><br><span class="line">            <span class="attr">"distance":</span> <span class="string">"2km"</span><span class="string">,</span></span><br><span class="line">            <span class="attr">"distance_type":</span> <span class="string">"arc"</span><span class="string">,</span></span><br><span class="line">            <span class="attr">"validation_method":</span> <span class="string">"STRICT"</span><span class="string">,</span></span><br><span class="line">            <span class="attr">"ignore_unmapped":</span> <span class="literal">false</span><span class="string">,</span></span><br><span class="line">            <span class="attr">"boost":</span> <span class="number">1</span></span><br><span class="line">        <span class="string">&#125;</span></span><br><span class="line">    <span class="string">&#125;,</span></span><br><span class="line">    <span class="attr">"sort":</span> <span class="string">[</span></span><br><span class="line">        <span class="string">&#123;</span></span><br><span class="line">            <span class="attr">"_geo_distance":</span> <span class="string">&#123;</span></span><br><span class="line">                <span class="attr">"location":</span> <span class="string">[</span></span><br><span class="line">                    <span class="string">&#123;</span></span><br><span class="line">                        <span class="attr">"lat":</span> <span class="number">23</span><span class="string">,</span></span><br><span class="line">                        <span class="attr">"lon":</span> <span class="number">113.99</span></span><br><span class="line">                    <span class="string">&#125;</span></span><br><span class="line">                <span class="string">],</span></span><br><span class="line">                <span class="attr">"unit":</span> <span class="string">"km"</span><span class="string">,</span></span><br><span class="line">                <span class="attr">"distance_type":</span> <span class="string">"arc"</span><span class="string">,</span></span><br><span class="line">                <span class="attr">"order":</span> <span class="string">"asc"</span><span class="string">,</span></span><br><span class="line">                <span class="attr">"validation_method":</span> <span class="string">"STRICT"</span><span class="string">,</span></span><br><span class="line">                <span class="attr">"ignore_unmapped":</span> <span class="literal">false</span></span><br><span class="line">            <span class="string">&#125;</span></span><br><span class="line">        <span class="string">&#125;,</span></span><br><span class="line">        <span class="string">&#123;</span></span><br><span class="line">            <span class="attr">"create_date":</span> <span class="string">&#123;</span></span><br><span class="line">                <span class="attr">"order":</span> <span class="string">"desc"</span></span><br><span class="line">            <span class="string">&#125;</span></span><br><span class="line">        <span class="string">&#125;</span></span><br><span class="line">    <span class="string">]</span></span><br><span class="line"><span class="string">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="7、节点信息查询"><a href="#7、节点信息查询" class="headerlink" title="7、节点信息查询"></a>7、节点信息查询</h4><figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 查询集群设置</span></span><br><span class="line"><span class="string">GET</span> <span class="string">http://172.16.1.236:9200/_cluster/settings</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 查询节点状态</span></span><br><span class="line"><span class="string">GET</span> <span class="string">http://172.16.1.236:9200/_cat/health?v</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 查询节点信息</span></span><br><span class="line"><span class="string">GET</span> <span class="string">http://172.16.1.236:9200/_cluster/health?wait_for_status=yellow&amp;timeout=50s</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 查询节点路由</span></span><br><span class="line"><span class="string">POST</span> <span class="string">http://172.16.1.236:9200/_cluster/reroute</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 查询节点 PROCESS</span></span><br><span class="line"><span class="string">http://172.16.1.236:9200/_nodes/process</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看节点出现unassigned 原因</span></span><br><span class="line"><span class="string">http://172.16.1.236:9200/_cluster/allocation/explain</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="六、Java-API"><a href="#六、Java-API" class="headerlink" title="六、Java API"></a>六、Java API</h3><p>关键一环代码调用，Java 代码有3个客户端可以使用：</p>
+<ul>
+<li>TransportClient<br>这个使用的是ES的<code>transport.tcp.port</code> 端口进行传输数据。<strong>在ES<code>7.0.0</code>弃用，到<code>8.0.0</code>将删除</strong></li>
+<li>Java Low Level REST Client<br>Rest低级别客户端，使用的是ES的<code>http.port</code>端口进行传输数据。</li>
+<li>Java High  Level REST Client<br>Rest高级别客户端，使用的是ES的<code>http.port</code>端口进行传输数据。<br>和上面<code>Java Low Level REST Client</code>的区别就是，在其基础上封装了一层.<br>可以理解为；<br>  <code>Java Low Level REST Client</code>相当与面向过程<br>  <code>Java High  Level REST Client</code>相当与面向对象</li>
+</ul>
+<p><strong>既然TransportClient即将删除，那就用 RestHighLevelClient 了</strong></p>
+<h4 id="1、导入依赖"><a href="#1、导入依赖" class="headerlink" title="1、导入依赖"></a>1、导入依赖</h4><figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"> <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.elasticsearch.client<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>elasticsearch-rest-high-level-client<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">version</span>&gt;</span>7.9.0<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.logging.log4j<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>log4j-core<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">version</span>&gt;</span>2.11.1<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.logging.log4j<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>log4j-to-slf4j<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">version</span>&gt;</span>2.11.1<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.alibaba<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>fastjson<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">version</span>&gt;</span>1.2.73<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="2、配置RestHighLevelClient"><a href="#2、配置RestHighLevelClient" class="headerlink" title="2、配置RestHighLevelClient"></a>2、配置RestHighLevelClient</h4><p>RestHighLevelClient 就是高级别客户端。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> com.jfinal.kit.Prop;</span><br><span class="line"><span class="keyword">import</span> com.jfinal.kit.PropKit;</span><br><span class="line"><span class="keyword">import</span> org.apache.http.HttpHost;</span><br><span class="line"><span class="keyword">import</span> org.apache.http.auth.AuthScope;</span><br><span class="line"><span class="keyword">import</span> org.apache.http.auth.UsernamePasswordCredentials;</span><br><span class="line"><span class="keyword">import</span> org.apache.http.client.CredentialsProvider;</span><br><span class="line"><span class="keyword">import</span> org.apache.http.client.config.RequestConfig;</span><br><span class="line"><span class="keyword">import</span> org.apache.http.impl.client.BasicCredentialsProvider;</span><br><span class="line"><span class="keyword">import</span> org.elasticsearch.client.RestClient;</span><br><span class="line"><span class="keyword">import</span> org.elasticsearch.client.RestClientBuilder;</span><br><span class="line"><span class="keyword">import</span> org.elasticsearch.client.RestHighLevelClient;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.io.IOException;</span><br><span class="line"><span class="keyword">import</span> java.util.Arrays;</span><br><span class="line"><span class="keyword">import</span> java.util.Objects;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">EsClientConfig</span> </span>&#123;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * elasticsearch 连接地址多个地址使用,分隔</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> String hosts;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> String username;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> String password;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 连接目标url最大超时</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> Integer connectTimeOut;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 等待响应（读数据）最大超时</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> Integer socketTimeOut;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 从连接池中获取可用连接最大超时时间</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> Integer connectionRequestTime;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">static</span> &#123;</span><br><span class="line">        Prop prop = PropKit.use(<span class="string">"jboot.properties"</span>);</span><br><span class="line">        hosts=prop.get(<span class="string">"elasticsearch.hosts"</span>);</span><br><span class="line">        username=prop.get(<span class="string">"elasticsearch.username"</span>);</span><br><span class="line">        password=prop.get(<span class="string">"elasticsearch.password"</span>);</span><br><span class="line">        connectTimeOut=prop.getInt(<span class="string">"elasticsearch.client.connectTimeOut"</span>);</span><br><span class="line">        socketTimeOut=prop.getInt(<span class="string">"elasticsearch.client.socketTimeOut"</span>);</span><br><span class="line">        connectionRequestTime=prop.getInt(<span class="string">"elasticsearch.client.connectionRequestTime"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> RestHighLevelClient restHighLevelClient;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">EsConfig</span><span class="params">()</span></span>&#123;&#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> RestHighLevelClient <span class="title">getInstance</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(restHighLevelClient==<span class="keyword">null</span>)&#123;</span><br><span class="line">            <span class="keyword">synchronized</span> (EsConfig<span class="class">.<span class="keyword">class</span>)</span>&#123;</span><br><span class="line">                <span class="keyword">if</span>(restHighLevelClient == <span class="keyword">null</span>)&#123;</span><br><span class="line">                    restHighLevelClient=buildRestHighLevelClient();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> restHighLevelClient;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 构建RestHighLevelClient</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> RestHighLevelClient <span class="title">buildRestHighLevelClient</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">final</span> CredentialsProvider credentialsProvider = <span class="keyword">new</span> BasicCredentialsProvider();</span><br><span class="line">        credentialsProvider.setCredentials(AuthScope.ANY, <span class="keyword">new</span> UsernamePasswordCredentials(username, password));</span><br><span class="line">        HttpHost[] httpHosts = Arrays.stream(hosts.split(<span class="string">","</span>)).map(host -&gt; <span class="keyword">new</span> HttpHost(host.split(<span class="string">":"</span>)[<span class="number">0</span>], Integer.parseInt(host.split(<span class="string">":"</span>)[<span class="number">1</span>]))).filter(Objects::nonNull).toArray(HttpHost[]::<span class="keyword">new</span>);</span><br><span class="line">        RestClientBuilder builder = RestClient.builder(httpHosts)</span><br><span class="line">                .setHttpClientConfigCallback(httpClientBuilder -&gt; &#123;</span><br><span class="line">                    RequestConfig.Builder requestConfigBuilder = RequestConfig.custom()</span><br><span class="line">                            .setConnectTimeout(connectTimeOut)</span><br><span class="line">                            .setSocketTimeout(socketTimeOut)</span><br><span class="line">                            .setConnectionRequestTimeout(connectionRequestTime);</span><br><span class="line">                    httpClientBuilder.setDefaultRequestConfig(requestConfigBuilder.build());</span><br><span class="line">                    httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider);</span><br><span class="line">                    <span class="keyword">return</span> httpClientBuilder;</span><br><span class="line">                &#125;);</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> RestHighLevelClient(builder);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 释放资源</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> IOException</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">release</span><span class="params">()</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(restHighLevelClient!=<span class="keyword">null</span>)restHighLevelClient.close();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>因为我没有使用Spring框架所有自己搞了个单例模式的Client,如果是Spring直接使用在方法上使用<code>@Bean</code>注解即可，贼方便。</p>
+<h4 id="3、辅助工具类"><a href="#3、辅助工具类" class="headerlink" title="3、辅助工具类"></a>3、辅助工具类</h4><p>贴完整点的代码吧</p>
+<h5 id="EsUtils-工具类"><a href="#EsUtils-工具类" class="headerlink" title="EsUtils 工具类"></a>EsUtils 工具类</h5><figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">EsUtils</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> Pattern humpPattern = Pattern.compile(<span class="string">"[A-Z]"</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 下划线转驼峰</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> str</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> String <span class="title">humpToLine</span><span class="params">(String str)</span> </span>&#123;</span><br><span class="line">        Matcher matcher = humpPattern.matcher(str);</span><br><span class="line">        StringBuffer sb = <span class="keyword">new</span> StringBuffer();</span><br><span class="line">        <span class="keyword">while</span> (matcher.find()) &#123;</span><br><span class="line">            matcher.appendReplacement(sb, <span class="string">"_"</span> + matcher.group(<span class="number">0</span>).toLowerCase());</span><br><span class="line">        &#125;</span><br><span class="line">        matcher.appendTail(sb);</span><br><span class="line">        <span class="keyword">return</span> sb.toString();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 原字符是否包含 指定字符(不区分大小写)</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> srcStr 原字符</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> tags 目标数组</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">boolean</span> <span class="title">isCludeCharByOr</span><span class="params">(String srcStr,String... tags)</span></span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(tags != <span class="keyword">null</span> &amp;&amp; tags.length&gt;<span class="number">0</span>)&#123;</span><br><span class="line">            <span class="keyword">for</span>(String str:tags)&#123;</span><br><span class="line">                <span class="keyword">if</span>(isEmpty(str))<span class="keyword">continue</span>;</span><br><span class="line">                <span class="keyword">if</span>(srcStr.toLowerCase().contains(str))<span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 对象生成properties 属性map</span></span><br><span class="line"><span class="comment">     * 下面的else if 判断还有很多，懒得写，根据自己的需求完善吧</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> t</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Map&lt;String,Object&gt; <span class="title">getProperties</span><span class="params">(Object t)</span></span>&#123;</span><br><span class="line">        Map&lt;String,Object&gt; propertiesMap = <span class="keyword">new</span> HashMap&lt;&gt;();</span><br><span class="line">        <span class="keyword">if</span>(t != <span class="keyword">null</span>)&#123;</span><br><span class="line">            Class&lt;? extends Object&gt; tClass = t.getClass();</span><br><span class="line">            <span class="comment">//得到所有属性</span></span><br><span class="line">            Field[] fields = tClass.getDeclaredFields();</span><br><span class="line">            <span class="keyword">if</span>(fields!=<span class="keyword">null</span>&amp;&amp; fields.length&gt;<span class="number">0</span>)&#123;</span><br><span class="line">                <span class="keyword">for</span>(Field field:fields)&#123;</span><br><span class="line">                    String fieldClassStr = field.getGenericType().toString();</span><br><span class="line">                    Map&lt;String,Object&gt; fieldAttrMap = <span class="keyword">new</span> HashMap&lt;&gt;();</span><br><span class="line">                    <span class="keyword">if</span>(<span class="string">"class java.lang.Long"</span>.equals(fieldClassStr))&#123;</span><br><span class="line">                        fieldAttrMap.put(<span class="string">"type"</span>,<span class="string">"long"</span>);</span><br><span class="line">                    &#125;<span class="keyword">else</span> <span class="keyword">if</span>(<span class="string">"class java.lang.Double"</span>.equals(fieldClassStr))&#123;</span><br><span class="line">                        fieldAttrMap.put(<span class="string">"type"</span>,<span class="string">"double"</span>);</span><br><span class="line">                    &#125;<span class="keyword">else</span> <span class="keyword">if</span>(<span class="string">"class java.time.LocalDateTime"</span>.equals(fieldClassStr) || <span class="string">"class java.util.Date"</span>.equals(fieldClassStr) || <span class="string">"class java.time.LocalDate"</span>.equals(fieldClassStr))&#123;</span><br><span class="line">                        fieldAttrMap.put(<span class="string">"type"</span>,<span class="string">"date"</span>);</span><br><span class="line">                        fieldAttrMap.put(<span class="string">"format"</span>,<span class="string">"yyyy-MM-dd HH:mm:ss || yyyy-MM-dd'T'HH:mm:ss.SSS || yyyy-MM-dd || epoch_millis"</span>);</span><br><span class="line">                    &#125;<span class="keyword">else</span> <span class="keyword">if</span>(<span class="string">"class java.lang.Boolean"</span>.equals(fieldClassStr))&#123;</span><br><span class="line">                        fieldAttrMap.put(<span class="string">"type"</span>,<span class="string">"boolean"</span>);</span><br><span class="line">                    &#125;<span class="keyword">else</span> <span class="keyword">if</span>(<span class="string">"class java.lang.String"</span>.equals(fieldClassStr) &amp;&amp; EsUtils.isCludeCharByOr(field.getName(),<span class="string">"id,type,state,status"</span>.split(<span class="string">","</span>)))&#123;</span><br><span class="line">                        fieldAttrMap.put(<span class="string">"type"</span>,<span class="string">"keyword"</span>);<span class="comment">//keyword：存储数据时候，不会分词建立索引，支持模糊、支持精确匹配，支持聚合、排序操作</span></span><br><span class="line">                    &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">                        fieldAttrMap.put(<span class="string">"type"</span>,<span class="string">"text"</span>);<span class="comment">//分词建立索引</span></span><br><span class="line">                        fieldAttrMap.put(<span class="string">"analyzer"</span>, <span class="string">"ik_max_word"</span>);</span><br><span class="line">                        fieldAttrMap.put(<span class="string">"search_analyzer"</span>, <span class="string">"ik_smart"</span>);</span><br><span class="line">                    &#125;</span><br><span class="line">                    propertiesMap.put(EsUtils.humpToLine(field.getName()),fieldAttrMap);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> propertiesMap;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 判空</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> str</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">boolean</span> <span class="title">isEmpty</span><span class="params">(String str)</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> str == <span class="keyword">null</span> || <span class="string">""</span>.equals(str);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="对象属性名称驼峰与下划线互转序列化类"><a href="#对象属性名称驼峰与下划线互转序列化类" class="headerlink" title="对象属性名称驼峰与下划线互转序列化类"></a>对象属性名称驼峰与下划线互转序列化类</h5><p>fastjson 序列化类</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 驼峰序列化配置</span></span><br><span class="line"><span class="comment"> *  https://github.com/alibaba/fastjson/wiki/PropertyNamingStrategy_cn</span></span><br><span class="line"><span class="comment"> *  String text = JSON.toJSONString(model, serializeConfig);</span></span><br><span class="line"><span class="comment"> *  Model model2 = JSON.parseObject(text, Model.class, parserConfig);</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">FastJsonHumpSerialize</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> SerializeConfig serializeConfig;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> ParserConfig parserConfig;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> SerializeConfig <span class="title">getSerializeConfig</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(serializeConfig==<span class="keyword">null</span>)&#123;</span><br><span class="line">            <span class="keyword">synchronized</span> (FastJsonHumpSerialize<span class="class">.<span class="keyword">class</span>)</span>&#123;</span><br><span class="line">                <span class="keyword">if</span>(serializeConfig==<span class="keyword">null</span>)&#123;</span><br><span class="line">                    serializeConfig=<span class="keyword">new</span> SerializeConfig();</span><br><span class="line">                    serializeConfig.propertyNamingStrategy = PropertyNamingStrategy.SnakeCase;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> serializeConfig;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> ParserConfig <span class="title">getParserConfig</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(parserConfig==<span class="keyword">null</span>)&#123;</span><br><span class="line">            <span class="keyword">synchronized</span> (FastJsonHumpSerialize<span class="class">.<span class="keyword">class</span>)</span>&#123;</span><br><span class="line">                <span class="keyword">if</span>(parserConfig==<span class="keyword">null</span>)&#123;</span><br><span class="line">                    parserConfig=<span class="keyword">new</span> ParserConfig();</span><br><span class="line">                    parserConfig.propertyNamingStrategy = PropertyNamingStrategy.SnakeCase;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> parserConfig;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这个序列化类主要是想把对象的属性名称驼峰与下划线互转。<br><strong>如果你没有这个需求那可以不需要这个，直接存的就是属性名的字段。</strong></p>
+<h4 id="4、抽象的增删改查类"><a href="#4、抽象的增删改查类" class="headerlink" title="4、抽象的增删改查类"></a>4、抽象的增删改查类</h4><p>主要写了一些平常可能用到的方法，还有很多查询没写，</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 操作ES 基础类</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@since</span> 2020-08-28</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@author</span> lrs</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">BaseEsService</span>&lt;<span class="title">T</span>&gt; </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> Logger log = LoggerFactory.getLogger(<span class="keyword">this</span>.getClass());</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 索引名称</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> String indexName;</span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">BaseEsService</span><span class="params">()</span></span>&#123;&#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="title">BaseEsService</span><span class="params">(String indexName)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.indexName = indexName;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> RestHighLevelClient restHighLevelClient = EsClientConfig.getInstance();</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 创建索引</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">createIndex</span><span class="params">(T t)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">        CreateIndexRequest request = <span class="keyword">new</span> CreateIndexRequest(indexName);</span><br><span class="line">        request.settings(Settings.builder()</span><br><span class="line">                .put(<span class="string">"index.number_of_shards"</span>, <span class="number">5</span>) <span class="comment">// 分片</span></span><br><span class="line">                <span class="comment">//副本,单机相同shard不允许同时分配到一个节点上，单机的话0,以副本分片数的最大值是 n -1（其中 n 为节点数）。</span></span><br><span class="line">                .put(<span class="string">"index.number_of_replicas"</span>, <span class="number">0</span>)</span><br><span class="line">                .put(<span class="string">"refresh_interval"</span>, <span class="string">"10s"</span>)</span><br><span class="line">        );</span><br><span class="line">        Map&lt;String, Object&gt; properties = EsUtils.getProperties(t);</span><br><span class="line">        Map&lt;String, Object&gt; mapping = <span class="keyword">new</span> HashMap&lt;&gt;();</span><br><span class="line">        mapping.put(<span class="string">"properties"</span>, properties);</span><br><span class="line">        request.mapping(mapping);</span><br><span class="line">        CreateIndexResponse createIndexResponse = restHighLevelClient.indices().create(request, RequestOptions.DEFAULT);</span><br><span class="line">        <span class="keyword">return</span> createIndexResponse.isAcknowledged();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 删除索引</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">delIndex</span><span class="params">()</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (existsIndex()) &#123;</span><br><span class="line">            DeleteIndexRequest request = <span class="keyword">new</span> DeleteIndexRequest(indexName);</span><br><span class="line">            AcknowledgedResponse deleteIndexResponse = restHighLevelClient.indices().delete(request, RequestOptions.DEFAULT);</span><br><span class="line">            <span class="keyword">return</span> deleteIndexResponse.isAcknowledged();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 判断索引是否存在</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">existsIndex</span><span class="params">()</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">        GetIndexRequest request = <span class="keyword">new</span> GetIndexRequest(indexName);</span><br><span class="line">        <span class="keyword">return</span> restHighLevelClient.indices().exists(request, RequestOptions.DEFAULT);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 添加文档</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> id</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> data</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">saveDoc</span><span class="params">(String id, T data)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">        IndexRequest indexRequest = <span class="keyword">new</span> IndexRequest(indexName).id(id).source(JSON.toJSONString(data, FastJsonHumpSerialize.getSerializeConfig()), XContentType.JSON);</span><br><span class="line">        indexRequest.opType(DocWriteRequest.OpType.CREATE);</span><br><span class="line">        restHighLevelClient.index(indexRequest, RequestOptions.DEFAULT);</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 批量新增</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> list</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> IOException</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">batchSaveDoc</span><span class="params">(List&lt;T&gt; list)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (list == <span class="keyword">null</span> || list.size() &lt; <span class="number">1</span>) <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">        BulkRequest request = <span class="keyword">new</span> BulkRequest();</span><br><span class="line">        <span class="keyword">for</span> (T t : list) &#123;</span><br><span class="line">            IndexRequest indexRequest = <span class="keyword">new</span> IndexRequest(indexName).id(getTId(t)).source(JSON.toJSONString(t, FastJsonHumpSerialize.getSerializeConfig()), XContentType.JSON);</span><br><span class="line">            request.add(indexRequest);</span><br><span class="line">        &#125;</span><br><span class="line">        BulkResponse bulk = restHighLevelClient.bulk(request, RequestOptions.DEFAULT);</span><br><span class="line">        <span class="keyword">return</span> !bulk.hasFailures();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">saveDocByMap</span><span class="params">(String id, Map&lt;String, Object&gt; docMap)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">        IndexRequest indexRequest = <span class="keyword">new</span> IndexRequest(indexName).id(id).source(docMap);</span><br><span class="line">        indexRequest.opType(DocWriteRequest.OpType.CREATE);</span><br><span class="line">        restHighLevelClient.index(indexRequest, RequestOptions.DEFAULT);</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 判断文档是否存在</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> id</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">existsDoc</span><span class="params">(String id)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">        GetRequest request = <span class="keyword">new</span> GetRequest(indexName, id);</span><br><span class="line">        request.fetchSourceContext(<span class="keyword">new</span> FetchSourceContext(<span class="keyword">false</span>));</span><br><span class="line">        request.storedFields(<span class="string">"_none_"</span>);</span><br><span class="line">        <span class="keyword">return</span> restHighLevelClient.exists(request, RequestOptions.DEFAULT);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 删除文档</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> id</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">delDocById</span><span class="params">(String id)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">        DeleteResponse delete = restHighLevelClient.delete(<span class="keyword">new</span> DeleteRequest(indexName, id), RequestOptions.DEFAULT);</span><br><span class="line">        <span class="keyword">return</span> DocWriteResponse.Result.DELETED.equals(delete.getResult());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 批量删除文档</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> ids id数组</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> IOException</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">batchDelDocById</span><span class="params">(String... ids)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">        BulkRequest bulkRequest = <span class="keyword">new</span> BulkRequest();</span><br><span class="line">        <span class="keyword">if</span> (ids != <span class="keyword">null</span> &amp;&amp; ids.length &gt; <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="keyword">for</span> (String id : ids) &#123;</span><br><span class="line">                <span class="keyword">if</span> (id == <span class="keyword">null</span> || <span class="string">""</span>.equals(id.trim())) <span class="keyword">continue</span>;</span><br><span class="line">                bulkRequest.add(<span class="keyword">new</span> DeleteRequest(indexName, id));</span><br><span class="line">            &#125;</span><br><span class="line">            BulkResponse bulk = restHighLevelClient.bulk(bulkRequest, RequestOptions.DEFAULT);</span><br><span class="line">            <span class="keyword">return</span> !bulk.hasFailures();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 更新文档</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> id</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> data</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">updateDocById</span><span class="params">(String id, T data)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">        UpdateRequest request = <span class="keyword">new</span> UpdateRequest(indexName, id).doc(JSON.toJSONString(data, FastJsonHumpSerialize.getSerializeConfig()), XContentType.JSON);</span><br><span class="line">        UpdateResponse update = restHighLevelClient.update(request, RequestOptions.DEFAULT);</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * Script更新数字字段</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> id</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> fieldName</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> oprateNum</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> IOException</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">updateFieldNum</span><span class="params">(String id,String fieldName,<span class="keyword">int</span> oprateNum)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">        UpdateRequest request = <span class="keyword">new</span> UpdateRequest(<span class="keyword">this</span>.indexName,id).script(<span class="keyword">new</span> Script(<span class="string">"ctx._source."</span>+fieldName+<span class="string">" += "</span>+oprateNum));</span><br><span class="line">        UpdateResponse update = restHighLevelClient.update(request, RequestOptions.DEFAULT);</span><br><span class="line">        <span class="keyword">return</span> update.getShardInfo().getFailed()==<span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 批量更新</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> list</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">batchUpdateDoc</span><span class="params">(List&lt;T&gt; list)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (list == <span class="keyword">null</span> || list.size() &lt; <span class="number">1</span>) <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">        BulkRequest request = <span class="keyword">new</span> BulkRequest();</span><br><span class="line">        <span class="keyword">for</span> (T t : list) &#123;</span><br><span class="line">            UpdateRequest updateRequest = <span class="keyword">new</span> UpdateRequest(indexName, getTId(t)).doc(JSON.toJSONString(t, FastJsonHumpSerialize.getSerializeConfig()), XContentType.JSON);</span><br><span class="line">            request.add(updateRequest);</span><br><span class="line">        &#125;</span><br><span class="line">        BulkResponse bulk = restHighLevelClient.bulk(request, RequestOptions.DEFAULT);</span><br><span class="line">        <span class="keyword">return</span> !bulk.hasFailures();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 获取文档</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> id</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Map&lt;String, Object&gt; <span class="title">getDocMapById</span><span class="params">(String id)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">        GetRequest request = <span class="keyword">new</span> GetRequest(indexName, id);</span><br><span class="line">        GetResponse response = restHighLevelClient.get(request, RequestOptions.DEFAULT);</span><br><span class="line">        Map&lt;String, Object&gt; docMap = response.getSourceAsMap();</span><br><span class="line">        <span class="keyword">return</span> docMap;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 获取文档</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> id</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> T <span class="title">getDocById</span><span class="params">(String id)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">        GetRequest request = <span class="keyword">new</span> GetRequest(indexName, id);</span><br><span class="line">        GetResponse response = restHighLevelClient.get(request, RequestOptions.DEFAULT);</span><br><span class="line">        T result = JSON.parseObject(response.getSourceAsString(), getTClass(), FastJsonHumpSerialize.getParserConfig());</span><br><span class="line">        <span class="keyword">return</span> result;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 所有数据</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> size 指定大小,默认10个</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> IOException</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> List&lt;T&gt; <span class="title">searchAll</span><span class="params">(<span class="keyword">int</span> size)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">        List&lt;T&gt; results = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">        SearchSourceBuilder searchSourceBuilder = <span class="keyword">new</span> SearchSourceBuilder();</span><br><span class="line">        searchSourceBuilder.query(QueryBuilders.matchAllQuery()).size(size);</span><br><span class="line">        SearchRequest searchRequest = <span class="keyword">new</span> SearchRequest(indexName);</span><br><span class="line">        SearchResponse response = excuteSearch(searchRequest, searchSourceBuilder);</span><br><span class="line">        addItem(results, response.getHits().getHits());</span><br><span class="line">        <span class="keyword">return</span> results;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 获取Id 列表</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> ids</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> IOException</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> List&lt;T&gt; <span class="title">searchIds</span><span class="params">(String... ids)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">        List&lt;T&gt; results = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">        SearchSourceBuilder searchSourceBuilder = <span class="keyword">new</span> SearchSourceBuilder();</span><br><span class="line">        searchSourceBuilder.query(QueryBuilders.idsQuery().addIds(ids));</span><br><span class="line">        SearchRequest searchRequest = <span class="keyword">new</span> SearchRequest().indices(indexName).source(searchSourceBuilder);</span><br><span class="line">        SearchResponse response = excuteSearch(searchRequest, searchSourceBuilder);</span><br><span class="line">        addItem(results, response.getHits().getHits());</span><br><span class="line">        <span class="keyword">return</span> results;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 精确匹配相当于MySQL的 =,只有key 为keyword类型才可</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> key</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> value</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> IOException</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> List&lt;T&gt; <span class="title">searchByTerm</span><span class="params">(String key, Object... value)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">        List&lt;T&gt; results = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">        SearchSourceBuilder searchSourceBuilder = <span class="keyword">new</span> SearchSourceBuilder();</span><br><span class="line">        searchSourceBuilder.query(QueryBuilders.termsQuery(key, value));<span class="comment">//这里注意下term 和 terms</span></span><br><span class="line">        SearchRequest searchRequest = <span class="keyword">new</span> SearchRequest(indexName);</span><br><span class="line">        SearchResponse response = excuteSearch(searchRequest, searchSourceBuilder);</span><br><span class="line">        addItem(results, response.getHits().getHits());</span><br><span class="line">        <span class="keyword">return</span> results;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 以点为圆心，disance范围查询</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> field 字段，类型是geo_point</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> distance 距离</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> lat 纬度</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> lon 经度</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> IOException</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> List&lt;T&gt; <span class="title">searchGeo</span><span class="params">(String field, String distance,<span class="keyword">double</span> lat,<span class="keyword">double</span> lon)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">        List&lt;T&gt; results = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">        SearchSourceBuilder searchSourceBuilder = <span class="keyword">new</span> SearchSourceBuilder();</span><br><span class="line">        <span class="comment">//以某点为中心，搜索指定范围</span></span><br><span class="line">        searchSourceBuilder.query(QueryBuilders.geoDistanceQuery(field)</span><br><span class="line">                .point(lat,lon).distance(distance,DistanceUnit.KILOMETERS));<span class="comment">//distance km</span></span><br><span class="line"><span class="comment">//        GeoDistanceSortBuilder geoDistanceSort = SortBuilders.geoDistanceSort("location", new GeoPoint(dto.getLat(), dto.getLon()))</span></span><br><span class="line"><span class="comment">//                .order(SortOrder.ASC).geoDistance(GeoDistance.ARC).unit(DistanceUnit.KILOMETERS);</span></span><br><span class="line"><span class="comment">//        if(StrUtil.isNotEmpty(dto.getUnit()))&#123;</span></span><br><span class="line"><span class="comment">//            geoDistanceSort.unit(DistanceUnit.parseUnit(dto.getUnit(),DistanceUnit.KILOMETERS));</span></span><br><span class="line"><span class="comment">//        &#125;</span></span><br><span class="line"><span class="comment">//        searchSourceBuilder.sort(geoDistanceSort);</span></span><br><span class="line">        SearchRequest searchRequest = <span class="keyword">new</span> SearchRequest(indexName);</span><br><span class="line">        SearchResponse response = excuteSearch(searchRequest, searchSourceBuilder);</span><br><span class="line">        addItem(results, response.getHits().getHits());</span><br><span class="line">        <span class="keyword">return</span> results;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">addItem</span><span class="params">(List&lt;T&gt; results, SearchHit[] hits)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (hits != <span class="keyword">null</span> &amp;&amp; hits.length &gt; <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="keyword">for</span> (SearchHit hit : hits) &#123;</span><br><span class="line">                T item = JSON.parseObject(hit.getSourceAsString(), getTClass(), FastJsonHumpSerialize.getParserConfig());</span><br><span class="line">                results.add(item);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 这个主要是为了让子类自实现其他复杂的查询</span></span><br><span class="line"><span class="comment">     * 还有就是查询器公共配置</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> request</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> sourceBuilder</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> IOException</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> SearchResponse <span class="title">excuteSearch</span><span class="params">(SearchRequest request, SearchSourceBuilder sourceBuilder)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">        <span class="comment">// 设置超时</span></span><br><span class="line">        sourceBuilder.timeout(<span class="keyword">new</span> TimeValue(<span class="number">60</span>, TimeUnit.SECONDS));</span><br><span class="line">        <span class="comment">// 按查询评分降序 排序支持四种：Field-, Score-, GeoDistance-, ScriptSortBuilder</span></span><br><span class="line">        <span class="comment">// 默认的评分排序</span></span><br><span class="line">        sourceBuilder.sort(<span class="keyword">new</span> ScoreSortBuilder().order(SortOrder.DESC));</span><br><span class="line">        <span class="comment">// 自定义脚本排序</span></span><br><span class="line">        Script script = <span class="keyword">new</span> Script(<span class="string">"doc['comment_num'].value + doc['praise_num'].value"</span>);</span><br><span class="line">        sourceBuilder.sort(SortBuilders.scriptSort(script, ScriptSortBuilder.ScriptSortType.NUMBER).order(SortOrder.DESC));</span><br><span class="line">        <span class="comment">// 字段排序</span></span><br><span class="line">        sourceBuilder.sort(<span class="keyword">new</span> FieldSortBuilder(<span class="string">"create_date"</span>).order(SortOrder.DESC));</span><br><span class="line">        <span class="comment">// 设置查询器</span></span><br><span class="line">        request.source(sourceBuilder);</span><br><span class="line">        <span class="keyword">return</span> restHighLevelClient.search(request, RequestOptions.DEFAULT);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 获取text分词结果</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> text</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> IOException</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> List&lt;AnalyzeResponse.AnalyzeToken&gt; getAnalyzeToken(String...text) <span class="keyword">throws</span> IOException &#123;</span><br><span class="line"><span class="comment">//        AnalyzeRequest request = AnalyzeRequest.withField(this.indexName,"content",text);</span></span><br><span class="line">        AnalyzeRequest request = AnalyzeRequest.withIndexAnalyzer(<span class="keyword">this</span>.indexName,<span class="string">"ik_max_word"</span>,text);</span><br><span class="line">        AnalyzeResponse analyze = <span class="keyword">this</span>.restHighLevelClient.indices().analyze(request, RequestOptions.DEFAULT);</span><br><span class="line">        <span class="keyword">return</span> analyze.getTokens();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getAnalyzeText</span><span class="params">(String...text)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">        AnalyzeRequest request = AnalyzeRequest.withIndexAnalyzer(<span class="keyword">this</span>.indexName,<span class="string">"ik_max_word"</span>,text);</span><br><span class="line">        AnalyzeResponse analyze = <span class="keyword">this</span>.restHighLevelClient.indices().analyze(request, RequestOptions.DEFAULT);</span><br><span class="line">        StringBuilder reslt = <span class="keyword">new</span> StringBuilder();</span><br><span class="line">        analyze.getTokens().forEach(i-&gt;reslt.append(i.getTerm()).append(<span class="string">","</span>));</span><br><span class="line">        <span class="keyword">return</span> reslt.toString().substring(<span class="number">0</span>,reslt.toString().length()-<span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line">	</span><br><span class="line">	<span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 设置高亮</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> sourceBuilder</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> field 字段名称</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setHighLigt</span><span class="params">(SearchSourceBuilder sourceBuilder,String field)</span></span>&#123;</span><br><span class="line">        HighlightBuilder highlightBuilder = <span class="keyword">new</span> HighlightBuilder();</span><br><span class="line">        HighlightBuilder.Field contentField = <span class="keyword">new</span> HighlightBuilder.Field(field);</span><br><span class="line">        contentField.preTags(<span class="string">"&lt;em1&gt;"</span>,<span class="string">"&lt;em2&gt;"</span>);</span><br><span class="line">        contentField.postTags(<span class="string">"&lt;/em1&gt;"</span>,<span class="string">"&lt;/em2&gt;"</span>);</span><br><span class="line">        <span class="comment">//unified、plain、fvh。默认unified</span></span><br><span class="line">        contentField.highlighterType(<span class="string">"plain"</span>);</span><br><span class="line">        highlightBuilder.field(contentField);</span><br><span class="line">        sourceBuilder.highlighter(highlightBuilder);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 获取T 的class</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">private</span> Class&lt;T&gt; <span class="title">getTClass</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        Class&lt;T&gt; tClass = (Class&lt;T&gt;) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[<span class="number">0</span>];</span><br><span class="line">        <span class="keyword">return</span> tClass;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 反射获取泛型对象ID</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> t</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getTId</span><span class="params">(T t)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            Class&lt;? extends Object&gt; tClass = t.getClass();</span><br><span class="line">            <span class="comment">//整合出 getId() 属性这个方法</span></span><br><span class="line">            Method m = tClass.getMethod(<span class="string">"getId"</span>);</span><br><span class="line">            <span class="comment">//调用这个整合出来的get方法，强转成自己需要的类型</span></span><br><span class="line">            Object id = m.invoke(t);</span><br><span class="line">            <span class="keyword">return</span> id.toString();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            log.info(<span class="string">"没有这个属性"</span>);</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>这里写的不是那么全的查询，但是是常用的查询，还有很多查询，像前缀查询，聚合查询，多字段查询….等等</strong><br>按需添加！！！</p>
+<h4 id="5、测试Demo"><a href="#5、测试Demo" class="headerlink" title="5、测试Demo"></a>5、测试Demo</h4><figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TopicService</span> <span class="keyword">extends</span> <span class="title">EsBaseService</span>&lt;<span class="title">Topic</span>&gt; </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">TopicService</span><span class="params">(String indexName)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">super</span>(indexName);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        TopicService topicService = <span class="keyword">new</span> TopicService(<span class="string">"topic"</span>);</span><br><span class="line">        Topic topic = <span class="keyword">new</span> Topic();</span><br><span class="line">        topic.setId(EsUtils.getUUID()).setUserId(<span class="number">1l</span>).setTitle(<span class="string">"测试标题"</span>).setContent(<span class="string">"测试内容之-虽然我走得很慢,但我从不后退!"</span>)</span><br><span class="line">                .setStatus((<span class="keyword">short</span>) <span class="number">1</span>).setIsDel(<span class="keyword">false</span>).setLocation(<span class="string">"22.541144,113.952953"</span>)</span><br><span class="line">                .setCreateTime(LocalDateTime.now()).setUpdateTime(LocalDateTime.now());</span><br><span class="line">        topicService.saveDoc(topic.getId(),topic);</span><br><span class="line">		<span class="comment">// 关闭客户端</span></span><br><span class="line">        EsClientConfig.release();</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>简单的测试一下保存功能！</p>
+<p><strong>官方文档：<a href="https://www.elastic.co/guide/en/elasticsearch/client/java-rest/7.9/java-rest-high-search.html" target="_blank" rel="noopener">https://www.elastic.co/guide/en/elasticsearch/client/java-rest/7.9/java-rest-high-search.html</a></strong></p>
+<p><strong>熬夜多-记忆不好，又一篇笔记出炉！！！</strong></p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+	
+	    <div>
+	
+	<div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------本文结束 <i class="fa fa-heartbeat"></i> 感谢您的阅读-------------</div>
+    
+</div>
+	
+	</div>
+
+    
+
+    
+      
+    
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div></div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>打赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/blog/images/wechat_pay.jpg" alt="rstyro 微信支付">
+        <p>微信支付</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/blog/images/alipay.jpg" alt="rstyro 支付宝">
+        <p>支付宝</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+	
+	<div>    
+	 
+	 
+	<ul class="post-copyright">
+	  <li class="post-copyright-author">
+		  <strong>本文作者：</strong>rstyro
+	  </li>
+	  <li class="post-copyright-link">
+		<strong>本文链接：</strong>
+		<a href="/blog/2020/09/10/Elasticsearch7使用详解/" title="Elasticsearch7使用详解">https://rstyro.github.io/blog/2020/09/10/Elasticsearch7使用详解/</a>
+	  </li>
+	  <li class="post-copyright-license">
+		<strong>版权： </strong>
+		转载注明出处！
+	  </li>
+	</ul>
+	
+	</div>
+	
+
+      
+        <div class="post-tags">
+          
+            <a href="/blog/tags/ElasticSearch/" rel="tag"><i class="fa fa-tag"></i> ElasticSearch</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2020/09/09/一台电脑生成多个ssh-key/" rel="next" title="一台电脑生成多个ssh-key">
+                <i class="fa fa-chevron-left"></i> 一台电脑生成多个ssh-key
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2020/09/17/Elasticsearch7搭建集群并配置节点证书/" rel="prev" title="Elasticsearch7搭建集群并配置节点证书">
+                Elasticsearch7搭建集群并配置节点证书 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+
+
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+      <div id="sidebar-dimmer"></div>
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/blog/images/avatar.jpg" alt="rstyro">
+            
+              <p class="site-author-name" itemprop="name">rstyro</p>
+              <p class="site-description motion-element" itemprop="description">帅大叔个人站点，记录学习到的一些技术笔记等。</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/blog/archives/">
+                
+                    <span class="site-state-item-count">177</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/blog/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">12</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/blog/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">35</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+            <div class="feed-link motion-element">
+              <a href="/blog/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://github.com/rstyro" title="GitHub &rarr; https://github.com/rstyro" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://gitee.com/rstyro" title="Gitee &rarr; https://gitee.com/rstyro" rel="noopener" target="_blank"><i class="fa fa-fw fa-codiepie"></i>Gitee</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="/blog/1006059906" title="QQ &rarr; 1006059906"><i class="fa fa-fw fa-qq"></i>QQ</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://www.jianshu.com/u/651c15a1758a" title="简书 &rarr; https://www.jianshu.com/u/651c15a1758a" rel="noopener" target="_blank"><i class="fa fa-fw fa-book"></i>简书</a>
+                </span>
+              
+            </div>
+          
+
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-block">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                友链
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://rstyro.github.io/blog/" title="https://rstyro.github.io/blog/">帅大叔博客</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://www.zhyd.me/" title="https://www.zhyd.me/" rel="noopener" target="_blank">张亚东博客</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://www.devsong.org/" title="http://www.devsong.org/" rel="noopener" target="_blank">DevSONG</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://www.dalaoyang.cn/" title="https://www.dalaoyang.cn/" rel="noopener" target="_blank">dalaoyang</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://www.chenshuangyi.com/" title="https://www.chenshuangyi.com/" rel="noopener" target="_blank">陈双义博客</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+            
+          
+          <div id="days"></div>
+<script>
+function show_date_time(){
+window.setTimeout("show_date_time()", 1000);
+BirthDay=new Date("04/10/2017 15:13:14");
+today=new Date();
+timeold=(today.getTime()-BirthDay.getTime());
+sectimeold=timeold/1000
+secondsold=Math.floor(sectimeold);
+msPerDay=24*60*60*1000
+e_daysold=timeold/msPerDay
+daysold=Math.floor(e_daysold);
+e_hrsold=(e_daysold-daysold)*24;
+hrsold=setzero(Math.floor(e_hrsold));
+e_minsold=(e_hrsold-hrsold)*60;
+minsold=setzero(Math.floor((e_hrsold-hrsold)*60));
+seconds=setzero(Math.floor((e_minsold-minsold)*60));
+document.getElementById('days').innerHTML="已运行 "+daysold+" 天 "+hrsold+" 小时 "+minsold+" 分 "+seconds+" 秒";
+}
+function setzero(i){
+if (i<10)
+{i="0" + i};
+return i;
+}
+show_date_time();
+</script>
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#一、前言"><span class="nav-number">1.</span> <span class="nav-text">一、前言</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#二、Elasticsearch7与Mysql的对比"><span class="nav-number">2.</span> <span class="nav-text">二、Elasticsearch7与Mysql的对比</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#三、索引"><span class="nav-number">3.</span> <span class="nav-text">三、索引</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#四、Mappings"><span class="nav-number">4.</span> <span class="nav-text">四、Mappings</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#五、API"><span class="nav-number">5.</span> <span class="nav-text">五、API</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1、创建索引"><span class="nav-number">5.1.</span> <span class="nav-text">1、创建索引</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2、操作mapping"><span class="nav-number">5.2.</span> <span class="nav-text">2、操作mapping</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3、添加数据"><span class="nav-number">5.3.</span> <span class="nav-text">3、添加数据</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4、更新数据"><span class="nav-number">5.4.</span> <span class="nav-text">4、更新数据</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5、删除数据"><span class="nav-number">5.5.</span> <span class="nav-text">5、删除数据</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#6、查询数据"><span class="nav-number">5.6.</span> <span class="nav-text">6、查询数据</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#7、节点信息查询"><span class="nav-number">5.7.</span> <span class="nav-text">7、节点信息查询</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#六、Java-API"><span class="nav-number">6.</span> <span class="nav-text">六、Java API</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1、导入依赖"><span class="nav-number">6.1.</span> <span class="nav-text">1、导入依赖</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2、配置RestHighLevelClient"><span class="nav-number">6.2.</span> <span class="nav-text">2、配置RestHighLevelClient</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3、辅助工具类"><span class="nav-number">6.3.</span> <span class="nav-text">3、辅助工具类</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#EsUtils-工具类"><span class="nav-number">6.3.1.</span> <span class="nav-text">EsUtils 工具类</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#对象属性名称驼峰与下划线互转序列化类"><span class="nav-number">6.3.2.</span> <span class="nav-text">对象属性名称驼峰与下划线互转序列化类</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4、抽象的增删改查类"><span class="nav-number">6.4.</span> <span class="nav-text">4、抽象的增删改查类</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5、测试Demo"><span class="nav-number">6.5.</span> <span class="nav-text">5、测试Demo</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">rstyro</span>
+
+  
+
+  
+</div>
+
+
+
+
+
+
+
+
+<div class="theme-info">
+  <div class="powered-by"></div>
+  <span class="post-count">博客全站共282.3k字</span>
+</div>
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-user"></i>
+    </span>
+    <span class="site-uv" title="总访客量">
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+    </span>
+  
+
+  
+    <span class="post-meta-divider">|</span>
+  
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-eye"></i>
+    </span>
+    <span class="site-pv" title="总访问量">
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/blog/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/blog/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/blog/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/blog/js/src/utils.js?v=6.7.0"></script>
+
+  <script src="/blog/js/src/motion.js?v=6.7.0"></script>
+
+
+
+  
+  
+
+  
+  <script src="/blog/js/src/scrollspy.js?v=6.7.0"></script>
+<script src="/blog/js/src/post-details.js?v=6.7.0"></script>
+
+
+
+  
+
+
+  <script src="/blog/js/src/bootstrap.js?v=6.7.0"></script>
+
+
+
+  
+  
+
+
+
+
+  
+
+<script src="//cdn1.lncld.net/static/js/3.11.1/av-min.js"></script>
+
+
+
+  
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/valine/1.3.4/Valine.min.js"></script>
+
+<script>
+  var GUEST = ['nick', 'mail', 'link'];
+  var guest = 'nick,mail,link';
+  guest = guest.split(',').filter(function (item) {
+    return GUEST.indexOf(item) > -1;
+  });
+  new Valine({
+    el: '#comments',
+    verify: false,
+    notify: false,
+    appId: 'LwEPiJFa7YMn2MrJdCwaUbmQ-gzGzoHsz',
+    appKey: 'JqS1y3RxYvDOki9r3NcqqoO5',
+    placeholder: '来都来了，不说几句就走，过分了啊！！！',
+    avatar: 'monsterid',
+    meta: guest,
+    pageSize: '10' || 10,
+    visitor: false
+  });
+</script>
+
+
+
+  
+
+  <script>
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/blog/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url).replace(/\/{2,}/g, '/');
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x"></i></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x"></i></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+  <script>
+    (function(){
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+      }
+      else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+      }
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+    })();
+  </script>
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
