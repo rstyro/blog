@@ -66,6 +66,7 @@ EOF
 #### 2、echo
 上面Hello World的例子用过，就是在屏幕中打印一个字符串的。
 ```bash
+#!/bin/bash
 # name这个就是定义的一个变量，后面讲，这里先用着
 name=rstyro
 
@@ -863,8 +864,66 @@ echo $?
 + 发现 `$?` 最大能接收的值是：255，刚好是一个byte类型。
 + 连续使用两次 `echo $?`，得到的结果不同。第一次`$?`是add 函数的返回值，第二次就是 `echo "输入的两个数字之和为 $? !"` 的返回值了。
 
+### 九、多线程用法
+shell也是有多线程用法的，先看例子：
 
-### 九、常用的脚本命令
+#### 1、串行例子
+```
+#!/bin/bash
+begin_time=`date "+%s"`
+for i in `seq 1 10`
+do
+	sleep 1s
+    echo "i=$i"
+done
+
+end_time=`date "+%s"`
+
+offset_time=`expr $end_time - $begin_time`
+
+echo "开始时间=${begin_time}s"
+echo "结束时间=${end_time}s"
+
+
+echo "总耗时=${offset_time}s"
+```
++ 上面的例子很简单，每隔1秒输出1到10的数，最后打印总耗时
++ seq：是squeue一个序列的缩写，`seq 1 10` 是输出1到10的整数
++ 结果耗时是：`10s`,可以知道执行结果是串行的。符合逻辑
++ 现在来试试多线程的写法，需要用到`& wait`。
+
+
+#### 2、并行例子
+```
+#!/bin/bash
+begin_time=`date "+%s"`
+for i in `seq 1 10`
+do
+{
+	sleep 1s
+    echo "i=$i"
+} &
+done
+
+# 等待子进程执行完，继续往下走
+wait
+
+end_time=`date "+%s"`
+
+offset_time=`expr $end_time - $begin_time`
+
+echo "begin_time=$begin_time"
+echo "end_time=$end_time"
+
+echo "offset_time=${offset_time}s"
+```
+
++ 多条命令用`{}` 括起来然后在使用`&`
++ 然后在for后面使用`wait` 等待所以子进程执行结束。
++ 最终offset_time打印为：`offset_time=1s` 所以它们是并行执行的。
+
+
+### 十、常用的脚本命令
 记录一下吧
 #### 1、获取本机IP地址 
 ```
@@ -889,6 +948,51 @@ ifconfig -a |grep inet |grep -v 127.0.0.1 |grep -v inet6|awk '{print $2}'
 pid=`ps -ef | grep yourJavaServiceName.jar |grep -v color |grep -v grep | awk '{print $2}'`
 echo $pid
 ```
+
+#### 3、多线程扫描相同网段ip
+```
+#!/bin/bash
+
+# 网段前缀
+ip_prefix=192.168.2
+
+for i in `seq 1 254`
+do
+{
+	ping $ip_prefix.$i -fqc2 | grep -q "rtt" && echo "$ip_prefix.$i yes" || echo "$ip_prefix.$i no"
+   
+} &
+done
+wait  ##等待所有子后台进程结束
+
+echo "over..."
+```
++ ` & 与 wait` 结合使用就相当于多线程。
++ `&` 是后台执行（新建子进程）的意思
++ `wait` 等待所有子进程结束继续往下执行。
+
+
+#### 4、通过mac地址获取ip
+```
+#!/bin/bash
+
+# 参数就是mac地址
+mac=$1
+if [[ $mac = "" ]]
+then
+	echo "mac不能为空"
+	exit 0
+fi
+
+echo "mac=$mac"
+ip=`ip neigh show | grep $mac | awk '{print $1}'`
+echo "ip=$ip"
+```
+
++ 执行脚本的参数就是mac地址，例：`./macToIp.sh 52:54:00:b0:4f:13` 这样执行即可。
++ 这个可以先通过扫描同网段的ip，然后在查
++ 类似这个 `cat /proc/net/arp | grep 52:54:00:b0:4f:13`，但是arp有时会有多条（缓存）
+
 
 
 

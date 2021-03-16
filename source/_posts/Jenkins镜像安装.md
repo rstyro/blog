@@ -72,6 +72,9 @@ systemctl start/stop/restart jenkins
 
 + Jenkins 的根目录为：`/var/lib/jenkins/`
 + Jenkins 的工作目录为: `/var/lib/jenkins/workspace/`
++ 如果出现权限问题，可以修改：`/etc/sysconfig/jenkins` 把`JENKINS_USER`改为`root` ,如：`JENKINS_USER="root"`
+
+
 
 ## 四、节点配置
 + 当你需要在其他服务器自动部署应用的时候，需要配置节点
