@@ -534,7 +534,7 @@
       
 
       
-        <h1 id="这里主要介绍centos7-和centos-6-的防火墙相关命令"><a href="#这里主要介绍centos7-和centos-6-的防火墙相关命令" class="headerlink" title="这里主要介绍centos7 和centos 6 的防火墙相关命令"></a>这里主要介绍centos7 和centos 6 的防火墙相关命令</h1><h4 id="顺便说一下最小化安装centos7后-上不了网的问题"><a href="#顺便说一下最小化安装centos7后-上不了网的问题" class="headerlink" title="顺便说一下最小化安装centos7后 上不了网的问题"></a>顺便说一下最小化安装centos7后 上不了网的问题</h4><h2 id="Centos-6"><a href="#Centos-6" class="headerlink" title="Centos 6"></a>Centos 6</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">查看开放端口</span></span><br><span class="line">service iptables status</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash">开启8080端口 ,下面是命令，</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 方法二是 修改 /etc/sysconfig/iptables 文件，添加： -A INPUT -p tcp -m tcp --dport 8080 -j ACCEPT</span></span><br><span class="line">/sbin/iptables -I INPUT -p tcp --dport 8080 -j ACCEPT</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash">防火墙开启命令: </span></span><br><span class="line">service iptables start</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash">防火墙关闭命令: </span></span><br><span class="line">service iptables stop </span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash">永久关闭防火墙：</span></span><br><span class="line">chkconfig iptables off</span><br></pre></td></tr></table></figure>
+        <h1 id="这里主要介绍centos7-和centos-6-的防火墙相关命令"><a href="#这里主要介绍centos7-和centos-6-的防火墙相关命令" class="headerlink" title="这里主要介绍centos7 和centos 6 的防火墙相关命令"></a>这里主要介绍centos7 和centos 6 的防火墙相关命令</h1><h4 id="顺便说一下最小化安装centos7后-上不了网的问题"><a href="#顺便说一下最小化安装centos7后-上不了网的问题" class="headerlink" title="顺便说一下最小化安装centos7后 上不了网的问题"></a>顺便说一下最小化安装centos7后 上不了网的问题</h4><h2 id="Centos-6"><a href="#Centos-6" class="headerlink" title="Centos 6"></a>Centos 6</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span>查看开放端口</span><br><span class="line">service iptables status</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span>开启8080端口 ,下面是命令，</span><br><span class="line"><span class="meta">#</span> 方法二是 修改 /etc/sysconfig/iptables 文件，添加： -A INPUT -p tcp -m tcp --dport 8080 -j ACCEPT</span><br><span class="line">/sbin/iptables -I INPUT -p tcp --dport 8080 -j ACCEPT</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">#</span>防火墙开启命令: </span><br><span class="line">service iptables start</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span>防火墙关闭命令: </span><br><span class="line">service iptables stop </span><br><span class="line"></span><br><span class="line"><span class="meta">#</span>永久关闭防火墙：</span><br><span class="line">chkconfig iptables off</span><br></pre></td></tr></table></figure>
 
 <h4 id="可能发生的异常"><a href="#可能发生的异常" class="headerlink" title="可能发生的异常"></a>可能发生的异常</h4><figure class="highlight routeros"><table><tr><td class="code"><pre><span class="line">具体的异常现象： </span><br><span class="line"><span class="comment">#1.启动或者关闭防火墙没任何的提示</span></span><br><span class="line">[root@ethnicity ~]#<span class="built_in"> service </span>iptables start</span><br><span class="line">[root@ethnicity ~]#<span class="built_in"> service </span>iptables stop</span><br><span class="line"></span><br><span class="line"><span class="comment">#2.查看防火墙的状态直接提示模块未加载</span></span><br><span class="line">[root@ethnicity ~]#<span class="built_in"> service </span>iptables status</span><br><span class="line">iptables:<span class="built_in"> Firewall </span>modules are <span class="keyword">not</span> loaded.</span><br><span class="line">修复的方法：</span><br><span class="line"> </span><br><span class="line">modprobe  ip_tables  						#加载ip_tables模块</span><br><span class="line">modprobe  iptable_filter 					#加载iptable_filter模块</span><br><span class="line">[root@ethnicity ~]# lsmod | grep iptable 	#查看模块，有模块即解决了</span><br><span class="line">iptable_filter          2173  0 </span><br><span class="line">ip_tables               9567  1 iptable_filter</span><br></pre></td></tr></table></figure>
 
@@ -766,7 +766,7 @@
                 
                   <a href="/blog/archives/">
                 
-                    <span class="site-state-item-count">179</span>
+                    <span class="site-state-item-count">180</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -1072,7 +1072,7 @@ show_date_time();
 
 <div class="theme-info">
   <div class="powered-by"></div>
-  <span class="post-count">博客全站共286k字</span>
+  <span class="post-count">博客全站共286.9k字</span>
 </div>
         
 <div class="busuanzi-count">
