@@ -34,6 +34,9 @@ git config --global http.proxy http://127.0.0.1:19180
 git config --global https.proxy https://127.0.0.1:19180
 
 
+# 只代理 github.com,其他不走代理
+git config --global http.https://github.com.proxy  http://127.0.0.1:19180
+
 # 取消代理
 git config --global --unset http.proxy
 git config --global --unset https.proxy
@@ -57,3 +60,17 @@ git reset --soft HEAD^
 删除工作空间改动代码，撤销commit，撤销`git add .` 注意完成这个操作后，就恢复到了上一次的commit状态。
 + --mixed 
 不删除工作空间改动代码，撤销commit，并且撤销`git add .` 操作 ,这个为默认参数,`git reset --mixed HEAD^` 和 `git reset HEAD^` 效果是一样的
+
+
+### 四、Git 记住密码
+
+```
+# 第一次需要输入账号密码，之后就都不必再输入了
+git config --global credential.helper store
+
+# 第一次需要输入账号密码，15分钟内不必再输入
+git config --global credential.helper cache
+
+# 第一次需要输入账号密码，300秒内不必再输入
+git config --global credential.helper 'cache --timeout=300'
+```
