@@ -1,6 +1,7 @@
 ---
 title: Linux 一些常用命令
 date: 2017-06-11 15:18:59
+updated: 2017-06-11 15:18:59
 tags: [Linux]
 categories: 网络运维
 ---
@@ -102,6 +103,15 @@ kill -2 $(pidof mongod)
 
 # 杀掉所有tomcat 的所有进程，-2 比较好，-9 有点暴力
 kill -2 $(pidof tomcat)
+
+#列出了当前主机中运行的进程中包含 redis 关键字的进程
+ps -ef | grep redis | grep -v grep    
+ 
+#列出了要kill掉这些进程的命令，并将之打印在了屏幕上 
+ps -ef | grep redis | grep -v grep | awk '{print "kill -9 "$2}'
+ 
+#后面加上|sh后，则执行这些命令，进而杀掉了这些进程
+ps -ef | grep redis | grep -v grep | awk '{print "kill -9 "$2}' | sh
 ```
 
 ## CPU命令
