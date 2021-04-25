@@ -209,6 +209,23 @@ nohup java -jar $JAR_NAME.$FILE_TYPE >print.out 2>&1 &
 > `Started by GitHub push by rstyro` 这个打印说明通过Github 推送触发的，说明Webhooks 配置成功。搞定    
 
 
+### 3、部署到其他的服务器
++ 如果需要把构建好的包，打包到其他的服务器
++ 需要安装 `Publish over SSH` 插件，节点也可以，但是节点服务器都需要配置jenkins环境，如jdk、maven等
+
+![](pos.png)
+
++ 配置 `Publish over SSH` ,`Manage Jenkins` --> `Configure System` --> `Publish over SSH` 进行远程服务器配置即可
++ 具体如下图：
+
+![](ssh.png)
+
+![](ssh-build.png)
+
+![](ssh-config.png)
+
+
+
 ## 六、用户权限管理
 
 #### 1、配置步骤
@@ -281,5 +298,21 @@ nohup java -jar $JAR_NAME.$FILE_TYPE >print.out 2>&1 &
 	+ Tag	tag构建
 	+ Reserve	
 	+ Unlock  
+	
 
-## ok,基本上够用了，一通百通。上面以Github为例，其他的也差不多！！！
+## 七、MultiJob多任务构建
++ 有时需要重启所有服务，如果一个一个服务的去点，这样效率比较低
++ 所以我们可以构建一个任务，让Jenkins 自动去构建所有任务。
+
+### 1、步骤
++ 需要安装：`MultiJob plugin` 插件
+
+![](multijob.png)
+
++ 然后 新建Item 创建一个 `MultiJob Project` 即可。
+
+![](multijob-project.png)
+
++ 在构建那里，添加一个 `MultiJob Phase` ，在其下面添加 Job 即可。
+
+![](multijob-phase.png)
