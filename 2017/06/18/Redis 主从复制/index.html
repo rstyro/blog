@@ -125,7 +125,7 @@
 <meta property="og:image" content="https://rstyro.github.io/blog/2017/06/18/Redis%20主从复制/72549.png">
 <meta property="og:image" content="https://rstyro.github.io/blog/2017/06/18/Redis%20主从复制/72583.png">
 <meta property="og:image" content="https://rstyro.github.io/blog/2017/06/18/Redis%20主从复制/38065.png">
-<meta property="og:updated_time" content="2021-01-22T01:37:01.370Z">
+<meta property="og:updated_time" content="2017-06-19T13:30:13.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Redis 主从复制">
 <meta name="twitter:description" content="Redis 集群一、准备工作 安装redis 创建3个不同端口的配置文件  二、配置文件在redis 的所在目录下创建一个 config 文件夹，并复制3份redis 的默认配置文件redis.conf 到里面。 mkdir config# 复制默认的配置文件到/usr/local/redis/config/ 下并重命名未redis6379.confcp /opt/redis-3.2.1/redi">
@@ -472,7 +472,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2021-01-22 09:37:01" itemprop="dateModified" datetime="2021-01-22T09:37:01+08:00">2021-01-22</time>
+                <time title="修改时间：2017-06-19 21:30:13" itemprop="dateModified" datetime="2017-06-19T21:30:13+08:00">2017-06-19</time>
               
             
           </span>
@@ -585,7 +585,7 @@
 
 <p>如下图：<br><img src="04687.png" alt></p>
 <blockquote>
-<p>除了手动写命令连接之外，也可以在redis6380.conf(和redis6381.conf)配置文件中配置:  <code>slaveof &lt;masterip&gt; &lt;masterport&gt;</code> 配置这行为：<br><code>SLAVEOF 127.0.0.1 6379</code></p>
+<p>除了手动写命令连接之外，也可以在redis6380.conf(和redis6381.conf)文件中配置:  <code>slaveof &lt;masterip&gt; &lt;masterport&gt;</code><br><code>SLAVEOF 127.0.0.1 6379</code><br>如果redis 是设置密码的话就加：<code>masterauth yourPassword</code></p>
 </blockquote>
 <p><strong>现在在6379端口设置值，我们测试在6380和6381端口能不能获取值</strong><br><img src="12938.png" alt></p>
 <ul>
@@ -594,9 +594,9 @@
 <li>如果slave 宕机了，启动之后不会变成slave,除非写进配置文件，不然它就会变成一个单机的服务器</li>
 <li>如果我们想让slave 可以上位的话，可以看下面的哨兵模式。</li>
 </ul>
-<h2 id="五、哨兵模式"><a href="#五、哨兵模式" class="headerlink" title="五、哨兵模式"></a>五、哨兵模式</h2><p><strong>哨兵模式简单的说呢，就是反客为主，就是主机死了，从所有从机中选出一个主机。</strong></p>
-<h4 id="1、配置哨兵文件"><a href="#1、配置哨兵文件" class="headerlink" title="1、配置哨兵文件"></a>1、配置哨兵文件</h4><p>我们在redis6379.conf 的同目录下创建一个<code>sentinel.conf</code><br>编辑内容如下：</p>
-<figure class="highlight smali"><table><tr><td class="code"><pre><span class="line"><span class="comment"># localhost6379是我随便取的一个主机的名字</span></span><br><span class="line">sentinel<span class="built_in"> monitor </span>localhost6379  127.0.0.1 6379 1</span><br></pre></td></tr></table></figure>
+<h2 id="五、哨兵模式"><a href="#五、哨兵模式" class="headerlink" title="五、哨兵模式"></a>五、哨兵模式</h2><p><strong>哨兵模式简单的说呢，就是反客为主，就是主机死了，从所有从机中选出一个主机。</strong><br><strong>哨兵模式就是在主从复制的情况下，保证服务高可用，slave是没有写入操作的只有master可以。</strong></p>
+<h4 id="1、配置哨兵文件"><a href="#1、配置哨兵文件" class="headerlink" title="1、配置哨兵文件"></a>1、配置哨兵文件</h4><p>我们在redis6379.conf 的同目录下创建一个<code>sentinel.conf</code>，或复制一份默认的 <code>sentinel.conf</code> 在其基础上更改。<br>编辑内容如下：</p>
+<figure class="highlight routeros"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 这个端口和redis的启动端口不一样</span></span><br><span class="line">port 26379</span><br><span class="line">daemonize <span class="literal">yes</span></span><br><span class="line">bind 0.0.0.0</span><br><span class="line">logfile <span class="string">"/usr/local/redis/logs/sentinel.log"</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># masterName是我随便取的一个主机的名字</span></span><br><span class="line"><span class="comment"># 后面的数字1 是有多少个哨兵节点选举才生效，建议哨兵节点数 一半加1</span></span><br><span class="line"><span class="comment"># 如果哨兵节点有多个，然后数字是1就会有bug。master节点一直在变</span></span><br><span class="line">sentinel monitor masterName  127.0.0.1 6379 1</span><br><span class="line"><span class="comment"># 需要密码的时候，可以加下面这行</span></span><br><span class="line">sentinel auth-pass masterName yourPassword</span><br></pre></td></tr></table></figure>
 
 <p><strong>上面的意思：就是监控6379这主机挂了的时候，从机来投票，谁得票数多谁就是主机！</strong></p>
 <blockquote>
@@ -796,7 +796,7 @@
                 
                   <a href="/blog/archives/">
                 
-                    <span class="site-state-item-count">182</span>
+                    <span class="site-state-item-count">184</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -916,7 +916,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">35</span>
+                      
+                    
+                    <span class="site-state-item-count">36</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>
@@ -1102,7 +1104,7 @@ show_date_time();
 
 <div class="theme-info">
   <div class="powered-by"></div>
-  <span class="post-count">博客全站共291.6k字</span>
+  <span class="post-count">博客全站共293.3k字</span>
 </div>
         
 <div class="busuanzi-count">

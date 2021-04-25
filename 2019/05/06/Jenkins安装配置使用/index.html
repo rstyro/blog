@@ -136,12 +136,19 @@
 <meta property="og:image" content="https://rstyro.github.io/blog/2019/05/06/Jenkins安装配置使用/jenkins-webhooks.png">
 <meta property="og:image" content="https://rstyro.github.io/blog/2019/05/06/Jenkins安装配置使用/jenkins-build-auto.png">
 <meta property="og:image" content="https://rstyro.github.io/blog/2019/05/06/Jenkins安装配置使用/jenkins-build-p2.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2019/05/06/Jenkins安装配置使用/pos.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2019/05/06/Jenkins安装配置使用/ssh.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2019/05/06/Jenkins安装配置使用/ssh-build.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2019/05/06/Jenkins安装配置使用/ssh-config.png">
 <meta property="og:image" content="https://rstyro.github.io/blog/2019/05/06/Jenkins安装配置使用/jenkins-auth.png">
 <meta property="og:image" content="https://rstyro.github.io/blog/2019/05/06/Jenkins安装配置使用/jenkins-auth-role.png">
 <meta property="og:image" content="https://rstyro.github.io/blog/2019/05/06/Jenkins安装配置使用/jenkins-auth-role-manage.png">
 <meta property="og:image" content="https://rstyro.github.io/blog/2019/05/06/Jenkins安装配置使用/jenkins-auth-role2.png">
 <meta property="og:image" content="https://rstyro.github.io/blog/2019/05/06/Jenkins安装配置使用/jenkins-auth-role3.png">
-<meta property="og:updated_time" content="2021-01-22T01:37:01.223Z">
+<meta property="og:image" content="https://rstyro.github.io/blog/2019/05/06/Jenkins安装配置使用/multijob.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2019/05/06/Jenkins安装配置使用/multijob-project.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2019/05/06/Jenkins安装配置使用/multijob-phase.png">
+<meta property="og:updated_time" content="2021-04-25T09:21:54.358Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Jenkins安装配置使用">
 <meta name="twitter:description" content="Jenkins安装及使用 Jenkins是基于Java开发的一种持续集成工具，用于监控持续重复的工作，功能包括： 1、持续的软件版本发布/测试项目。 2、监控外部调用执行的工作  一、环境 1、安装JDK不会的看这个：Linux 安装jdk 2、安装tomcat(非必须)不会看这个：Centos7 安装tomcat 3、安装Git不会看这个：Linux安装Git 4、安装Maven不会看这个：li">
@@ -488,7 +495,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2021-01-22 09:37:01" itemprop="dateModified" datetime="2021-01-22T09:37:01+08:00">2021-01-22</time>
+                <time title="修改时间：2021-04-25 17:21:54" itemprop="dateModified" datetime="2021-04-25T17:21:54+08:00">2021-04-25</time>
               
             
           </span>
@@ -634,6 +641,18 @@
 <blockquote>
 <p><code>Started by GitHub push by rstyro</code> 这个打印说明通过Github 推送触发的，说明Webhooks 配置成功。搞定    </p>
 </blockquote>
+<h3 id="3、部署到其他的服务器"><a href="#3、部署到其他的服务器" class="headerlink" title="3、部署到其他的服务器"></a>3、部署到其他的服务器</h3><ul>
+<li>如果需要把构建好的包，打包到其他的服务器</li>
+<li>需要安装 <code>Publish over SSH</code> 插件，节点也可以，但是节点服务器都需要配置jenkins环境，如jdk、maven等</li>
+</ul>
+<p><img src="pos.png" alt></p>
+<ul>
+<li>配置 <code>Publish over SSH</code> ,<code>Manage Jenkins</code> –&gt; <code>Configure System</code> –&gt; <code>Publish over SSH</code> 进行远程服务器配置即可</li>
+<li>具体如下图：</li>
+</ul>
+<p><img src="ssh.png" alt></p>
+<p><img src="ssh-build.png" alt></p>
+<p><img src="ssh-config.png" alt></p>
 <h2 id="六、用户权限管理"><a href="#六、用户权限管理" class="headerlink" title="六、用户权限管理"></a>六、用户权限管理</h2><h4 id="1、配置步骤"><a href="#1、配置步骤" class="headerlink" title="1、配置步骤"></a>1、配置步骤</h4><ul>
 <li>1、安装插件<code>Role-based Authorization Strategy</code></li>
 <li>2、进入全局安全配置</li>
@@ -708,7 +727,23 @@
 </ul>
 </li>
 </ul>
-<h2 id="ok-基本上够用了，一通百通。上面以Github为例，其他的也差不多！！！"><a href="#ok-基本上够用了，一通百通。上面以Github为例，其他的也差不多！！！" class="headerlink" title="ok,基本上够用了，一通百通。上面以Github为例，其他的也差不多！！！"></a>ok,基本上够用了，一通百通。上面以Github为例，其他的也差不多！！！</h2>
+<h2 id="七、MultiJob多任务构建"><a href="#七、MultiJob多任务构建" class="headerlink" title="七、MultiJob多任务构建"></a>七、MultiJob多任务构建</h2><ul>
+<li>有时需要重启所有服务，如果一个一个服务的去点，这样效率比较低</li>
+<li>所以我们可以构建一个任务，让Jenkins 自动去构建所有任务。</li>
+</ul>
+<h3 id="1、步骤"><a href="#1、步骤" class="headerlink" title="1、步骤"></a>1、步骤</h3><ul>
+<li>需要安装：<code>MultiJob plugin</code> 插件</li>
+</ul>
+<p><img src="multijob.png" alt></p>
+<ul>
+<li>然后 新建Item 创建一个 <code>MultiJob Project</code> 即可。</li>
+</ul>
+<p><img src="multijob-project.png" alt></p>
+<ul>
+<li>在构建那里，添加一个 <code>MultiJob Phase</code> ，在其下面添加 Job 即可。</li>
+</ul>
+<p><img src="multijob-phase.png" alt></p>
+
       
     </div>
 
@@ -890,7 +925,7 @@
                 
                   <a href="/blog/archives/">
                 
-                    <span class="site-state-item-count">182</span>
+                    <span class="site-state-item-count">184</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -1010,7 +1045,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">35</span>
+                      
+                    
+                    <span class="site-state-item-count">36</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>
@@ -1156,7 +1193,7 @@ show_date_time();
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Jenkins安装及使用"><span class="nav-number">1.</span> <span class="nav-text">Jenkins安装及使用</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#一、环境"><span class="nav-number">1.1.</span> <span class="nav-text">一、环境</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#二、下载安装"><span class="nav-number">1.2.</span> <span class="nav-text">二、下载安装</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#三、全局工具配置"><span class="nav-number">1.3.</span> <span class="nav-text">三、全局工具配置</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#四、Github-配置"><span class="nav-number">1.4.</span> <span class="nav-text">四、Github 配置</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1、生成-Personal-access-tokens"><span class="nav-number">1.4.0.1.</span> <span class="nav-text">1、生成 Personal access tokens</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2、生成凭据"><span class="nav-number">1.4.0.2.</span> <span class="nav-text">2、生成凭据</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3、配置Jenkins-的Github-Server"><span class="nav-number">1.4.0.3.</span> <span class="nav-text">3、配置Jenkins 的Github Server</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#五、构建任务"><span class="nav-number">1.5.</span> <span class="nav-text">五、构建任务</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1、手动构建"><span class="nav-number">1.5.1.</span> <span class="nav-text">1、手动构建</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#test-run-sh-内容如下"><span class="nav-number">1.5.1.1.</span> <span class="nav-text">test_run.sh 内容如下</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2、自动构建"><span class="nav-number">1.5.2.</span> <span class="nav-text">2、自动构建</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#六、用户权限管理"><span class="nav-number">1.6.</span> <span class="nav-text">六、用户权限管理</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1、配置步骤"><span class="nav-number">1.6.0.1.</span> <span class="nav-text">1、配置步骤</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2、管理分配角色"><span class="nav-number">1.6.0.2.</span> <span class="nav-text">2、管理分配角色</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3、角色选项说明"><span class="nav-number">1.6.0.3.</span> <span class="nav-text">3、角色选项说明</span></a></li></ol></li></ol><li class="nav-item nav-level-2"><a class="nav-link" href="#ok-基本上够用了，一通百通。上面以Github为例，其他的也差不多！！！"><span class="nav-number">1.7.</span> <span class="nav-text">ok,基本上够用了，一通百通。上面以Github为例，其他的也差不多！！！</span></a></li></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Jenkins安装及使用"><span class="nav-number">1.</span> <span class="nav-text">Jenkins安装及使用</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#一、环境"><span class="nav-number">1.1.</span> <span class="nav-text">一、环境</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#二、下载安装"><span class="nav-number">1.2.</span> <span class="nav-text">二、下载安装</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#三、全局工具配置"><span class="nav-number">1.3.</span> <span class="nav-text">三、全局工具配置</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#四、Github-配置"><span class="nav-number">1.4.</span> <span class="nav-text">四、Github 配置</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1、生成-Personal-access-tokens"><span class="nav-number">1.4.0.1.</span> <span class="nav-text">1、生成 Personal access tokens</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2、生成凭据"><span class="nav-number">1.4.0.2.</span> <span class="nav-text">2、生成凭据</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3、配置Jenkins-的Github-Server"><span class="nav-number">1.4.0.3.</span> <span class="nav-text">3、配置Jenkins 的Github Server</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#五、构建任务"><span class="nav-number">1.5.</span> <span class="nav-text">五、构建任务</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1、手动构建"><span class="nav-number">1.5.1.</span> <span class="nav-text">1、手动构建</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#test-run-sh-内容如下"><span class="nav-number">1.5.1.1.</span> <span class="nav-text">test_run.sh 内容如下</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2、自动构建"><span class="nav-number">1.5.2.</span> <span class="nav-text">2、自动构建</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3、部署到其他的服务器"><span class="nav-number">1.5.3.</span> <span class="nav-text">3、部署到其他的服务器</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#六、用户权限管理"><span class="nav-number">1.6.</span> <span class="nav-text">六、用户权限管理</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1、配置步骤"><span class="nav-number">1.6.0.1.</span> <span class="nav-text">1、配置步骤</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2、管理分配角色"><span class="nav-number">1.6.0.2.</span> <span class="nav-text">2、管理分配角色</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3、角色选项说明"><span class="nav-number">1.6.0.3.</span> <span class="nav-text">3、角色选项说明</span></a></li></ol></li></ol><li class="nav-item nav-level-2"><a class="nav-link" href="#七、MultiJob多任务构建"><span class="nav-number">1.7.</span> <span class="nav-text">七、MultiJob多任务构建</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1、步骤"><span class="nav-number">1.7.1.</span> <span class="nav-text">1、步骤</span></a></li></ol></li></div>
             
 
           </div>
@@ -1196,7 +1233,7 @@ show_date_time();
 
 <div class="theme-info">
   <div class="powered-by"></div>
-  <span class="post-count">博客全站共291.6k字</span>
+  <span class="post-count">博客全站共293.3k字</span>
 </div>
         
 <div class="busuanzi-count">
