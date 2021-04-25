@@ -216,6 +216,20 @@ echo ${string:1:5} # 输出 styro
 
 # 字符串位置，查找字符 i 或 g 的位置(哪个字母先出现就计算哪个)
 echo `expr index "$string" ig` # 输出 8
+
+# 下面的所有例子，“*”只是一个通配符可以不要
+# 从左向右截取最后一个abc后的字符串，
+${varible##*abc} 
+
+# 从左向右截取第一个abc后的字符串
+${varible#*abc}
+
+# 从右向左截取最后一个abc后的字符串
+${varible%%abc*}
+
+# 从右向左截取第一个abc后的字符串
+${varible%abc*}
+
 ```
 
 #### 6、数组

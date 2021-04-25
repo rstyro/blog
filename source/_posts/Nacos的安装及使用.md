@@ -164,6 +164,8 @@ db.password=root
 + 在nacos的conf目录有一个叫做`cluster.conf.example`这个就是配置集群的模板文件。
 + 打开发现里面只需要填写ip即可。我们可以修改它为`cluster.conf`（也就是把后缀去掉）。
 + 或者新增一个`cluster.conf`，然后再里面写上各个节点的nacos地址即可。
++ 如果是集群模式的话默认会去查找数据源，如果没有配置外置数据源则使用内置数据源,命令：`startup.sh -p embedded`。
++ 使用外置数据源：`startup.sh`,所以，如果没有配置数据源，记得加参数：`-p embedded`。
 
 ### 1、在不同主机上运行nacos
 如果在不同ip的主机上运行nacos,只需要添加`cluster.conf`文件里面每行写一个nacos所在的`ip:port`即可。

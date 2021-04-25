@@ -9,12 +9,14 @@ categories: 网络运维
 ## 1.下载源码包
 
 ```
+# 安装gcc依赖
+yum install -y gcc gcc-c++
 wget http://download.redis.io/releases/redis-4.0.14.tar.gz
 tar -zxvf redis-4.0.14.tar.gz -C /opt/
 cd /opt/redis-4.0.14/
 make PREFIX=/usr/local/redis install      //指定安装的路径,
 ```
-#### 可能报错
+#### 可能报错一
 > zmalloc.h:50:31: error: jemalloc/jemalloc.h: No such file or directory
 zmalloc.h:55:2: error: #error "Newer version of jemalloc required"
 make[1]: *** [adlist.o] Error 1
@@ -24,6 +26,18 @@ make: *** [all] Error 2
 #### 可以改成
 > make MALLOC=libc PREFIX=/usr/local/redis install   
 ll /usr/local/redis/bin
+
+#### 可以报错二
+```
+cc: error: ../deps/hiredis/libhiredis.a: No such file or directory
+cc: error: ../deps/lua/src/liblua.a: No such file or directory
+make[1]: *** [redis-server] Error 1
+make[1]: Leaving directory `/usr/local/src/redis-4.0.1/src'
+make: *** [all] Error 2
+```
+**解决方法：**
++ 进入源码包目录下的`deps`目录中执行:
++ `make lua hiredis linenoise`
 
 ## 2、添加服务
 ### a)、这个是centos6 的service 命令
