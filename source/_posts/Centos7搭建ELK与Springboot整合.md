@@ -224,6 +224,8 @@ public class SpringbootElkApplication implements CommandLineRunner {
 + 在`kibana` -> `Stack Managemen` -> `索引模式` -> `创建索引模式`，我们就用 `spring-app*` 吧。创建好了，点击discover。就可以看到我们的日志了
 
 
+![](create.png)
+
 ![](add.png)
 
 ![](kibana.png)
