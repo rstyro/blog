@@ -141,7 +141,7 @@ input {
 output{
   elasticsearch { 
      hosts => ["localhost:9200"] # 改成你elasticsearch的地址
-     index => "%{[spring-app-name]}-%{+YYYY.MM.dd}" #用一个项目名称来做索引，注意一点：springappname 这个我用大写，会报错，所以记得小写
+     index => "%{[app-name]}-%{+YYYY.MM.dd}" #用一个项目名称来做索引，app-name 和springboot的日志配置相关。
   }
   stdout { codec => rubydebug }
 }
@@ -175,14 +175,27 @@ output{
 <configuration>
   <appender name="LOGSTASH" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
     <destination>localhost:4567</destination>
-    <encoder charset="UTF-8" class="net.logstash.logback.encoder.LogstashEncoder" />
+    <encoder charset="UTF-8" class="net.logstash.logback.encoder.LogstashEncoder" >
+	 <!-- app-name和logstash配置的name一致 -->
+      <customFields>{"app-name":"spring-demo-log"}</customFields>
+    </encoder>
   </appender>
 
-  <include resource="org/springframework/boot/logging/logback/base.xml"/>
-
+  <property name="LOG_HOME" value="/opt/logs" />
+  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender"> 
+    <encoder>
+        <pattern>%d{yyyy-MM-dd HH:mm:ss} [%level] - %m%n</pattern>
+    </encoder>
+    <filter class="ch.qos.logback.classic.filter.LevelFilter">
+      <level>DEBUG</level>
+      <onMatch>ACCEPT</onMatch>
+      <onMismatch>ACCEPT</onMismatch>
+    </filter>
+  </appender>
+  
   <root level="INFO">
     <appender-ref ref="LOGSTASH" />
-    <appender-ref ref="CONSOLE" />
+    <appender-ref ref="STDOUT" />
   </root>
 
 </configuration>
