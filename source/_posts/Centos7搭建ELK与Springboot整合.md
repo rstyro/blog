@@ -2,8 +2,8 @@
 title: Centos7搭建ELK与Springboot整合
 date: 2021-04-28 11:42:59
 updated: 2021-04-28 11:42:59
-tags:
-categories:
+tags: [ElasticSearch,Spring Boot]
+categories: 搜索引擎
 ---
 ### 前言
 + ElasticSearch和Logstash都是需要Java 环境的

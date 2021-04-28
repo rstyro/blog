@@ -1,7 +1,7 @@
 ---
 title: Elasticsearch7之Reindex数据迁移详解
 date: 2020-10-23 18:00:54
-tags: [ElasticSearch]
+tags: [ElasticSearch,Spring Boot]
 categories: 搜索引擎
 ---
 ### 一、前言
