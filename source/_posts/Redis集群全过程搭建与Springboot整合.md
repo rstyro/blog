@@ -2,8 +2,8 @@
 title: Redis集群全过程搭建与Springboot整合
 date: 2021-04-25 23:44:40
 updated: 2021-04-25 23:44:40
-tags:
-categories:
+tags: [Redis]
+categories: 网络运维
 ---
 
 ### 一、前言
@@ -12,7 +12,7 @@ Redis 高可用集群，本次使用目前的最新版本：6.2.2 （时间：20
 #### 1.环境
 + Redis6.2.2
 + CentOS Linux release 7.9.2009
-+ 设备有效，使用一台虚拟机，以不同的端口启动redis
++ 设备有限，使用一台虚拟机，以不同的端口启动redis
 
 ### 二、下载redis
 + Redis官网：[https://redis.io/download](https://redis.io/download)
@@ -23,7 +23,7 @@ wget https://download.redis.io/releases/redis-6.2.2.tar.gz
 
 ### 三、安装
 + 安装redis，和旧版本一样，也是解压编译安装
-```
+```bash
 # 安装依赖，编译需要
 yum install -y gcc gcc-c++
 
@@ -55,7 +55,7 @@ export PATH=$REDIS_HOME/bin:$PATH
 + 打算搭建6台redis的集群，3主3从
 + 为了统一管理，数据全放在`/usr/local/redis/` 目录下面
 + 复制一个默认的配置文件
-```
+```bash
 # 放集群的配置文件
 mkdir -p /usr/local/redis/conf/cluster
 
@@ -69,7 +69,7 @@ cp /opt/redis-6/redis.conf /usr/local/redis/conf/
 
 ### 2、修改配置文件
 + 主要修改如下几项配置：
-```
+```bash
 # 绑定本地ip地址和回环地址
 bind 192.168.31.169 127.0.0.1
 # 启动端口
@@ -106,9 +106,9 @@ cluster-require-full-coverage no
 ```
 
 
-### 3、更细其他配置
+### 3、更新其他配置
 + 然后使用sed 命令，进行替换
-```
+```bash
 # 进入到配置目录
 cd /usr/local/redis/conf
 # 更换名称
@@ -176,7 +176,7 @@ redis-cli -a rstyro --cluster create 192.168.31.169:7000 192.168.31.169:7001 192
 ### 6、不停机给Redis设置密码
 
 + 如果后期才加密码的话 给集群设置密码，在各个节点下执行：
-```
+```bash
 # 设置密码
 config set requirepass rstyro
 
@@ -263,9 +263,7 @@ ed8872adee52db3c0e7894af518a8ce04d522c1b 192.168.31.169:7007@17007 slave 29f435c
 ```
 + 如上，我现在要移除7002节点、ID： 6a1381f9082aa4da17d9406e87da63dbbd08ce5a
 + 上面扩容使用的命令是交互式的，现在我们使用非交互的，直接命令，不提示，如下：
-```
-1,705 5,460 7,165
-
+```bash
 # 5804-7509 和 10923-16383 算出来=1706+5461=7167，所以直接分配7167个槽位，分给：7000和7001
 redis-cli -a rstyro --cluster reshard 192.168.31.169:7000 --cluster-slots 7167 --cluster-from 6a1381f9082aa4da17d9406e87da63dbbd08ce5a --cluster-to ac26ec5d359eeaee20396dfcca24d6e12189bb22 a668f9156b08706fe9adb25a93e7af42584a3384 --cluster-yes
 
@@ -275,7 +273,7 @@ redis-cli -a rstyro --cluster check 192.168.31.169:7002
 
 ![](check-node.png)
 
-```
+```bash
 # 确定是没有槽位了，移除节点
 # 移除master 节点,集群任一节点，后面接要移除的 节点ID
 redis-cli -a rstyro --cluster del-node 192.168.31.169:7000 6a1381f9082aa4da17d9406e87da63dbbd08ce5a

@@ -2,7 +2,7 @@
 title: Centos7搭建ELK与Springboot整合
 date: 2021-04-28 11:42:59
 updated: 2021-04-28 11:42:59
-tags: [ElasticSearch,Spring Boot]
+tags: [ElasticSearch,Kibana,Logstash,Spring Boot]
 categories: 搜索引擎
 ---
 ### 前言
@@ -71,6 +71,7 @@ vm.max_map_count=655360
 
 
 ### 二、安装kibana
++ kibana就是ES的可视化界面
 
 #### 1、下载kibana
 + 下载地址：[https://www.elastic.co/cn/downloads/kibana](https://www.elastic.co/cn/downloads/kibana)
@@ -107,6 +108,7 @@ nohup /usr/local/kibana/bin/kibana >/usr/local/kibana/logs/kibana.log 2>&1 &
 ```
 
 ### 三、安装Logstash
++ 主要是日志采集的
 
 #### 1、下载 Logstash
 + 下载地址： [https://www.elastic.co/cn/downloads/logstash](https://www.elastic.co/cn/downloads/logstash)
@@ -129,7 +131,8 @@ mv logstash-7.12.0 logstash
 #### 3、和springboot整合
 
 ##### 配置logstash
-+ 新建logstash 配置文件：logstash-spring.conf
++ 进入logstash 的目录，新建一个 conf.d 目录。
++ 在conf.d中新建logstash配置文件：logstash-spring.conf
 
 ```
 input {
@@ -154,7 +157,7 @@ output{
 + 然后启动
 ```
 # 启动logstash
-/usr/local/logstash/bin/logstash -f config/logstash-spring.conf
+/usr/local/logstash/bin/logstash -f conf.d/logstash-spring.conf
 /usr/local/logstash/bin/logstash -f /usr/local/logstash/conf.d/logstash-spring.conf
 ```
 
