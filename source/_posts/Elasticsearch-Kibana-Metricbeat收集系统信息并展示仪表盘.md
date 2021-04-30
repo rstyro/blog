@@ -69,11 +69,11 @@ setup.kibana:
 
 #### 5、收集指标并自定义索引
 + 收集MySQL指标，并自定义索引
-+ 每个模块对应一个索引
++ 配置每个模块对应一个索引
 + 启动MySQL 模块收集：`./metricbeat modules enable mysql`
 + 编辑MySQL模块的配置:
 `vim /usr/local/metricbeat/modules.d/mysql.yml`
-+ 内容如下：
++ 配置mysql配置内容如下：
 
 ```yml
 # Module: mysql
@@ -120,7 +120,7 @@ metricbeat.config.modules:
   #reload.period: 10s
 
 # ======================= Elasticsearch template setting =======================
-
+# 我这里单机的ES，所以设置副本分片为0
 setup.template.settings:
   index.number_of_shards: 1
   index.number_of_replicas: 0
@@ -145,7 +145,7 @@ setup.template.settings:
 
 # 自定义字段
 fields:
-  system-name: elk-183.56.226.225
+  system-name: myserver222
 
 # ================================= Dashboards =================================
 # These settings control loading the sample dashboards to the Kibana index. Loading
@@ -194,7 +194,7 @@ setup.ilm.enabled: false
 output.elasticsearch:
   # Array of hosts to connect to.
   hosts: ["localhost:9299"]
-  # 索引以metricbeat- 开头是因为刚好可以使用 metricbeat提供的dashboards模板
+  # 配置自定义索引，索引以metricbeat- 开头是因为刚好可以使用 metricbeat提供的dashboards模板
   index: "metricbeat-%{[fields.system-name]}-%{[event.module]}-%{[agent.version]}-%{+yyyy.MM.dd}"
   # Protocol - either `http` (default) or `https`.
   #protocol: "https"

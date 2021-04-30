@@ -22,8 +22,10 @@ mv filebeat-7.12.0-linux-x86_64 filebeat
 ```
 
 #### 2、配置Filebeat
++ 默认Fileabeat收集的日志都存到ES的同一索引
++ 我想把不同的日志放到不同的索引，这样方便查找
 + 新建一个 `filebeat-myconfig.yml`
-+ 编辑如下：
++ 内容编辑如下：
 ```
 # 定义 gateway、nginx等应用的input类型、以及存放的具体路径
 filebeat.inputs:
