@@ -1,7 +1,9 @@
 ---
 title: Jenkins镜像安装
 date: 2019-05-29 11:02:36
-tags:
+updated: 2019-05-29 11:02:36
+tags: [Jenkins]
+categories: 网络运维
 ---
 ## 一、安装Jenkins  
 

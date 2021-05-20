@@ -1,7 +1,9 @@
 ---
 title: Jenkins安装配置使用
 date: 2019-05-06 16:20:12
-tags:
+updated: 2019-05-06 16:20:12
+tags: [Jenkins]
+categories: 网络运维
 ---
 # Jenkins安装及使用
 + Jenkins是基于Java开发的一种持续集成工具，用于监控持续重复的工作，功能包括：
@@ -209,26 +211,9 @@ nohup java -jar $JAR_NAME.$FILE_TYPE >print.out 2>&1 &
 > `Started by GitHub push by rstyro` 这个打印说明通过Github 推送触发的，说明Webhooks 配置成功。搞定    
 
 
-### 3、部署到其他的服务器
-+ 如果需要把构建好的包，打包到其他的服务器
-+ 需要安装 `Publish over SSH` 插件，节点也可以，但是节点服务器都需要配置jenkins环境，如jdk、maven等
-
-![](pos.png)
-
-+ 配置 `Publish over SSH` ,`Manage Jenkins` --> `Configure System` --> `Publish over SSH` 进行远程服务器配置即可
-+ 具体如下图：
-
-![](ssh.png)
-
-![](ssh-build.png)
-
-![](ssh-config.png)
-
-
-
 ## 六、用户权限管理
 
-#### 1、配置步骤
+### 1、配置步骤
 + 1、安装插件`Role-based Authorization Strategy`
 + 2、进入全局安全配置
 + 3、当插件安装好的时候，授权策略会多出一个`Role-Based Strategy`选项
@@ -236,7 +221,7 @@ nohup java -jar $JAR_NAME.$FILE_TYPE >print.out 2>&1 &
 
 ![](jenkins-auth.png)
 
-#### 2、管理分配角色
+### 2、管理分配角色
 + 1、系统管理中有一个 `Manage and Assign Roles` 的选项
 + 2、选择`Manage Roles` 管理角色
 + 3、可以创建3种角色：`Global role` 、`Project roles` 、`Slave roles`   
@@ -254,7 +239,7 @@ nohup java -jar $JAR_NAME.$FILE_TYPE >print.out 2>&1 &
 ![](jenkins-auth-role2.png)
 ![](jenkins-auth-role3.png)
 
-#### 3、角色选项说明
+### 3、角色选项说明
 + Overall(全部)	
 	+ Administer  
 		管理员
@@ -300,11 +285,36 @@ nohup java -jar $JAR_NAME.$FILE_TYPE >print.out 2>&1 &
 	+ Unlock  
 	
 
-## 七、MultiJob多任务构建
+## 七、常用插件
++ jenkins基础上是离不开插件的
+
+### 1、权限插件
++ 插件名：`Role-based Authorization Strategy`
++ 上面有介绍
+
+### 2、构建发布到其他服务器运行
++ 插件名：`Publish over SSH`
++ 如果需要把构建好的包，打包到其他的服务器
++ 需要安装 `Publish over SSH` 插件，节点也可以，但是节点服务器都需要配置jenkins环境，如jdk、maven等
+
+![](pos.png)
+
++ 配置 `Publish over SSH` ,`Manage Jenkins` --> `Configure System` --> `Publish over SSH` 进行远程服务器配置即可
++ 具体如下图：
+
+![](ssh.png)
+
+![](ssh-build.png)
+
+![](ssh-config.png)
+
+
+### 3、MultiJob多任务构建
++ 插件名：`MultiJob plugin`
 + 有时需要重启所有服务，如果一个一个服务的去点，这样效率比较低
 + 所以我们可以构建一个任务，让Jenkins 自动去构建所有任务。
 
-### 1、步骤
+**步骤**
 + 需要安装：`MultiJob plugin` 插件
 
 ![](multijob.png)
@@ -316,3 +326,45 @@ nohup java -jar $JAR_NAME.$FILE_TYPE >print.out 2>&1 &
 + 在构建那里，添加一个 `MultiJob Phase` ，在其下面添加 Job 即可。
 
 ![](multijob-phase.png)
+
+### 4、NodeJS构建vue项目
++ 插件名：`Nodejs plugin`
++ 安装插件Nodejs-plugin 
++ 配置NodeJs: 系统管理 -> 全局工具配置 -> NodeJS 
++ 之后就可以构建vue项目了
+
+![](plugin.png)
+
+**配置NodeJS**
+安装nodejs的步骤省略...
+
+![](nodejs-path.png)
+
+**构建任务**
++ 前面拉代码等略过...
+
+![](nodejs-config.png)
+
++ shell配置
+
+```
+# node -v
+# npm -v
+
+# 第一次构建可以加这行，后面可以注释上
+npm install
+
+npm run build:test
+
+# 换成你的项目名
+HOME=/var/lib/jenkins/jobs/youprojectName/workspace
+RUN_PATH=/usr/share/nginx/html
+
+if [ -d dist ]
+then
+	rm -rf $RUN_PATH/*
+    mv -f $HOME/dist/* $RUN_PATH/
+fi
+
+echo "dist包 构建结束"
+```
