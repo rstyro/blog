@@ -670,6 +670,83 @@ footer:
     color: "#ff0000"
 ```
 
+### 十九、安装Markdown流程图插件
++ 好像hexo默认是不支持流程图的语法的，需要安装插件
+#### 1、Mermaid
++ 查看Github:[https://github.com/webappdevelp/hexo-filter-mermaid-diagrams](https://github.com/webappdevelp/hexo-filter-mermaid-diagrams)
+
+**第一步：安装依赖**
+```
+// 安装依赖
+npm install hexo-filter-mermaid-diagrams -D
+```
+
+**第二步：修改hexo配置文件**
++ 之后在hexo的配置文件：`_config.yml`添加如下内容：
+```
+# mermaid chart
+mermaid: ## mermaid url https://github.com/knsv/mermaid
+  enable: true  # default true
+  version: "7.1.2" # default v7.1.2
+  options:  # find more api options from https://github.com/knsv/mermaid/blob/master/src/mermaidAPI.js
+    startOnload: true  // default true
+```
+
+**第三步：修改主题下面的footer文件**
++ 路径在：`themes\next\layout\_partials\`(这里以`next`为例)下面footer文件
++ 因为hexo的主题有很多，有些footer文件的后缀都不一样有：`.swig`、`.ejs`、`.pug`的
++ `next`主题下面是`footer.swig`后缀,则在文件最后添加如下
+
+*如果是footer.swig*则添加如下：
+```
+{% if theme.mermaid.enable %}
+  <script src='https://unpkg.com/mermaid@{{ theme.mermaid.version }}/dist/mermaid.min.js'></script>
+  <script>
+    if (window.mermaid) {
+      mermaid.initialize({{ JSON.stringify(theme.mermaid.options) }});
+    }
+  </script>
+{% endif %}
+```
+
+*如果是after-footer.ejs*则添加如下：
+```
+<% if (theme.mermaid.enable) { %>
+  <script src='https://unpkg.com/mermaid@<%= theme.mermaid.version %>/dist/mermaid.min.js'></script>
+  <script>
+    if (window.mermaid) {
+      mermaid.initialize({theme: 'forest'});
+    }
+  </script>
+<% } %>
+```
+
+
+*如果是after_footer.pug*则添加如下：
+```
+if theme.mermaid.enable == true
+  script(type='text/javascript', id='maid-script' mermaidoptioins=theme.mermaid.options src='https://unpkg.com/mermaid@'+ theme.mermaid.version + '/dist/mermaid.min.js' + '?v=' + theme.version)
+  script.
+    if (window.mermaid) {
+      var options = JSON.parse(document.getElementById('maid-script').getAttribute('mermaidoptioins'));
+      mermaid.initialize(options);
+    }
+
+```
+
+#### 2、flow
++ flow 类型的流程图
+**安装依赖即可**
+```
+npm install  hexo-filter-flowchart -D
+```
+
+#### 3、sequence
++ sequence 类型的流程图
+**安装依赖即可**
+```
+npm install  hexo-filter-sequence -D
+```
 
 
 ## 五、部署到GitHub
