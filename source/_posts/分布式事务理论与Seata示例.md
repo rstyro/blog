@@ -1,12 +1,12 @@
 ---
 title: 分布式事务理论与Seata示例
-date: 2021-06-13 10:34:06
-updated: 2021-06-13 10:34:06
+date: 2021-06-21 19:34:06
+updated: 2021-06-22 10:34:06
 tags: [Seata,分布式事务]
 categories: Java
 ---
 ### 一、前言
-+ 在讲Seata之前先讲一下本地事务与分布式事务理论
++ 在讲Seata之前先讲一下本地事务与分布式事务
 + 事务指的就是一个操作单元，在这个操作单元中的所有操作最终要保持一致的行为，要么所有操作
 都成功，要么所有的操作都被撤销。简单地说，事务提供一种 “要么什么都不做，要么做全套” 的机制。
 
@@ -144,10 +144,10 @@ end
 Note over 协调者,参与者B: 协调者根据所有参与者提交的反馈，判断二阶段：提交或回滚
 Note left of 协调者: 二阶段
 opt 如果都成功了
-协调者->>参与者A: ③、提交吧
-协调者->>参与者B: ③、提交吧
-协调者-->>参与者A: ③、有内鬼暂停交易，回滚吧
-协调者-->>参与者B: ③、有内鬼暂停交易，回滚吧
+协调者->>参与者A: ③、提交吧,A收到请求后，提交一阶段未提交的事务
+协调者->>参与者B: ③、提交吧,B收到请求后，提交一阶段未提交的事务
+协调者-->>参与者A: ③、有内鬼暂停交易，回滚吧，A回滚一阶段事务
+协调者-->>参与者B: ③、有内鬼暂停交易，回滚吧，B回滚一阶段事务
 end
 ```
 
@@ -288,21 +288,17 @@ end
 + 所以两种外观上很相似
 
 **与2PC的不同点：**
-+ ①、2PC和3PC都是数据库层面的操作，对于开发人员无感知；而TCC是业务层的操作，对开发人员来说具有较高的开发成本。
-	+ 比如2PC的一阶段是prepare事务，也就是预提交事务但是对资源的更新并没有执行(记录再日志文件等待二阶段提交或回滚)，开发者对资源都是单一的更新操作
-	+ 而TCC,它的一阶段是资源预留阶段，开发者需要从业务方面来考虑如何把资源预留出来。
-	+ 比如：现在A有100元，给B转账20元，那么我们需要把20元这个资源预留出来，不给其他的事务使用，所以一阶段Try要把A账户冻结20元。可用余额变为80元.
-	+ 如果二阶段是Confirm的话，就把A冻结置为0，然后给B的账户加上20元。如果二阶段是Cancel,那就释放A的冻结数量到余额即可。
-	+ 所以TCC需要开发者去实现`Try`、`Confirm`、`Cancel` 这3个接口,代码侵入性强
++ ①、2PC和3PC是资源层面的分布式事务，强一致性，在两阶段提交的整个过程中，一直会持有资源的锁。TCC是业务层面的分布式事务，最终一致性，不会一直持有资源的锁。
 + ②、TCC使用了加锁粒度较小的柔性事务（保证了最终一致性，并没有遵循ACID的原则包在一个大的事务中整体进行原子性的提交。而是变成各自独立应用处理的小事务分开处理。因此也无法保证在同一时刻各个数据源的数据是对应的（强一致性））。
 	+ 而2PC属于强一致性的事务，在一个大的事务中要么都成功要么都回滚。
 
 **TCC的优点：**
++ 把数据库层的二阶段提交上提到了应用层来实现，规避了数据库层的2PC性能低下问题。
 + TCC异步高性能，它采用了try先检查，然后异步实现confirm，真正提交的是在confirm方法中。
 + 代码侵入性高既是优点也是缺点，优点就是灵活，缺点就是耦合性高。
 
 **TCC的缺点：**
-+ 应用侵入性强：TCC由于基于在业务层面，至使每个操作都需要有 try、confirm、cancel三个接口。
++ 应用侵入性强：TCC的Try、Confirm和Cancel操作功能需业务提供，开发成本高。
 + 开发难度大：代码开发量很大，要保证数据一致性 confirm 和 cancel 接口还必须实现幂等性，防止空回滚 等等问题。
 
 
@@ -377,7 +373,7 @@ end
 **源码调用流程图**
 + 非常的详细：seata 1.4版本
 
-![](seata-work.png)
+![](seata-src.png)
 
 
 ### 三、Seata快速开始
@@ -390,39 +386,383 @@ end
 + 通过上面链接下载可执行的压缩包后，解压。
 + 之后修改根目录下的conf目录下的`file.conf`和`registry.conf` 这两个文件
 + file.conf选择TC的数据存储方式，有：file、db(支持数据库：`mysql/oracle/postgresql/h2/oceanbase`)、redis
-+ registry.conf选择注册中心和配置中心：
++ registry.conf选择注册中心和配置中心
++ 选择哪种模式就修改对应模式的配置即可，我这里file.conf选择的是数据库mode,register.conf选择的是nacos
+
+*file.conf 如下* 
+![](file.png)
+
+
+*registry.conf 文件如下*
+![](registry.png)
+
+**seata数据库的SQL脚本如下：**
+```
+-- ----------------------------
+-- Table structure for branch_table
+-- ----------------------------
+DROP TABLE IF EXISTS `branch_table`;
+CREATE TABLE `branch_table`  (
+  `branch_id` bigint(20) NOT NULL,
+  `xid` varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+  `transaction_id` bigint(20) NULL DEFAULT NULL,
+  `resource_group_id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL,
+  `resource_id` varchar(256) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL,
+  `branch_type` varchar(8) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL,
+  `status` tinyint(4) NULL DEFAULT NULL,
+  `client_id` varchar(64) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL,
+  `application_data` varchar(2000) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL,
+  `gmt_create` datetime NULL DEFAULT NULL,
+  `gmt_modified` datetime NULL DEFAULT NULL,
+  PRIMARY KEY (`branch_id`) USING BTREE,
+  INDEX `idx_xid`(`xid`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of branch_table
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for global_table
+-- ----------------------------
+DROP TABLE IF EXISTS `global_table`;
+CREATE TABLE `global_table`  (
+  `xid` varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+  `transaction_id` bigint(20) NULL DEFAULT NULL,
+  `status` tinyint(4) NOT NULL,
+  `application_id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL,
+  `transaction_service_group` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL,
+  `transaction_name` varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL,
+  `timeout` int(11) NULL DEFAULT NULL,
+  `begin_time` bigint(20) NULL DEFAULT NULL,
+  `application_data` varchar(2000) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL,
+  `gmt_create` datetime NULL DEFAULT NULL,
+  `gmt_modified` datetime NULL DEFAULT NULL,
+  PRIMARY KEY (`xid`) USING BTREE,
+  INDEX `idx_gmt_modified_status`(`gmt_modified`, `status`) USING BTREE,
+  INDEX `idx_transaction_id`(`transaction_id`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of global_table
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for lock_table
+-- ----------------------------
+DROP TABLE IF EXISTS `lock_table`;
+CREATE TABLE `lock_table`  (
+  `row_key` varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+  `xid` varchar(96) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL,
+  `transaction_id` bigint(20) NULL DEFAULT NULL,
+  `branch_id` bigint(20) NOT NULL,
+  `resource_id` varchar(256) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL,
+  `table_name` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL,
+  `pk` varchar(36) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL,
+  `gmt_create` datetime NULL DEFAULT NULL,
+  `gmt_modified` datetime NULL DEFAULT NULL,
+  PRIMARY KEY (`row_key`) USING BTREE,
+  INDEX `idx_branch_id`(`branch_id`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+```
+
++ 这里以Windows版本启动示例，修改上面配置之后，双击：`bin/seata-server.bat` 文件即可
++ 因为我这里配置的是nacos,所以先要把nacos启动起来。
+
+![](seata-run.png)
+
+#### 2、导入依赖
++ 导入依赖有三种方式：
++ 1、`seata-all` 这个是seata相关包，需要自己实现像数据源代理、xid传递，初始化GlobalTransactionScanner等，一般不推荐
++ 2、`seata-spring-boot-starter` 这个是和Springboot整合了,内置`GlobalTransactionScanner`自动初始化功能，若外部实现初始化，请参考`SeataAutoConfiguration`保证依赖加载顺序。里面引用了`seata-all`，可以用
++ 3、`spring-cloud-alibaba-seata` 这个和spirngcloud-alibaba整合，内部引用了`seata-spring-boot-starter`，推荐使用
+
+**推荐用法：**
+```
+<dependency>
+	<groupId>com.alibaba.cloud</groupId>
+	<artifactId>spring-cloud-alibaba-seata</artifactId>
+	<version>${alibaba.seata.version}</version>
+	<exclusions>
+		<exclusion>
+			<groupId>io.seata</groupId>
+			<artifactId>seata-spring-boot-starter</artifactId>
+		</exclusion>
+		<exclusion>
+			<artifactId>seata-all</artifactId>
+			<groupId>io.seata</groupId>
+		</exclusion>
+	</exclusions>
+</dependency>
+<dependency>
+	<groupId>io.seata</groupId>
+	<artifactId>seata-spring-boot-starter</artifactId>
+	<version>${最新版}</version>
+</dependency>
+```
+
+> 参考：[http://seata.io/zh-cn/docs/ops/deploy-guide-beginner.html](http://seata.io/zh-cn/docs/ops/deploy-guide-beginner.html)
+
+
+#### 3、添加配置
++ 在`application.yml`添加seata相关配置
++ 我这里暂时不用配置中心来读取配置，全部放到配置文件中
++ 如下：
+
+```
+spring:
+  profiles:
+    active: dev
+  application:
+    name: seata-user
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:8848
+        username: nacos
+        password: nacos
+
+# 下面这个就是seata的所有配置文件了	
+seata:
+  enabled: true
+  application-id: ${spring.application.name}
+  tx-service-group: ${spring.application.name}-group
+  enable-auto-data-source-proxy: true
+  use-jdk-proxy: false
+#  config:
+#    type: nacos
+#    nacos:
+#      username: nacos
+#      password: nacos
+#      server-addr: 127.0.0.1:8848
+#      group: SEATA_GROUP
+#      namespace: 94455b2a-cf66-40b5-819b-bba352aaa4f1
+  registry:
+    type: nacos
+    nacos:
+      username: nacos
+      password: nacos
+      server-addr: 127.0.0.1:8848
+      application: seata-server
+      namespace: 94455b2a-cf66-40b5-819b-bba352aaa4f1
+  client:
+    rm:
+      async-commit-buffer-limit: 10000
+      report-retry-count: 5
+      table-meta-check-enable: false
+      report-success-enable: false
+      saga-branch-register-enable: false
+      saga-json-parser: fastjson
+      lock:
+        retry-interval: 10
+        retry-times: 30
+        retry-policy-branch-rollback-on-conflict: true
+    tm:
+      commit-retry-count: 5
+      rollback-retry-count: 5
+      default-global-transaction-timeout: 60000
+      degrade-check: false
+      degrade-check-period: 2000
+      degrade-check-allow-times: 10
+    undo:
+        data-validation: true
+        log-serialization: jackson
+        log-table: undo_log
+        only-care-update-columns: true
+  service:
+    vgroup-mapping:
+      seata-user-group: default
+    disable-global-transaction: false
+    enable-degrade: false
+    grouplist:
+      default: 127.0.0.1:8091
+  transport:
+    shutdown:
+      wait: 3
+    thread-factory:
+      boss-thread-prefix: NettyBoss
+      worker-thread-prefix: NettyServerNIOWorker
+      server-executor-thread-prefix: NettyServerBizHandler
+      share-boss-worker: false
+      client-selector-thread-prefix: NettyClientSelector
+      client-selector-thread-size: 1
+      client-worker-thread-prefix: NettyClientWorkerThread
+      worker-thread-size: default
+      boss-thread-size: 1
+    type: TCP
+    server: NIO
+    heartbeat: true
+    serialization: seata
+    compressor: none
+    enable-client-batch-send-request: true
+  log:
+    exception-rate: 100
+```
+
+![](seata-group.png)
+
++ 事务组名要一致，然后按照需求自己修改配置
++ 参数配置详解请看官方文档：[http://seata.io/zh-cn/docs/user/configurations.html](http://seata.io/zh-cn/docs/user/configurations.html)
 
 
 
+#### 4、业务代码实现
++ 每个业务服务的数据都要添加undo_log表，保存一阶段数据
+
+```
+CREATE TABLE `undo_log` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'increment id',
+  `branch_id` bigint(20) NOT NULL COMMENT 'branch transaction id',
+  `xid` varchar(100) NOT NULL COMMENT 'global transaction id',
+  `context` varchar(128) NOT NULL COMMENT 'undo_log context,such as serialization',
+  `rollback_info` longblob NOT NULL COMMENT 'rollback info',
+  `log_status` int(11) NOT NULL COMMENT '0:normal status,1:defense status',
+  `log_created` datetime NOT NULL COMMENT 'create datetime',
+  `log_modified` datetime NOT NULL COMMENT 'modify datetime',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `ux_undo_log` (`xid`,`branch_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=169 DEFAULT CHARSET=utf8 COMMENT='AT transaction mode undo table';
+```
+
++ 上面都准备好之后，只需要在需要发起全局事务的service添加 `@GlobalTransactional` 即可
+
+**①、常规用法：**
++ 只需要在需要开启全局事务的service方法上添加 `@GlobalTransactional`注解即可
+```java
+    @Override
+    @Transactional
+    @GlobalTransactional(rollbackFor = Exception.class)
+    public Result payOrder(PayDto dto) {
+        log.info("全局事务xid={}", RootContext.getXID());
+        // todo ....
+        return Result.ok();
+    }
+```
+
+
+**②、try-catch的回滚方法**
++ 通过`try-catch` 主动触发全局事务回滚操作
+
+```java
+@Override
+    @GlobalTransactional(rollbackFor = Exception.class)
+    public Result payOrder2(PayDto dto) throws TransactionException {
+        try{
+            log.info("全局事务xid={}", RootContext.getXID());
+            // todo ...
+            return Result.ok();
+        }catch (Exception e){
+            // 这个方法可以回滚全局事务
+            GlobalTransactionContext.reload(RootContext.getXID()).rollback();
+            return Result.error(ApiResultEnum.FEIGN_ERROR);
+        }
+    }
+```
+
+**③、某些服务不走全局事务**
++ 相同一个业务中，调用了3个服务，但是其中1个服务可以让其不走全局事务（失败就失败，不管它，它不受全局事务管理）
+
+```java
+@GlobalTransactional(rollbackFor = Exception.class)
+public Result payOrder3(PayDto dto) {
+	log.info("全局事务xid={}", RootContext.getXID());
+	// todo ...
+
+	// 解绑全局事务ID,不受全局事务影响，报错也不会回滚
+	String unbind = RootContext.unbind();
+	try{
+		// todo ...
+		// 这里的操作是不受全局事务管理的，失败或成功都不影响
+	}catch (Exception e){
+		log.error(e.getMessage(),e);
+	}finally {
+		if(!StringUtils.isEmpty(unbind)){
+			// 重新绑定全局事务，下面全局事务会生效
+			RootContext.bind(unbind);
+		}
+	}
+	// todo ...
+	return Result.ok();
+}
+```
+
++ 如上 扣除库存 这个操作就不受全局事务管理，不管它是失败还是成功，都不会对全局事务有任何影响。
++ 调用：`RootContext.unbind()` 解绑事务，和绑定事务：`RootContext.bind(unbind)`
+
+#### 5、启动应用
++ 排除默认的数据源自动装配`DataSourceAutoConfiguration`.
+
+```
+@SpringBootApplication(exclude = DataSourceAutoConfiguration.class)
+public class UserApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(UserApplication.class, args);
+    }
+}
+```
+
++ 调用接口，发现二阶段提交成功
+
+![](two_commit.png)
+
+### 四、seata使用配置中心
++ 如上的配置是写在配置文件的，没法动态修改
++ 可以把配置写到配置中心,这样可以动态修改
++ 这里以nacos为例，访问：[https://github.com/seata/seata/tree/develop/script/config-center](https://github.com/seata/seata/tree/develop/script/config-center)
++ 下载添加到nacos配置中心脚本:`nacos-config.sh`：
+	+ 地址：[https://github.com/seata/seata/blob/develop/script/config-center/nacos/nacos-config.sh](https://github.com/seata/seata/blob/develop/script/config-center/nacos/nacos-config.sh)
++ 然后下载示例的配置文件: `config.txt`: 
+	+ 地址：[https://github.com/seata/seata/blob/develop/script/config-center/config.txt](https://github.com/seata/seata/blob/develop/script/config-center/config.txt)
++ **把下载下来的脚本nacos-config.sh 放到seata的conf目录下，把config.txt 放到seata的根目录下。**
++ 执行命令如下：
+
+```
+# -h nacos的ip -p nacos端口 -g nacos配置文件的组 -t 你的namespace号(若是public可省略此选项) -u nacos用户名 -w nacos密码
+sh nacos-config.sh -h localhost -p 8848 -g SEATA_GROUP -t 94455b2a-cf66-40b5-819b-bba352aaa4f1 -u nacos -w nacos
+```
+
+![](add-config.png)
+
++ 如果直接使用示例文件，结果会有几个失败，失败原因是value为空。
+
+![](nacos-config.png)
+
++ 最后nacos就有数据了，不同服务可以使用不同的配置组
 
 
 
+#### 1、修改YML配置文件
++ 这样之后yml配置文件就只需写注册中心配合配置中心配置即可
+
+```
+seata:
+  enabled: true
+  application-id: seata-user
+  tx-service-group: seata-user-group
+  enable-auto-data-source-proxy: true
+  use-jdk-proxy: false
+  config:
+    type: nacos
+    nacos:
+      username: nacos
+      password: nacos
+      server-addr: 127.0.0.1:8848
+      group: SEATA_USER_GROUP
+      namespace: 94455b2a-cf66-40b5-819b-bba352aaa4f1
+  registry:
+    type: nacos
+    nacos:
+      username: nacos
+      password: nacos
+      server-addr: 127.0.0.1:8848
+      application: seata-server
+      namespace: 94455b2a-cf66-40b5-819b-bba352aaa4f1
+```
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+#### 2、本文全部代码
++ ***Github:*** [https://github.com/rstyro/SpringCloud-Alibaba-learning/tree/main/springcloud-seata](https://github.com/rstyro/SpringCloud-Alibaba-learning/tree/main/springcloud-seata)
++ ***Gitee:*** [https://gitee.com/rstyro/SpringCloud-Alibaba-learning/tree/main/springcloud-seata](https://gitee.com/rstyro/SpringCloud-Alibaba-learning/tree/main/springcloud-seata)
 
 
 
