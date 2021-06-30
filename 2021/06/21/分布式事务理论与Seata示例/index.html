@@ -1,0 +1,2110 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/blog/css/main.css?v=6.7.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon.jpg?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon.jpg?v=6.7.0">
+
+
+  <link rel="mask-icon" href="/blog/images/logo.svg?v=6.7.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/blog/',
+    scheme: 'Mist',
+    version: '6.7.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":true},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+<script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+<link href="//cdn.bootcss.com/pace/1.0.2/themes/pink/pace-theme-flash.css" rel="stylesheet">
+  <style>
+      .pace .pace-progress {
+          background: #1E92FB; /*进度条颜色*/
+          height: 3px;
+      }
+      .pace .pace-progress-inner {
+           box-shadow: 0 0 10px #1E92FB, 0 0 5px     #1E92FB; /*阴影颜色*/
+      }
+      .pace .pace-activity {
+          border-top-color: #1E92FB;    /*上边框颜色*/
+          border-left-color: #1E92FB;    /*左边框颜色*/
+      }
+  </style>
+
+  <meta name="description" content="一、前言 在讲Seata之前先讲一下本地事务与分布式事务 事务指的就是一个操作单元，在这个操作单元中的所有操作最终要保持一致的行为，要么所有操作都成功，要么所有的操作都被撤销。简单地说，事务提供一种 “要么什么都不做，要么做全套” 的机制。  1、本地事务 本地事务其实可以认为是数据库提供的事务机制。 说到数据库事务就不得不说，数据库事务中的四大特性:ACID A：原子性(Atomicity)，一">
+<meta name="keywords" content="Seata,分布式事务">
+<meta property="og:type" content="article">
+<meta property="og:title" content="分布式事务理论与Seata示例">
+<meta property="og:url" content="https://rstyro.github.io/blog/2021/06/21/分布式事务理论与Seata示例/index.html">
+<meta property="og:site_name" content="帅大叔的博客">
+<meta property="og:description" content="一、前言 在讲Seata之前先讲一下本地事务与分布式事务 事务指的就是一个操作单元，在这个操作单元中的所有操作最终要保持一致的行为，要么所有操作都成功，要么所有的操作都被撤销。简单地说，事务提供一种 “要么什么都不做，要么做全套” 的机制。  1、本地事务 本地事务其实可以认为是数据库提供的事务机制。 说到数据库事务就不得不说，数据库事务中的四大特性:ACID A：原子性(Atomicity)，一">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://rstyro.github.io/blog/2021/06/21/分布式事务理论与Seata示例/DTP.jpg">
+<meta property="og:image" content="https://rstyro.github.io/blog/2021/06/21/分布式事务理论与Seata示例/seata-work.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2021/06/21/分布式事务理论与Seata示例/seata-src.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2021/06/21/分布式事务理论与Seata示例/file.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2021/06/21/分布式事务理论与Seata示例/registry.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2021/06/21/分布式事务理论与Seata示例/seata-run.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2021/06/21/分布式事务理论与Seata示例/seata-group.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2021/06/21/分布式事务理论与Seata示例/two_commit.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2021/06/21/分布式事务理论与Seata示例/add-config.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2021/06/21/分布式事务理论与Seata示例/nacos-config.png">
+<meta property="og:updated_time" content="2021-06-22T02:34:06.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="分布式事务理论与Seata示例">
+<meta name="twitter:description" content="一、前言 在讲Seata之前先讲一下本地事务与分布式事务 事务指的就是一个操作单元，在这个操作单元中的所有操作最终要保持一致的行为，要么所有操作都成功，要么所有的操作都被撤销。简单地说，事务提供一种 “要么什么都不做，要么做全套” 的机制。  1、本地事务 本地事务其实可以认为是数据库提供的事务机制。 说到数据库事务就不得不说，数据库事务中的四大特性:ACID A：原子性(Atomicity)，一">
+<meta name="twitter:image" content="https://rstyro.github.io/blog/2021/06/21/分布式事务理论与Seata示例/DTP.jpg">
+
+
+
+  <link rel="alternate" href="/blog/atom.xml" title="帅大叔的博客" type="application/atom+xml">
+
+
+
+
+  <link rel="canonical" href="https://rstyro.github.io/blog/2021/06/21/分布式事务理论与Seata示例/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>分布式事务理论与Seata示例 | 帅大叔的博客</title>
+  
+
+
+
+
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?cd2197f8af1d69b326360027b8f93d92";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+	<a href="https://github.com/rstyro" class="github-corner" aria-label="View source on GitHub"><svg width="80" height="80" viewbox="0 0 250 250" style="fill:#151513; color:#fff; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"/><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"/><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"/></svg></a><style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/blog/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">帅大叔的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">信你所信，为你所见</p>
+      
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/" rel="section">首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/about/" rel="section">关于</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/tags/" rel="section">标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/categories/" rel="section">分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/archives/" rel="section">归档</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-guestbook">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/guestbook/" rel="section">留言</a>
+
+  </li>
+
+      
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            搜索</a>
+        </li>
+      
+    </ul>
+  
+
+  
+    
+
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://rstyro.github.io/blog/blog/2021/06/21/分布式事务理论与Seata示例/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="rstyro">
+      <meta itemprop="description" content="个人博客,瞎写一些技术笔记等。">
+      <meta itemprop="image" content="/blog/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="帅大叔的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">分布式事务理论与Seata示例
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2021-06-21 19:34:06" itemprop="dateCreated datePublished" datetime="2021-06-21T19:34:06+08:00">2021-06-21</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2021-06-22 10:34:06" itemprop="dateModified" datetime="2021-06-22T10:34:06+08:00">2021-06-22</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/blog/categories/Java/" itemprop="url" rel="index"><span itemprop="name">Java</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/blog/2021/06/21/分布式事务理论与Seata示例/#comments" itemprop="discussionUrl">
+                  <span class="post-meta-item-text">评论数：</span> <span class="post-comments-count valine-comment-count" data-xid="/blog/2021/06/21/分布式事务理论与Seata示例/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="post-meta-item-icon">
+            <i class="fa fa-eye"></i>
+             阅读次数： 
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h3 id="一、前言"><a href="#一、前言" class="headerlink" title="一、前言"></a>一、前言</h3><ul>
+<li>在讲Seata之前先讲一下本地事务与分布式事务</li>
+<li>事务指的就是一个操作单元，在这个操作单元中的所有操作最终要保持一致的行为，要么所有操作<br>都成功，要么所有的操作都被撤销。简单地说，事务提供一种 “要么什么都不做，要么做全套” 的机制。</li>
+</ul>
+<h4 id="1、本地事务"><a href="#1、本地事务" class="headerlink" title="1、本地事务"></a>1、本地事务</h4><ul>
+<li>本地事务其实可以认为是数据库提供的事务机制。</li>
+<li>说到数据库事务就不得不说，数据库事务中的<strong>四大特性:ACID</strong><ul>
+<li><strong>A：原子性(Atomicity)</strong>，一个事务中的所有操作，要么全部完成，要么全部不完成</li>
+<li><strong>C：一致性(Consistency)</strong>，在一个事务执行之前和执行之后数据库都必须处于一致性状态</li>
+<li><strong>I：隔离性(Isolation)</strong>，在并发环境中，当不同的事务同时操作相同的数据时，事务之间互不影响</li>
+<li><strong>D：持久性(Durability)</strong>，指的是只要事务成功结束，它对数据库所做的更新就必须永久的保存下来</li>
+</ul>
+</li>
+<li>数据库事务在实现时会将一次事务涉及的所有操作全部纳入到一个不可分割的执行单元，</li>
+<li>该执行单元中的所有操作要么都成功，要么都失败，只要其中任一操作执行失败，都将导致整个事务的回滚</li>
+</ul>
+<h4 id="2、分布式事务"><a href="#2、分布式事务" class="headerlink" title="2、分布式事务"></a>2、分布式事务</h4><ul>
+<li>分布式事务指事务的参与者、支持事务的服务器、资源服务器以及事务管理器分别位于不同的分布式系统的不同节点之上。</li>
+<li>简单的说，就是一次大的操作由不同的小操作组成，这些小的操作分布在不同的服务器上，且属于不同的应用，</li>
+<li>分布式事务需要保证这些小操作要么全部成功，要么全部失败。本质上来说，分布式事务就是为了保证不同数据库的数据一致性。</li>
+</ul>
+<h4 id="3、分布式理论"><a href="#3、分布式理论" class="headerlink" title="3、分布式理论"></a>3、分布式理论</h4><ul>
+<li>在分布式事务中，事务的ACID原则难以满足，所以出现了解决分布式事务的理论方法，如下</li>
+<li>分布式系统的经典理论：CAP理论 与BASE理论</li>
+</ul>
+<h5 id="①、CAP理论"><a href="#①、CAP理论" class="headerlink" title="①、CAP理论"></a>①、CAP理论</h5><ul>
+<li>CAP 定理（CAP theorem）又被称作布鲁尔定理（Brewer’s theorem）。</li>
+<li>是加州大学伯克利分校的计算机科学家埃里克·布鲁尔（Eric Brewer）在2000年的<code>ACM PODC</code>上提出的一个猜想。</li>
+<li>2002年，麻省理工学院的赛斯·吉尔伯特（Seth Gilbert）和南希·林奇（Nancy Lynch）发表了布鲁尔猜想的证明，使之成为分布式计算领域公认的一个定理。</li>
+<li>是 <code>Consistency</code>、<code>Availablity</code>和<code>Partition-tolerance</code>的缩写。<ul>
+<li><strong><em>一致性（Consistency）：</em></strong> 即更新操作成功并返回客户端完成后， 所有节点在同一时间的数据完全一致，这里的一致性是指的强一致性，一般关系型数据库就有强一致性特性。。</li>
+<li><strong><em>可用性（Availablity）：</em></strong> 即服务一直可用，而且是正常响应时间。</li>
+<li><strong><em>分区容忍性（Partition-torlerance）：</em></strong> 在网络分区的情况下，被分隔的节点仍能正常对外服务</li>
+</ul>
+</li>
+</ul>
+<p><strong><em>CAP权衡：</em></strong></p>
+<table>
+<thead>
+<tr>
+<th>选择</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>CA</td>
+<td>放弃分区容错性，加强一致性和可用性，其实就是传统的单机数据库的选择。放弃P的同时也就意味着放弃了系统的扩展性，也就是分布式节点受限，没办法部署子节点，这是违背分布式系统设计的初衷的。</td>
+</tr>
+<tr>
+<td>AP</td>
+<td>放弃一致性（这里说的一致性是强一致性），追求分区容错性和可用性，这是很多分布式系统设计时的选择，例如很多NoSQL系统就是如此</td>
+</tr>
+<tr>
+<td>CP</td>
+<td>放弃可用性，追求一致性和分区容错性，基本不会选择，网络问题会直接让整个系统不可用</td>
+</tr>
+</tbody></table>
+<p><strong><em>总结：</em></strong></p>
+<ul>
+<li>CAP理论，我们知道无法同时满足一致性、可用性和分区容错性这三个特性。</li>
+<li>CAP理论告诉我们分布式系统只能选择<code>CP</code>或者<code>AP</code>,因为放弃P那就不是分布式系统了，所以一般都会根据业务在C和A之间寻求平衡。。</li>
+</ul>
+<h5 id="②、BASE理论"><a href="#②、BASE理论" class="headerlink" title="②、BASE理论"></a>②、BASE理论</h5><ul>
+<li>eBay的架构师<code>Dan Pritchett</code>源于对大规模分布式系统的实践总结，在ACM上发表文章提出<code>BASE理论</code>，BASE理论是对CAP理论的延伸。</li>
+<li>BASE是指基本可用（Basically Available）、软状态（Soft State）、最终一致性（ Eventual Consistency）</li>
+<li>核心思想是即使无法做到强一致性，但应用可以采用适合的方式达到最终一致性（Eventual Consitency）</li>
+<li>每一个应用都可以根据自身的业务特点，采用适当的方式达到最终一致性。</li>
+</ul>
+<p><strong><em>基本可用(Basically Available)</em></strong></p>
+<ul>
+<li>基本可用指分布式系统在出现不可预知的故障时候，允许损失部分可用性，保证核心服务可用。</li>
+<li>比如电商大促时，为了应对访问量激增，部分用户可能会被引导到降级页面，服务熔断限流</li>
+</ul>
+<p><strong><em>软状态（Soft State）</em></strong></p>
+<ul>
+<li>简单的说就是不同节点的数据副本之间进行数据同步的过程存在延时，这个延时不影响可用性。</li>
+<li>例如一次写操作只更新了一个结点就返回成功。那么其他节点和这个节点的数据时不一致的。</li>
+<li>此时的数据状态就是软状态。</li>
+</ul>
+<p><strong><em>最终一致性（ Eventual Consistency）</em></strong></p>
+<ul>
+<li>指最终数据要实现一致性，例如：软状态的数据最终我们要通过一些手段将数据同步到其他数据节点上。</li>
+<li>弱一致性和强一致性相反，最终一致性是弱一致性的一种特殊情况。</li>
+</ul>
+<p><strong>BASE与ACID</strong></p>
+<ul>
+<li>总的来说，BASE理论面向的是大型高可用可扩展的分布式系统，和传统的事物ACID特性是相反的，</li>
+<li>它完全不同于ACID的强一致性模型，而是通过牺牲强一致性 来获得可用性。</li>
+<li>并允许数据在一段时间内是不一致的，但最终达到一致状态。</li>
+<li>但同时，在实际的分布式场景中，不同业务单元和组件对数据一致性的要求是不同的。</li>
+<li>因此在具体的分布式系统架构设计过程中，ACID特性和BASE理论往往又会结合在一起。</li>
+</ul>
+<h4 id="4、DTP分布式事务模型"><a href="#4、DTP分布式事务模型" class="headerlink" title="4、DTP分布式事务模型"></a>4、DTP分布式事务模型</h4><ul>
+<li>在分布式系统中，每一个机器节点虽然都能够明确的直到自己在进行事务操作中的结果时成功或失败，但却无法直接获取其他分布式节点的操作结果。</li>
+<li>因此，当一个事务操作需要跨越多个分布式节点的时候，为了保持事务处理的ACID特性。就需要用到分布式事务。</li>
+<li>DTP 全称 <code>Distributed Transaction Processing Reference</code>是X/Open这个组织定义出的一套分布式事务标准。</li>
+<li>主要包含以下角色：<ul>
+<li><em>AP(Application Program)：</em> 也就是应用程序，可以理解为使用DTP的程序</li>
+<li><em>RM(Resource Manager)：</em> 资源管理器，一般是数据库，也可以是其他的资源管理器，如消息队列(如JMS数据源)，文件系统等</li>
+<li><em>TM(Transaction Manager)：</em> 事务管理器，管理全局事务，协调事务的提交或者回滚，并协调故障恢复。</li>
+</ul>
+</li>
+<li>在该模型中，一个分布式事务（全局事务）可以被拆分成多个本地事务，运行在不同的AP和RM上，每个本地事务的ACID很好实现，但是全局事务必须保证每个事务要么都成功要么都失败</li>
+</ul>
+<p><img src="DTP.jpg" alt></p>
+<p><strong>DTP的重要概念：</strong></p>
+<ul>
+<li><strong><em>事务：</em></strong> 一个事务是一个完整的工作单元，由多个独立的计算任务组成，这多个任务在逻辑上是原子的。</li>
+<li><strong><em>全局事务：</em></strong> 对于一次性操作多个资源管理器的事务，就是全局事务</li>
+<li><strong><em>分支事务：</em></strong> 在全局事务中，某一个资源管理器有自己独立的任务，这些任务的集合作为这个资源管理器的分支任务</li>
+<li><strong><em>控制线程：</em></strong> 用来表示一个工作线程，主要是关联AP,TM,RM三者的一个线程，也就是事务上下文环境。简单的说，就是需要标识一个全局事务以及分支事务的关系。</li>
+</ul>
+<p><strong>XA规范：</strong></p>
+<ul>
+<li>XA是DTP模型定义TM和RM之间通讯的接口规范。</li>
+<li>TM用它来通知数据库事务的开始、结束、提交、回滚。基于XA规范衍生出下面的二阶段提交（2PC）、三阶段提交（3PC）。</li>
+<li><code>JTA(Java Transaction API)</code>仅定义了接口，它是XA协议的JAVA实现。</li>
+<li><em>其中JTA有几个重要的接口：</em><ul>
+<li><code>javax.transaction.TransactionManager:</code><br>  高层的事务管理器接口，供应用服务器使用,事务管理器承担着所有事务参与单元者的相互通讯的责任。</li>
+<li><code>javax.transaction.UserTransaction:</code><br>  高层的应用事务划分接口，供客户程序使用,给应用程序提供了编程控制事务边界的能力。如开启提交回滚事务</li>
+<li><code>javax.transaction.xa.XAResource:</code><br>  <code>X/Open XA</code>协议的标准Java映射，供事务性资源管理器使用。</li>
+<li><code>javax.transaction.Xid:</code><br>  Xid 接口是 X/Open 事务标识符XID结构的Java映射。此接口指定三个存取方法，以检索全局事务格式ID、全局事务ID和分支限定符。Xid 接口供事务管理器和资源管理器使用。此接口对应用程序不可见。</li>
+</ul>
+</li>
+</ul>
+<p><strong>常见的分布式事务的处理方案：2PC、3PC、TCC、Saga、</strong></p>
+<h4 id="5、2PC"><a href="#5、2PC" class="headerlink" title="5、2PC"></a>5、2PC</h4><ul>
+<li><code>Two Phase Commit</code>,顾名思义，二阶段提交的意思。</li>
+<li>在分布式系统中，每个节点虽然可以知晓自己的操作时成功或者失败，却无法知道其他节点的操作的成功或失败。</li>
+<li>当一个事务跨越多个节点时，为了保持事务的ACID特性，</li>
+<li>需要引入一个作为协调者的组件来统一掌控所有节点（称作参与者）的操作结果并最终指示这些节点是否要把操作结果进行真正的提交（比如将更新后的数据写入磁盘等等）。</li>
+<li>因此，二阶段提交的算法思路可以概括为： 参与者将操作成败通知协调者，再由协调者根据所有参与者的反馈情报决定各参与者是否要提交操作还是中止操作。</li>
+<li>第一阶段(提交请求阶段) ； 第二阶段(提交执行阶段)。</li>
+</ul>
+<p><strong>大致流程如下：</strong></p>
+<pre class="mermaid">sequenceDiagram
+Note left of 协调者: 一阶段
+协调者->>参与者A: ①、是否准备好提交事务？（preCommit请求）
+协调者->>参与者B: ①、是否准备好提交事务？（preCommit请求）
+Note over 协调者,参与者B: 数据库更新数据将Undo信息和Redo信息写入日志,但未提交事务
+alt 成功
+参与者A->>协调者: ②、我准备好了，同意
+参与者B->>协调者: ②、我B准备好了，同意
+else 失败
+参与者A-->>协调者: ②、我这边出问题了，中止
+参与者B-->>协调者: ②、我这边出问题了，中止
+end
+
+Note over 协调者,参与者B: 协调者根据所有参与者提交的反馈，判断二阶段：提交或回滚
+Note left of 协调者: 二阶段
+opt 如果都成功了
+协调者->>参与者A: ③、提交吧,A收到请求后，提交一阶段未提交的事务
+协调者->>参与者B: ③、提交吧,B收到请求后，提交一阶段未提交的事务
+协调者-->>参与者A: ③、有内鬼暂停交易，回滚吧，A回滚一阶段事务
+协调者-->>参与者B: ③、有内鬼暂停交易，回滚吧，B回滚一阶段事务
+end</pre>
+
+<h5 id="第一阶段-提交准备阶段"><a href="#第一阶段-提交准备阶段" class="headerlink" title="第一阶段(提交准备阶段)"></a>第一阶段(提交准备阶段)</h5><ul>
+<li>协调者节点向所有参与者节点询问是否可以执行提交操作，并开始等待各参与者节点的响应。</li>
+<li>参与者节点执行询问发起的所有事务操作，并将Undo信息和Redo信息写入日志。</li>
+<li>各参与者节点响应协调者节点发起的询问。如果参与者节点的事务操作实际执行成功，则它返回一个”同意”消息；如果参与者节点的事务操作实际执行失败，则它返回一个”中止”消息</li>
+</ul>
+<p><strong><em>有时候，第一阶段也被称作投票阶段，即各参与者投票是否要继续接下来的提交操作。</em></strong></p>
+<h5 id="第二阶段-提交执行阶段"><a href="#第二阶段-提交执行阶段" class="headerlink" title="第二阶段(提交执行阶段)"></a>第二阶段(提交执行阶段)</h5><ul>
+<li>第二阶段根据第一阶段会分为：成功或失败两种情况</li>
+</ul>
+<p><strong><em>成功</em></strong><br>当协调者节点从所有参与者节点获得的响应消息都为”同意”时：</p>
+<ul>
+<li>协调者节点向所有参与者节点发出”正式提交”的请求。</li>
+<li>参与者节点正式完成操作，并释放在整个事务期间内占用的资源。</li>
+<li>参与者节点向协调者节点发送”完成”消息。</li>
+<li>协调者节点收到所有参与者节点反馈的”完成”消息后，完成事务。</li>
+</ul>
+<p><strong><em>失败</em></strong><br>如果任一参与者节点在第一阶段返回的响应消息为”终止”，或者协调者节点在第一阶段的询问超时之前无法获取所有参与者节点的响应消息时：</p>
+<ul>
+<li>协调者节点向所有参与者节点发出”回滚操作”的请求。</li>
+<li>参与者节点利用之前写入的Undo信息执行回滚，并释放在整个事务期间内占用的资源。</li>
+<li>参与者节点向协调者节点发送”回滚完成”消息。</li>
+<li>协调者节点收到所有参与者节点反馈的”回滚完成”消息后，取消事务。</li>
+</ul>
+<p><strong>缺点：</strong></p>
+<ul>
+<li><strong><em>同步阻塞：</em></strong> 事务执行过程中所有参与者都是阻塞型的，第三方参与者访问参与者占有的资源时会被阻塞；</li>
+<li><strong><em>单点故障：</em></strong> 协调者一旦发生故障，参与者会被阻塞。尤其在提交阶段，所有参与者都处于锁定资源状态中，无法完成事务操作；（可以选择新的协调者，但无法解决参与者被阻塞的问题）；</li>
+<li><strong><em>数据不一致：</em></strong> 提交阶段协调者向参与者发送commit信息，发生局部网络故障，会导致部分存在参与者未收到commit信息无法提交事务情况，导致出现数据不一致现象；</li>
+</ul>
+<h4 id="6、3PC"><a href="#6、3PC" class="headerlink" title="6、3PC"></a>6、3PC</h4><ul>
+<li><code>Three-phase commit</code>,顾名思义，三阶段提交的意思。</li>
+<li>三阶段提交是为解决两阶段提交协议的缺点而设计的。</li>
+<li>2PC中只有协调者有超时机制，在第二阶段事务提交时，协调者等待参与者反馈超时，会中断事务，因此被认为“保守”</li>
+<li>三阶段提交是“非阻塞”协议。三阶段提交是把二阶段的一阶段拆成了两个步骤先询问是否可以执行事务。</li>
+<li>这样三阶段提交就变成 <code>CanCommit</code>（发送预提交请求）、<code>PreCommit</code>(事务预提交)、<code>DoCommit</code>(事务提交) 三个阶段</li>
+</ul>
+<pre class="mermaid">sequenceDiagram
+
+Note left of 协调者: 一阶段
+协调者->>参与者A: ①、现在是否可以提交事务？（canCommit请求）
+协调者->>参与者B: ①、现在是否可以提交事务？（canCommit请求）
+alt 成功
+参与者A->>协调者: ②、服务正常，同意
+参与者B->>协调者: ②、服务正常，同意
+else 失败
+参与者A-->>协调者: ②、网络波动服务超时，中止
+参与者B-->>协调者: ②、网络波动服务超时，中止
+end
+
+Note over 协调者,参与者B: 一阶段结果：如果所有参与者都通过，<br>继续下一阶段预提交事务，反之取消全局事务
+
+Note left of 协调者: 二阶段
+协调者->>参与者A: ③、现在是否可以提交事务？（preCommit请求）
+协调者->>参与者B: ③、现在是否可以提交事务？（preCommit请求）
+alt 成功
+参与者A->>协调者: ④、我准备好了，同意
+参与者B->>协调者: ④、我准备好了，同意
+else 失败
+参与者A-->>协调者: ④、我这边出问题了，中止
+参与者B-->>协调者: ④、我这边出问题了，中止
+end
+
+Note over 协调者,参与者B: 二阶段结果：协调者根据所有参与者提交的反馈，提交或回滚
+Note left of 协调者: 三阶段
+opt 如果都成功了
+协调者->>参与者A: ⑤、提交吧（DoCommit）
+Note over 协调者,参与者B: 如果这个时候协调者宕机了，<br>B迟迟没收到通知，那么B超时也会提交事务
+协调者->>参与者B: ⑤、提交吧(DoCommit)
+协调者-->>参与者A: ⑤、有内鬼暂停交易，回滚吧(Rollback)
+协调者-->>参与者B: ⑤、有内鬼暂停交易，回滚吧(Rollback)
+end</pre>
+
+<p><strong>如下：</strong></p>
+<ul>
+<li>第一阶段：<ul>
+<li>询问阶段，协调者向所有的参与者发送一个包含事务内容的CanCommit请求，参与者向协调者反馈事务询问的响应（超时终止）</li>
+</ul>
+</li>
+<li>第二阶段：<ul>
+<li>预提交阶段，</li>
+<li>在一阶段都通过后，协调者向所有的参与者发送preCommit请求，</li>
+<li>参与者接收到preCommit请求后，会执行事务操作，并将Undo和Redo信息记录到事务日志中</li>
+<li>各参与者向协调者反馈事务执行的响应，等待最终的指令（提交或中断），</li>
+</ul>
+</li>
+<li>第三阶段：<ul>
+<li>提交阶段，</li>
+<li>当二阶段都通过后，发起commit请求，如果有一个节点失败，则发送中止请求</li>
+<li>当发送commit请求时协调者宕机了，部分参与者没收到请求超时也是会提交的，会出现数据不一致（如果最终发送的是中止请求的话）</li>
+</ul>
+</li>
+</ul>
+<p><strong>3PC与2PC主要的不同：</strong></p>
+<ul>
+<li>3PC把2PC的一阶段分成两个阶段，CanCommit和PreCommit，然后加上超时机制</li>
+<li>3pc在协调者、参与者中都加入了超时判断机制，2pc只有协调者有。</li>
+<li>避免资源锁定太久导致浪费。但是3PC同样存在着很多问题。实现起来非常复杂，因为很难通过多次询问来解决系统间分歧问题，</li>
+<li>尤其是存在超时状态互不信任的分布式网络中，这也就是著名的拜占庭将军问题</li>
+</ul>
+<p><em>除了2PC与3PC,还有一种类似的分布式事务解决方案，那就是TCC</em></p>
+<h4 id="7、TCC"><a href="#7、TCC" class="headerlink" title="7、TCC"></a>7、TCC</h4><ul>
+<li>TCC即为<code>Try(资源预留) Confirm(事务提交) Cancel(取消事务)</code>，它属于补偿型分布式事务。</li>
+<li><strong>Try：</strong> 预留业务资源,先把多个应用中的业务资源预留和锁定住，为后续的确认打下基础，如：冻结资产锁定库存</li>
+<li><strong>Confirm：</strong> 确认执行业务操作，在Try操作中涉及的所有应用均成功之后进行确认，操作预留的业务资源和Commit类似</li>
+<li><strong>Cancel：</strong> 取消执行业务操作，当Try操作中涉及的所有应用没有全部成功，需要将已成功的应用进行取消 (即Rollback回滚)。其中Confirm和Cancel操作是一对反向业务操作。</li>
+</ul>
+<pre class="mermaid">sequenceDiagram
+
+Note left of 协调者: 一阶段:prepare
+协调者->>参与者A: ①、尝试预留本次事务的资源（Try请求）
+协调者->>参与者B: ①、尝试预留本次事务的资源？（Try请求）
+Note over 协调者,参与者B: 这一步就冻结账户或锁定库存提交事务了哦
+alt 成功
+参与者A->>协调者: ②、我资源预留好了，同意
+参与者B->>协调者: ②、我资源预留好了，同意
+else 失败
+参与者A-->>协调者: ②、我这边出问题了，中止
+参与者B-->>协调者: ②、我这边出问题了，中止
+end
+
+Note over 协调者,参与者B: 协调者根据所有参与者提交的反馈，<br>判断是执行Confirm(提交)还是Cancel
+Note left of 协调者: 二阶段: Confirm/Cancel
+opt 如果都成功了
+协调者->>参与者A: ③、提交(执行Confirm接口)
+协调者->>参与者B: ③、提交(执行Confirm接口)
+协调者-->>参与者A: ③、有人try阶段失败了,<br>需要执行cancel(释放冻结金额等try阶段的补偿操作)
+协调者-->>参与者B: ③、有人try阶段失败了,<br>需要执行cancel(释放冻结金额等try阶段的补偿操作)
+end</pre>
+
+<p><em>是不是感觉和2PC很像,它们之间的异同</em></p>
+<p><strong>与2PC的相同点：</strong></p>
+<ul>
+<li>两者整体都是 两阶段提交 的模型</li>
+<li>一阶段并不真正的执行业务，二阶段根据一阶段的结果进行确认或者取消。</li>
+<li>所以两种外观上很相似</li>
+</ul>
+<p><strong>与2PC的不同点：</strong></p>
+<ul>
+<li>①、2PC和3PC是资源层面的分布式事务，强一致性，在两阶段提交的整个过程中，一直会持有资源的锁。TCC是业务层面的分布式事务，最终一致性，不会一直持有资源的锁。</li>
+<li>②、TCC使用了加锁粒度较小的柔性事务（保证了最终一致性，并没有遵循ACID的原则包在一个大的事务中整体进行原子性的提交。而是变成各自独立应用处理的小事务分开处理。因此也无法保证在同一时刻各个数据源的数据是对应的（强一致性））。<ul>
+<li>而2PC属于强一致性的事务，在一个大的事务中要么都成功要么都回滚。</li>
+</ul>
+</li>
+</ul>
+<p><strong>TCC的优点：</strong></p>
+<ul>
+<li>把数据库层的二阶段提交上提到了应用层来实现，规避了数据库层的2PC性能低下问题。</li>
+<li>TCC异步高性能，它采用了try先检查，然后异步实现confirm，真正提交的是在confirm方法中。</li>
+<li>代码侵入性高既是优点也是缺点，优点就是灵活，缺点就是耦合性高。</li>
+</ul>
+<p><strong>TCC的缺点：</strong></p>
+<ul>
+<li>应用侵入性强：TCC的Try、Confirm和Cancel操作功能需业务提供，开发成本高。</li>
+<li>开发难度大：代码开发量很大，要保证数据一致性 confirm 和 cancel 接口还必须实现幂等性，防止空回滚 等等问题。</li>
+</ul>
+<h4 id="8、Saga"><a href="#8、Saga" class="headerlink" title="8、Saga"></a>8、Saga</h4><ul>
+<li>Saga是分布式事务领域的解决方案之一，最初出现在1987年Hector Garcaa-Molrna &amp; Kenneth Salem发表的论文SAGAS里。</li>
+<li>Saga是由一系列的本地事务构成。每一个本地事务在更新完数据库之后，会发布一条消息或者一个事件来触发Saga中的下一个本地事务的执行。</li>
+<li>如果一个本地事务因为某些业务规则无法满足而失败，Saga会执行在这个失败的事务之前成功提交的所有事务的补偿操作。</li>
+<li>Saga和Tcc有点类似，但Tcc的第一个阶段是预留资源，而Saga是直接对数据进行了扣除/增加</li>
+</ul>
+<h3 id="二、Seata-是什么"><a href="#二、Seata-是什么" class="headerlink" title="二、Seata 是什么?"></a>二、Seata 是什么?</h3><ul>
+<li>前面的分布式相关知识介绍完了，现在来讲本文的重点Seata。</li>
+<li>Seata 意为：<code>Simple Extensible Autonomous Transaction Architecture</code> 是一款开源的分布式事务解决方案，致力于提供高性能和简单易用的分布式事务服务。</li>
+<li>Seata 将为用户提供了 AT（默认）、TCC、SAGA 和 XA 事务模式，为用户打造一站式的分布式解决方案。</li>
+</ul>
+<h4 id="1、Seata术语"><a href="#1、Seata术语" class="headerlink" title="1、Seata术语"></a>1、Seata术语</h4><ul>
+<li><strong>TC (Transaction Coordinator) - 事务协调者</strong><br>维护全局和分支事务的状态，驱动全局事务提交或回滚。<br>相当于 <code>seata-server</code></li>
+<li><strong>TM (Transaction Manager) - 事务管理器</strong><br>定义全局事务的范围：开始全局事务、提交或回滚全局事务。<br>相当于我们开启全局事务的发起方 <code>@GlobalTransactional</code></li>
+<li><strong>RM (Resource Manager) - 资源管理器</strong><br>管理分支事务处理的资源，与TC交谈以注册分支事务和报告分支事务的状态，并驱动分支事务提交或回滚。<br>相当于我们的本地事务，：<code>@Transactional</code></li>
+</ul>
+<p><strong><em>和前面讲的DTP分布式事务模型类似</em></strong></p>
+<h4 id="2、AT模式"><a href="#2、AT模式" class="headerlink" title="2、AT模式"></a>2、AT模式</h4><ul>
+<li>AT模式是seata默认的模式<h5 id="使用前提"><a href="#使用前提" class="headerlink" title="使用前提"></a>使用前提</h5></li>
+<li>基于支持本地 ACID 事务的关系型数据库。</li>
+<li>Java 应用，通过 JDBC 访问数据库。</li>
+</ul>
+<h5 id="事务机制"><a href="#事务机制" class="headerlink" title="事务机制"></a>事务机制</h5><ul>
+<li>基于2PC阶段的演变</li>
+<li>一阶段：业务数据和回滚日志记录在同一个本地事务中提交，释放本地锁和连接资源。</li>
+<li>二阶段：<ul>
+<li>提交异步化，非常快速地完成。</li>
+<li>回滚通过一阶段的回滚日志进行反向补偿。</li>
+</ul>
+</li>
+</ul>
+<h4 id="工作机制"><a href="#工作机制" class="headerlink" title="工作机制"></a>工作机制</h4><ul>
+<li>由TM全局事务发起者，向TC发起全局事务请求，会返回全局事务XID</li>
+<li>一阶段：<ul>
+<li>①、解析SQL，得到SQL类型、操作的表、SQL条件等相关信息</li>
+<li>②、根据解析得到的条件信息，生成查询语句，得到数据更新前的数据（查询的时候使用 <code>for update</code> 行锁）</li>
+<li>③、执行业务 SQL：更新记录</li>
+<li>④、查询更新后的数据镜像：根据前镜像的结果，通过主键定位数据。</li>
+<li>⑤、把前后镜像数据以及业务 SQL 相关的信息组成一条回滚日志记录，插入到 UNDO_LOG 表中。</li>
+<li>⑥、提交前，向TC注册分支事务，返回 BranchID</li>
+<li>⑦、本地事务提交：业务数据的更新和前面步骤中生成的 UNDO LOG 一并提交</li>
+<li>⑧、将本地事务提交的结果上报给TC。</li>
+</ul>
+</li>
+<li>二阶段：<ul>
+<li><strong>提交：</strong></li>
+<li>①、收到 TC 的分支提交请求，把请求放入一个异步任务的队列中，马上返回提交成功的结果给 TC</li>
+<li>②、异步任务阶段的分支提交请求将异步和批量地删除相应 UNDO LOG 记录。</li>
+<li><strong>回滚</strong></li>
+<li>①、收到 TC 的分支回滚请求，开启一个本地事务，执行如下操作</li>
+<li>②、通过 XID 和 BranchID 查找到相应的 UNDO LOG 记录。</li>
+<li>③、数据校验：拿 UNDO LOG 中的更新后镜像与当前数据进行比较，不一致的不能回滚，证明被其他线程修改了数据</li>
+<li>④、根据 UNDO LOG 中的前镜像和业务 SQL 的相关信息生成并执行回滚的语句。</li>
+<li>⑤、提交本地事务。并把本地事务的执行结果（即分支事务回滚的结果）上报给 TC。</li>
+</ul>
+</li>
+</ul>
+<p><em>在网上看到一个挺详细的图，这里引用一下，若侵权，请告知，立马删除</em></p>
+<p><img src="seata-work.png" alt></p>
+<blockquote>
+<p>此图原链接：<a href="https://blog.csdn.net/scjava/article/details/116883100" target="_blank" rel="noopener">https://blog.csdn.net/scjava/article/details/116883100</a></p>
+</blockquote>
+<p><strong>源码调用流程图</strong></p>
+<ul>
+<li>非常的详细：seata 1.4版本</li>
+</ul>
+<p><img src="seata-src.png" alt></p>
+<h3 id="三、Seata快速开始"><a href="#三、Seata快速开始" class="headerlink" title="三、Seata快速开始"></a>三、Seata快速开始</h3><ul>
+<li>理论啥的讲完了，实战开始吧</li>
+</ul>
+<h4 id="1、安装Seata"><a href="#1、安装Seata" class="headerlink" title="1、安装Seata"></a>1、安装Seata</h4><ul>
+<li>也就是充当协调者的角色，TC服务</li>
+<li>下载地址：<a href="http://seata.io/zh-cn/blog/download.html" target="_blank" rel="noopener">http://seata.io/zh-cn/blog/download.html</a></li>
+<li>或者去Github下载，地址：<a href="https://github.com/seata/seata/releases" target="_blank" rel="noopener">https://github.com/seata/seata/releases</a></li>
+<li>通过上面链接下载可执行的压缩包后，解压。</li>
+<li>之后修改根目录下的conf目录下的<code>file.conf</code>和<code>registry.conf</code> 这两个文件</li>
+<li>file.conf选择TC的数据存储方式，有：file、db(支持数据库：<code>mysql/oracle/postgresql/h2/oceanbase</code>)、redis</li>
+<li>registry.conf选择注册中心和配置中心</li>
+<li>选择哪种模式就修改对应模式的配置即可，我这里file.conf选择的是数据库mode,register.conf选择的是nacos</li>
+</ul>
+<p><em>file.conf 如下</em><br><img src="file.png" alt></p>
+<p><em>registry.conf 文件如下</em><br><img src="registry.png" alt></p>
+<p><strong>seata数据库的SQL脚本如下：</strong></p>
+<figure class="highlight routeros"><table><tr><td class="code"><pre><span class="line">-- ----------------------------</span><br><span class="line">-- Table structure <span class="keyword">for</span> branch_table</span><br><span class="line">-- ----------------------------</span><br><span class="line">DROP TABLE <span class="keyword">IF</span> EXISTS `branch_table`;</span><br><span class="line">CREATE TABLE `branch_table`  (</span><br><span class="line">  `branch_id` bigint(20) <span class="keyword">NOT</span> <span class="literal">NULL</span>,</span><br><span class="line">  `xid` varchar(128) CHARACTER <span class="builtin-name">SET</span> utf8 COLLATE utf8_general_ci <span class="keyword">NOT</span> <span class="literal">NULL</span>,</span><br><span class="line">  `transaction_id` bigint(20) <span class="literal">NULL</span><span class="built_in"> DEFAULT </span><span class="literal">NULL</span>,</span><br><span class="line">  `resource_group_id` varchar(32) CHARACTER <span class="builtin-name">SET</span> utf8 COLLATE utf8_general_ci <span class="literal">NULL</span><span class="built_in"> DEFAULT </span><span class="literal">NULL</span>,</span><br><span class="line">  `resource_id` varchar(256) CHARACTER <span class="builtin-name">SET</span> utf8 COLLATE utf8_general_ci <span class="literal">NULL</span><span class="built_in"> DEFAULT </span><span class="literal">NULL</span>,</span><br><span class="line">  `branch_type` varchar(8) CHARACTER <span class="builtin-name">SET</span> utf8 COLLATE utf8_general_ci <span class="literal">NULL</span><span class="built_in"> DEFAULT </span><span class="literal">NULL</span>,</span><br><span class="line">  `status` tinyint(4) <span class="literal">NULL</span><span class="built_in"> DEFAULT </span><span class="literal">NULL</span>,</span><br><span class="line">  `client_id` varchar(64) CHARACTER <span class="builtin-name">SET</span> utf8 COLLATE utf8_general_ci <span class="literal">NULL</span><span class="built_in"> DEFAULT </span><span class="literal">NULL</span>,</span><br><span class="line">  `application_data` varchar(2000) CHARACTER <span class="builtin-name">SET</span> utf8 COLLATE utf8_general_ci <span class="literal">NULL</span><span class="built_in"> DEFAULT </span><span class="literal">NULL</span>,</span><br><span class="line">  `gmt_create` datetime <span class="literal">NULL</span><span class="built_in"> DEFAULT </span><span class="literal">NULL</span>,</span><br><span class="line">  `gmt_modified` datetime <span class="literal">NULL</span><span class="built_in"> DEFAULT </span><span class="literal">NULL</span>,</span><br><span class="line">  PRIMARY KEY (`branch_id`) USING BTREE,</span><br><span class="line">  INDEX `idx_xid`(`xid`) USING BTREE</span><br><span class="line">) ENGINE = InnoDB CHARACTER <span class="builtin-name">SET</span> = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;</span><br><span class="line"></span><br><span class="line">-- ----------------------------</span><br><span class="line">-- Records of branch_table</span><br><span class="line">-- ----------------------------</span><br><span class="line"></span><br><span class="line">-- ----------------------------</span><br><span class="line">-- Table structure <span class="keyword">for</span> global_table</span><br><span class="line">-- ----------------------------</span><br><span class="line">DROP TABLE <span class="keyword">IF</span> EXISTS `global_table`;</span><br><span class="line">CREATE TABLE `global_table`  (</span><br><span class="line">  `xid` varchar(128) CHARACTER <span class="builtin-name">SET</span> utf8 COLLATE utf8_general_ci <span class="keyword">NOT</span> <span class="literal">NULL</span>,</span><br><span class="line">  `transaction_id` bigint(20) <span class="literal">NULL</span><span class="built_in"> DEFAULT </span><span class="literal">NULL</span>,</span><br><span class="line">  `status` tinyint(4) <span class="keyword">NOT</span> <span class="literal">NULL</span>,</span><br><span class="line">  `application_id` varchar(32) CHARACTER <span class="builtin-name">SET</span> utf8 COLLATE utf8_general_ci <span class="literal">NULL</span><span class="built_in"> DEFAULT </span><span class="literal">NULL</span>,</span><br><span class="line">  `transaction_service_group` varchar(32) CHARACTER <span class="builtin-name">SET</span> utf8 COLLATE utf8_general_ci <span class="literal">NULL</span><span class="built_in"> DEFAULT </span><span class="literal">NULL</span>,</span><br><span class="line">  `transaction_name` varchar(128) CHARACTER <span class="builtin-name">SET</span> utf8 COLLATE utf8_general_ci <span class="literal">NULL</span><span class="built_in"> DEFAULT </span><span class="literal">NULL</span>,</span><br><span class="line">  `timeout` int(11) <span class="literal">NULL</span><span class="built_in"> DEFAULT </span><span class="literal">NULL</span>,</span><br><span class="line">  `begin_time` bigint(20) <span class="literal">NULL</span><span class="built_in"> DEFAULT </span><span class="literal">NULL</span>,</span><br><span class="line">  `application_data` varchar(2000) CHARACTER <span class="builtin-name">SET</span> utf8 COLLATE utf8_general_ci <span class="literal">NULL</span><span class="built_in"> DEFAULT </span><span class="literal">NULL</span>,</span><br><span class="line">  `gmt_create` datetime <span class="literal">NULL</span><span class="built_in"> DEFAULT </span><span class="literal">NULL</span>,</span><br><span class="line">  `gmt_modified` datetime <span class="literal">NULL</span><span class="built_in"> DEFAULT </span><span class="literal">NULL</span>,</span><br><span class="line">  PRIMARY KEY (`xid`) USING BTREE,</span><br><span class="line">  INDEX `idx_gmt_modified_status`(`gmt_modified`, `status`) USING BTREE,</span><br><span class="line">  INDEX `idx_transaction_id`(`transaction_id`) USING BTREE</span><br><span class="line">) ENGINE = InnoDB CHARACTER <span class="builtin-name">SET</span> = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;</span><br><span class="line"></span><br><span class="line">-- ----------------------------</span><br><span class="line">-- Records of global_table</span><br><span class="line">-- ----------------------------</span><br><span class="line"></span><br><span class="line">-- ----------------------------</span><br><span class="line">-- Table structure <span class="keyword">for</span> lock_table</span><br><span class="line">-- ----------------------------</span><br><span class="line">DROP TABLE <span class="keyword">IF</span> EXISTS `lock_table`;</span><br><span class="line">CREATE TABLE `lock_table`  (</span><br><span class="line">  `row_key` varchar(128) CHARACTER <span class="builtin-name">SET</span> utf8 COLLATE utf8_general_ci <span class="keyword">NOT</span> <span class="literal">NULL</span>,</span><br><span class="line">  `xid` varchar(96) CHARACTER <span class="builtin-name">SET</span> utf8 COLLATE utf8_general_ci <span class="literal">NULL</span><span class="built_in"> DEFAULT </span><span class="literal">NULL</span>,</span><br><span class="line">  `transaction_id` bigint(20) <span class="literal">NULL</span><span class="built_in"> DEFAULT </span><span class="literal">NULL</span>,</span><br><span class="line">  `branch_id` bigint(20) <span class="keyword">NOT</span> <span class="literal">NULL</span>,</span><br><span class="line">  `resource_id` varchar(256) CHARACTER <span class="builtin-name">SET</span> utf8 COLLATE utf8_general_ci <span class="literal">NULL</span><span class="built_in"> DEFAULT </span><span class="literal">NULL</span>,</span><br><span class="line">  `table_name` varchar(32) CHARACTER <span class="builtin-name">SET</span> utf8 COLLATE utf8_general_ci <span class="literal">NULL</span><span class="built_in"> DEFAULT </span><span class="literal">NULL</span>,</span><br><span class="line">  `pk` varchar(36) CHARACTER <span class="builtin-name">SET</span> utf8 COLLATE utf8_general_ci <span class="literal">NULL</span><span class="built_in"> DEFAULT </span><span class="literal">NULL</span>,</span><br><span class="line">  `gmt_create` datetime <span class="literal">NULL</span><span class="built_in"> DEFAULT </span><span class="literal">NULL</span>,</span><br><span class="line">  `gmt_modified` datetime <span class="literal">NULL</span><span class="built_in"> DEFAULT </span><span class="literal">NULL</span>,</span><br><span class="line">  PRIMARY KEY (`row_key`) USING BTREE,</span><br><span class="line">  INDEX `idx_branch_id`(`branch_id`) USING BTREE</span><br><span class="line">) ENGINE = InnoDB CHARACTER <span class="builtin-name">SET</span> = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>这里以Windows版本启动示例，修改上面配置之后，双击：<code>bin/seata-server.bat</code> 文件即可</li>
+<li>因为我这里配置的是nacos,所以先要把nacos启动起来。</li>
+</ul>
+<p><img src="seata-run.png" alt></p>
+<h4 id="2、导入依赖"><a href="#2、导入依赖" class="headerlink" title="2、导入依赖"></a>2、导入依赖</h4><ul>
+<li>导入依赖有三种方式：</li>
+<li>1、<code>seata-all</code> 这个是seata相关包，需要自己实现像数据源代理、xid传递，初始化GlobalTransactionScanner等，一般不推荐</li>
+<li>2、<code>seata-spring-boot-starter</code> 这个是和Springboot整合了,内置<code>GlobalTransactionScanner</code>自动初始化功能，若外部实现初始化，请参考<code>SeataAutoConfiguration</code>保证依赖加载顺序。里面引用了<code>seata-all</code>，可以用</li>
+<li>3、<code>spring-cloud-alibaba-seata</code> 这个和spirngcloud-alibaba整合，内部引用了<code>seata-spring-boot-starter</code>，推荐使用</li>
+</ul>
+<p><strong>推荐用法：</strong></p>
+<figure class="highlight dust"><table><tr><td class="code"><pre><span class="line"><span class="xml"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span></span><br><span class="line"><span class="xml">	<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.alibaba.cloud<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span></span><br><span class="line"><span class="xml">	<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-cloud-alibaba-seata<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span></span><br><span class="line"><span class="xml">	<span class="tag">&lt;<span class="name">version</span>&gt;</span>$</span><span class="template-variable">&#123;alibaba.seata.version&#125;</span><span class="xml"><span class="tag">&lt;/<span class="name">version</span>&gt;</span></span></span><br><span class="line"><span class="xml">	<span class="tag">&lt;<span class="name">exclusions</span>&gt;</span></span></span><br><span class="line"><span class="xml">		<span class="tag">&lt;<span class="name">exclusion</span>&gt;</span></span></span><br><span class="line"><span class="xml">			<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>io.seata<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span></span><br><span class="line"><span class="xml">			<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>seata-spring-boot-starter<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span></span><br><span class="line"><span class="xml">		<span class="tag">&lt;/<span class="name">exclusion</span>&gt;</span></span></span><br><span class="line"><span class="xml">		<span class="tag">&lt;<span class="name">exclusion</span>&gt;</span></span></span><br><span class="line"><span class="xml">			<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>seata-all<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span></span><br><span class="line"><span class="xml">			<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>io.seata<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span></span><br><span class="line"><span class="xml">		<span class="tag">&lt;/<span class="name">exclusion</span>&gt;</span></span></span><br><span class="line"><span class="xml">	<span class="tag">&lt;/<span class="name">exclusions</span>&gt;</span></span></span><br><span class="line"><span class="xml"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span></span><br><span class="line"><span class="xml"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span></span><br><span class="line"><span class="xml">	<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>io.seata<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span></span><br><span class="line"><span class="xml">	<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>seata-spring-boot-starter<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span></span><br><span class="line"><span class="xml">	<span class="tag">&lt;<span class="name">version</span>&gt;</span>$</span><span class="template-variable">&#123;最新版&#125;</span><span class="xml"><span class="tag">&lt;/<span class="name">version</span>&gt;</span></span></span><br><span class="line"><span class="xml"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>参考：<a href="http://seata.io/zh-cn/docs/ops/deploy-guide-beginner.html" target="_blank" rel="noopener">http://seata.io/zh-cn/docs/ops/deploy-guide-beginner.html</a></p>
+</blockquote>
+<h4 id="3、添加配置"><a href="#3、添加配置" class="headerlink" title="3、添加配置"></a>3、添加配置</h4><ul>
+<li>在<code>application.yml</code>添加seata相关配置</li>
+<li>我这里暂时不用配置中心来读取配置，全部放到配置文件中</li>
+<li>如下：</li>
+</ul>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="attr">spring:</span></span><br><span class="line">  <span class="attr">profiles:</span></span><br><span class="line">    <span class="attr">active:</span> <span class="string">dev</span></span><br><span class="line">  <span class="attr">application:</span></span><br><span class="line">    <span class="attr">name:</span> <span class="string">seata-user</span></span><br><span class="line">  <span class="attr">cloud:</span></span><br><span class="line">    <span class="attr">nacos:</span></span><br><span class="line">      <span class="attr">discovery:</span></span><br><span class="line">        <span class="attr">server-addr:</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span><span class="string">:8848</span></span><br><span class="line">        <span class="attr">username:</span> <span class="string">nacos</span></span><br><span class="line">        <span class="attr">password:</span> <span class="string">nacos</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 下面这个就是seata的所有配置文件了	</span></span><br><span class="line"><span class="attr">seata:</span></span><br><span class="line">  <span class="attr">enabled:</span> <span class="literal">true</span></span><br><span class="line">  <span class="attr">application-id:</span> <span class="string">$&#123;spring.application.name&#125;</span></span><br><span class="line">  <span class="attr">tx-service-group:</span> <span class="string">$&#123;spring.application.name&#125;-group</span></span><br><span class="line">  <span class="attr">enable-auto-data-source-proxy:</span> <span class="literal">true</span></span><br><span class="line">  <span class="attr">use-jdk-proxy:</span> <span class="literal">false</span></span><br><span class="line"><span class="comment">#  config:</span></span><br><span class="line"><span class="comment">#    type: nacos</span></span><br><span class="line"><span class="comment">#    nacos:</span></span><br><span class="line"><span class="comment">#      username: nacos</span></span><br><span class="line"><span class="comment">#      password: nacos</span></span><br><span class="line"><span class="comment">#      server-addr: 127.0.0.1:8848</span></span><br><span class="line"><span class="comment">#      group: SEATA_GROUP</span></span><br><span class="line"><span class="comment">#      namespace: 94455b2a-cf66-40b5-819b-bba352aaa4f1</span></span><br><span class="line">  <span class="attr">registry:</span></span><br><span class="line">    <span class="attr">type:</span> <span class="string">nacos</span></span><br><span class="line">    <span class="attr">nacos:</span></span><br><span class="line">      <span class="attr">username:</span> <span class="string">nacos</span></span><br><span class="line">      <span class="attr">password:</span> <span class="string">nacos</span></span><br><span class="line">      <span class="attr">server-addr:</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span><span class="string">:8848</span></span><br><span class="line">      <span class="attr">application:</span> <span class="string">seata-server</span></span><br><span class="line">      <span class="attr">namespace:</span> <span class="string">94455b2a-cf66-40b5-819b-bba352aaa4f1</span></span><br><span class="line">  <span class="attr">client:</span></span><br><span class="line">    <span class="attr">rm:</span></span><br><span class="line">      <span class="attr">async-commit-buffer-limit:</span> <span class="number">10000</span></span><br><span class="line">      <span class="attr">report-retry-count:</span> <span class="number">5</span></span><br><span class="line">      <span class="attr">table-meta-check-enable:</span> <span class="literal">false</span></span><br><span class="line">      <span class="attr">report-success-enable:</span> <span class="literal">false</span></span><br><span class="line">      <span class="attr">saga-branch-register-enable:</span> <span class="literal">false</span></span><br><span class="line">      <span class="attr">saga-json-parser:</span> <span class="string">fastjson</span></span><br><span class="line">      <span class="attr">lock:</span></span><br><span class="line">        <span class="attr">retry-interval:</span> <span class="number">10</span></span><br><span class="line">        <span class="attr">retry-times:</span> <span class="number">30</span></span><br><span class="line">        <span class="attr">retry-policy-branch-rollback-on-conflict:</span> <span class="literal">true</span></span><br><span class="line">    <span class="attr">tm:</span></span><br><span class="line">      <span class="attr">commit-retry-count:</span> <span class="number">5</span></span><br><span class="line">      <span class="attr">rollback-retry-count:</span> <span class="number">5</span></span><br><span class="line">      <span class="attr">default-global-transaction-timeout:</span> <span class="number">60000</span></span><br><span class="line">      <span class="attr">degrade-check:</span> <span class="literal">false</span></span><br><span class="line">      <span class="attr">degrade-check-period:</span> <span class="number">2000</span></span><br><span class="line">      <span class="attr">degrade-check-allow-times:</span> <span class="number">10</span></span><br><span class="line">    <span class="attr">undo:</span></span><br><span class="line">        <span class="attr">data-validation:</span> <span class="literal">true</span></span><br><span class="line">        <span class="attr">log-serialization:</span> <span class="string">jackson</span></span><br><span class="line">        <span class="attr">log-table:</span> <span class="string">undo_log</span></span><br><span class="line">        <span class="attr">only-care-update-columns:</span> <span class="literal">true</span></span><br><span class="line">  <span class="attr">service:</span></span><br><span class="line">    <span class="attr">vgroup-mapping:</span></span><br><span class="line">      <span class="attr">seata-user-group:</span> <span class="string">default</span></span><br><span class="line">    <span class="attr">disable-global-transaction:</span> <span class="literal">false</span></span><br><span class="line">    <span class="attr">enable-degrade:</span> <span class="literal">false</span></span><br><span class="line">    <span class="attr">grouplist:</span></span><br><span class="line">      <span class="attr">default:</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span><span class="string">:8091</span></span><br><span class="line">  <span class="attr">transport:</span></span><br><span class="line">    <span class="attr">shutdown:</span></span><br><span class="line">      <span class="attr">wait:</span> <span class="number">3</span></span><br><span class="line">    <span class="attr">thread-factory:</span></span><br><span class="line">      <span class="attr">boss-thread-prefix:</span> <span class="string">NettyBoss</span></span><br><span class="line">      <span class="attr">worker-thread-prefix:</span> <span class="string">NettyServerNIOWorker</span></span><br><span class="line">      <span class="attr">server-executor-thread-prefix:</span> <span class="string">NettyServerBizHandler</span></span><br><span class="line">      <span class="attr">share-boss-worker:</span> <span class="literal">false</span></span><br><span class="line">      <span class="attr">client-selector-thread-prefix:</span> <span class="string">NettyClientSelector</span></span><br><span class="line">      <span class="attr">client-selector-thread-size:</span> <span class="number">1</span></span><br><span class="line">      <span class="attr">client-worker-thread-prefix:</span> <span class="string">NettyClientWorkerThread</span></span><br><span class="line">      <span class="attr">worker-thread-size:</span> <span class="string">default</span></span><br><span class="line">      <span class="attr">boss-thread-size:</span> <span class="number">1</span></span><br><span class="line">    <span class="attr">type:</span> <span class="string">TCP</span></span><br><span class="line">    <span class="attr">server:</span> <span class="string">NIO</span></span><br><span class="line">    <span class="attr">heartbeat:</span> <span class="literal">true</span></span><br><span class="line">    <span class="attr">serialization:</span> <span class="string">seata</span></span><br><span class="line">    <span class="attr">compressor:</span> <span class="string">none</span></span><br><span class="line">    <span class="attr">enable-client-batch-send-request:</span> <span class="literal">true</span></span><br><span class="line">  <span class="attr">log:</span></span><br><span class="line">    <span class="attr">exception-rate:</span> <span class="number">100</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="seata-group.png" alt></p>
+<ul>
+<li>事务组名要一致，然后按照需求自己修改配置</li>
+<li>参数配置详解请看官方文档：<a href="http://seata.io/zh-cn/docs/user/configurations.html" target="_blank" rel="noopener">http://seata.io/zh-cn/docs/user/configurations.html</a></li>
+</ul>
+<h4 id="4、业务代码实现"><a href="#4、业务代码实现" class="headerlink" title="4、业务代码实现"></a>4、业务代码实现</h4><ul>
+<li>每个业务服务的数据都要添加undo_log表，保存一阶段数据</li>
+</ul>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> <span class="string">`undo_log`</span> (</span><br><span class="line">  <span class="string">`id`</span> <span class="built_in">bigint</span>(<span class="number">20</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> AUTO_INCREMENT <span class="keyword">COMMENT</span> <span class="string">'increment id'</span>,</span><br><span class="line">  <span class="string">`branch_id`</span> <span class="built_in">bigint</span>(<span class="number">20</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'branch transaction id'</span>,</span><br><span class="line">  <span class="string">`xid`</span> <span class="built_in">varchar</span>(<span class="number">100</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'global transaction id'</span>,</span><br><span class="line">  <span class="string">`context`</span> <span class="built_in">varchar</span>(<span class="number">128</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'undo_log context,such as serialization'</span>,</span><br><span class="line">  <span class="string">`rollback_info`</span> longblob <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'rollback info'</span>,</span><br><span class="line">  <span class="string">`log_status`</span> <span class="built_in">int</span>(<span class="number">11</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'0:normal status,1:defense status'</span>,</span><br><span class="line">  <span class="string">`log_created`</span> datetime <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'create datetime'</span>,</span><br><span class="line">  <span class="string">`log_modified`</span> datetime <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'modify datetime'</span>,</span><br><span class="line">  PRIMARY <span class="keyword">KEY</span> (<span class="string">`id`</span>),</span><br><span class="line">  <span class="keyword">UNIQUE</span> <span class="keyword">KEY</span> <span class="string">`ux_undo_log`</span> (<span class="string">`xid`</span>,<span class="string">`branch_id`</span>)</span><br><span class="line">) <span class="keyword">ENGINE</span>=<span class="keyword">InnoDB</span> AUTO_INCREMENT=<span class="number">169</span> <span class="keyword">DEFAULT</span> <span class="keyword">CHARSET</span>=utf8 <span class="keyword">COMMENT</span>=<span class="string">'AT transaction mode undo table'</span>;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>上面都准备好之后，只需要在需要发起全局事务的service添加 <code>@GlobalTransactional</code> 即可</li>
+</ul>
+<p><strong>①、常规用法：</strong></p>
+<ul>
+<li>只需要在需要开启全局事务的service方法上添加 <code>@GlobalTransactional</code>注解即可<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="meta">@Transactional</span></span><br><span class="line"><span class="meta">@GlobalTransactional</span>(rollbackFor = Exception<span class="class">.<span class="keyword">class</span>)</span></span><br><span class="line"><span class="class"><span class="title">public</span> <span class="title">Result</span> <span class="title">payOrder</span>(<span class="title">PayDto</span> <span class="title">dto</span>) </span>&#123;</span><br><span class="line">    log.info(<span class="string">"全局事务xid=&#123;&#125;"</span>, RootContext.getXID());</span><br><span class="line">    <span class="comment">// todo ....</span></span><br><span class="line">    <span class="keyword">return</span> Result.ok();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<p><strong>②、try-catch的回滚方法</strong></p>
+<ul>
+<li>通过<code>try-catch</code> 主动触发全局事务回滚操作</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line">    <span class="meta">@GlobalTransactional</span>(rollbackFor = Exception<span class="class">.<span class="keyword">class</span>)</span></span><br><span class="line"><span class="class">    <span class="title">public</span> <span class="title">Result</span> <span class="title">payOrder2</span>(<span class="title">PayDto</span> <span class="title">dto</span>) <span class="title">throws</span> <span class="title">TransactionException</span> </span>&#123;</span><br><span class="line">        <span class="keyword">try</span>&#123;</span><br><span class="line">            log.info(<span class="string">"全局事务xid=&#123;&#125;"</span>, RootContext.getXID());</span><br><span class="line">            <span class="comment">// todo ...</span></span><br><span class="line">            <span class="keyword">return</span> Result.ok();</span><br><span class="line">        &#125;<span class="keyword">catch</span> (Exception e)&#123;</span><br><span class="line">            <span class="comment">// 这个方法可以回滚全局事务</span></span><br><span class="line">            GlobalTransactionContext.reload(RootContext.getXID()).rollback();</span><br><span class="line">            <span class="keyword">return</span> Result.error(ApiResultEnum.FEIGN_ERROR);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>③、某些服务不走全局事务</strong></p>
+<ul>
+<li>相同一个业务中，调用了3个服务，但是其中1个服务可以让其不走全局事务（失败就失败，不管它，它不受全局事务管理）</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@GlobalTransactional</span>(rollbackFor = Exception<span class="class">.<span class="keyword">class</span>)</span></span><br><span class="line"><span class="class"><span class="title">public</span> <span class="title">Result</span> <span class="title">payOrder3</span>(<span class="title">PayDto</span> <span class="title">dto</span>) </span>&#123;</span><br><span class="line">	log.info(<span class="string">"全局事务xid=&#123;&#125;"</span>, RootContext.getXID());</span><br><span class="line">	<span class="comment">// todo ...</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">// 解绑全局事务ID,不受全局事务影响，报错也不会回滚</span></span><br><span class="line">	String unbind = RootContext.unbind();</span><br><span class="line">	<span class="keyword">try</span>&#123;</span><br><span class="line">		<span class="comment">// todo ...</span></span><br><span class="line">		<span class="comment">// 这里的操作是不受全局事务管理的，失败或成功都不影响</span></span><br><span class="line">	&#125;<span class="keyword">catch</span> (Exception e)&#123;</span><br><span class="line">		log.error(e.getMessage(),e);</span><br><span class="line">	&#125;<span class="keyword">finally</span> &#123;</span><br><span class="line">		<span class="keyword">if</span>(!StringUtils.isEmpty(unbind))&#123;</span><br><span class="line">			<span class="comment">// 重新绑定全局事务，下面全局事务会生效</span></span><br><span class="line">			RootContext.bind(unbind);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">// todo ...</span></span><br><span class="line">	<span class="keyword">return</span> Result.ok();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>如上 扣除库存 这个操作就不受全局事务管理，不管它是失败还是成功，都不会对全局事务有任何影响。</li>
+<li>调用：<code>RootContext.unbind()</code> 解绑事务，和绑定事务：<code>RootContext.bind(unbind)</code></li>
+</ul>
+<h4 id="5、启动应用"><a href="#5、启动应用" class="headerlink" title="5、启动应用"></a>5、启动应用</h4><ul>
+<li>排除默认的数据源自动装配<code>DataSourceAutoConfiguration</code>.</li>
+</ul>
+<figure class="highlight arduino"><table><tr><td class="code"><pre><span class="line">@SpringBootApplication(exclude = DataSourceAutoConfiguration.class)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">UserApplication</span> &#123;</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(<span class="keyword">String</span>[] args)</span> </span>&#123;</span><br><span class="line">        SpringApplication.<span class="built_in">run</span>(UserApplication.class, args);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>调用接口，发现二阶段提交成功</li>
+</ul>
+<p><img src="two_commit.png" alt></p>
+<h3 id="四、seata使用配置中心"><a href="#四、seata使用配置中心" class="headerlink" title="四、seata使用配置中心"></a>四、seata使用配置中心</h3><ul>
+<li>如上的配置是写在配置文件的，没法动态修改</li>
+<li>可以把配置写到配置中心,这样可以动态修改</li>
+<li>这里以nacos为例，访问：<a href="https://github.com/seata/seata/tree/develop/script/config-center" target="_blank" rel="noopener">https://github.com/seata/seata/tree/develop/script/config-center</a></li>
+<li>下载添加到nacos配置中心脚本:<code>nacos-config.sh</code>：<ul>
+<li>地址：<a href="https://github.com/seata/seata/blob/develop/script/config-center/nacos/nacos-config.sh" target="_blank" rel="noopener">https://github.com/seata/seata/blob/develop/script/config-center/nacos/nacos-config.sh</a></li>
+</ul>
+</li>
+<li>然后下载示例的配置文件: <code>config.txt</code>: <ul>
+<li>地址：<a href="https://github.com/seata/seata/blob/develop/script/config-center/config.txt" target="_blank" rel="noopener">https://github.com/seata/seata/blob/develop/script/config-center/config.txt</a></li>
+</ul>
+</li>
+<li><strong>把下载下来的脚本nacos-config.sh 放到seata的conf目录下，把config.txt 放到seata的根目录下。</strong></li>
+<li>执行命令如下：</li>
+</ul>
+<figure class="highlight maxima"><table><tr><td class="code"><pre><span class="line"># -h nacos的ip -p nacos端口 -g nacos配置文件的组 -t 你的namespace号(若是public可省略此选项) -u nacos用户名 -w nacos密码</span><br><span class="line">sh nacos-config.sh -h localhost -p <span class="number">8848</span> -g SEATA_GROUP -t 94455b2a-cf66-<span class="number">40b5</span>-819b-bba352aaa4f1 -u nacos -w nacos</span><br></pre></td></tr></table></figure>
+
+<p><img src="add-config.png" alt></p>
+<ul>
+<li>如果直接使用示例文件，结果会有几个失败，失败原因是value为空。</li>
+</ul>
+<p><img src="nacos-config.png" alt></p>
+<ul>
+<li>最后nacos就有数据了，不同服务可以使用不同的配置组</li>
+</ul>
+<h4 id="1、修改YML配置文件"><a href="#1、修改YML配置文件" class="headerlink" title="1、修改YML配置文件"></a>1、修改YML配置文件</h4><ul>
+<li>这样之后yml配置文件就只需写注册中心配合配置中心配置即可</li>
+</ul>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="attr">seata:</span></span><br><span class="line">  <span class="attr">enabled:</span> <span class="literal">true</span></span><br><span class="line">  <span class="attr">application-id:</span> <span class="string">seata-user</span></span><br><span class="line">  <span class="attr">tx-service-group:</span> <span class="string">seata-user-group</span></span><br><span class="line">  <span class="attr">enable-auto-data-source-proxy:</span> <span class="literal">true</span></span><br><span class="line">  <span class="attr">use-jdk-proxy:</span> <span class="literal">false</span></span><br><span class="line">  <span class="attr">config:</span></span><br><span class="line">    <span class="attr">type:</span> <span class="string">nacos</span></span><br><span class="line">    <span class="attr">nacos:</span></span><br><span class="line">      <span class="attr">username:</span> <span class="string">nacos</span></span><br><span class="line">      <span class="attr">password:</span> <span class="string">nacos</span></span><br><span class="line">      <span class="attr">server-addr:</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span><span class="string">:8848</span></span><br><span class="line">      <span class="attr">group:</span> <span class="string">SEATA_USER_GROUP</span></span><br><span class="line">      <span class="attr">namespace:</span> <span class="string">94455b2a-cf66-40b5-819b-bba352aaa4f1</span></span><br><span class="line">  <span class="attr">registry:</span></span><br><span class="line">    <span class="attr">type:</span> <span class="string">nacos</span></span><br><span class="line">    <span class="attr">nacos:</span></span><br><span class="line">      <span class="attr">username:</span> <span class="string">nacos</span></span><br><span class="line">      <span class="attr">password:</span> <span class="string">nacos</span></span><br><span class="line">      <span class="attr">server-addr:</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span><span class="string">:8848</span></span><br><span class="line">      <span class="attr">application:</span> <span class="string">seata-server</span></span><br><span class="line">      <span class="attr">namespace:</span> <span class="string">94455b2a-cf66-40b5-819b-bba352aaa4f1</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="2、本文全部代码"><a href="#2、本文全部代码" class="headerlink" title="2、本文全部代码"></a>2、本文全部代码</h4><ul>
+<li><strong><em>Github:</em></strong> <a href="https://github.com/rstyro/SpringCloud-Alibaba-learning/tree/main/springcloud-seata" target="_blank" rel="noopener">https://github.com/rstyro/SpringCloud-Alibaba-learning/tree/main/springcloud-seata</a></li>
+<li><strong><em>Gitee:</em></strong> <a href="https://gitee.com/rstyro/SpringCloud-Alibaba-learning/tree/main/springcloud-seata" target="_blank" rel="noopener">https://gitee.com/rstyro/SpringCloud-Alibaba-learning/tree/main/springcloud-seata</a></li>
+</ul>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+	
+	    <div>
+	
+	<div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------本文结束 <i class="fa fa-heartbeat"></i> 感谢您的阅读-------------</div>
+    
+</div>
+	
+	</div>
+
+    
+
+    
+      
+    
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div></div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>打赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/blog/images/wechat_pay.jpg" alt="rstyro 微信支付">
+        <p>微信支付</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/blog/images/alipay.jpg" alt="rstyro 支付宝">
+        <p>支付宝</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+	
+	<div>    
+	 
+	 
+	<ul class="post-copyright">
+	  <li class="post-copyright-author">
+		  <strong>本文作者：</strong>rstyro
+	  </li>
+	  <li class="post-copyright-link">
+		<strong>本文链接：</strong>
+		<a href="/blog/2021/06/21/分布式事务理论与Seata示例/" title="分布式事务理论与Seata示例">https://rstyro.github.io/blog/2021/06/21/分布式事务理论与Seata示例/</a>
+	  </li>
+	  <li class="post-copyright-license">
+		<strong>版权： </strong>
+		转载注明出处！
+	  </li>
+	</ul>
+	
+	</div>
+	
+
+      
+        <div class="post-tags">
+          
+            <a href="/blog/tags/Seata/" rel="tag"><i class="fa fa-tag"></i> Seata</a>
+          
+            <a href="/blog/tags/分布式事务/" rel="tag"><i class="fa fa-tag"></i> 分布式事务</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2021/06/09/Jmeter简单使用/" rel="next" title="Jmeter简单使用">
+                <i class="fa fa-chevron-left"></i> Jmeter简单使用
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2021/06/28/Markdown流程图语法示例/" rel="prev" title="Markdown流程图语法示例">
+                Markdown流程图语法示例 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+
+
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+      <div id="sidebar-dimmer"></div>
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/blog/images/avatar.jpg" alt="rstyro">
+            
+              <p class="site-author-name" itemprop="name">rstyro</p>
+              <p class="site-description motion-element" itemprop="description">个人博客,瞎写一些技术笔记等。</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/blog/archives/">
+                
+                    <span class="site-state-item-count">195</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/blog/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">13</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/blog/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">49</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+            <div class="feed-link motion-element">
+              <a href="/blog/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://github.com/rstyro" title="GitHub &rarr; https://github.com/rstyro" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://gitee.com/rstyro" title="Gitee &rarr; https://gitee.com/rstyro" rel="noopener" target="_blank"><i class="fa fa-fw fa-codiepie"></i>Gitee</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="/blog/1006059906" title="QQ &rarr; 1006059906"><i class="fa fa-fw fa-qq"></i>QQ</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://www.jianshu.com/u/651c15a1758a" title="简书 &rarr; https://www.jianshu.com/u/651c15a1758a" rel="noopener" target="_blank"><i class="fa fa-fw fa-book"></i>简书</a>
+                </span>
+              
+            </div>
+          
+
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-block">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                友链
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://rstyro.github.io/blog/" title="https://rstyro.github.io/blog/">帅大叔博客</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://www.zhyd.me/" title="https://www.zhyd.me/" rel="noopener" target="_blank">张亚东博客</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://www.devsong.org/" title="http://www.devsong.org/" rel="noopener" target="_blank">DevSONG</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://www.dalaoyang.cn/" title="https://www.dalaoyang.cn/" rel="noopener" target="_blank">dalaoyang</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://www.chenshuangyi.com/" title="https://www.chenshuangyi.com/" rel="noopener" target="_blank">陈双义博客</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+            
+          
+          <div id="days"></div>
+<script>
+function show_date_time(){
+window.setTimeout("show_date_time()", 1000);
+BirthDay=new Date("04/10/2017 15:13:14");
+today=new Date();
+timeold=(today.getTime()-BirthDay.getTime());
+sectimeold=timeold/1000
+secondsold=Math.floor(sectimeold);
+msPerDay=24*60*60*1000
+e_daysold=timeold/msPerDay
+daysold=Math.floor(e_daysold);
+e_hrsold=(e_daysold-daysold)*24;
+hrsold=setzero(Math.floor(e_hrsold));
+e_minsold=(e_hrsold-hrsold)*60;
+minsold=setzero(Math.floor((e_hrsold-hrsold)*60));
+seconds=setzero(Math.floor((e_minsold-minsold)*60));
+document.getElementById('days').innerHTML="已运行 "+daysold+" 天 "+hrsold+" 小时 "+minsold+" 分 "+seconds+" 秒";
+}
+function setzero(i){
+if (i<10)
+{i="0" + i};
+return i;
+}
+show_date_time();
+</script>
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#一、前言"><span class="nav-number">1.</span> <span class="nav-text">一、前言</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1、本地事务"><span class="nav-number">1.1.</span> <span class="nav-text">1、本地事务</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2、分布式事务"><span class="nav-number">1.2.</span> <span class="nav-text">2、分布式事务</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3、分布式理论"><span class="nav-number">1.3.</span> <span class="nav-text">3、分布式理论</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#①、CAP理论"><span class="nav-number">1.3.1.</span> <span class="nav-text">①、CAP理论</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#②、BASE理论"><span class="nav-number">1.3.2.</span> <span class="nav-text">②、BASE理论</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4、DTP分布式事务模型"><span class="nav-number">1.4.</span> <span class="nav-text">4、DTP分布式事务模型</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5、2PC"><span class="nav-number">1.5.</span> <span class="nav-text">5、2PC</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#第一阶段-提交准备阶段"><span class="nav-number">1.5.1.</span> <span class="nav-text">第一阶段(提交准备阶段)</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#第二阶段-提交执行阶段"><span class="nav-number">1.5.2.</span> <span class="nav-text">第二阶段(提交执行阶段)</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#6、3PC"><span class="nav-number">1.6.</span> <span class="nav-text">6、3PC</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#7、TCC"><span class="nav-number">1.7.</span> <span class="nav-text">7、TCC</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#8、Saga"><span class="nav-number">1.8.</span> <span class="nav-text">8、Saga</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#二、Seata-是什么"><span class="nav-number">2.</span> <span class="nav-text">二、Seata 是什么?</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1、Seata术语"><span class="nav-number">2.1.</span> <span class="nav-text">1、Seata术语</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2、AT模式"><span class="nav-number">2.2.</span> <span class="nav-text">2、AT模式</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#使用前提"><span class="nav-number">2.2.1.</span> <span class="nav-text">使用前提</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#事务机制"><span class="nav-number">2.2.2.</span> <span class="nav-text">事务机制</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#工作机制"><span class="nav-number">2.3.</span> <span class="nav-text">工作机制</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#三、Seata快速开始"><span class="nav-number">3.</span> <span class="nav-text">三、Seata快速开始</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1、安装Seata"><span class="nav-number">3.1.</span> <span class="nav-text">1、安装Seata</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2、导入依赖"><span class="nav-number">3.2.</span> <span class="nav-text">2、导入依赖</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3、添加配置"><span class="nav-number">3.3.</span> <span class="nav-text">3、添加配置</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4、业务代码实现"><span class="nav-number">3.4.</span> <span class="nav-text">4、业务代码实现</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5、启动应用"><span class="nav-number">3.5.</span> <span class="nav-text">5、启动应用</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#四、seata使用配置中心"><span class="nav-number">4.</span> <span class="nav-text">四、seata使用配置中心</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1、修改YML配置文件"><span class="nav-number">4.1.</span> <span class="nav-text">1、修改YML配置文件</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2、本文全部代码"><span class="nav-number">4.2.</span> <span class="nav-text">2、本文全部代码</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">rstyro</span>
+
+  
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+
+  <script src="https://unpkg.com/mermaid@8.11.0/dist/mermaid.min.js"></script>
+  <script>
+    if (window.mermaid) {
+      mermaid.initialize({"startOnload":true});
+    }
+  </script>
+
+
+<div class="theme-info">
+  <div class="powered-by"></div>
+  <span class="post-count">博客全站共322.1k字</span>
+</div>
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-user"></i>
+    </span>
+    <span class="site-uv" title="总访客量">
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+    </span>
+  
+
+  
+    <span class="post-meta-divider">|</span>
+  
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-eye"></i>
+    </span>
+    <span class="site-pv" title="总访问量">
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/blog/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/blog/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/blog/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/blog/js/src/utils.js?v=6.7.0"></script>
+
+  <script src="/blog/js/src/motion.js?v=6.7.0"></script>
+
+
+
+  
+  
+
+  
+  <script src="/blog/js/src/scrollspy.js?v=6.7.0"></script>
+<script src="/blog/js/src/post-details.js?v=6.7.0"></script>
+
+
+
+  
+
+
+  <script src="/blog/js/src/bootstrap.js?v=6.7.0"></script>
+
+
+
+  
+  
+
+
+
+
+  
+
+<script src="//cdn1.lncld.net/static/js/3.11.1/av-min.js"></script>
+
+
+
+  
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/valine/1.3.4/Valine.min.js"></script>
+
+<script>
+  var GUEST = ['nick', 'mail', 'link'];
+  var guest = 'nick,mail,link';
+  guest = guest.split(',').filter(function (item) {
+    return GUEST.indexOf(item) > -1;
+  });
+  new Valine({
+    el: '#comments',
+    verify: false,
+    notify: false,
+    appId: 'LwEPiJFa7YMn2MrJdCwaUbmQ-gzGzoHsz',
+    appKey: 'JqS1y3RxYvDOki9r3NcqqoO5',
+    placeholder: '来都来了，不说几句就走，过分了啊！！！',
+    avatar: 'monsterid',
+    meta: guest,
+    pageSize: '10' || 10,
+    visitor: false
+  });
+</script>
+
+
+
+  
+
+  <script>
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/blog/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url).replace(/\/{2,}/g, '/');
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x"></i></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x"></i></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+  <script>
+    (function(){
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+      }
+      else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+      }
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+    })();
+  </script>
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

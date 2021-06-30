@@ -1,0 +1,1655 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/blog/css/main.css?v=6.7.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon.jpg?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon.jpg?v=6.7.0">
+
+
+  <link rel="mask-icon" href="/blog/images/logo.svg?v=6.7.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/blog/',
+    scheme: 'Mist',
+    version: '6.7.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":true},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+<script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+<link href="//cdn.bootcss.com/pace/1.0.2/themes/pink/pace-theme-flash.css" rel="stylesheet">
+  <style>
+      .pace .pace-progress {
+          background: #1E92FB; /*进度条颜色*/
+          height: 3px;
+      }
+      .pace .pace-progress-inner {
+           box-shadow: 0 0 10px #1E92FB, 0 0 5px     #1E92FB; /*阴影颜色*/
+      }
+      .pace .pace-activity {
+          border-top-color: #1E92FB;    /*上边框颜色*/
+          border-left-color: #1E92FB;    /*左边框颜色*/
+      }
+  </style>
+
+  <meta name="description" content="一、前言ES在创建好索引后，mapping的properties属性类型是不能更改的，只能添加。如果说需要修改字段就需要重新建立索引然后把旧数据导到新索引。 二、Reindex5.X版本后新增_reindex API 。Reindex可以直接在Elasticsearch集群里面对数据进行重建。并且支持跨集群间的数据迁移。 三、实战1、原索引比如我现在有这么一个索引:topic，mapping信息如">
+<meta name="keywords" content="Spring Boot,ElasticSearch">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Elasticsearch7之Reindex数据迁移详解">
+<meta property="og:url" content="https://rstyro.github.io/blog/2020/10/23/Elasticsearch7之Reindex数据迁移详解/index.html">
+<meta property="og:site_name" content="帅大叔的博客">
+<meta property="og:description" content="一、前言ES在创建好索引后，mapping的properties属性类型是不能更改的，只能添加。如果说需要修改字段就需要重新建立索引然后把旧数据导到新索引。 二、Reindex5.X版本后新增_reindex API 。Reindex可以直接在Elasticsearch集群里面对数据进行重建。并且支持跨集群间的数据迁移。 三、实战1、原索引比如我现在有这么一个索引:topic，mapping信息如">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://rstyro.github.io/blog/2020/10/23/Elasticsearch7之Reindex数据迁移详解/topic-data.png">
+<meta property="og:updated_time" content="2021-04-30T12:05:26.504Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Elasticsearch7之Reindex数据迁移详解">
+<meta name="twitter:description" content="一、前言ES在创建好索引后，mapping的properties属性类型是不能更改的，只能添加。如果说需要修改字段就需要重新建立索引然后把旧数据导到新索引。 二、Reindex5.X版本后新增_reindex API 。Reindex可以直接在Elasticsearch集群里面对数据进行重建。并且支持跨集群间的数据迁移。 三、实战1、原索引比如我现在有这么一个索引:topic，mapping信息如">
+<meta name="twitter:image" content="https://rstyro.github.io/blog/2020/10/23/Elasticsearch7之Reindex数据迁移详解/topic-data.png">
+
+
+
+  <link rel="alternate" href="/blog/atom.xml" title="帅大叔的博客" type="application/atom+xml">
+
+
+
+
+  <link rel="canonical" href="https://rstyro.github.io/blog/2020/10/23/Elasticsearch7之Reindex数据迁移详解/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>Elasticsearch7之Reindex数据迁移详解 | 帅大叔的博客</title>
+  
+
+
+
+
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?cd2197f8af1d69b326360027b8f93d92";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+	<a href="https://github.com/rstyro" class="github-corner" aria-label="View source on GitHub"><svg width="80" height="80" viewbox="0 0 250 250" style="fill:#151513; color:#fff; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"/><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"/><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"/></svg></a><style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/blog/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">帅大叔的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">信你所信，为你所见</p>
+      
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/" rel="section">首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/about/" rel="section">关于</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/tags/" rel="section">标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/categories/" rel="section">分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/archives/" rel="section">归档</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-guestbook">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/guestbook/" rel="section">留言</a>
+
+  </li>
+
+      
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            搜索</a>
+        </li>
+      
+    </ul>
+  
+
+  
+    
+
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://rstyro.github.io/blog/blog/2020/10/23/Elasticsearch7之Reindex数据迁移详解/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="rstyro">
+      <meta itemprop="description" content="个人博客,瞎写一些技术笔记等。">
+      <meta itemprop="image" content="/blog/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="帅大叔的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Elasticsearch7之Reindex数据迁移详解
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2020-10-23 18:00:54" itemprop="dateCreated datePublished" datetime="2020-10-23T18:00:54+08:00">2020-10-23</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2021-04-30 20:05:26" itemprop="dateModified" datetime="2021-04-30T20:05:26+08:00">2021-04-30</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/blog/categories/搜索引擎/" itemprop="url" rel="index"><span itemprop="name">搜索引擎</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/blog/2020/10/23/Elasticsearch7之Reindex数据迁移详解/#comments" itemprop="discussionUrl">
+                  <span class="post-meta-item-text">评论数：</span> <span class="post-comments-count valine-comment-count" data-xid="/blog/2020/10/23/Elasticsearch7之Reindex数据迁移详解/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="post-meta-item-icon">
+            <i class="fa fa-eye"></i>
+             阅读次数： 
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h3 id="一、前言"><a href="#一、前言" class="headerlink" title="一、前言"></a>一、前言</h3><p>ES在创建好索引后，<code>mapping</code>的<code>properties</code>属性类型是不能更改的，只能添加。如果说需要修改字段就需要重新建立索引然后把旧数据导到新索引。</p>
+<h3 id="二、Reindex"><a href="#二、Reindex" class="headerlink" title="二、Reindex"></a>二、Reindex</h3><p>5.X版本后新增<code>_reindex</code> API 。Reindex可以直接在Elasticsearch集群里面对数据进行重建。并且支持跨集群间的数据迁移。</p>
+<h3 id="三、实战"><a href="#三、实战" class="headerlink" title="三、实战"></a>三、实战</h3><h4 id="1、原索引"><a href="#1、原索引" class="headerlink" title="1、原索引"></a>1、原索引</h4><p>比如我现在有这么一个索引:<code>topic</code>，mapping信息如下：</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="attr">"settings"</span>: &#123;</span><br><span class="line">        <span class="attr">"number_of_shards"</span>: <span class="number">3</span>,</span><br><span class="line">        <span class="attr">"number_of_replicas"</span>: <span class="number">2</span></span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="attr">"mappings"</span>: &#123;</span><br><span class="line">        <span class="attr">"properties"</span>: &#123;</span><br><span class="line">            <span class="attr">"update_time"</span>: &#123;</span><br><span class="line">                <span class="attr">"type"</span>: <span class="string">"date"</span>,</span><br><span class="line">                <span class="attr">"format"</span>: <span class="string">"yyyy-MM-dd HH:mm:ss || yyyy-MM-dd'T'HH:mm:ss.SSS || yyyy-MM-dd || epoch_millis"</span></span><br><span class="line">            &#125;,</span><br><span class="line">            <span class="attr">"create_time"</span>: &#123;</span><br><span class="line">                <span class="attr">"type"</span>: <span class="string">"date"</span>,</span><br><span class="line">                <span class="attr">"format"</span>: <span class="string">"yyyy-MM-dd HH:mm:ss || yyyy-MM-dd'T'HH:mm:ss.SSS || yyyy-MM-dd || epoch_millis"</span></span><br><span class="line">            &#125;,</span><br><span class="line">            <span class="attr">"user_id"</span>: &#123;</span><br><span class="line">                <span class="attr">"type"</span>: <span class="string">"long"</span></span><br><span class="line">            &#125;,</span><br><span class="line">            <span class="attr">"is_del"</span>: &#123;</span><br><span class="line">                <span class="attr">"type"</span>: <span class="string">"boolean"</span></span><br><span class="line">            &#125;,</span><br><span class="line">            <span class="attr">"location"</span>: &#123;</span><br><span class="line">                <span class="attr">"type"</span>: <span class="string">"geo_point"</span>,</span><br><span class="line">                <span class="attr">"ignore_malformed"</span>: <span class="string">"true"</span></span><br><span class="line">            &#125;,</span><br><span class="line">            <span class="attr">"id"</span>: &#123;</span><br><span class="line">                <span class="attr">"type"</span>: <span class="string">"keyword"</span></span><br><span class="line">            &#125;,</span><br><span class="line">            <span class="attr">"title"</span>: &#123;</span><br><span class="line">                <span class="attr">"type"</span>: <span class="string">"keyword"</span></span><br><span class="line">            &#125;,</span><br><span class="line">            <span class="attr">"content"</span>: &#123;</span><br><span class="line">                <span class="attr">"term_vector"</span>: <span class="string">"with_positions_offsets"</span>,</span><br><span class="line">                <span class="attr">"search_analyzer"</span>: <span class="string">"ik_smart"</span>,</span><br><span class="line">                <span class="attr">"type"</span>: <span class="string">"text"</span>,</span><br><span class="line">                <span class="attr">"analyzer"</span>: <span class="string">"ik_max_word"</span></span><br><span class="line">            &#125;,</span><br><span class="line">            <span class="attr">"status"</span>: &#123;</span><br><span class="line">                <span class="attr">"type"</span>: <span class="string">"short"</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>里面有12条数据，我发现我的<code>userId</code>的类型错了，应该是字符串类型的。我想改一下。<br><img src="topic-data.png" alt></p>
+<h4 id="2、创建新的索引"><a href="#2、创建新的索引" class="headerlink" title="2、创建新的索引"></a>2、创建新的索引</h4><p>创建新的索引为：<code>topic-new</code>,mapping如下：</p>
+<figure class="highlight scilab"><table><tr><td class="code"><pre><span class="line">PUT http:<span class="comment">//172.16.1.236:9201/topic-new</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="string">"settings"</span>: &#123;</span><br><span class="line">        <span class="string">"number_of_shards"</span>: <span class="number">3</span>,</span><br><span class="line">        <span class="string">"number_of_replicas"</span>: <span class="number">0</span>,</span><br><span class="line">        <span class="string">"refresh_interval"</span>: <span class="number">-1</span></span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="string">"mappings"</span>: &#123;</span><br><span class="line">        <span class="string">"properties"</span>: &#123;</span><br><span class="line">            <span class="string">"update_time"</span>: &#123;</span><br><span class="line">                <span class="string">"type"</span>: <span class="string">"date"</span>,</span><br><span class="line">                <span class="string">"format"</span>: <span class="string">"yyyy-MM-dd HH:mm:ss || yyyy-MM-dd'</span>T'HH:mm:ss.SSS || yyyy-MM-dd || epoch_millis<span class="string">"</span></span><br><span class="line"><span class="string">            &#125;,</span></span><br><span class="line"><span class="string">            "</span>create_time<span class="string">": &#123;</span></span><br><span class="line"><span class="string">                "</span><span class="built_in">type</span><span class="string">": "</span>date<span class="string">",</span></span><br><span class="line"><span class="string">                "</span>format<span class="string">": "</span>yyyy-MM-dd HH:mm:ss || yyyy-MM-dd'T'HH:mm:ss.SSS || yyyy-MM-dd || epoch_millis<span class="string">"</span></span><br><span class="line"><span class="string">            &#125;,</span></span><br><span class="line"><span class="string">            "</span>user_id<span class="string">": &#123;</span></span><br><span class="line"><span class="string">                "</span><span class="built_in">type</span><span class="string">": "</span>keyword<span class="string">"</span></span><br><span class="line"><span class="string">            &#125;,</span></span><br><span class="line"><span class="string">            "</span>is_del<span class="string">": &#123;</span></span><br><span class="line"><span class="string">                "</span><span class="built_in">type</span><span class="string">": "</span>boolean<span class="string">"</span></span><br><span class="line"><span class="string">            &#125;,</span></span><br><span class="line"><span class="string">            "</span>location<span class="string">": &#123;</span></span><br><span class="line"><span class="string">                "</span><span class="built_in">type</span><span class="string">": "</span>geo_point<span class="string">",</span></span><br><span class="line"><span class="string">                "</span>ignore_malformed<span class="string">": "</span>true<span class="string">"</span></span><br><span class="line"><span class="string">            &#125;,</span></span><br><span class="line"><span class="string">            "</span>id<span class="string">": &#123;</span></span><br><span class="line"><span class="string">                "</span><span class="built_in">type</span><span class="string">": "</span>keyword<span class="string">"</span></span><br><span class="line"><span class="string">            &#125;,</span></span><br><span class="line"><span class="string">            "</span>title<span class="string">": &#123;</span></span><br><span class="line"><span class="string">                "</span><span class="built_in">type</span><span class="string">": "</span>keyword<span class="string">"</span></span><br><span class="line"><span class="string">            &#125;,</span></span><br><span class="line"><span class="string">            "</span>content<span class="string">": &#123;</span></span><br><span class="line"><span class="string">                "</span>term_vector<span class="string">": "</span>with_positions_offsets<span class="string">",</span></span><br><span class="line"><span class="string">                "</span>search_analyzer<span class="string">": "</span>ik_smart<span class="string">",</span></span><br><span class="line"><span class="string">                "</span><span class="built_in">type</span><span class="string">": "</span>text<span class="string">",</span></span><br><span class="line"><span class="string">                "</span>analyzer<span class="string">": "</span>ik_max_word<span class="string">"</span></span><br><span class="line"><span class="string">            &#125;,</span></span><br><span class="line"><span class="string">            "</span>status<span class="string">": &#123;</span></span><br><span class="line"><span class="string">                "</span><span class="built_in">type</span><span class="string">": "</span>short<span class="string">"</span></span><br><span class="line"><span class="string">            &#125;</span></span><br><span class="line"><span class="string">        &#125;</span></span><br><span class="line"><span class="string">    &#125;</span></span><br><span class="line"><span class="string">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>在上面我修改了<code>userId</code>的字段为<code>keyword</code>类型</li>
+<li>并修改了<code>number_of_replicas</code>和<code>refresh_interval</code>。</li>
+<li>设置<code>number_of_replicas</code>为<code>0</code>防止我们迁移文档的同时又发送到副本节点，影响性能</li>
+<li>设置<code>refresh_interval</code>为<code>-1</code>是限制其刷新。默认是1秒</li>
+<li>当我们数据迁移完成再把上面两个值进行修改即可</li>
+</ul>
+<h4 id="3、开始迁移"><a href="#3、开始迁移" class="headerlink" title="3、开始迁移"></a>3、开始迁移</h4><p>在新索引都更新好了，就可以迁移了</p>
+<figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="string">POST</span> <span class="string">http://172.16.1.236:9201/_reindex</span></span><br><span class="line"><span class="string">&#123;</span></span><br><span class="line">  <span class="attr">"source":</span> <span class="string">&#123;</span></span><br><span class="line">    <span class="attr">"index":</span> <span class="string">"topic"</span></span><br><span class="line">  <span class="string">&#125;,</span></span><br><span class="line">  <span class="attr">"dest":</span> <span class="string">&#123;</span></span><br><span class="line">    <span class="attr">"index":</span> <span class="string">"topic-new"</span></span><br><span class="line">  <span class="string">&#125;</span></span><br><span class="line"><span class="string">&#125;</span></span><br><span class="line"></span><br><span class="line"><span class="string">//</span> <span class="string">返回</span></span><br><span class="line"><span class="string">&#123;</span></span><br><span class="line">    <span class="attr">"took":</span> <span class="number">1335</span><span class="string">,</span></span><br><span class="line">    <span class="attr">"timed_out":</span> <span class="literal">false</span><span class="string">,</span></span><br><span class="line">    <span class="attr">"total":</span> <span class="number">12</span><span class="string">,</span></span><br><span class="line">    <span class="attr">"updated":</span> <span class="number">0</span><span class="string">,</span></span><br><span class="line">    <span class="attr">"created":</span> <span class="number">12</span><span class="string">,</span></span><br><span class="line">    <span class="attr">"deleted":</span> <span class="number">0</span><span class="string">,</span></span><br><span class="line">    <span class="attr">"batches":</span> <span class="number">1</span><span class="string">,</span></span><br><span class="line">    <span class="attr">"version_conflicts":</span> <span class="number">0</span><span class="string">,</span></span><br><span class="line">    <span class="attr">"noops":</span> <span class="number">0</span><span class="string">,</span></span><br><span class="line">    <span class="attr">"retries":</span> <span class="string">&#123;</span></span><br><span class="line">        <span class="attr">"bulk":</span> <span class="number">0</span><span class="string">,</span></span><br><span class="line">        <span class="attr">"search":</span> <span class="number">0</span></span><br><span class="line">    <span class="string">&#125;,</span></span><br><span class="line">    <span class="attr">"throttled_millis":</span> <span class="number">0</span><span class="string">,</span></span><br><span class="line">    <span class="attr">"requests_per_second":</span> <span class="number">-1.0</span><span class="string">,</span></span><br><span class="line">    <span class="attr">"throttled_until_millis":</span> <span class="number">0</span><span class="string">,</span></span><br><span class="line">    <span class="attr">"failures":</span> <span class="string">[]</span></span><br><span class="line"><span class="string">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>这时候去看数据，是看不到数据的，因为还要刷新才行。</p>
+<h5 id="更新配置"><a href="#更新配置" class="headerlink" title="更新配置"></a>更新配置</h5><figure class="highlight awk"><table><tr><td class="code"><pre><span class="line">PUT http:<span class="regexp">//</span><span class="number">172.16</span>.<span class="number">1.236</span>:<span class="number">9201</span><span class="regexp">/topic-new/</span>_settings</span><br><span class="line">&#123;</span><br><span class="line">  <span class="string">"refresh_interval"</span>: <span class="string">"1s"</span>,</span><br><span class="line">  <span class="string">"number_of_replicas"</span>: <span class="number">1</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>更新副本数和刷新时间，自此数据迁移就完成了，因为之前的索引不用，但是接口都是指向之前的索引，我们就在新索引添加别名即可。</p>
+<p><strong>添加别名之前先删除旧索引</strong></p>
+<figure class="highlight gauss"><table><tr><td class="code"><pre><span class="line"><span class="keyword">DELETE</span> http:<span class="comment">//172.16.1.236:9201/topic</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>添加别名</strong></p>
+<figure class="highlight groovy"><table><tr><td class="code"><pre><span class="line">POST <span class="string">http:</span><span class="comment">//172.16.1.236:9201/_aliases</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="string">"actions"</span>: [</span><br><span class="line">		&#123;<span class="string">"add"</span>: &#123;<span class="string">"index"</span>: <span class="string">"topic-new"</span>, <span class="string">"alias"</span>: <span class="string">"topic"</span>&#125;&#125;</span><br><span class="line">	]</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>获取别名</strong></p>
+<figure class="highlight awk"><table><tr><td class="code"><pre><span class="line">GET http:<span class="regexp">//</span><span class="number">172.16</span>.<span class="number">1.236</span>:<span class="number">9201</span><span class="regexp">/topic/</span>_alias</span><br></pre></td></tr></table></figure>
+
+<p><strong>移除别名</strong></p>
+<figure class="highlight groovy"><table><tr><td class="code"><pre><span class="line">POST <span class="string">http:</span><span class="comment">//172.16.1.236:9201/_aliases</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="string">"actions"</span>: [</span><br><span class="line">		&#123;<span class="string">"remove"</span>: &#123;<span class="string">"index"</span>: <span class="string">"indexName"</span>, <span class="string">"alias"</span>: <span class="string">"indexAliasName"</span>&#125;&#125;</span><br><span class="line">	]</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="4、跨集群数据迁移"><a href="#4、跨集群数据迁移" class="headerlink" title="4、跨集群数据迁移"></a>4、跨集群数据迁移</h4><p>从其他的远程集群 reindex 数据。</p>
+<ul>
+<li>在上面是在相同的集群中进行数据迁移的，如果是不同集群呢？</li>
+<li>也是可以的，首先需要设置白名单。<code>（如果是A集群 --&gt; B集群，就需要在B中的elasticsearch.yml 设置A地址为白名单）</code></li>
+</ul>
+<h5 id="设置白名单"><a href="#设置白名单" class="headerlink" title="设置白名单"></a>设置白名单</h5><p>在目标集群的<code>elasticsearch.yml</code>配置文件，设置远程集群的白名单，添加如下配置</p>
+<figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="comment"># reindex.remote.whitelist: A的IP:端口，例如：</span></span><br><span class="line"><span class="attr">reindex.remote.whitelist:</span> <span class="number">172.16</span><span class="number">.1</span><span class="number">.236</span><span class="string">:9200</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="reindex"><a href="#reindex" class="headerlink" title="reindex"></a>reindex</h5><ul>
+<li>和同集群数据迁移基本一样，就是多了一个设置白名单而已。</li>
+<li>设置好索引、<code>number_of_replicas: 0</code>、<code>refresh_interval: -1</code></li>
+<li>在<code>remote</code>中设置远程集群的地址与账号密码（如果配置了的话）。</li>
+<li>也可以添加<code>query</code>属性，只查询符号条件的。</li>
+</ul>
+<figure class="highlight groovy"><table><tr><td class="code"><pre><span class="line">POST <span class="string">http:</span><span class="comment">//172.16.1.236:9201/_reindex</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="string">"source"</span>: &#123;</span><br><span class="line">    <span class="string">"index"</span>: <span class="string">"topic"</span>,</span><br><span class="line">    <span class="string">"remote"</span>: &#123;</span><br><span class="line">      <span class="string">"host"</span>: <span class="string">"http://172.16.1.236:9200"</span>,</span><br><span class="line">      <span class="string">"username"</span>: <span class="string">"username"</span>,</span><br><span class="line">      <span class="string">"password"</span>: <span class="string">"password"</span></span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="string">"query"</span>: &#123;</span><br><span class="line">      <span class="string">"match_all"</span>: &#123;&#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="string">"dest"</span>: &#123;</span><br><span class="line">    <span class="string">"index"</span>: <span class="string">"topic-new"</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>完成之后记得重新配置<code>number_of_replicas</code>、<code>refresh_interval</code>。</p>
+<h4 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h4><p><a href="https://www.elastic.co/guide/en/elasticsearch/reference/7.9/reindex-upgrade-remote.html" target="_blank" rel="noopener">https://www.elastic.co/guide/en/elasticsearch/reference/7.9/reindex-upgrade-remote.html</a></p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+	
+	    <div>
+	
+	<div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------本文结束 <i class="fa fa-heartbeat"></i> 感谢您的阅读-------------</div>
+    
+</div>
+	
+	</div>
+
+    
+
+    
+      
+    
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div></div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>打赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/blog/images/wechat_pay.jpg" alt="rstyro 微信支付">
+        <p>微信支付</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/blog/images/alipay.jpg" alt="rstyro 支付宝">
+        <p>支付宝</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+	
+	<div>    
+	 
+	 
+	<ul class="post-copyright">
+	  <li class="post-copyright-author">
+		  <strong>本文作者：</strong>rstyro
+	  </li>
+	  <li class="post-copyright-link">
+		<strong>本文链接：</strong>
+		<a href="/blog/2020/10/23/Elasticsearch7之Reindex数据迁移详解/" title="Elasticsearch7之Reindex数据迁移详解">https://rstyro.github.io/blog/2020/10/23/Elasticsearch7之Reindex数据迁移详解/</a>
+	  </li>
+	  <li class="post-copyright-license">
+		<strong>版权： </strong>
+		转载注明出处！
+	  </li>
+	</ul>
+	
+	</div>
+	
+
+      
+        <div class="post-tags">
+          
+            <a href="/blog/tags/Spring-Boot/" rel="tag"><i class="fa fa-tag"></i> Spring Boot</a>
+          
+            <a href="/blog/tags/ElasticSearch/" rel="tag"><i class="fa fa-tag"></i> ElasticSearch</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2020/10/22/Springboot2接口加解密全过程详解(含前端代码)/" rel="next" title="Springboot2接口加解密全过程详解(含前端代码)">
+                <i class="fa fa-chevron-left"></i> Springboot2接口加解密全过程详解(含前端代码)
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2020/10/24/Nacos的安装及使用/" rel="prev" title="Nacos的安装及使用">
+                Nacos的安装及使用 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+
+
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+      <div id="sidebar-dimmer"></div>
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/blog/images/avatar.jpg" alt="rstyro">
+            
+              <p class="site-author-name" itemprop="name">rstyro</p>
+              <p class="site-description motion-element" itemprop="description">个人博客,瞎写一些技术笔记等。</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/blog/archives/">
+                
+                    <span class="site-state-item-count">195</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/blog/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">13</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/blog/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">49</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+            <div class="feed-link motion-element">
+              <a href="/blog/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://github.com/rstyro" title="GitHub &rarr; https://github.com/rstyro" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://gitee.com/rstyro" title="Gitee &rarr; https://gitee.com/rstyro" rel="noopener" target="_blank"><i class="fa fa-fw fa-codiepie"></i>Gitee</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="/blog/1006059906" title="QQ &rarr; 1006059906"><i class="fa fa-fw fa-qq"></i>QQ</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://www.jianshu.com/u/651c15a1758a" title="简书 &rarr; https://www.jianshu.com/u/651c15a1758a" rel="noopener" target="_blank"><i class="fa fa-fw fa-book"></i>简书</a>
+                </span>
+              
+            </div>
+          
+
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-block">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                友链
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://rstyro.github.io/blog/" title="https://rstyro.github.io/blog/">帅大叔博客</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://www.zhyd.me/" title="https://www.zhyd.me/" rel="noopener" target="_blank">张亚东博客</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://www.devsong.org/" title="http://www.devsong.org/" rel="noopener" target="_blank">DevSONG</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://www.dalaoyang.cn/" title="https://www.dalaoyang.cn/" rel="noopener" target="_blank">dalaoyang</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://www.chenshuangyi.com/" title="https://www.chenshuangyi.com/" rel="noopener" target="_blank">陈双义博客</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+            
+          
+          <div id="days"></div>
+<script>
+function show_date_time(){
+window.setTimeout("show_date_time()", 1000);
+BirthDay=new Date("04/10/2017 15:13:14");
+today=new Date();
+timeold=(today.getTime()-BirthDay.getTime());
+sectimeold=timeold/1000
+secondsold=Math.floor(sectimeold);
+msPerDay=24*60*60*1000
+e_daysold=timeold/msPerDay
+daysold=Math.floor(e_daysold);
+e_hrsold=(e_daysold-daysold)*24;
+hrsold=setzero(Math.floor(e_hrsold));
+e_minsold=(e_hrsold-hrsold)*60;
+minsold=setzero(Math.floor((e_hrsold-hrsold)*60));
+seconds=setzero(Math.floor((e_minsold-minsold)*60));
+document.getElementById('days').innerHTML="已运行 "+daysold+" 天 "+hrsold+" 小时 "+minsold+" 分 "+seconds+" 秒";
+}
+function setzero(i){
+if (i<10)
+{i="0" + i};
+return i;
+}
+show_date_time();
+</script>
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#一、前言"><span class="nav-number">1.</span> <span class="nav-text">一、前言</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#二、Reindex"><span class="nav-number">2.</span> <span class="nav-text">二、Reindex</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#三、实战"><span class="nav-number">3.</span> <span class="nav-text">三、实战</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1、原索引"><span class="nav-number">3.1.</span> <span class="nav-text">1、原索引</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2、创建新的索引"><span class="nav-number">3.2.</span> <span class="nav-text">2、创建新的索引</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3、开始迁移"><span class="nav-number">3.3.</span> <span class="nav-text">3、开始迁移</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#更新配置"><span class="nav-number">3.3.1.</span> <span class="nav-text">更新配置</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4、跨集群数据迁移"><span class="nav-number">3.4.</span> <span class="nav-text">4、跨集群数据迁移</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#设置白名单"><span class="nav-number">3.4.1.</span> <span class="nav-text">设置白名单</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#reindex"><span class="nav-number">3.4.2.</span> <span class="nav-text">reindex</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#参考链接"><span class="nav-number">3.5.</span> <span class="nav-text">参考链接</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">rstyro</span>
+
+  
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+
+  <script src="https://unpkg.com/mermaid@8.11.0/dist/mermaid.min.js"></script>
+  <script>
+    if (window.mermaid) {
+      mermaid.initialize({"startOnload":true});
+    }
+  </script>
+
+
+<div class="theme-info">
+  <div class="powered-by"></div>
+  <span class="post-count">博客全站共322.1k字</span>
+</div>
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-user"></i>
+    </span>
+    <span class="site-uv" title="总访客量">
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+    </span>
+  
+
+  
+    <span class="post-meta-divider">|</span>
+  
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-eye"></i>
+    </span>
+    <span class="site-pv" title="总访问量">
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/blog/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/blog/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/blog/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/blog/js/src/utils.js?v=6.7.0"></script>
+
+  <script src="/blog/js/src/motion.js?v=6.7.0"></script>
+
+
+
+  
+  
+
+  
+  <script src="/blog/js/src/scrollspy.js?v=6.7.0"></script>
+<script src="/blog/js/src/post-details.js?v=6.7.0"></script>
+
+
+
+  
+
+
+  <script src="/blog/js/src/bootstrap.js?v=6.7.0"></script>
+
+
+
+  
+  
+
+
+
+
+  
+
+<script src="//cdn1.lncld.net/static/js/3.11.1/av-min.js"></script>
+
+
+
+  
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/valine/1.3.4/Valine.min.js"></script>
+
+<script>
+  var GUEST = ['nick', 'mail', 'link'];
+  var guest = 'nick,mail,link';
+  guest = guest.split(',').filter(function (item) {
+    return GUEST.indexOf(item) > -1;
+  });
+  new Valine({
+    el: '#comments',
+    verify: false,
+    notify: false,
+    appId: 'LwEPiJFa7YMn2MrJdCwaUbmQ-gzGzoHsz',
+    appKey: 'JqS1y3RxYvDOki9r3NcqqoO5',
+    placeholder: '来都来了，不说几句就走，过分了啊！！！',
+    avatar: 'monsterid',
+    meta: guest,
+    pageSize: '10' || 10,
+    visitor: false
+  });
+</script>
+
+
+
+  
+
+  <script>
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/blog/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url).replace(/\/{2,}/g, '/');
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x"></i></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x"></i></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+  <script>
+    (function(){
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+      }
+      else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+      }
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+    })();
+  </script>
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

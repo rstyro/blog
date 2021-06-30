@@ -1,0 +1,1746 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/blog/css/main.css?v=6.7.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon.jpg?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon.jpg?v=6.7.0">
+
+
+  <link rel="mask-icon" href="/blog/images/logo.svg?v=6.7.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/blog/',
+    scheme: 'Mist',
+    version: '6.7.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":true},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+<script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+<link href="//cdn.bootcss.com/pace/1.0.2/themes/pink/pace-theme-flash.css" rel="stylesheet">
+  <style>
+      .pace .pace-progress {
+          background: #1E92FB; /*进度条颜色*/
+          height: 3px;
+      }
+      .pace .pace-progress-inner {
+           box-shadow: 0 0 10px #1E92FB, 0 0 5px     #1E92FB; /*阴影颜色*/
+      }
+      .pace .pace-activity {
+          border-top-color: #1E92FB;    /*上边框颜色*/
+          border-left-color: #1E92FB;    /*左边框颜色*/
+      }
+  </style>
+
+  <meta name="description" content="一、Quartz简介用过Quartz的都懂，Quartz就是一个完全由java编写的开源作业调度框架。 1、组件简介需要使用这个框架需要知道几个词。 Job Job是一个任务接口，开发者定义自己的任务须实现该接口，并重写execute(JobExecutionContext context)方法. Job中的任务有可能并发执行，例如任务的执行时间过长，而每次触发的时间间隔太短，则会导致任务会被并发">
+<meta name="keywords" content="Spring Boot">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Quartz介绍与SpringBoot使用">
+<meta property="og:url" content="https://rstyro.github.io/blog/2019/10/28/Quartz介绍与SpringBoot使用/index.html">
+<meta property="og:site_name" content="帅大叔的博客">
+<meta property="og:description" content="一、Quartz简介用过Quartz的都懂，Quartz就是一个完全由java编写的开源作业调度框架。 1、组件简介需要使用这个框架需要知道几个词。 Job Job是一个任务接口，开发者定义自己的任务须实现该接口，并重写execute(JobExecutionContext context)方法. Job中的任务有可能并发执行，例如任务的执行时间过长，而每次触发的时间间隔太短，则会导致任务会被并发">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2021-03-30T12:35:04.580Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Quartz介绍与SpringBoot使用">
+<meta name="twitter:description" content="一、Quartz简介用过Quartz的都懂，Quartz就是一个完全由java编写的开源作业调度框架。 1、组件简介需要使用这个框架需要知道几个词。 Job Job是一个任务接口，开发者定义自己的任务须实现该接口，并重写execute(JobExecutionContext context)方法. Job中的任务有可能并发执行，例如任务的执行时间过长，而每次触发的时间间隔太短，则会导致任务会被并发">
+
+
+
+  <link rel="alternate" href="/blog/atom.xml" title="帅大叔的博客" type="application/atom+xml">
+
+
+
+
+  <link rel="canonical" href="https://rstyro.github.io/blog/2019/10/28/Quartz介绍与SpringBoot使用/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>Quartz介绍与SpringBoot使用 | 帅大叔的博客</title>
+  
+
+
+
+
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?cd2197f8af1d69b326360027b8f93d92";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+	<a href="https://github.com/rstyro" class="github-corner" aria-label="View source on GitHub"><svg width="80" height="80" viewbox="0 0 250 250" style="fill:#151513; color:#fff; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"/><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"/><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"/></svg></a><style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/blog/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">帅大叔的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">信你所信，为你所见</p>
+      
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/" rel="section">首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/about/" rel="section">关于</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/tags/" rel="section">标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/categories/" rel="section">分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/archives/" rel="section">归档</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-guestbook">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/guestbook/" rel="section">留言</a>
+
+  </li>
+
+      
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            搜索</a>
+        </li>
+      
+    </ul>
+  
+
+  
+    
+
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://rstyro.github.io/blog/blog/2019/10/28/Quartz介绍与SpringBoot使用/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="rstyro">
+      <meta itemprop="description" content="个人博客,瞎写一些技术笔记等。">
+      <meta itemprop="image" content="/blog/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="帅大叔的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Quartz介绍与SpringBoot使用
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-10-28 15:03:45" itemprop="dateCreated datePublished" datetime="2019-10-28T15:03:45+08:00">2019-10-28</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2021-03-30 20:35:04" itemprop="dateModified" datetime="2021-03-30T20:35:04+08:00">2021-03-30</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/blog/categories/Java/" itemprop="url" rel="index"><span itemprop="name">Java</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/blog/2019/10/28/Quartz介绍与SpringBoot使用/#comments" itemprop="discussionUrl">
+                  <span class="post-meta-item-text">评论数：</span> <span class="post-comments-count valine-comment-count" data-xid="/blog/2019/10/28/Quartz介绍与SpringBoot使用/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="post-meta-item-icon">
+            <i class="fa fa-eye"></i>
+             阅读次数： 
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="一、Quartz简介"><a href="#一、Quartz简介" class="headerlink" title="一、Quartz简介"></a>一、Quartz简介</h2><p>用过Quartz的都懂，Quartz就是一个完全由java编写的开源作业调度框架。</p>
+<h3 id="1、组件简介"><a href="#1、组件简介" class="headerlink" title="1、组件简介"></a>1、组件简介</h3><p>需要使用这个框架需要知道几个词。</p>
+<h4 id="Job"><a href="#Job" class="headerlink" title="Job"></a>Job</h4><ul>
+<li><code>Job</code>是一个任务接口，开发者定义自己的任务须实现该接口，并重写<code>execute(JobExecutionContext context)</code>方法.</li>
+<li><code>Job</code>中的任务有可能并发执行，例如任务的执行时间过长，而每次触发的时间间隔太短，则会导致任务会被并发执行。</li>
+<li>为了避免出现上面的问题，可以在<code>Job</code>实现类上使用<code>@DisallowConcurrentExecution</code>,保证上一个任务执行完后，再去执行下一个任务</li>
+</ul>
+<h4 id="JobDetail"><a href="#JobDetail" class="headerlink" title="JobDetail"></a>JobDetail</h4><ul>
+<li><code>JobDetail</code>是任务详情。</li>
+<li>包含有：任务名称，任务组名称，任务描述、具体任务Job的实现类、参数配置等等信息</li>
+<li>可以说<code>JobDetail</code>是任务的定义，而<code>Job</code>是任务的执行逻辑。</li>
+</ul>
+<h4 id="Trigger"><a href="#Trigger" class="headerlink" title="Trigger"></a>Trigger</h4><ul>
+<li>Trigger是一个触发器,定义Job执行的时间规则。</li>
+<li>主要触发器:<code>SimpleTrigger</code>,<code>CronTrigger</code>,<code>CalendarIntervalTrigger</code>,<code>DailyTimeIntervalTrigger</code>。</li>
+<li><code>SimpleTrigger</code>:从某一个时间开始，以一定的时间间隔来执行任务,重复多少次。</li>
+<li><code>CronTrigger</code>: 适合于复杂的任务，使用cron表达式来定义执行规则。</li>
+<li><code>CalendarIntervalTrigger</code>:指定从某一个时间开始，以一定的时间间隔执行的任务,时间间隔比<code>SimpleTrigger</code>丰富</li>
+<li><code>DailyTimeIntervalTrigger</code>:指定每天的某个时间段内，以一定的时间间隔执行任务。并且它可以支持指定星期。</li>
+<li>所有的Trigger都包含了<code>StartTime</code>和<code>endTime</code>这两个属性，用来指定<code>Trigger</code>被触发的时间区间。</li>
+<li>所有的Trigger都可以设置<code>MisFire</code>策略.</li>
+<li><code>MisFire</code>策略是对于由于系统奔溃或者任务时间过长等原因导致Trigger在应该触发的时间点没有触发.</li>
+<li>并且超过了<code>misfireThreshold</code>设置的时间（默认是一分钟，没有超过就立即执行）就算misfire(失火)了。</li>
+<li>这个时候就该设置如何应对这种变化了。激活失败指令（<code>Misfire Instructions</code>）是触发器的一个重要属性</li>
+</ul>
+<p><strong>发生Misfire 对于SimpleTrigger的处理策略</strong></p>
+<figure class="highlight 1c"><table><tr><td class="code"><pre><span class="line"><span class="comment">//将任务马上执行一次。对于不会重复执行的任务，这是默认的处理策略。</span></span><br><span class="line">MISFIRE_INSTRUCTION_FIRE_NOW = <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 调度引擎重新调度该任务，立即执行任务，repeat count 保持不变，</span></span><br><span class="line"><span class="comment">// 按照原有制定的执行方案执行repeat count次，但是，如果当前时间，已经晚于end-time，那么这个触发器将不会再被触发</span></span><br><span class="line"><span class="comment">// 简单的说就是，错过了应该触发的时间没有按时执行，但是最终它还是以原来的重复次数执行，就是会比预计终止的时间晚。</span></span><br><span class="line">MISFIRE_INSTRUCTION_RESCHEDULE_NOW_WITH_EXISTING_REPEAT_COUNT</span><br><span class="line"></span><br><span class="line"><span class="comment">//和上面的类似，区别就是不会立马执行，而是在下一个激活点执行，且超时期内错过的执行机会作废。　							</span></span><br><span class="line">MISFIRE_INSTRUCTION_RESCHEDULE_NEXT_WITH_REMAINING_COUNT</span><br><span class="line"></span><br><span class="line"><span class="comment">// 这个也是重新调度任务，但是它只按照剩余次数来触发，</span></span><br><span class="line"><span class="comment">// 比如，应该执行10次，但是中间错过了3次没有执行，那它最终只会执行剩余次数 7次。</span></span><br><span class="line">MISFIRE_INSTRUCTION_RESCHEDULE_NOW_WITH_REMAINING_REPEAT_COUNT</span><br><span class="line"></span><br><span class="line"><span class="comment">//在下一个激活点执行，并重复到指定的次数。</span></span><br><span class="line">MISFIRE_INSTRUCTION_RESCHEDULE_NEXT_WITH_EXISTING_COUNT</span><br><span class="line"></span><br><span class="line"><span class="comment">// 立即执行任务，repeat count 保持不变，就算到了endtime,也继续执行</span></span><br><span class="line">MISFIRE_INSTRUCTION_IGNORE_MISFIRE_POLICY</span><br></pre></td></tr></table></figure>
+
+<p><strong>发生Misfire 对于其他的Trigger</strong></p>
+<figure class="highlight 1c"><table><tr><td class="code"><pre><span class="line"><span class="comment">//立刻执行一次，然后就按照正常的计划执行。</span></span><br><span class="line">MISFIRE_INSTRUCTION_FIRE_ONCE_NOW</span><br><span class="line"></span><br><span class="line"><span class="comment">//目前不执行，然后就按照正常的计划执行。这意味着如果下次执行时间超过了end time，实际上就没有执行机会了。</span></span><br><span class="line">MISFIRE_INSTRUCTION_DO_NOTHING</span><br></pre></td></tr></table></figure>
+
+<h4 id="Scheduler"><a href="#Scheduler" class="headerlink" title="Scheduler"></a>Scheduler</h4><ul>
+<li>调度器，主要是用来管理<code>Trigger</code>、<code>JobDetail</code>的。</li>
+<li><code>Scheduler</code>可以通过组名或者名称来对<code>Trigger</code>和<code>JobDetail</code>来进行管理</li>
+<li>一个<code>Trigger</code>只能对应一个<code>Job</code>，但是一个<code>Job</code>可以对应多个<code>Trigger</code>.</li>
+<li><code>Scheduler</code> 有两个实现类：<code>RemoteScheduler</code>、<code>StdScheduler</code>。但它是由<code>SchdulerFactory</code>创建的。</li>
+<li><code>SchdulerFactory</code>是个接口，它有两个实现类：<code>StdSchedulerFactory</code>、<code>DirectSchedulerFactory</code></li>
+</ul>
+<h3 id="2、相关Builder介绍"><a href="#2、相关Builder介绍" class="headerlink" title="2、相关Builder介绍"></a>2、相关Builder介绍</h3><p>Quartz提供了相应的Builder方便我们进行构造。</p>
+<h4 id="JobBuilder"><a href="#JobBuilder" class="headerlink" title="JobBuilder"></a>JobBuilder</h4><p>这个主要方便我们构建任务详情，常用方法：</p>
+<ul>
+<li><code>withIdentity(String name, String group)</code>:配置Job名称与组名</li>
+<li><code>withDescription(String jobDescription)</code>: 任务描述</li>
+<li><code>requestRecovery()</code>: 出现故障是否重新执行，默认false</li>
+<li><code>storeDurably()</code>: 作业完成后是否保留存储，默认false</li>
+<li><code>usingJobData(String dataKey, String value)</code>: 配置单个参数key</li>
+<li><code>usingJobData(JobDataMap newJobDataMap)</code>: 配置多个参数，放入一个map</li>
+<li><code>setJobData(JobDataMap newJobDataMap)</code>: 和上面类似，但是这个参数直接指向newJobDataMap,直接设置的参数无效</li>
+</ul>
+<h4 id="TriggerBuilder"><a href="#TriggerBuilder" class="headerlink" title="TriggerBuilder"></a>TriggerBuilder</h4><p>这个主要方便我们构建触发器，常用方法：</p>
+<ul>
+<li><code>withIdentity(String name, String group)</code>： 配置Trigger名称与组名</li>
+<li><code>withIdentity(TriggerKey triggerKey)</code>：    配置Trigger名称与组名</li>
+<li><code>withDescription(String triggerDescription)</code>： 描述</li>
+<li><code>withPriority(int triggerPriority)</code>： 设置优先级，默认是：5</li>
+<li><code>startAt(Date triggerStartTime)</code>： 设置开始时间</li>
+<li><code>startNow()</code>： 触发器立即生效</li>
+<li><code>endAt(Date triggerEndTime)</code>： 设置结束时间</li>
+<li><code>withSchedule(ScheduleBuilder&lt;SBT&gt; schedBuilder)</code>： 设置调度builder,下面的builder就是</li>
+</ul>
+<h4 id="SimpleScheduleBuilder"><a href="#SimpleScheduleBuilder" class="headerlink" title="SimpleScheduleBuilder"></a>SimpleScheduleBuilder</h4><p>几种触发器类型之一，最简单常用的。常用方法：</p>
+<ul>
+<li><code>repeatForever()</code>：指定触发器将无限期重复</li>
+<li><code>withRepeatCount(int triggerRepeatCount)</code>：指定重复次数，总触发的次数=triggerRepeatCount+1</li>
+<li><code>repeatSecondlyForever(int seconds)</code>：每隔seconds秒无限期重复</li>
+<li><code>repeatMinutelyForever(int minutes)</code>：每隔minutes分钟无限期重复</li>
+<li><code>repeatHourlyForever(int hours)</code>：每隔hours小时无限期重复</li>
+<li><code>repeatSecondlyForever()</code>：每隔1秒无限期重复</li>
+<li><code>repeatMinutelyForever()</code>：每隔1分钟无限期重复</li>
+<li><code>repeatHourlyForever()</code>：每隔1小时无限期重复</li>
+<li><code>withIntervalInSeconds(int intervalInSeconds)</code>：每隔intervalInSeconds秒执行</li>
+<li><code>withIntervalInMinutes(int intervalInMinutes)</code>：每隔intervalInMinutes分钟执行</li>
+<li><code>withIntervalInHours(int intervalInHours)</code>：每隔intervalInHours小时执行</li>
+<li><code>withMisfireHandlingInstructionFireNow()</code>：失火后的策略为：<code>MISFIRE_INSTRUCTION_FIRE_NOW</code></li>
+</ul>
+<h4 id="CronScheduleBuilder"><a href="#CronScheduleBuilder" class="headerlink" title="CronScheduleBuilder"></a>CronScheduleBuilder</h4><p>算是非常常用的了，crontab 表达式，常用方法：</p>
+<ul>
+<li><code>cronSchedule(String cronExpression)</code>：使用cron表达式</li>
+</ul>
+<p>简单的一笔</p>
+<h4 id="CalendarIntervalScheduleBuilder"><a href="#CalendarIntervalScheduleBuilder" class="headerlink" title="CalendarIntervalScheduleBuilder"></a>CalendarIntervalScheduleBuilder</h4><p>常用方法：</p>
+<ul>
+<li><code>inTimeZone(TimeZone timezone)</code>：设置时区</li>
+<li><code>withInterval(int timeInterval, IntervalUnit unit)</code>：相隔多少时间执行，单位有：毫秒、秒、分、时、天、周、月、年</li>
+<li><code>withIntervalInSeconds(int intervalInSeconds)</code>：相隔秒</li>
+<li><code>withIntervalInWeeks(int intervalInWeeks)</code>：相隔周</li>
+<li><code>withIntervalInMonths(int intervalInMonths)</code>：相隔月</li>
+</ul>
+<p>等等方法</p>
+<h4 id="DailyTimeIntervalScheduleBuilder"><a href="#DailyTimeIntervalScheduleBuilder" class="headerlink" title="DailyTimeIntervalScheduleBuilder"></a>DailyTimeIntervalScheduleBuilder</h4><ul>
+<li><code>withInterval(int timeInterval, IntervalUnit unit)</code>：相隔多少时间执行，单位有：秒、分、时，其他单位的不支持会报错</li>
+<li><code>withIntervalInSeconds(int intervalInSeconds)</code>：相隔秒</li>
+<li><code>withIntervalInMinutes(int intervalInMinutes)</code>：相隔分</li>
+<li><code>withIntervalInHours(int intervalInHours)</code>：相隔时</li>
+<li><code>onDaysOfTheWeek(Set&lt;Integer&gt; onDaysOfWeek)</code>：将触发器设置为在一周的指定日期触发。取值范围可以是1-7，1是星期天，2是星期一…</li>
+<li><code>onDaysOfTheWeek(Integer ... onDaysOfWeek)</code>：和上面一样，3是星期二…7是星期六</li>
+<li><code>onMondayThroughFriday()</code>：每星期的周一导周五触发</li>
+<li><code>onSaturdayAndSunday()</code>：每星期的周六周日触发</li>
+<li><code>onEveryDay()</code>：每天触发</li>
+<li><code>withRepeatCount(int repeatCount)</code>：重复次数，总的重复次数=<code>1 (at start time) + repeatCount</code></li>
+<li><code>startingDailyAt(TimeOfDay timeOfDay)</code>：触发的开始时间</li>
+<li><code>endingDailyAt(TimeOfDay timeOfDay)</code>：触发的结束时间</li>
+</ul>
+<h3 id="3、基本使用"><a href="#3、基本使用" class="headerlink" title="3、基本使用"></a>3、基本使用</h3><p>引用jar，就可以玩了。</p>
+<h4 id="引用依赖"><a href="#引用依赖" class="headerlink" title="引用依赖"></a>引用依赖</h4><figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.quartz-scheduler<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>quartz<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.3.2<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>在pom.xml文件中，引入</p>
+<h3 id="简单例子："><a href="#简单例子：" class="headerlink" title="简单例子："></a>简单例子：</h3><figure class="highlight gradle"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> Demo &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> String <span class="keyword">COUNT</span> = <span class="string">"count"</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//这个属性如不是static,那么每次都要实例这个任务类,始终打印为: 1</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">int</span> num = <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> main(String[] args) <span class="keyword">throws</span> SchedulerException &#123;</span><br><span class="line">        SchedulerFactory schedulerfactory = <span class="keyword">new</span> StdSchedulerFactory();</span><br><span class="line"><span class="comment">//        Scheduler scheduler = schedulerfactory.getScheduler();</span></span><br><span class="line">        Scheduler scheduler = StdSchedulerFactory.getDefaultScheduler();</span><br><span class="line">        scheduler.start();</span><br><span class="line">        JobDetail job = JobBuilder.newJob(HelloJob.<span class="keyword">class</span>).withIdentity(<span class="string">"jobName"</span>, <span class="string">"jobGroupName"</span>)</span><br><span class="line">                .usingJobData(<span class="keyword">COUNT</span>,num).build();</span><br><span class="line">        <span class="comment">// 各种builder 的基本使用</span></span><br><span class="line">        SimpleScheduleBuilder simpleScheduleBuilder = SimpleScheduleBuilder.simpleSchedule().repeatForever().withIntervalInSeconds(<span class="number">3</span>);</span><br><span class="line">        CronScheduleBuilder cronScheduleBuilder = CronScheduleBuilder.cronSchedule(<span class="string">"*/3 * * * * ?"</span>);</span><br><span class="line">        CalendarIntervalScheduleBuilder calendarIntervalScheduleBuilder = CalendarIntervalScheduleBuilder.calendarIntervalSchedule().withInterval(<span class="number">3</span>, DateBuilder.IntervalUnit.SECOND);</span><br><span class="line">        DailyTimeIntervalScheduleBuilder dailyTimeIntervalScheduleBuilder = DailyTimeIntervalScheduleBuilder.dailyTimeIntervalSchedule().withIntervalInSeconds(<span class="number">3</span>);</span><br><span class="line"></span><br><span class="line">        Trigger trigger =  TriggerBuilder.newTrigger().withIdentity(<span class="string">"jobName"</span>, <span class="string">"jobGroupName"</span>)</span><br><span class="line">                .withSchedule(dailyTimeIntervalScheduleBuilder)</span><br><span class="line">                .startNow().build();</span><br><span class="line">        scheduler.scheduleJob(job, trigger);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 保存在JobDataMap传递的参数</span></span><br><span class="line">    @PersistJobDataAfterExecution</span><br><span class="line">    @DisallowConcurrentExecution</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">class</span> HelloJob <span class="keyword">implements</span> Job&#123;</span><br><span class="line">        @Override</span><br><span class="line">        <span class="keyword">public</span> <span class="keyword">void</span> execute(JobExecutionContext context) <span class="keyword">throws</span> JobExecutionException &#123;</span><br><span class="line">            JobDataMap jobDataMap = context.getJobDetail().getJobDataMap();</span><br><span class="line">            <span class="keyword">int</span> <span class="keyword">count</span> = jobDataMap.getInt(<span class="keyword">COUNT</span>);</span><br><span class="line">            System.out.<span class="keyword">println</span>(<span class="string">"=========="</span>+ LocalDateTimeUtils.formatDateTimeNow()+<span class="string">",count="</span>+<span class="keyword">count</span>);</span><br><span class="line">            jobDataMap.put(<span class="keyword">COUNT</span>,++num);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>是不是感觉很简单，自己定义一个类，然后实现<code>Job</code>接口，重写<code>execute(JobExecutionContext context)</code> 方法，然后使用调度器去调度一下即可。<br>简单玩完了，和springboot整合一波。</p>
+<h2 id="二、与Springboot整合"><a href="#二、与Springboot整合" class="headerlink" title="二、与Springboot整合"></a>二、与Springboot整合</h2><p>这个才是重点，Springboot基本是一个Java程序猿必备的技能了。什么框架都得和它整一下。</p>
+<h3 id="1、引入依赖"><a href="#1、引入依赖" class="headerlink" title="1、引入依赖"></a>1、引入依赖</h3><figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-quartz<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>spring官方自己都帮我们搞好了一些配置。</p>
+<h3 id="2、配置application-yml"><a href="#2、配置application-yml" class="headerlink" title="2、配置application.yml"></a>2、配置application.yml</h3><p>如下：</p>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="attr">spring:</span></span><br><span class="line">  <span class="attr">datasource:</span></span><br><span class="line">    <span class="attr">url:</span> <span class="string">jdbc:mysql://localhost:3306/quartz?serverTimezone=GMT&amp;characterEncoding=utf8&amp;zeroDateTimeBehavior=convertToNull&amp;allowMultiQueries=true</span></span><br><span class="line">    <span class="attr">username:</span> <span class="string">root</span></span><br><span class="line">    <span class="attr">password:</span> <span class="string">root</span></span><br><span class="line">    <span class="attr">driver-class-name:</span> <span class="string">com.mysql.cj.jdbc.Driver</span></span><br><span class="line">    <span class="attr">type:</span> <span class="string">com.alibaba.druid.pool.DruidDataSource</span></span><br><span class="line">    <span class="attr">druid:</span></span><br><span class="line">      <span class="attr">initialSize:</span> <span class="number">5</span></span><br><span class="line">      <span class="attr">minIdle:</span> <span class="number">5</span></span><br><span class="line">      <span class="attr">maxActive:</span> <span class="number">30</span></span><br><span class="line">      <span class="attr">max-wait:</span> <span class="number">6000</span></span><br><span class="line">      <span class="attr">pool-prepared-statements:</span> <span class="literal">true</span></span><br><span class="line">      <span class="attr">max-pool-prepared-statement-per-connection-size:</span> <span class="number">20</span></span><br><span class="line">      <span class="attr">time-between-eviction-runs-millis:</span> <span class="number">60000</span></span><br><span class="line">      <span class="attr">min-evictable-idle-time-millis:</span> <span class="number">300000</span></span><br><span class="line">      <span class="comment">#validation-query: SELECT 1 FROM DUAL</span></span><br><span class="line">      <span class="attr">test-while-idle:</span> <span class="literal">true</span></span><br><span class="line">      <span class="attr">test-on-borrow:</span> <span class="literal">false</span></span><br><span class="line">      <span class="attr">test-on-return:</span> <span class="literal">false</span></span><br><span class="line">      <span class="attr">stat-view-servlet:</span></span><br><span class="line">        <span class="attr">enabled:</span> <span class="literal">true</span></span><br><span class="line">        <span class="attr">url-pattern:</span> <span class="string">/druid/*</span></span><br><span class="line">        <span class="comment">#login-username: admin</span></span><br><span class="line">        <span class="comment">#login-password: admin</span></span><br><span class="line">      <span class="attr">filter:</span></span><br><span class="line">        <span class="attr">stat:</span></span><br><span class="line">          <span class="attr">log-slow-sql:</span> <span class="literal">true</span></span><br><span class="line">          <span class="attr">slow-sql-millis:</span> <span class="number">1000</span></span><br><span class="line">          <span class="attr">merge-sql:</span> <span class="literal">false</span></span><br><span class="line">        <span class="attr">wall:</span></span><br><span class="line">          <span class="attr">config:</span></span><br><span class="line">            <span class="attr">multi-statement-allow:</span> <span class="literal">true</span></span><br><span class="line">  <span class="attr">quartz:</span></span><br><span class="line">    <span class="attr">job-store-type:</span> <span class="string">jdbc</span> <span class="comment">#数据库方式</span></span><br><span class="line">	<span class="comment">#是否等待任务执行完毕后，容器才会关闭</span></span><br><span class="line">    <span class="string">wait-for-jobs-to-complete-on-shutdown=false</span></span><br><span class="line">    <span class="comment">#配置的job是否覆盖已经存在的JOB信息</span></span><br><span class="line">    <span class="attr">overwrite-existing-jobs:</span> <span class="literal">false</span></span><br><span class="line">    <span class="attr">jdbc:</span></span><br><span class="line">      <span class="attr">initialize-schema:</span> <span class="string">ALWAYS</span> <span class="comment">#不初始化表结构</span></span><br><span class="line">    <span class="attr">properties:</span></span><br><span class="line">      <span class="attr">org:</span></span><br><span class="line">        <span class="attr">quartz:</span></span><br><span class="line">          <span class="attr">scheduler:</span></span><br><span class="line">            <span class="attr">instanceId:</span> <span class="string">AUTO</span> <span class="comment">#默认主机名和时间戳生成实例ID,可以是任何字符串，但对于所有调度程序来说，必须是唯一的 对应qrtz_scheduler_state INSTANCE_NAME字段</span></span><br><span class="line">            <span class="comment">#instanceName: clusteredScheduler #quartzScheduler</span></span><br><span class="line">          <span class="attr">jobStore:</span></span><br><span class="line">            <span class="attr">class:</span> <span class="string">org.quartz.impl.jdbcjobstore.JobStoreTX</span> <span class="comment">#持久化配置</span></span><br><span class="line">            <span class="attr">driverDelegateClass:</span> <span class="string">org.quartz.impl.jdbcjobstore.StdJDBCDelegate</span> <span class="comment">#我们仅为数据库制作了特定于数据库的代理</span></span><br><span class="line">            <span class="attr">useProperties:</span> <span class="literal">false</span> <span class="comment">#以指示JDBCJobStore将JobDataMaps中的所有值都作为字符串，因此可以作为名称 - 值对存储而不是在BLOB列中以其序列化形式存储更多复杂的对象。从长远来看，这是更安全的，因为您避免了将非String类序列化为BLOB的类版本问题。</span></span><br><span class="line">            <span class="attr">tablePrefix:</span> <span class="string">qrtz_</span>  <span class="comment">#数据库表前缀</span></span><br><span class="line">            <span class="attr">misfireThreshold:</span> <span class="number">60000</span> <span class="comment">#在被认为“失火”之前，调度程序将“容忍”一个Triggers将其下一个启动时间通过的毫秒数。默认值（如果您在配置中未输入此属性）为60000（60秒）。</span></span><br><span class="line">            <span class="attr">clusterCheckinInterval:</span> <span class="number">5000</span> <span class="comment">#设置此实例“检入”*与群集的其他实例的频率（以毫秒为单位）。影响检测失败实例的速度。</span></span><br><span class="line">            <span class="attr">isClustered:</span> <span class="literal">true</span> <span class="comment">#打开群集功能</span></span><br><span class="line">          <span class="attr">threadPool:</span> <span class="comment">#连接池</span></span><br><span class="line">            <span class="attr">class:</span> <span class="string">org.quartz.simpl.SimpleThreadPool</span></span><br><span class="line">            <span class="attr">threadCount:</span> <span class="number">10</span></span><br><span class="line">            <span class="attr">threadPriority:</span> <span class="number">5</span></span><br><span class="line">            <span class="attr">threadsInheritContextClassLoaderOfInitializingThread:</span> <span class="literal">true</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>这里打算搞个集群版的，就算你部署多台服务器，定时任务会自己负载均衡，不会每台服务器都执行。</li>
+<li>表的生成，其实可以修改配置，启动的时候自己在数据库生成表。操作方法：</li>
+<li>修改:<code>spring.quartz.jdbc.initialize-schema: ALWAYS</code>、说明一下</li>
+<li>这里有3个值可选：<code>ALWAYS</code>（每次都生成）、<code>EMBEDDED</code>（仅初始化嵌入式数据源）、<code>NEVER</code>（不初始化数据源）。</li>
+<li>表生成之后，再改为never即可。注意一点就是我测试了下，发现只有使用<code>druid</code>数据库连接池才会自动生成表</li>
+</ul>
+<h3 id="3、表的说明"><a href="#3、表的说明" class="headerlink" title="3、表的说明"></a>3、表的说明</h3><p>会自动生成的表如下：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">//以Blob 类型存储的触发器。 </span></span><br><span class="line">qrtz_blob_triggers</span><br><span class="line"></span><br><span class="line"><span class="comment">//存放日历信息， quartz可配置一个日历来指定一个时间范围。 </span></span><br><span class="line">qrtz_calendars</span><br><span class="line"></span><br><span class="line"><span class="comment">//存放cron类型的触发器。 </span></span><br><span class="line">qrtz_cron_triggers</span><br><span class="line"><span class="comment">//存储已经触发的trigger相关信息，trigger随着时间的推移状态发生变化，直到最后trigger执行完成，从表中被删除。 </span></span><br><span class="line">qrtz_fired_triggers	</span><br><span class="line"></span><br><span class="line"><span class="comment">//存放一个jobDetail信息。 </span></span><br><span class="line">qrtz_job_details</span><br><span class="line"></span><br><span class="line"><span class="comment">//job**监听器**。 </span></span><br><span class="line">qrtz_job_listeners</span><br><span class="line"></span><br><span class="line"><span class="comment">//Quartz提供的锁表，为多个节点调度提供分布式锁，实现分布式调度，默认有2个锁</span></span><br><span class="line">qrtz_locks</span><br><span class="line"></span><br><span class="line"><span class="comment">//存放暂停掉的触发器。</span></span><br><span class="line">qrtz_paused_trigger_graps</span><br><span class="line"></span><br><span class="line"><span class="comment">//存储所有节点的scheduler，会定期检查scheduler是否失效</span></span><br><span class="line">qrtz_scheduler_state</span><br><span class="line"></span><br><span class="line"><span class="comment">//存储SimpleTrigger </span></span><br><span class="line">qrtz_simple_triggers</span><br><span class="line"></span><br><span class="line"><span class="comment">//触发器监听器。 </span></span><br><span class="line">qrtz_trigger_listeners</span><br><span class="line"></span><br><span class="line"><span class="comment">//触发器的基本信息。</span></span><br><span class="line">qrtz_triggers</span><br><span class="line"></span><br><span class="line"><span class="comment">//存储CalendarIntervalTrigger和DailyTimeIntervalTrigger两种类型的触发器</span></span><br><span class="line">qrtz_simprop_triggers</span><br></pre></td></tr></table></figure>
+
+<h4 id="重要表字段解析"><a href="#重要表字段解析" class="headerlink" title="重要表字段解析"></a>重要表字段解析</h4><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> <span class="string">`qrtz_job_details`</span> (</span><br><span class="line">  <span class="string">`SCHED_NAME`</span> <span class="built_in">varchar</span>(<span class="number">120</span>) <span class="keyword">COLLATE</span> utf8_bin <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'调度器名,集群环境中使用,必须使用同一个名称——集群环境下”逻辑”相同的scheduler,默认为QuartzScheduler'</span>,</span><br><span class="line">  <span class="string">`JOB_NAME`</span> <span class="built_in">varchar</span>(<span class="number">200</span>) <span class="keyword">COLLATE</span> utf8_bin <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'集群中job的名字'</span>,</span><br><span class="line">  <span class="string">`JOB_GROUP`</span> <span class="built_in">varchar</span>(<span class="number">200</span>) <span class="keyword">COLLATE</span> utf8_bin <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'集群中job的所属组的名字'</span>,</span><br><span class="line">  <span class="string">`DESCRIPTION`</span> <span class="built_in">varchar</span>(<span class="number">250</span>) <span class="keyword">COLLATE</span> utf8_bin <span class="keyword">DEFAULT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'描述'</span>,</span><br><span class="line">  <span class="string">`JOB_CLASS_NAME`</span> <span class="built_in">varchar</span>(<span class="number">250</span>) <span class="keyword">COLLATE</span> utf8_bin <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'集群中个note job实现类的完全包名,quartz就是根据这个路径到classpath找到该job类'</span>,</span><br><span class="line">  <span class="string">`IS_DURABLE`</span> <span class="built_in">varchar</span>(<span class="number">1</span>) <span class="keyword">COLLATE</span> utf8_bin <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'是否持久化,把该属性设置为1，quartz会把job持久化到数据库中'</span>,</span><br><span class="line">  <span class="string">`IS_NONCONCURRENT`</span> <span class="built_in">varchar</span>(<span class="number">1</span>) <span class="keyword">COLLATE</span> utf8_bin <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'是否并行，该属性可以通过注解配置'</span>,</span><br><span class="line">  <span class="string">`IS_UPDATE_DATA`</span> <span class="built_in">varchar</span>(<span class="number">1</span>) <span class="keyword">COLLATE</span> utf8_bin <span class="keyword">NOT</span> <span class="literal">NULL</span>,</span><br><span class="line">  <span class="string">`REQUESTS_RECOVERY`</span> <span class="built_in">varchar</span>(<span class="number">1</span>) <span class="keyword">COLLATE</span> utf8_bin <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'当一个scheduler失败后，其他实例可以发现那些执行失败的Jobs，若是1，那么该Job会被其他实例重新执行，否则对应的Job只能释放等待下次触发'</span>,</span><br><span class="line">  <span class="string">`JOB_DATA`</span> <span class="built_in">blob</span> <span class="keyword">COMMENT</span> <span class="string">'一个blob字段，存放持久化job对象'</span>,</span><br><span class="line">  PRIMARY <span class="keyword">KEY</span> (<span class="string">`SCHED_NAME`</span>,<span class="string">`JOB_NAME`</span>,<span class="string">`JOB_GROUP`</span>)</span><br><span class="line">) <span class="keyword">ENGINE</span>=<span class="keyword">InnoDB</span> <span class="keyword">DEFAULT</span> <span class="keyword">CHARSET</span>=utf8 <span class="keyword">COLLATE</span>=utf8_bin <span class="keyword">COMMENT</span>=<span class="string">'存储每一个已配置的 Job 的详细信息'</span>;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> <span class="string">`qrtz_triggers`</span> (</span><br><span class="line">  <span class="string">`SCHED_NAME`</span> <span class="built_in">varchar</span>(<span class="number">120</span>) <span class="keyword">COLLATE</span> utf8_bin <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'调度器名，和配置文件org.quartz.scheduler.instanceName保持一致'</span>,</span><br><span class="line">  <span class="string">`TRIGGER_NAME`</span> <span class="built_in">varchar</span>(<span class="number">200</span>) <span class="keyword">COLLATE</span> utf8_bin <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'触发器的名字'</span>,</span><br><span class="line">  <span class="string">`TRIGGER_GROUP`</span> <span class="built_in">varchar</span>(<span class="number">200</span>) <span class="keyword">COLLATE</span> utf8_bin <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'触发器所属组的名字'</span>,</span><br><span class="line">  <span class="string">`JOB_NAME`</span> <span class="built_in">varchar</span>(<span class="number">200</span>) <span class="keyword">COLLATE</span> utf8_bin <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'qrtz_job_details表job_name的外键'</span>,</span><br><span class="line">  <span class="string">`JOB_GROUP`</span> <span class="built_in">varchar</span>(<span class="number">200</span>) <span class="keyword">COLLATE</span> utf8_bin <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'qrtz_job_details表job_group的外键'</span>,</span><br><span class="line">  <span class="string">`DESCRIPTION`</span> <span class="built_in">varchar</span>(<span class="number">250</span>) <span class="keyword">COLLATE</span> utf8_bin <span class="keyword">DEFAULT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'描述'</span>,</span><br><span class="line">  <span class="string">`NEXT_FIRE_TIME`</span> <span class="built_in">bigint</span>(<span class="number">13</span>) <span class="keyword">DEFAULT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'下一次触发时间'</span>,</span><br><span class="line">  <span class="string">`PREV_FIRE_TIME`</span> <span class="built_in">bigint</span>(<span class="number">13</span>) <span class="keyword">DEFAULT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'上一次触发时间'</span>,</span><br><span class="line">  <span class="string">`PRIORITY`</span> <span class="built_in">int</span>(<span class="number">11</span>) <span class="keyword">DEFAULT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'线程优先级'</span>,</span><br><span class="line">  <span class="string">`TRIGGER_STATE`</span> <span class="built_in">varchar</span>(<span class="number">16</span>) <span class="keyword">COLLATE</span> utf8_bin <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'当前trigger状态'</span>,</span><br><span class="line">  <span class="string">`TRIGGER_TYPE`</span> <span class="built_in">varchar</span>(<span class="number">8</span>) <span class="keyword">COLLATE</span> utf8_bin <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'触发器类型'</span>,</span><br><span class="line">  <span class="string">`START_TIME`</span> <span class="built_in">bigint</span>(<span class="number">13</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'开始时间'</span>,</span><br><span class="line">  <span class="string">`END_TIME`</span> <span class="built_in">bigint</span>(<span class="number">13</span>) <span class="keyword">DEFAULT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'结束时间'</span>,</span><br><span class="line">  <span class="string">`CALENDAR_NAME`</span> <span class="built_in">varchar</span>(<span class="number">200</span>) <span class="keyword">COLLATE</span> utf8_bin <span class="keyword">DEFAULT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'日历名称'</span>,</span><br><span class="line">  <span class="string">`MISFIRE_INSTR`</span> <span class="built_in">smallint</span>(<span class="number">2</span>) <span class="keyword">DEFAULT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'misfire处理规则,1代表【以当前时间为触发频率立刻触发一次，然后按照Cron频率依次执行】,</span></span><br><span class="line"><span class="string">   2代表【不触发立即执行,等待下次Cron触发频率到达时刻开始按照Cron频率依次执行�】,</span></span><br><span class="line"><span class="string">   -1代表【以错过的第一个频率时间立刻开始执行,重做错过的所有频率周期后，当下一次触发频率发生时间大于当前时间后，再按照正常的Cron频率依次执行】'</span>,</span><br><span class="line">  <span class="string">`JOB_DATA`</span> <span class="built_in">blob</span> <span class="keyword">COMMENT</span> <span class="string">'JOB存储对象'</span>,</span><br><span class="line">  PRIMARY <span class="keyword">KEY</span> (<span class="string">`SCHED_NAME`</span>,<span class="string">`TRIGGER_NAME`</span>,<span class="string">`TRIGGER_GROUP`</span>),</span><br><span class="line">  <span class="keyword">KEY</span> <span class="string">`SCHED_NAME`</span> (<span class="string">`SCHED_NAME`</span>,<span class="string">`JOB_NAME`</span>,<span class="string">`JOB_GROUP`</span>),</span><br><span class="line">  <span class="keyword">CONSTRAINT</span> <span class="string">`qrtz_triggers_ibfk_1`</span> <span class="keyword">FOREIGN</span> <span class="keyword">KEY</span> (<span class="string">`SCHED_NAME`</span>, <span class="string">`JOB_NAME`</span>, <span class="string">`JOB_GROUP`</span>) <span class="keyword">REFERENCES</span> <span class="string">`qrtz_job_details`</span> (<span class="string">`SCHED_NAME`</span>, <span class="string">`JOB_NAME`</span>, <span class="string">`JOB_GROUP`</span>)</span><br><span class="line">) <span class="keyword">ENGINE</span>=<span class="keyword">InnoDB</span> <span class="keyword">DEFAULT</span> <span class="keyword">CHARSET</span>=utf8 <span class="keyword">COLLATE</span>=utf8_bin <span class="keyword">COMMENT</span>=<span class="string">'存储已配置的 Trigger 的信息'</span>;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> <span class="string">`qrtz_cron_triggers`</span> (</span><br><span class="line">  <span class="string">`SCHED_NAME`</span> <span class="built_in">varchar</span>(<span class="number">120</span>) <span class="keyword">COLLATE</span> utf8_bin <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'集群名'</span>,</span><br><span class="line">  <span class="string">`TRIGGER_NAME`</span> <span class="built_in">varchar</span>(<span class="number">200</span>) <span class="keyword">COLLATE</span> utf8_bin <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'调度器名,qrtz_triggers表trigger_name的外键'</span>,</span><br><span class="line">  <span class="string">`TRIGGER_GROUP`</span> <span class="built_in">varchar</span>(<span class="number">200</span>) <span class="keyword">COLLATE</span> utf8_bin <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'qrtz_triggers表trigger_group的外键'</span>,</span><br><span class="line">  <span class="string">`CRON_EXPRESSION`</span> <span class="built_in">varchar</span>(<span class="number">200</span>) <span class="keyword">COLLATE</span> utf8_bin <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'cron表达式'</span>,</span><br><span class="line">  <span class="string">`TIME_ZONE_ID`</span> <span class="built_in">varchar</span>(<span class="number">80</span>) <span class="keyword">COLLATE</span> utf8_bin <span class="keyword">DEFAULT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'时区ID'</span>,</span><br><span class="line">  PRIMARY <span class="keyword">KEY</span> (<span class="string">`SCHED_NAME`</span>,<span class="string">`TRIGGER_NAME`</span>,<span class="string">`TRIGGER_GROUP`</span>),</span><br><span class="line">  <span class="keyword">CONSTRAINT</span> <span class="string">`qrtz_cron_triggers_ibfk_1`</span> <span class="keyword">FOREIGN</span> <span class="keyword">KEY</span> (<span class="string">`SCHED_NAME`</span>, <span class="string">`TRIGGER_NAME`</span>, <span class="string">`TRIGGER_GROUP`</span>) <span class="keyword">REFERENCES</span> <span class="string">`qrtz_triggers`</span> (<span class="string">`SCHED_NAME`</span>, <span class="string">`TRIGGER_NAME`</span>, <span class="string">`TRIGGER_GROUP`</span>)</span><br><span class="line">) <span class="keyword">ENGINE</span>=<span class="keyword">InnoDB</span> <span class="keyword">DEFAULT</span> <span class="keyword">CHARSET</span>=utf8 <span class="keyword">COLLATE</span>=utf8_bin <span class="keyword">COMMENT</span>=<span class="string">'存放cron类型的触发器'</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> <span class="string">`qrtz_scheduler_state`</span> (</span><br><span class="line">  <span class="string">`SCHED_NAME`</span> <span class="built_in">varchar</span>(<span class="number">120</span>) <span class="keyword">COLLATE</span> utf8_bin <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'调度器名称，集群名'</span>,</span><br><span class="line">  <span class="string">`INSTANCE_NAME`</span> <span class="built_in">varchar</span>(<span class="number">200</span>) <span class="keyword">COLLATE</span> utf8_bin <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'集群中实例ID，配置文件中org.quartz.scheduler.instanceId的配置'</span>,</span><br><span class="line">  <span class="string">`LAST_CHECKIN_TIME`</span> <span class="built_in">bigint</span>(<span class="number">13</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'上次检查时间'</span>,</span><br><span class="line">  <span class="string">`CHECKIN_INTERVAL`</span> <span class="built_in">bigint</span>(<span class="number">13</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'检查时间间隔'</span>,</span><br><span class="line">  PRIMARY <span class="keyword">KEY</span> (<span class="string">`SCHED_NAME`</span>,<span class="string">`INSTANCE_NAME`</span>)</span><br><span class="line">) <span class="keyword">ENGINE</span>=<span class="keyword">InnoDB</span> <span class="keyword">DEFAULT</span> <span class="keyword">CHARSET</span>=utf8 <span class="keyword">COLLATE</span>=utf8_bin <span class="keyword">COMMENT</span>=<span class="string">'调度器状态'</span>;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> <span class="string">`qrtz_fired_triggers`</span> (</span><br><span class="line">  <span class="string">`SCHED_NAME`</span> <span class="built_in">varchar</span>(<span class="number">120</span>) <span class="keyword">COLLATE</span> utf8_bin <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'调度器名称，集群名'</span>,</span><br><span class="line">  <span class="string">`ENTRY_ID`</span> <span class="built_in">varchar</span>(<span class="number">95</span>) <span class="keyword">COLLATE</span> utf8_bin <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'运行Id'</span>,</span><br><span class="line">  <span class="string">`TRIGGER_NAME`</span> <span class="built_in">varchar</span>(<span class="number">200</span>) <span class="keyword">COLLATE</span> utf8_bin <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'触发器名'</span>,</span><br><span class="line">  <span class="string">`TRIGGER_GROUP`</span> <span class="built_in">varchar</span>(<span class="number">200</span>) <span class="keyword">COLLATE</span> utf8_bin <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'触发器组'</span>,</span><br><span class="line">  <span class="string">`INSTANCE_NAME`</span> <span class="built_in">varchar</span>(<span class="number">200</span>) <span class="keyword">COLLATE</span> utf8_bin <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'集群中实例ID'</span>,</span><br><span class="line">  <span class="string">`FIRED_TIME`</span> <span class="built_in">bigint</span>(<span class="number">13</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'触发时间'</span>,</span><br><span class="line">  <span class="string">`SCHED_TIME`</span> <span class="built_in">bigint</span>(<span class="number">13</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'计划时间'</span>,</span><br><span class="line">  <span class="string">`PRIORITY`</span> <span class="built_in">int</span>(<span class="number">11</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'线程优先级'</span>,</span><br><span class="line">  <span class="string">`STATE`</span> <span class="built_in">varchar</span>(<span class="number">16</span>) <span class="keyword">COLLATE</span> utf8_bin <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'状态'</span>,</span><br><span class="line">  <span class="string">`JOB_NAME`</span> <span class="built_in">varchar</span>(<span class="number">200</span>) <span class="keyword">COLLATE</span> utf8_bin <span class="keyword">DEFAULT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'任务名'</span>,</span><br><span class="line">  <span class="string">`JOB_GROUP`</span> <span class="built_in">varchar</span>(<span class="number">200</span>) <span class="keyword">COLLATE</span> utf8_bin <span class="keyword">DEFAULT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'任务组'</span>,</span><br><span class="line">  <span class="string">`IS_NONCONCURRENT`</span> <span class="built_in">varchar</span>(<span class="number">1</span>) <span class="keyword">COLLATE</span> utf8_bin <span class="keyword">DEFAULT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'是否并行'</span>,</span><br><span class="line">  <span class="string">`REQUESTS_RECOVERY`</span> <span class="built_in">varchar</span>(<span class="number">1</span>) <span class="keyword">COLLATE</span> utf8_bin <span class="keyword">DEFAULT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'是否恢复'</span>,</span><br><span class="line">  PRIMARY <span class="keyword">KEY</span> (<span class="string">`SCHED_NAME`</span>,<span class="string">`ENTRY_ID`</span>)</span><br><span class="line">) <span class="keyword">ENGINE</span>=<span class="keyword">InnoDB</span> <span class="keyword">DEFAULT</span> <span class="keyword">CHARSET</span>=utf8 <span class="keyword">COLLATE</span>=utf8_bin <span class="keyword">COMMENT</span>=<span class="string">'存储与已触发的 Trigger 相关的状态信息，以及相联 Job 的执行信息'</span>;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> <span class="string">`qrtz_simple_triggers`</span> (</span><br><span class="line">  <span class="string">`SCHED_NAME`</span> <span class="built_in">varchar</span>(<span class="number">120</span>) <span class="keyword">COLLATE</span> utf8_bin <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'调度器名，集群名'</span>,</span><br><span class="line">  <span class="string">`TRIGGER_NAME`</span> <span class="built_in">varchar</span>(<span class="number">200</span>) <span class="keyword">COLLATE</span> utf8_bin <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'触发器名'</span>,</span><br><span class="line">  <span class="string">`TRIGGER_GROUP`</span> <span class="built_in">varchar</span>(<span class="number">200</span>) <span class="keyword">COLLATE</span> utf8_bin <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'触发器组'</span>,</span><br><span class="line">  <span class="string">`REPEAT_COUNT`</span> <span class="built_in">bigint</span>(<span class="number">7</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'重复次数'</span>,</span><br><span class="line">  <span class="string">`REPEAT_INTERVAL`</span> <span class="built_in">bigint</span>(<span class="number">12</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'重复间隔'</span>,</span><br><span class="line">  <span class="string">`TIMES_TRIGGERED`</span> <span class="built_in">bigint</span>(<span class="number">10</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'已触发次数'</span>,</span><br><span class="line">  PRIMARY <span class="keyword">KEY</span> (<span class="string">`SCHED_NAME`</span>,<span class="string">`TRIGGER_NAME`</span>,<span class="string">`TRIGGER_GROUP`</span>),</span><br><span class="line">  <span class="keyword">CONSTRAINT</span> <span class="string">`qrtz_simple_triggers_ibfk_1`</span> <span class="keyword">FOREIGN</span> <span class="keyword">KEY</span> (<span class="string">`SCHED_NAME`</span>, <span class="string">`TRIGGER_NAME`</span>, <span class="string">`TRIGGER_GROUP`</span>) <span class="keyword">REFERENCES</span> <span class="string">`qrtz_triggers`</span> (<span class="string">`SCHED_NAME`</span>, <span class="string">`TRIGGER_NAME`</span>, <span class="string">`TRIGGER_GROUP`</span>)</span><br><span class="line">) <span class="keyword">ENGINE</span>=<span class="keyword">InnoDB</span> <span class="keyword">DEFAULT</span> <span class="keyword">CHARSET</span>=utf8 <span class="keyword">COLLATE</span>=utf8_bin <span class="keyword">COMMENT</span>=<span class="string">'存储简单的 Trigger，包括重复次数，间隔，以及已触的次数'</span>;</span><br></pre></td></tr></table></figure>
+
+<h3 id="4、怎么使用"><a href="#4、怎么使用" class="headerlink" title="4、怎么使用"></a>4、怎么使用</h3><ul>
+<li>当我们引入<code>spring-boot-starter-quartz</code>的依赖后，springboot在启动的时候会自动加载配置类：<code>org.springframework.boot.autoconfigure.quartz.QuartzAutoConfiguration</code>。</li>
+<li>会帮我们初始化好调度器,源码：<code>SchedulerFactoryBean</code>实现<code>InitializingBean</code>，重写<code>afterPropertiesSet()</code> 里面就有了。</li>
+<li>而且Scheduler,Spring默认是帮我们启动的，不需要手动启动。</li>
+<li>使用如下：<figure class="highlight arduino"><table><tr><td class="code"><pre><span class="line">@Autowired</span><br><span class="line"><span class="keyword">private</span> <span class="built_in">Scheduler</span> scheduler;</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<p>spring会自己注入，通过工厂类<code>SchedulerFactoryBean</code>的<code>getObject()</code>方法。<br>搞个基本的增删改查,很简单，代码也没怎么优化，就这样吧。</p>
+<figure class="highlight dart"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line">public <span class="class"><span class="keyword">class</span> <span class="title">JobService</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    private Scheduler scheduler;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment"><span class="markdown">/**</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>增加一个job</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="code">     *</span></span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>@param jobClass</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     *            </span>任务实现类</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>@param jobName</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     *            </span>任务名称(建议唯一)</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>@param jobGroupName</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     *            </span>任务组名</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>@param cron</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     *            </span>时间表达式 （如：0/5 <span class="emphasis">* *</span> <span class="emphasis">* *</span> ? ）</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>@param jobData</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     *            </span>参数</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="code">     */</span></span></span></span><br><span class="line">    public <span class="keyword">void</span> addJob(Class&lt;? <span class="keyword">extends</span> Job&gt; jobClass, <span class="built_in">String</span> jobName, <span class="built_in">String</span> jobGroupName, <span class="built_in">String</span> cron, <span class="built_in">Map</span> jobData,Date endTime)</span><br><span class="line">        throws SchedulerException &#123;</span><br><span class="line">        <span class="comment">// 创建jobDetail实例，绑定Job实现类</span></span><br><span class="line">        <span class="comment">// 指明job的名称，所在组的名称，以及绑定job类</span></span><br><span class="line">        <span class="comment">// 任务名称和组构成任务key</span></span><br><span class="line">        JobDetail jobDetail = JobBuilder.newJob(jobClass).withIdentity(jobName, jobGroupName).build();</span><br><span class="line">        <span class="comment">// 设置job参数</span></span><br><span class="line">        <span class="keyword">if</span> (jobData != <span class="keyword">null</span> &amp;&amp; jobData.size() &gt; <span class="number">0</span>) &#123;</span><br><span class="line">            jobDetail.getJobDataMap().putAll(jobData);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// 定义调度触发规则</span></span><br><span class="line">        <span class="comment">// 使用cornTrigger规则</span></span><br><span class="line">        <span class="comment">// 触发器key</span></span><br><span class="line">        Trigger trigger = TriggerBuilder.newTrigger().withIdentity(jobName, jobGroupName)</span><br><span class="line">            .startAt(DateBuilder.futureDate(<span class="number">1</span>, DateBuilder.IntervalUnit.SECOND))</span><br><span class="line">            .withSchedule(CronScheduleBuilder.cronSchedule(cron)).startNow().build();</span><br><span class="line">        <span class="keyword">if</span>(endTime!=<span class="keyword">null</span>)&#123;</span><br><span class="line">            trigger.getTriggerBuilder().endAt(endTime);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// 把作业和触发器注册到任务调度中</span></span><br><span class="line">        scheduler.scheduleJob(jobDetail, trigger);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    public Trigger getTrigger(<span class="built_in">String</span> jobName, <span class="built_in">String</span> jobGroupName) throws SchedulerException &#123;</span><br><span class="line">        <span class="keyword">return</span> scheduler.getTrigger(TriggerKey.triggerKey(jobName, jobGroupName));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment"><span class="markdown">/**</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>删除任务一个job</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="code">     *</span></span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>@param jobName</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     *            </span>任务名称</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>@param jobGroupName</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     *            </span>任务组名</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="code">     */</span></span></span></span><br><span class="line">    public <span class="keyword">void</span> deleteJob(<span class="built_in">String</span> jobName, <span class="built_in">String</span> jobGroupName) &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            scheduler.deleteJob(JobKey.jobKey(jobName, jobGroupName));</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment"><span class="markdown">/**</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>暂停一个job</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="code">     *</span></span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>@param jobName</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>@param jobGroupName</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="code">     */</span></span></span></span><br><span class="line">    public <span class="keyword">void</span> pauseJob(<span class="built_in">String</span> jobName, <span class="built_in">String</span> jobGroupName) &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            JobKey jobKey = JobKey.jobKey(jobName, jobGroupName);</span><br><span class="line">            scheduler.pauseJob(jobKey);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (SchedulerException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment"><span class="markdown">/**</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>恢复一个job</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="code">     *</span></span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>@param jobName</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>@param jobGroupName</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="code">     */</span></span></span></span><br><span class="line">    public <span class="keyword">void</span> resumeJob(<span class="built_in">String</span> jobName, <span class="built_in">String</span> jobGroupName) &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            JobKey jobKey = JobKey.jobKey(jobName, jobGroupName);</span><br><span class="line">            scheduler.resumeJob(jobKey);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (SchedulerException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment"><span class="markdown">/**</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>立即执行一个job</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="code">     *</span></span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>@param jobName</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>@param jobGroupName</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="code">     */</span></span></span></span><br><span class="line">    public <span class="keyword">void</span> runJobNow(<span class="built_in">String</span> jobName, <span class="built_in">String</span> jobGroupName) &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            JobKey jobKey = JobKey.jobKey(jobName, jobGroupName);</span><br><span class="line">            scheduler.triggerJob(jobKey);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (SchedulerException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment"><span class="markdown">/**</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>修改 一个job的 时间表达式</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="code">     *</span></span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>@param jobName</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>@param jobGroupName</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>@param cron</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="code">     */</span></span></span></span><br><span class="line">    public <span class="keyword">void</span> updateJob(<span class="built_in">String</span> jobName, <span class="built_in">String</span> jobGroupName, <span class="built_in">String</span> cron,<span class="built_in">Map</span> jobData) &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            TriggerKey triggerKey = TriggerKey.triggerKey(jobName, jobGroupName);</span><br><span class="line">            Trigger trigger = scheduler.getTrigger(triggerKey);</span><br><span class="line">            <span class="keyword">if</span>(trigger instanceof CronTrigger)&#123;</span><br><span class="line">                CronTrigger cronTrigger = (CronTrigger) trigger;</span><br><span class="line">                cronTrigger = cronTrigger.getTriggerBuilder().withIdentity(triggerKey)</span><br><span class="line">                        .withSchedule(CronScheduleBuilder.cronSchedule(cron)).build();</span><br><span class="line">            &#125;<span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="comment">// 这里其实可以删掉在添加即可，懒得写了</span></span><br><span class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException(<span class="string">"格式转换错误"</span>);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">// 设置job参数</span></span><br><span class="line">            <span class="keyword">if</span> (jobData != <span class="keyword">null</span> &amp;&amp; jobData.size() &gt; <span class="number">0</span>) &#123;</span><br><span class="line">                trigger.getJobDataMap().putAll(jobData);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">// 重启触发器</span></span><br><span class="line">            scheduler.rescheduleJob(triggerKey, trigger);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (SchedulerException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>和上面得基本demo没什么两样，就是scheduler 并不需要我们去创建了。</li>
+<li>当部署多个服务时，也不会重复执行。且任务会负载均衡分配。</li>
+</ul>
+<h3 id="5、时间演练"><a href="#5、时间演练" class="headerlink" title="5、时间演练"></a>5、时间演练</h3><p>Quartz 提供了下一次运行的时间，我们可以通过下一次运行的时间，比对是否符合我们的预期</p>
+<figure class="highlight cs"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">Test</span> &#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span>(<span class="params">String[] args</span>) throws ParseException, SchedulerException</span> &#123;</span><br><span class="line">        String cron = <span class="string">"0/10 * * * * ?"</span>;</span><br><span class="line">        CronExpression cronExpression = <span class="keyword">new</span> CronExpression(cron);</span><br><span class="line">        Date nextValidTimeAfter = cronExpression.getNextValidTimeAfter(<span class="keyword">new</span> Date());</span><br><span class="line">        System.<span class="keyword">out</span>.println(<span class="string">"nextValidTimeAfter="</span> + nextValidTimeAfter);</span><br><span class="line">        nextValidTimeAfter = cronExpression.getNextValidTimeAfter(nextValidTimeAfter);</span><br><span class="line">        System.<span class="keyword">out</span>.println(<span class="string">"nextValidTimeAfter="</span> + nextValidTimeAfter);</span><br><span class="line">        nextValidTimeAfter = cronExpression.getNextValidTimeAfter(nextValidTimeAfter);</span><br><span class="line">        System.<span class="keyword">out</span>.println(<span class="string">"nextValidTimeAfter="</span> + nextValidTimeAfter);</span><br><span class="line">        CalendarIntervalTrigger calendarIntervalTrigger =</span><br><span class="line">            newTrigger().withIdentity(<span class="string">"trigger3"</span>, <span class="string">"group1"</span>)</span><br><span class="line">                .withSchedule(calendarIntervalSchedule().withIntervalInWeeks(<span class="number">3</span>)).build();</span><br><span class="line"></span><br><span class="line">        Date nextFireTime = calendarIntervalTrigger.getFireTimeAfter(<span class="keyword">new</span> Date());</span><br><span class="line">        System.<span class="keyword">out</span>.println(<span class="string">"nextFireTime="</span> + DateUtils.formatTime(nextFireTime));</span><br><span class="line">        nextFireTime = calendarIntervalTrigger.getFireTimeAfter(nextFireTime);</span><br><span class="line">        System.<span class="keyword">out</span>.println(<span class="string">"nextFireTime="</span> + DateUtils.formatTime(nextFireTime));</span><br><span class="line">        nextFireTime = calendarIntervalTrigger.getFireTimeAfter(nextFireTime);</span><br><span class="line">        System.<span class="keyword">out</span>.println(<span class="string">"nextFireTime="</span> + DateUtils.formatTime(nextFireTime));</span><br><span class="line">        nextFireTime = calendarIntervalTrigger.getFireTimeAfter(nextFireTime);</span><br><span class="line">        System.<span class="keyword">out</span>.println(<span class="string">"nextFireTime="</span> + DateUtils.formatTime(nextFireTime));</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>每个 Tigger 都有一个<code>Date getFireTimeAfter(Date afterTime)</code> 的方法，返回的就是下一次运行的时间。</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+	
+	    <div>
+	
+	<div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------本文结束 <i class="fa fa-heartbeat"></i> 感谢您的阅读-------------</div>
+    
+</div>
+	
+	</div>
+
+    
+
+    
+      
+    
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div></div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>打赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/blog/images/wechat_pay.jpg" alt="rstyro 微信支付">
+        <p>微信支付</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/blog/images/alipay.jpg" alt="rstyro 支付宝">
+        <p>支付宝</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+	
+	<div>    
+	 
+	 
+	<ul class="post-copyright">
+	  <li class="post-copyright-author">
+		  <strong>本文作者：</strong>rstyro
+	  </li>
+	  <li class="post-copyright-link">
+		<strong>本文链接：</strong>
+		<a href="/blog/2019/10/28/Quartz介绍与SpringBoot使用/" title="Quartz介绍与SpringBoot使用">https://rstyro.github.io/blog/2019/10/28/Quartz介绍与SpringBoot使用/</a>
+	  </li>
+	  <li class="post-copyright-license">
+		<strong>版权： </strong>
+		转载注明出处！
+	  </li>
+	</ul>
+	
+	</div>
+	
+
+      
+        <div class="post-tags">
+          
+            <a href="/blog/tags/Spring-Boot/" rel="tag"><i class="fa fa-tag"></i> Spring Boot</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2019/09/14/Centos安装GitLab/" rel="next" title="Centos安装GitLab">
+                <i class="fa fa-chevron-left"></i> Centos安装GitLab
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2020/04/18/shiro之使用/" rel="prev" title="shiro之使用">
+                shiro之使用 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+
+
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+      <div id="sidebar-dimmer"></div>
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/blog/images/avatar.jpg" alt="rstyro">
+            
+              <p class="site-author-name" itemprop="name">rstyro</p>
+              <p class="site-description motion-element" itemprop="description">个人博客,瞎写一些技术笔记等。</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/blog/archives/">
+                
+                    <span class="site-state-item-count">195</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/blog/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">13</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/blog/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">49</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+            <div class="feed-link motion-element">
+              <a href="/blog/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://github.com/rstyro" title="GitHub &rarr; https://github.com/rstyro" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://gitee.com/rstyro" title="Gitee &rarr; https://gitee.com/rstyro" rel="noopener" target="_blank"><i class="fa fa-fw fa-codiepie"></i>Gitee</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="/blog/1006059906" title="QQ &rarr; 1006059906"><i class="fa fa-fw fa-qq"></i>QQ</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://www.jianshu.com/u/651c15a1758a" title="简书 &rarr; https://www.jianshu.com/u/651c15a1758a" rel="noopener" target="_blank"><i class="fa fa-fw fa-book"></i>简书</a>
+                </span>
+              
+            </div>
+          
+
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-block">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                友链
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://rstyro.github.io/blog/" title="https://rstyro.github.io/blog/">帅大叔博客</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://www.zhyd.me/" title="https://www.zhyd.me/" rel="noopener" target="_blank">张亚东博客</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://www.devsong.org/" title="http://www.devsong.org/" rel="noopener" target="_blank">DevSONG</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://www.dalaoyang.cn/" title="https://www.dalaoyang.cn/" rel="noopener" target="_blank">dalaoyang</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://www.chenshuangyi.com/" title="https://www.chenshuangyi.com/" rel="noopener" target="_blank">陈双义博客</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+            
+          
+          <div id="days"></div>
+<script>
+function show_date_time(){
+window.setTimeout("show_date_time()", 1000);
+BirthDay=new Date("04/10/2017 15:13:14");
+today=new Date();
+timeold=(today.getTime()-BirthDay.getTime());
+sectimeold=timeold/1000
+secondsold=Math.floor(sectimeold);
+msPerDay=24*60*60*1000
+e_daysold=timeold/msPerDay
+daysold=Math.floor(e_daysold);
+e_hrsold=(e_daysold-daysold)*24;
+hrsold=setzero(Math.floor(e_hrsold));
+e_minsold=(e_hrsold-hrsold)*60;
+minsold=setzero(Math.floor((e_hrsold-hrsold)*60));
+seconds=setzero(Math.floor((e_minsold-minsold)*60));
+document.getElementById('days').innerHTML="已运行 "+daysold+" 天 "+hrsold+" 小时 "+minsold+" 分 "+seconds+" 秒";
+}
+function setzero(i){
+if (i<10)
+{i="0" + i};
+return i;
+}
+show_date_time();
+</script>
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#一、Quartz简介"><span class="nav-number">1.</span> <span class="nav-text">一、Quartz简介</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1、组件简介"><span class="nav-number">1.1.</span> <span class="nav-text">1、组件简介</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Job"><span class="nav-number">1.1.1.</span> <span class="nav-text">Job</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#JobDetail"><span class="nav-number">1.1.2.</span> <span class="nav-text">JobDetail</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Trigger"><span class="nav-number">1.1.3.</span> <span class="nav-text">Trigger</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Scheduler"><span class="nav-number">1.1.4.</span> <span class="nav-text">Scheduler</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2、相关Builder介绍"><span class="nav-number">1.2.</span> <span class="nav-text">2、相关Builder介绍</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#JobBuilder"><span class="nav-number">1.2.1.</span> <span class="nav-text">JobBuilder</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#TriggerBuilder"><span class="nav-number">1.2.2.</span> <span class="nav-text">TriggerBuilder</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#SimpleScheduleBuilder"><span class="nav-number">1.2.3.</span> <span class="nav-text">SimpleScheduleBuilder</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#CronScheduleBuilder"><span class="nav-number">1.2.4.</span> <span class="nav-text">CronScheduleBuilder</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#CalendarIntervalScheduleBuilder"><span class="nav-number">1.2.5.</span> <span class="nav-text">CalendarIntervalScheduleBuilder</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#DailyTimeIntervalScheduleBuilder"><span class="nav-number">1.2.6.</span> <span class="nav-text">DailyTimeIntervalScheduleBuilder</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3、基本使用"><span class="nav-number">1.3.</span> <span class="nav-text">3、基本使用</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#引用依赖"><span class="nav-number">1.3.1.</span> <span class="nav-text">引用依赖</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#简单例子："><span class="nav-number">1.4.</span> <span class="nav-text">简单例子：</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#二、与Springboot整合"><span class="nav-number">2.</span> <span class="nav-text">二、与Springboot整合</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1、引入依赖"><span class="nav-number">2.1.</span> <span class="nav-text">1、引入依赖</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2、配置application-yml"><span class="nav-number">2.2.</span> <span class="nav-text">2、配置application.yml</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3、表的说明"><span class="nav-number">2.3.</span> <span class="nav-text">3、表的说明</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#重要表字段解析"><span class="nav-number">2.3.1.</span> <span class="nav-text">重要表字段解析</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4、怎么使用"><span class="nav-number">2.4.</span> <span class="nav-text">4、怎么使用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5、时间演练"><span class="nav-number">2.5.</span> <span class="nav-text">5、时间演练</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">rstyro</span>
+
+  
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+
+  <script src="https://unpkg.com/mermaid@8.11.0/dist/mermaid.min.js"></script>
+  <script>
+    if (window.mermaid) {
+      mermaid.initialize({"startOnload":true});
+    }
+  </script>
+
+
+<div class="theme-info">
+  <div class="powered-by"></div>
+  <span class="post-count">博客全站共322.1k字</span>
+</div>
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-user"></i>
+    </span>
+    <span class="site-uv" title="总访客量">
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+    </span>
+  
+
+  
+    <span class="post-meta-divider">|</span>
+  
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-eye"></i>
+    </span>
+    <span class="site-pv" title="总访问量">
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/blog/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/blog/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/blog/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/blog/js/src/utils.js?v=6.7.0"></script>
+
+  <script src="/blog/js/src/motion.js?v=6.7.0"></script>
+
+
+
+  
+  
+
+  
+  <script src="/blog/js/src/scrollspy.js?v=6.7.0"></script>
+<script src="/blog/js/src/post-details.js?v=6.7.0"></script>
+
+
+
+  
+
+
+  <script src="/blog/js/src/bootstrap.js?v=6.7.0"></script>
+
+
+
+  
+  
+
+
+
+
+  
+
+<script src="//cdn1.lncld.net/static/js/3.11.1/av-min.js"></script>
+
+
+
+  
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/valine/1.3.4/Valine.min.js"></script>
+
+<script>
+  var GUEST = ['nick', 'mail', 'link'];
+  var guest = 'nick,mail,link';
+  guest = guest.split(',').filter(function (item) {
+    return GUEST.indexOf(item) > -1;
+  });
+  new Valine({
+    el: '#comments',
+    verify: false,
+    notify: false,
+    appId: 'LwEPiJFa7YMn2MrJdCwaUbmQ-gzGzoHsz',
+    appKey: 'JqS1y3RxYvDOki9r3NcqqoO5',
+    placeholder: '来都来了，不说几句就走，过分了啊！！！',
+    avatar: 'monsterid',
+    meta: guest,
+    pageSize: '10' || 10,
+    visitor: false
+  });
+</script>
+
+
+
+  
+
+  <script>
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/blog/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url).replace(/\/{2,}/g, '/');
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x"></i></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x"></i></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+  <script>
+    (function(){
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+      }
+      else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+      }
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+    })();
+  </script>
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

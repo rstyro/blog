@@ -1,0 +1,1841 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/blog/css/main.css?v=6.7.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon.jpg?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon.jpg?v=6.7.0">
+
+
+  <link rel="mask-icon" href="/blog/images/logo.svg?v=6.7.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/blog/',
+    scheme: 'Mist',
+    version: '6.7.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":true},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+<script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+<link href="//cdn.bootcss.com/pace/1.0.2/themes/pink/pace-theme-flash.css" rel="stylesheet">
+  <style>
+      .pace .pace-progress {
+          background: #1E92FB; /*进度条颜色*/
+          height: 3px;
+      }
+      .pace .pace-progress-inner {
+           box-shadow: 0 0 10px #1E92FB, 0 0 5px     #1E92FB; /*阴影颜色*/
+      }
+      .pace .pace-activity {
+          border-top-color: #1E92FB;    /*上边框颜色*/
+          border-left-color: #1E92FB;    /*左边框颜色*/
+      }
+  </style>
+
+  <meta name="description" content="Jenkins安装及使用 Jenkins是基于Java开发的一种持续集成工具，用于监控持续重复的工作，功能包括： 1、持续的软件版本发布/测试项目。 2、监控外部调用执行的工作  一、环境 1、安装JDK不会的看这个：Linux 安装jdk 2、安装tomcat(非必须)不会看这个：Centos7 安装tomcat 3、安装Git不会看这个：Linux安装Git 4、安装Maven不会看这个：li">
+<meta name="keywords" content="Jenkins">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Jenkins安装配置使用">
+<meta property="og:url" content="https://rstyro.github.io/blog/2019/05/06/Jenkins安装配置使用/index.html">
+<meta property="og:site_name" content="帅大叔的博客">
+<meta property="og:description" content="Jenkins安装及使用 Jenkins是基于Java开发的一种持续集成工具，用于监控持续重复的工作，功能包括： 1、持续的软件版本发布/测试项目。 2、监控外部调用执行的工作  一、环境 1、安装JDK不会的看这个：Linux 安装jdk 2、安装tomcat(非必须)不会看这个：Centos7 安装tomcat 3、安装Git不会看这个：Linux安装Git 4、安装Maven不会看这个：li">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://rstyro.github.io/blog/2019/05/06/Jenkins安装配置使用/jenkins1.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2019/05/06/Jenkins安装配置使用/jenkins3.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2019/05/06/Jenkins安装配置使用/jenkins4.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2019/05/06/Jenkins安装配置使用/jenkins5.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2019/05/06/Jenkins安装配置使用/jenkins8.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2019/05/06/Jenkins安装配置使用/jenkins9.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2019/05/06/Jenkins安装配置使用/jenkins9-1.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2019/05/06/Jenkins安装配置使用/jenkins9-2.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2019/05/06/Jenkins安装配置使用/jenkins-credentials.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2019/05/06/Jenkins安装配置使用/jenkins10-1.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2019/05/06/Jenkins安装配置使用/jenkins-build.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2019/05/06/Jenkins安装配置使用/jenkins-build2.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2019/05/06/Jenkins安装配置使用/jenkins-build3.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2019/05/06/Jenkins安装配置使用/jenkins-build-p0.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2019/05/06/Jenkins安装配置使用/jenkins-build-p1.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2019/05/06/Jenkins安装配置使用/jenkins-webhooks.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2019/05/06/Jenkins安装配置使用/jenkins-build-auto.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2019/05/06/Jenkins安装配置使用/jenkins-build-p2.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2019/05/06/Jenkins安装配置使用/jenkins-auth.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2019/05/06/Jenkins安装配置使用/jenkins-auth-role.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2019/05/06/Jenkins安装配置使用/jenkins-auth-role-manage.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2019/05/06/Jenkins安装配置使用/jenkins-auth-role2.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2019/05/06/Jenkins安装配置使用/jenkins-auth-role3.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2019/05/06/Jenkins安装配置使用/pos.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2019/05/06/Jenkins安装配置使用/ssh.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2019/05/06/Jenkins安装配置使用/ssh-build.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2019/05/06/Jenkins安装配置使用/ssh-config.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2019/05/06/Jenkins安装配置使用/multijob.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2019/05/06/Jenkins安装配置使用/multijob-project.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2019/05/06/Jenkins安装配置使用/multijob-phase.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2019/05/06/Jenkins安装配置使用/plugin.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2019/05/06/Jenkins安装配置使用/nodejs-path.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2019/05/06/Jenkins安装配置使用/nodejs-config.png">
+<meta property="og:updated_time" content="2019-05-06T08:20:12.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Jenkins安装配置使用">
+<meta name="twitter:description" content="Jenkins安装及使用 Jenkins是基于Java开发的一种持续集成工具，用于监控持续重复的工作，功能包括： 1、持续的软件版本发布/测试项目。 2、监控外部调用执行的工作  一、环境 1、安装JDK不会的看这个：Linux 安装jdk 2、安装tomcat(非必须)不会看这个：Centos7 安装tomcat 3、安装Git不会看这个：Linux安装Git 4、安装Maven不会看这个：li">
+<meta name="twitter:image" content="https://rstyro.github.io/blog/2019/05/06/Jenkins安装配置使用/jenkins1.png">
+
+
+
+  <link rel="alternate" href="/blog/atom.xml" title="帅大叔的博客" type="application/atom+xml">
+
+
+
+
+  <link rel="canonical" href="https://rstyro.github.io/blog/2019/05/06/Jenkins安装配置使用/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>Jenkins安装配置使用 | 帅大叔的博客</title>
+  
+
+
+
+
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?cd2197f8af1d69b326360027b8f93d92";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+	<a href="https://github.com/rstyro" class="github-corner" aria-label="View source on GitHub"><svg width="80" height="80" viewbox="0 0 250 250" style="fill:#151513; color:#fff; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"/><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"/><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"/></svg></a><style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/blog/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">帅大叔的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">信你所信，为你所见</p>
+      
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/" rel="section">首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/about/" rel="section">关于</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/tags/" rel="section">标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/categories/" rel="section">分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/archives/" rel="section">归档</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-guestbook">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/guestbook/" rel="section">留言</a>
+
+  </li>
+
+      
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            搜索</a>
+        </li>
+      
+    </ul>
+  
+
+  
+    
+
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://rstyro.github.io/blog/blog/2019/05/06/Jenkins安装配置使用/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="rstyro">
+      <meta itemprop="description" content="个人博客,瞎写一些技术笔记等。">
+      <meta itemprop="image" content="/blog/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="帅大叔的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Jenkins安装配置使用
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-05-06 16:20:12" itemprop="dateCreated datePublished" datetime="2019-05-06T16:20:12+08:00">2019-05-06</time>
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/blog/categories/网络运维/" itemprop="url" rel="index"><span itemprop="name">网络运维</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/blog/2019/05/06/Jenkins安装配置使用/#comments" itemprop="discussionUrl">
+                  <span class="post-meta-item-text">评论数：</span> <span class="post-comments-count valine-comment-count" data-xid="/blog/2019/05/06/Jenkins安装配置使用/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="post-meta-item-icon">
+            <i class="fa fa-eye"></i>
+             阅读次数： 
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="Jenkins安装及使用"><a href="#Jenkins安装及使用" class="headerlink" title="Jenkins安装及使用"></a>Jenkins安装及使用</h1><ul>
+<li>Jenkins是基于Java开发的一种持续集成工具，用于监控持续重复的工作，功能包括：</li>
+<li>1、持续的软件版本发布/测试项目。</li>
+<li>2、监控外部调用执行的工作</li>
+</ul>
+<h2 id="一、环境"><a href="#一、环境" class="headerlink" title="一、环境"></a>一、环境</h2><ul>
+<li>1、安装JDK<br>不会的看这个：<a href="https://rstyro.github.io/blog/2017/05/13/Linux%20%E5%AE%89%E8%A3%85jdk/">Linux 安装jdk</a></li>
+<li>2、安装tomcat(非必须)<br>不会看这个：<a href="https://rstyro.github.io/blog/2017/05/10/Centos7%20%E5%AE%89%E8%A3%85tomcat%EF%BC%8C%E5%B9%B6%E6%B7%BB%E5%8A%A0%E6%9C%8D%E5%8A%A1/">Centos7 安装tomcat</a></li>
+<li>3、安装Git<br>不会看这个：<a href="https://rstyro.github.io/blog/2019/05/05/Linux%E5%AE%89%E8%A3%85%E6%9C%80%E6%96%B0%E7%89%88Git/">Linux安装Git</a></li>
+<li>4、安装Maven<br>不会看这个：<a href="https://rstyro.github.io/blog/2017/08/22/%E5%AE%89%E8%A3%85maven/">linux 安装Maven</a></li>
+</ul>
+<h2 id="二、下载安装"><a href="#二、下载安装" class="headerlink" title="二、下载安装"></a>二、下载安装</h2><ul>
+<li>1、去官网：<a href="https://jenkins.io/download/" target="_blank" rel="noopener">https://jenkins.io/download/</a> 下载 <code>.war</code> 包文件。  </li>
+<li>2、<code>wget</code><a href="http://mirrors.jenkins.io/war-stable/latest/jenkins.war" target="_blank" rel="noopener">http://mirrors.jenkins.io/war-stable/latest/jenkins.war</a></li>
+<li>3、把jenkins.war包放在tomcat下面的webapps目录下面</li>
+<li>4、启动tomcat会自动解压war包，生成一个jenkins文件夹，而且会在root目录下生成一个.jenkins的文件夹</li>
+<li>5、浏览器访问<a href="http://ip:端口/jenkins" target="_blank" rel="noopener">http://ip:端口/jenkins</a> </li>
+<li>6、输入初始化密码，位置在上面提示的路径(<code>$user.home/.jenkins/secrets/initialAdminPassword</code>),比如你是root用户:<code>/root/.jenkins/secrets/initialAdminPassword</code></li>
+<li>7、选择插件安装界面，选择第一个，安装社区推荐的即可</li>
+<li>8、之后创建一个用户</li>
+<li>9、创建用户之后，就可以使用jenkins了</li>
+</ul>
+<p><img src="jenkins1.png" alt><br><img src="jenkins3.png" alt><br><img src="jenkins4.png" alt></p>
+<blockquote>
+<p>除了放在servlet 容器，也可以通过<code>java -jar jenkins.war &amp;</code> 的方式启动。<br>如果插件安装失败的话，可以去镜像地址：<a href="https://mirrors.tuna.tsinghua.edu.cn/jenkins/" target="_blank" rel="noopener">https://mirrors.tuna.tsinghua.edu.cn/jenkins/</a><br>手动下载然后通过插件管理中的高级选择进行上传</p>
+</blockquote>
+<p><img src="jenkins5.png" alt></p>
+<h2 id="三、全局工具配置"><a href="#三、全局工具配置" class="headerlink" title="三、全局工具配置"></a>三、全局工具配置</h2><p>在Jenkins 中的全局工具配置中，配置  </p>
+<ul>
+<li>JDK</li>
+<li>Git</li>
+<li>Maven<br>配置上面几个工具的路径<br><img src="jenkins8.png" alt></li>
+</ul>
+<h2 id="四、Github-配置"><a href="#四、Github-配置" class="headerlink" title="四、Github 配置"></a>四、Github 配置</h2><p>在Jenkins 访问Github 项目的时候，有时需要授权，为了保险 所以我们在Github上给Jenkins 生成一个令牌（<code>Personal access tokens</code>）。</p>
+<h4 id="1、生成-Personal-access-tokens"><a href="#1、生成-Personal-access-tokens" class="headerlink" title="1、生成 Personal access tokens"></a>1、生成 Personal access tokens</h4><ul>
+<li>在Github个人设置里面（<code>Settings</code>）</li>
+<li>点击<code>Developer settings</code></li>
+<li>进去之后，点击<code>Personal access tokens</code></li>
+<li>之后点击<code>Generate new token</code>按钮</li>
+<li>选择<code>repo</code> 和 <code>admin:repo_hook</code>选项</li>
+<li>最后点击下方<code>Generate token</code> 绿色按钮生成token</li>
+<li>生成一个token字符串，记录下来，后面不显示的</li>
+</ul>
+<p><img src="jenkins9.png" alt><br><img src="jenkins9-1.png" alt><br><img src="jenkins9-2.png" alt></p>
+<h4 id="2、生成凭据"><a href="#2、生成凭据" class="headerlink" title="2、生成凭据"></a>2、生成凭据</h4><ul>
+<li>在Jenkins管理界面中，点击<code>凭据</code></li>
+<li>点击全局凭据</li>
+<li>添加凭据</li>
+<li>然后类型选择<code>Secret text</code>,Secret 选项就是在Github生成的token,描述那里随便写，然后添加</li>
+</ul>
+<p><img src="jenkins-credentials.png" alt></p>
+<h4 id="3、配置Jenkins-的Github-Server"><a href="#3、配置Jenkins-的Github-Server" class="headerlink" title="3、配置Jenkins 的Github Server"></a>3、配置Jenkins 的Github Server</h4><p>进入Jenkins 的系统设置</p>
+<ul>
+<li>在Github 服务器那，添加Github服务器</li>
+<li>凭据选择刚才上一步的凭据</li>
+<li>点击右边<code>连接测试</code></li>
+<li>没问题，保存</li>
+</ul>
+<p><img src="jenkins10-1.png" alt></p>
+<h2 id="五、构建任务"><a href="#五、构建任务" class="headerlink" title="五、构建任务"></a>五、构建任务</h2><p>准备工作都准备好了，开始构建吧。 </p>
+<p><img src="jenkins-build.png" alt></p>
+<h3 id="1、手动构建"><a href="#1、手动构建" class="headerlink" title="1、手动构建"></a>1、手动构建</h3><p>这个的意思就是，当你推送代码了，但是Jenkins不会帮你立即部署，需要你主动去点一下构建  </p>
+<blockquote>
+<p>当多人开发的时候，没人都推送了才去手动构建也是一个好的方式。缺点：不够自动呗，别急后面有自动</p>
+</blockquote>
+<ul>
+<li>1、新建任务，名称为<code>test2</code></li>
+<li>2、选择、<code>构建一个自由风格的软件项目</code><br>这个比较灵活，自由配置</li>
+<li>3、选择Github项目<br>项目URL,填你自己的，比如我：<code>https://github.com/rstyro/SpringBoot-test.git/</code></li>
+<li>4、源码管理选择<code>Git</code><br>仓库选择源代码 仓库地址，比如我：<code>https://github.com/rstyro/SpringBoot-test.git</code>,如果你是私人仓库即可添加凭证</li>
+<li>5、<code>构建触发器</code>和<code>构建环境</code>全部为空<br>因为是手动构建这两个不需要配置</li>
+<li>6、构建那里选择,<code>添加构建步骤</code> 然后<code>选择Maven</code> 与 <code>执行Shell</code><br>maven 目标选择</li>
+<li>7、最后就可以保存了</li>
+</ul>
+<p><img src="jenkins-build2.png" alt><br><img src="jenkins-build3.png" alt><br><img src="jenkins-build-p0.png" alt></p>
+<blockquote>
+<p><code>Started by rstyro</code> 这个是通过用户触发的</p>
+</blockquote>
+<p><img src="jenkins-build-p1.png" alt></p>
+<h4 id="test-run-sh-内容如下"><a href="#test-run-sh-内容如下" class="headerlink" title="test_run.sh 内容如下"></a><code>test_run.sh</code> 内容如下</h4><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">!/bin/bash</span></span><br><span class="line">BUILD_ID=DONTKILLME</span><br><span class="line"><span class="meta">#</span><span class="bash"> jenkins 构建之后的jar 根路径</span></span><br><span class="line">JAR_PATH="/root/.jenkins/workspace/test2"</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 项目 打包之后的路径</span></span><br><span class="line">PROJ_PATH="/data/jar"</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 打包后的名称</span></span><br><span class="line">JAR_NAME="springboot-test"</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 文件的后缀</span></span><br><span class="line">FILE_TYPE="jar"</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 备份的文件夹名称</span></span><br><span class="line">BACKUP="backup"</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">## base函数</span></span></span><br><span class="line">kill()</span><br><span class="line">&#123;</span><br><span class="line">    pid=`ps -ef | grep $JAR_NAME.$FILE_TYPE |grep -v color |grep -v grep | awk '&#123;print $2&#125;'`</span><br><span class="line">    echo "$JAR_NAME pid is $&#123;pid&#125;"</span><br><span class="line">    if [ "$pid" = "" ]</span><br><span class="line">    then</span><br><span class="line">        echo "no $JAR_NAME pid alive"</span><br><span class="line">    else</span><br><span class="line">                echo "killing start"</span><br><span class="line">        sudo kill -9 $pid</span><br><span class="line">        echo "killing end"</span><br><span class="line">    fi</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash">停止之前的进程</span></span><br><span class="line">echo "killing before"</span><br><span class="line">kill</span><br><span class="line">echo "killing after"</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash">创建备份目录</span></span><br><span class="line">cd $PROJ_PATH</span><br><span class="line"></span><br><span class="line">if [ ! -d "$BACKUP" ];then</span><br><span class="line">      sudo mkdir -p $BACKUP</span><br><span class="line">      cd $BACKUP</span><br><span class="line">      sudo mkdir log</span><br><span class="line">fi</span><br><span class="line">echo $PROJ_PATH</span><br><span class="line">cd $PROJ_PATH</span><br><span class="line"><span class="meta">#</span><span class="bash">创建运行目录</span></span><br><span class="line">if [ ! -d run ];then</span><br><span class="line">      sudo mkdir -p run</span><br><span class="line">fi</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash">备份之前的版本</span></span><br><span class="line">cd $PROJ_PATH/run</span><br><span class="line">if [ -f "$JAR_NAME.$FILE_TYPE" ];then</span><br><span class="line">    sudo mv $JAR_NAME.$FILE_TYPE $PROJ_PATH/$BACKUP/$JAR_NAME$(date "+%Y%m%d%H%M%S").$FILE_TYPE</span><br><span class="line">fi</span><br><span class="line">if [ -f "print.out" ];then</span><br><span class="line">    sudo mv print.out $PROJ_PATH/$BACKUP/log/print$(date "+%Y%m%d%H%M%S").out</span><br><span class="line">fi</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash">将打包好的文件移动到run上</span></span><br><span class="line">cd $JAR_PATH</span><br><span class="line"></span><br><span class="line">if [ -d target ];then</span><br><span class="line">      cd target</span><br><span class="line">      sudo mv $JAR_NAME.$FILE_TYPE $PROJ_PATH/run/$JAR_NAME.$FILE_TYPE</span><br><span class="line">      cd ../</span><br><span class="line">fi</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash">启动服务</span></span><br><span class="line">cd $PROJ_PATH/run</span><br><span class="line"></span><br><span class="line">nohup java -jar $JAR_NAME.$FILE_TYPE &gt;print.out 2&gt;&amp;1 &amp;</span><br></pre></td></tr></table></figure>
+
+<h3 id="2、自动构建"><a href="#2、自动构建" class="headerlink" title="2、自动构建"></a>2、自动构建</h3><ul>
+<li>利用到 Github的<code>Webhooks</code> </li>
+<li>在Github项目的<code>Settings</code> 配置<code>Webhooks</code></li>
+<li>点击<code>Add webhook</code> 在<code>Playload URL</code> 填写Jenkins 的webhook 地址</li>
+<li>下面如何触发webhook ，直接选择第一个选项推送（<code>Just the push event</code>）即可</li>
+<li>点击下面<code>Add webhook</code>按钮进行添加</li>
+<li>然后在Jenkins构建任务的时候与上面的步骤差不多</li>
+<li>就是第5步，那里选择 <code>构建触发器</code>选择<code>GitHub hook trigger for GITScm polling</code> 这个选择即可  </li>
+<li>然后当我们推送项目的时候，Github就会通知 Jenkins 进行构建</li>
+</ul>
+<p><img src="jenkins-webhooks.png" alt><br><img src="jenkins-build-auto.png" alt></p>
+<p><img src="jenkins-build-p2.png" alt></p>
+<blockquote>
+<p><code>Started by GitHub push by rstyro</code> 这个打印说明通过Github 推送触发的，说明Webhooks 配置成功。搞定    </p>
+</blockquote>
+<h2 id="六、用户权限管理"><a href="#六、用户权限管理" class="headerlink" title="六、用户权限管理"></a>六、用户权限管理</h2><h3 id="1、配置步骤"><a href="#1、配置步骤" class="headerlink" title="1、配置步骤"></a>1、配置步骤</h3><ul>
+<li>1、安装插件<code>Role-based Authorization Strategy</code></li>
+<li>2、进入全局安全配置</li>
+<li>3、当插件安装好的时候，授权策略会多出一个<code>Role-Based Strategy</code>选项</li>
+<li>4、选择该项并保存</li>
+</ul>
+<p><img src="jenkins-auth.png" alt></p>
+<h3 id="2、管理分配角色"><a href="#2、管理分配角色" class="headerlink" title="2、管理分配角色"></a>2、管理分配角色</h3><ul>
+<li>1、系统管理中有一个 <code>Manage and Assign Roles</code> 的选项</li>
+<li>2、选择<code>Manage Roles</code> 管理角色</li>
+<li>3、可以创建3种角色：<code>Global role</code> 、<code>Project roles</code> 、<code>Slave roles</code><br>全局角色可以对jenkins系统进行设置与项目的操作<br>项目角色只能对项目进行操作<br>节点角色只能对节点进行操作</li>
+<li>4、可以按照你的需求配置角色</li>
+<li>5、然后再次进入<code>Manage and Assign Roles</code> 的选项</li>
+<li>6、选择<code>Assign Roles</code> 分配角色</li>
+<li>7、在 <code>User/group to add</code> 后面指定一个用户，点击<code>Add</code></li>
+<li>8、之后给这个用户选择一个角色即可</li>
+</ul>
+<p><img src="jenkins-auth-role.png" alt><br><img src="jenkins-auth-role-manage.png" alt><br><img src="jenkins-auth-role2.png" alt><br><img src="jenkins-auth-role3.png" alt></p>
+<h3 id="3、角色选项说明"><a href="#3、角色选项说明" class="headerlink" title="3、角色选项说明"></a>3、角色选项说明</h3><ul>
+<li>Overall(全部)    <ul>
+<li>Administer<br>  管理员</li>
+<li>Read<br>  只读权限</li>
+</ul>
+</li>
+<li>Credentials(凭证)  <ul>
+<li>Create  创建    </li>
+<li>Delete 删除</li>
+<li>ManageDomains  管理娱</li>
+<li>Update  更新</li>
+<li>View  查看        </li>
+</ul>
+</li>
+<li>Slave(代理）  <ul>
+<li>Build    构建</li>
+<li>Configure    配置</li>
+<li>Connect    连接</li>
+<li>Create    创建</li>
+<li>Delete    删除</li>
+<li>Disconnect    断开连接</li>
+<li>Provision</li>
+</ul>
+</li>
+<li>Job(任务)  <ul>
+<li>Build  构建</li>
+<li>Cancel 取消构建</li>
+<li>Configure    配置</li>
+<li>Create    创建</li>
+<li>Delete    删除</li>
+<li>Discover    重定向</li>
+<li>Move    移动</li>
+<li>Read    只读</li>
+<li>Workspace    查看工作区</li>
+</ul>
+</li>
+<li>Run(运行)  <ul>
+<li>Delete  删除</li>
+<li>Replay    重启</li>
+<li>Update  更新</li>
+</ul>
+</li>
+<li>View(视图)  <ul>
+<li>Configure    配置</li>
+<li>Create    创建</li>
+<li>Delete    删除</li>
+<li>Read        查看</li>
+</ul>
+</li>
+<li>SCM Lockable  Resources<br>  SCM配置<ul>
+<li>Tag    tag构建</li>
+<li>Reserve    </li>
+<li>Unlock  </li>
+</ul>
+</li>
+</ul>
+<h2 id="七、常用插件"><a href="#七、常用插件" class="headerlink" title="七、常用插件"></a>七、常用插件</h2><ul>
+<li>jenkins基础上是离不开插件的</li>
+</ul>
+<h3 id="1、权限插件"><a href="#1、权限插件" class="headerlink" title="1、权限插件"></a>1、权限插件</h3><ul>
+<li>插件名：<code>Role-based Authorization Strategy</code></li>
+<li>上面有介绍</li>
+</ul>
+<h3 id="2、构建发布到其他服务器运行"><a href="#2、构建发布到其他服务器运行" class="headerlink" title="2、构建发布到其他服务器运行"></a>2、构建发布到其他服务器运行</h3><ul>
+<li>插件名：<code>Publish over SSH</code></li>
+<li>如果需要把构建好的包，打包到其他的服务器</li>
+<li>需要安装 <code>Publish over SSH</code> 插件，节点也可以，但是节点服务器都需要配置jenkins环境，如jdk、maven等</li>
+</ul>
+<p><img src="pos.png" alt></p>
+<ul>
+<li>配置 <code>Publish over SSH</code> ,<code>Manage Jenkins</code> –&gt; <code>Configure System</code> –&gt; <code>Publish over SSH</code> 进行远程服务器配置即可</li>
+<li>具体如下图：</li>
+</ul>
+<p><img src="ssh.png" alt></p>
+<p><img src="ssh-build.png" alt></p>
+<p><img src="ssh-config.png" alt></p>
+<h3 id="3、MultiJob多任务构建"><a href="#3、MultiJob多任务构建" class="headerlink" title="3、MultiJob多任务构建"></a>3、MultiJob多任务构建</h3><ul>
+<li>插件名：<code>MultiJob plugin</code></li>
+<li>有时需要重启所有服务，如果一个一个服务的去点，这样效率比较低</li>
+<li>所以我们可以构建一个任务，让Jenkins 自动去构建所有任务。</li>
+</ul>
+<p><strong>步骤</strong></p>
+<ul>
+<li>需要安装：<code>MultiJob plugin</code> 插件</li>
+</ul>
+<p><img src="multijob.png" alt></p>
+<ul>
+<li>然后 新建Item 创建一个 <code>MultiJob Project</code> 即可。</li>
+</ul>
+<p><img src="multijob-project.png" alt></p>
+<ul>
+<li>在构建那里，添加一个 <code>MultiJob Phase</code> ，在其下面添加 Job 即可。</li>
+</ul>
+<p><img src="multijob-phase.png" alt></p>
+<h3 id="4、NodeJS构建vue项目"><a href="#4、NodeJS构建vue项目" class="headerlink" title="4、NodeJS构建vue项目"></a>4、NodeJS构建vue项目</h3><ul>
+<li>插件名：<code>Nodejs plugin</code></li>
+<li>安装插件Nodejs-plugin </li>
+<li>配置NodeJs: 系统管理 -&gt; 全局工具配置 -&gt; NodeJS </li>
+<li>之后就可以构建vue项目了</li>
+</ul>
+<p><img src="plugin.png" alt></p>
+<p><strong>配置NodeJS</strong><br>安装nodejs的步骤省略…</p>
+<p><img src="nodejs-path.png" alt></p>
+<p><strong>构建任务</strong></p>
+<ul>
+<li>前面拉代码等略过…</li>
+</ul>
+<p><img src="nodejs-config.png" alt></p>
+<ul>
+<li>shell配置</li>
+</ul>
+<figure class="highlight elixir"><table><tr><td class="code"><pre><span class="line"><span class="comment"># node -v</span></span><br><span class="line"><span class="comment"># npm -v</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 第一次构建可以加这行，后面可以注释上</span></span><br><span class="line">npm install</span><br><span class="line"></span><br><span class="line">npm run <span class="symbol">build:</span>test</span><br><span class="line"></span><br><span class="line"><span class="comment"># 换成你的项目名</span></span><br><span class="line">HOME=<span class="regexp">/var/lib</span><span class="regexp">/jenkins/jobs</span><span class="regexp">/youprojectName/workspace</span></span><br><span class="line">RUN_PATH=<span class="regexp">/usr/share</span><span class="regexp">/nginx/html</span></span><br><span class="line"></span><br><span class="line">if [ -d dist ]</span><br><span class="line"><span class="keyword">then</span></span><br><span class="line">	rm -rf <span class="variable">$RUN_PATH</span>/*</span><br><span class="line">    mv -f <span class="variable">$HOME</span>/dist/* <span class="variable">$RUN_PATH</span>/</span><br><span class="line">fi</span><br><span class="line"></span><br><span class="line">echo <span class="string">"dist包 构建结束"</span></span><br></pre></td></tr></table></figure>
+      
+    </div>
+
+    
+
+    
+    
+    
+	
+	    <div>
+	
+	<div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------本文结束 <i class="fa fa-heartbeat"></i> 感谢您的阅读-------------</div>
+    
+</div>
+	
+	</div>
+
+    
+
+    
+      
+    
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div></div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>打赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/blog/images/wechat_pay.jpg" alt="rstyro 微信支付">
+        <p>微信支付</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/blog/images/alipay.jpg" alt="rstyro 支付宝">
+        <p>支付宝</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+	
+	<div>    
+	 
+	 
+	<ul class="post-copyright">
+	  <li class="post-copyright-author">
+		  <strong>本文作者：</strong>rstyro
+	  </li>
+	  <li class="post-copyright-link">
+		<strong>本文链接：</strong>
+		<a href="/blog/2019/05/06/Jenkins安装配置使用/" title="Jenkins安装配置使用">https://rstyro.github.io/blog/2019/05/06/Jenkins安装配置使用/</a>
+	  </li>
+	  <li class="post-copyright-license">
+		<strong>版权： </strong>
+		转载注明出处！
+	  </li>
+	</ul>
+	
+	</div>
+	
+
+      
+        <div class="post-tags">
+          
+            <a href="/blog/tags/Jenkins/" rel="tag"><i class="fa fa-tag"></i> Jenkins</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2019/05/05/Linux安装最新版Git/" rel="next" title="Linux安装最新版Git">
+                <i class="fa fa-chevron-left"></i> Linux安装最新版Git
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2019/05/29/Jenkins镜像安装/" rel="prev" title="Jenkins镜像安装">
+                Jenkins镜像安装 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+
+
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+      <div id="sidebar-dimmer"></div>
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/blog/images/avatar.jpg" alt="rstyro">
+            
+              <p class="site-author-name" itemprop="name">rstyro</p>
+              <p class="site-description motion-element" itemprop="description">个人博客,瞎写一些技术笔记等。</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/blog/archives/">
+                
+                    <span class="site-state-item-count">195</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/blog/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">13</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/blog/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">49</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+            <div class="feed-link motion-element">
+              <a href="/blog/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://github.com/rstyro" title="GitHub &rarr; https://github.com/rstyro" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://gitee.com/rstyro" title="Gitee &rarr; https://gitee.com/rstyro" rel="noopener" target="_blank"><i class="fa fa-fw fa-codiepie"></i>Gitee</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="/blog/1006059906" title="QQ &rarr; 1006059906"><i class="fa fa-fw fa-qq"></i>QQ</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://www.jianshu.com/u/651c15a1758a" title="简书 &rarr; https://www.jianshu.com/u/651c15a1758a" rel="noopener" target="_blank"><i class="fa fa-fw fa-book"></i>简书</a>
+                </span>
+              
+            </div>
+          
+
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-block">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                友链
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://rstyro.github.io/blog/" title="https://rstyro.github.io/blog/">帅大叔博客</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://www.zhyd.me/" title="https://www.zhyd.me/" rel="noopener" target="_blank">张亚东博客</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://www.devsong.org/" title="http://www.devsong.org/" rel="noopener" target="_blank">DevSONG</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://www.dalaoyang.cn/" title="https://www.dalaoyang.cn/" rel="noopener" target="_blank">dalaoyang</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://www.chenshuangyi.com/" title="https://www.chenshuangyi.com/" rel="noopener" target="_blank">陈双义博客</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+            
+          
+          <div id="days"></div>
+<script>
+function show_date_time(){
+window.setTimeout("show_date_time()", 1000);
+BirthDay=new Date("04/10/2017 15:13:14");
+today=new Date();
+timeold=(today.getTime()-BirthDay.getTime());
+sectimeold=timeold/1000
+secondsold=Math.floor(sectimeold);
+msPerDay=24*60*60*1000
+e_daysold=timeold/msPerDay
+daysold=Math.floor(e_daysold);
+e_hrsold=(e_daysold-daysold)*24;
+hrsold=setzero(Math.floor(e_hrsold));
+e_minsold=(e_hrsold-hrsold)*60;
+minsold=setzero(Math.floor((e_hrsold-hrsold)*60));
+seconds=setzero(Math.floor((e_minsold-minsold)*60));
+document.getElementById('days').innerHTML="已运行 "+daysold+" 天 "+hrsold+" 小时 "+minsold+" 分 "+seconds+" 秒";
+}
+function setzero(i){
+if (i<10)
+{i="0" + i};
+return i;
+}
+show_date_time();
+</script>
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Jenkins安装及使用"><span class="nav-number">1.</span> <span class="nav-text">Jenkins安装及使用</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#一、环境"><span class="nav-number">1.1.</span> <span class="nav-text">一、环境</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#二、下载安装"><span class="nav-number">1.2.</span> <span class="nav-text">二、下载安装</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#三、全局工具配置"><span class="nav-number">1.3.</span> <span class="nav-text">三、全局工具配置</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#四、Github-配置"><span class="nav-number">1.4.</span> <span class="nav-text">四、Github 配置</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1、生成-Personal-access-tokens"><span class="nav-number">1.4.0.1.</span> <span class="nav-text">1、生成 Personal access tokens</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2、生成凭据"><span class="nav-number">1.4.0.2.</span> <span class="nav-text">2、生成凭据</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3、配置Jenkins-的Github-Server"><span class="nav-number">1.4.0.3.</span> <span class="nav-text">3、配置Jenkins 的Github Server</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#五、构建任务"><span class="nav-number">1.5.</span> <span class="nav-text">五、构建任务</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1、手动构建"><span class="nav-number">1.5.1.</span> <span class="nav-text">1、手动构建</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#test-run-sh-内容如下"><span class="nav-number">1.5.1.1.</span> <span class="nav-text">test_run.sh 内容如下</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2、自动构建"><span class="nav-number">1.5.2.</span> <span class="nav-text">2、自动构建</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#六、用户权限管理"><span class="nav-number">1.6.</span> <span class="nav-text">六、用户权限管理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1、配置步骤"><span class="nav-number">1.6.1.</span> <span class="nav-text">1、配置步骤</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2、管理分配角色"><span class="nav-number">1.6.2.</span> <span class="nav-text">2、管理分配角色</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3、角色选项说明"><span class="nav-number">1.6.3.</span> <span class="nav-text">3、角色选项说明</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#七、常用插件"><span class="nav-number">1.7.</span> <span class="nav-text">七、常用插件</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1、权限插件"><span class="nav-number">1.7.1.</span> <span class="nav-text">1、权限插件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2、构建发布到其他服务器运行"><span class="nav-number">1.7.2.</span> <span class="nav-text">2、构建发布到其他服务器运行</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3、MultiJob多任务构建"><span class="nav-number">1.7.3.</span> <span class="nav-text">3、MultiJob多任务构建</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4、NodeJS构建vue项目"><span class="nav-number">1.7.4.</span> <span class="nav-text">4、NodeJS构建vue项目</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">rstyro</span>
+
+  
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+
+  <script src="https://unpkg.com/mermaid@8.11.0/dist/mermaid.min.js"></script>
+  <script>
+    if (window.mermaid) {
+      mermaid.initialize({"startOnload":true});
+    }
+  </script>
+
+
+<div class="theme-info">
+  <div class="powered-by"></div>
+  <span class="post-count">博客全站共322.1k字</span>
+</div>
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-user"></i>
+    </span>
+    <span class="site-uv" title="总访客量">
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+    </span>
+  
+
+  
+    <span class="post-meta-divider">|</span>
+  
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-eye"></i>
+    </span>
+    <span class="site-pv" title="总访问量">
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/blog/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/blog/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/blog/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/blog/js/src/utils.js?v=6.7.0"></script>
+
+  <script src="/blog/js/src/motion.js?v=6.7.0"></script>
+
+
+
+  
+  
+
+  
+  <script src="/blog/js/src/scrollspy.js?v=6.7.0"></script>
+<script src="/blog/js/src/post-details.js?v=6.7.0"></script>
+
+
+
+  
+
+
+  <script src="/blog/js/src/bootstrap.js?v=6.7.0"></script>
+
+
+
+  
+  
+
+
+
+
+  
+
+<script src="//cdn1.lncld.net/static/js/3.11.1/av-min.js"></script>
+
+
+
+  
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/valine/1.3.4/Valine.min.js"></script>
+
+<script>
+  var GUEST = ['nick', 'mail', 'link'];
+  var guest = 'nick,mail,link';
+  guest = guest.split(',').filter(function (item) {
+    return GUEST.indexOf(item) > -1;
+  });
+  new Valine({
+    el: '#comments',
+    verify: false,
+    notify: false,
+    appId: 'LwEPiJFa7YMn2MrJdCwaUbmQ-gzGzoHsz',
+    appKey: 'JqS1y3RxYvDOki9r3NcqqoO5',
+    placeholder: '来都来了，不说几句就走，过分了啊！！！',
+    avatar: 'monsterid',
+    meta: guest,
+    pageSize: '10' || 10,
+    visitor: false
+  });
+</script>
+
+
+
+  
+
+  <script>
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/blog/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url).replace(/\/{2,}/g, '/');
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x"></i></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x"></i></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+  <script>
+    (function(){
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+      }
+      else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+      }
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+    })();
+  </script>
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
