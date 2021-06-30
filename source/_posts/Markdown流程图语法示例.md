@@ -47,7 +47,17 @@ categories: 工具
 ```
 + 示例图如下:
 
-![](pie.png)
+```mermaid
+pie
+    title 今天晚上吃什么？
+    "火锅" : 8
+    "外卖" : 60
+    "自己煮" : 8
+    "海底捞" : 9
+    "海鲜" : 5
+    "烧烤" : 5
+    "不吃" : 5
+```
 
 + 通过示例图和代码示例,应该就知道语法怎样写了
 
@@ -77,6 +87,7 @@ categories: 工具
 + 无箭头: 就是以上箭头方式,去掉箭头即可,例: `-.-` 、`---`、`===`
 
 **③、形状与线条连接示例代码:**
+
 ```js
     `` `mermaid
     graph LR
@@ -89,7 +100,13 @@ categories: 工具
 
 *形状与线条连接示例图如下：*
 
-![](shape.png)
+```mermaid
+    graph LR
+    A[矩形] -.->B(圆角矩形) --> C{菱形} ==> D((圆形)) 
+    E([体育场形])--实线文本--> F[[子程序形]]==粗实线文本==>G[(圆柱形)]-.虚线文本.->H{{六角形}}
+    I[/平行四边形/]-.-J[\反向平行四边形\]---K[/梯形\]===L[\反向梯形/]
+
+```
 
 
 **④、还有其他连线:**
@@ -97,7 +114,7 @@ categories: 工具
 + 但是要把`graph` 改为 `flowchart` 
 + 如下示例
 
-```
+```js
     `` `mermaid
     flowchart LR
     A1[矩形] o--o B1(圆角矩形) <--> C1{菱形} x--x D1((圆形))
@@ -114,6 +131,7 @@ categories: 工具
 **⑤、实战综合示例**
 
 + 代码示例
+
 ```js
     `` `mermaid
 graph RL
@@ -135,10 +153,26 @@ graph RL
 
 *示例图:*
 
-![](mermaid.png)
 
+```mermaid
+graph RL
+
+        User((用户))--1.用户登录-->Login(登录)
+        Login --2.查询-->SERVER[服务器]
+ subgraph 查询数据库
+        SERVER--3.查询数据-->DB[(数据库)]
+        DB--4.返回结果-->SERVER
+ end
+        SERVER--5.校验数据-->Condition{判断}
+        Condition -->|校验成功| OK[登录成功]
+        Condition -->|校验失败| ERR[登录失败]
+        OK-->SYS[进入系统]
+
+        ERR -->|返回登录页面,重新登录| Login
+```
 
 + subgraph 子图，可以把几个步骤合到一起，`direction` 定义方向(但是Typora不支持，)
+
 ```
 subgraph title
 	direction TB
@@ -160,13 +194,13 @@ end
         participant W as 王五
 
         Note over Z,W: 张三,李四,王五,<br/>小时候是最好的玩伴,现在80年过去了...
-        Z->>W+: 老王最近还好吗？
+        Z->>W: 老王最近还好吗？
         Note left of Z: 除了老张,当过兵,<br/>身体比较好之外,其他两人都不太行了
         loop 健康检查
             W->>W: 与疾病战斗
         end
         Note right of W: 合理进食 <br/>看医生<br/>打点滴...
-        W-->>-Z: 还行,老了走不动了 !!
+        W-->>Z: 还行,老了走不动了 !!
         L->>Z: 老张,你呢怎样了
         alt 健康#9829;
         Z-->>L: 很好!
@@ -178,8 +212,35 @@ end
 
 *示例图如下:*
 
-![](mermaid-sequence.png)
+```mermaid
 
+%% 时序图例子,-> 直线，-->虚线，->>实线箭头
+
+sequenceDiagram
+autonumber
+participant Z as 张三
+participant L as 李四
+participant W as 王五
+
+Note over Z,W: 张三,李四,王五,<br/>小时候是最好的玩伴,现在80年过去了...
+Z->>W: 老王最近还好吗？
+Note left of Z: 除了老张,当过兵,<br/>身体比较好之外,其他两人都不太行了
+loop 健康检查
+    W->>W: 与疾病战斗
+end
+Note right of W: 合理进食 <br/>看医生<br/>打点滴...
+W-->>Z: 还行,老了走不动了 !!
+L->>Z: 老张,你呢怎样了
+alt 健康#9829;
+Z-->>L: 很好!
+else 去世
+Z-->>L: 对不起,老张已经走了!!!
+end
+
+```
+    
+    
+    
 
 + 语法结构,第一行使用:`sequenceDiagram`
 + 使用：`autonumber`可以自动标注次数
@@ -189,7 +250,6 @@ end
     + 格式:`Note left of 参与者1: 注释内容` 在 参与者1 左边显示
     + 格式:`Note right of 参与者1: 注释内容` 在 参与者1 右边显示
 + 线条:`-> 实线`、`->>实线箭头`、`-->虚线`、`-->>虚线+箭头`、`-x带叉的线`、
-+ 通过在消息箭头后附加`+`/`-`后缀，还有一个快捷表示法
 + 背景高亮可以使用：`rect rgb(0, 255, 0) ... end`
 
 
@@ -266,7 +326,6 @@ section 模块
 
 ```js
 `` `mermaid
-	%% 语法示例
 gantt
 
 dateFormat YYYY-MM-DD
@@ -293,7 +352,33 @@ section 测试
 
 + 示例图如下：
 
-![](mermaid-gantt.png)
+```mermaid
+	
+gantt
+
+dateFormat YYYY-MM-DD
+title 开发计划
+
+section 需求文档
+	登录注册:done,login,2021-06-25,2021-06-28
+	添加好友与分组:add, 2021-06-29,3d
+	单聊 :active ,chat, 2021-07-01,2d
+	群聊 :groupChat,after chat,5d
+	朋友圈 :crit,5d
+	其他:3d
+section 开发
+	开发登录注册:done,d-login,2021-06-25,24h
+	开发添加好友与分组:active,d-add,after d-login,5d
+	开发单聊与群聊:crit,d-chat,after d-add,7d
+	开发朋友圈:d-friend,after d-chat,7d
+	
+section 测试
+	测试用例与玩耍:active,test,2021-06-25,10d
+	开始测试部分接口:crit,start-test,after test,11d
+
+
+
+```
 
 
 + 注意：ID不能重复
@@ -373,6 +458,8 @@ RuntimeException o-- ArithmeticException
 
 ![](mermaid-class.png)
 
+
+
 #### 6、状态图
 + 使用 `stateDiagram` 关键字
 
@@ -431,7 +518,54 @@ RuntimeException o-- ArithmeticException
 
 *示例图：*
 
-![](mermaid-state.png)
+```mermaid
+    stateDiagram-v2
+
+        [*] --> 静止
+        静止 --> [*]
+        静止 --> 走
+        走 --> 静止
+        走 --> 跑
+        跑 --> 走:跑可以停下来就静止，也可以慢下来：走
+        跑 --> [*]
+
+
+        state if_state <<choice>>
+        [*] --> IsPositive
+        IsPositive --> ifState
+        ifState --> False: if n < 0
+        ifState --> True : if n >= 0
+
+
+        state fork_state <<fork>>
+          [*] --> fork_state
+          fork_state --> State2
+          fork_state --> State3
+
+          state join_state <<join>>
+          State2 --> join_state
+          State3 --> join_state
+          join_state --> State4
+          State4 --> [*]
+
+        [*] --> First
+        First --> Second
+        First --> Third
+
+        state First {
+            [*] --> fir
+            fir --> [*]
+        }
+        state Second {
+            [*] --> sec
+            sec --> [*]
+        }
+        state Third {
+            [*] --> thi
+            thi --> [*]
+        }
+
+```
 
 
 + 有两种特殊状态指示图表的开始和停止。
@@ -488,8 +622,18 @@ journey
 
 *示例图：*
 
-![](mermaid-journey.png)
-
+```mermaid
+journey
+    title 我的一天
+    section 早上
+      吃饭: 5: Me,Her
+      跑步: 3: Me
+    section 工作时间
+       坐地铁到公司: 5 :Me
+       上班: 1:Me
+    section 晚上
+      睡觉: 5: Me,Her
+```
 
 + 分数越高心情越好
 
@@ -574,13 +718,7 @@ journey
 
 + 示例图如下：
 
-```sequence
-    对象A->对象B: 对象B你好吗?（请求）
-    Note right of 对象B: 对象B的描述
-    Note left of 对象A: 对象A的描述(提示)
-    对象B-->对象A: 我很好(响应)
-    对象A->对象B: 你真的好吗？
-```
+![](sequence1.png)
 
 ##### ②、复杂示例
 ```js
@@ -601,16 +739,4 @@ journey
 
 + 示例图如下：
 
-```sequence
-
-对象A->对象B: 对象B你好吗?（请求）
-Note right of 对象B: 对象B的描述
-Note left of 对象A: 对象A的描述(提示)
-对象B-->对象A: 我很好(响应)
-对象B->小三: 你好吗
-小三-->>对象A: 对象B找我了
-对象A->对象B: 你真的好吗？
-Note over 小三,对象B: 我们是朋友
-participant C
-Note right of C: 没人陪我玩
-```
+![](sequence2.png)

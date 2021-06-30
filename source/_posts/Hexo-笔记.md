@@ -687,7 +687,7 @@ npm install hexo-filter-mermaid-diagrams -D
 # mermaid chart
 mermaid: ## mermaid url https://github.com/knsv/mermaid
   enable: true  # default true
-  version: "7.1.2" # default v7.1.2
+  version: "8.11.0" # default v7.1.2
   options:  # find more api options from https://github.com/knsv/mermaid/blob/master/src/mermaidAPI.js
     startOnload: true  // default true
 ```
