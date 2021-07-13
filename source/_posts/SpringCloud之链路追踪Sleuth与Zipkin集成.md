@@ -297,3 +297,30 @@ CREATE TABLE IF NOT EXISTS zipkin_dependencies (
 # STORAGE_TYPE: 存储类型：mysql、elasticsearch等
 java -jar zipkin-server-2.23.2-exec.jar --STORAGE_TYPE=mysql --MYSQL_HOST=localhost --MYSQL_TCP_PORT=3306 --MYSQL_USER=root --MYSQL_PASS=root --MYSQL_DB=zipkin
 ```
+
+
+#### 2、存储到Elasticsearch
++ 这里我已Elasticsearch集群为例子(单机也是可以的,我也试过)
++ 首先搭建ES集群：`["127.0.0.1:9400","127.0.0.1:9500","127.0.0.1:9600"]`，过程略
++ 集群不设置密码,ES 我使用的是目前（时间：2021-07）最新的版本 elasticsearch-7.13.3，
+
+![](es_cluster.png)
+
++ 之后以ES的方式启动zipkin。
+
+```bash
+# 我设置ES_INDEX_SHARDS 分片，发现并没有效果，默认是5个主分片，每个分片1个副本分片
+# 设置用户与密码：ES_USERNAME、ES_PASSWORD
+# 还有其他的选项可以参考Github链接：https://github.com/openzipkin/zipkin/tree/master/zipkin-server#elasticsearch-storage
+# java -jar zipkin-server-2.23.2-exec.jar --STORAGE_TYPE=elasticsearch --ES_INDEX_SHARDS=3 --ES_INDEX_REPLICAS=1 --ES_HOSTS=http://127.0.0.1:9400,http://127.0.0.1:9500,http://127.0.0.1:9600 
+
+# 最终我直接以这样运行了，我就试了ES_INDEX_SHARDS、ES_INDEX_REPLICAS 这两个参数
+# 不知道为什么不生效，所以我启动的时候就没加了
+# ES_HOSTS 我试了只填一个IP也可以,写集群的所有IP也可以
+java -jar zipkin-server-2.23.2-exec.jar --STORAGE_TYPE=elasticsearch --ES_HOSTS=http://127.0.0.1:9400
+
+```
+
++ 最后ES自动生成索引`zipkin-span-当天日期`
+
+![](zipkin_es.png)
