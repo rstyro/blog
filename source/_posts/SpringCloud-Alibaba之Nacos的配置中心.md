@@ -1,7 +1,7 @@
 ---
 title: SpringCloud-Alibaba之Nacos的配置中心
 date: 2020-12-04 17:41:20
-tags: [SpringCloud,SpringCloud-Alibaba]
+tags: [SpringCloud,SpringCloud-Alibaba,Nacos]
 categories: Java
 ---
 ## 一、简介
