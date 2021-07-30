@@ -9,27 +9,15 @@ categories: 网络运维
 官网有挺详细的安装步骤：
 [官网地址: https://about.gitlab.com/install/#centos-7](https://about.gitlab.com/install/#centos-7)
 
-## Centos7安装步骤
+## 一、Centos7 Yum安装Gitlab
++ 需要联网
 
 ### 1、安装依赖
 ```
 sudo yum install -y curl policycoreutils-python openssh-server
 ```
 
-### 2、更新仓库包
-
-[包路径: https://packages.gitlab.com/gitlab/gitlab-ce/](https://packages.gitlab.com/gitlab/gitlab-ce/)
-> gitlab 分为gitlab-ce和gitlab-ee，我们要安装ce社区版,gitlab-ce是社区版，免费的、gitlab-ee是企业版，收费的
-
-```
-## 企业版、收费
-# curl https://packages.gitlab.com/install/repositories/gitlab/gitlab-ee/script.rpm.sh | sudo bash
-
-## 社区版、免费
-curl -s https://packages.gitlab.com/install/repositories/gitlab/gitlab-ce/script.rpm.sh | sudo bash
-```
-
-### 3、安装邮件服务
+### 2、安装邮件服务
 注册发送邮件通知，如果您想使用其他解决方案发送电子邮件。
 可跳过此步骤并在安装GitLab后配置外部SMTP服务器
 如果关闭注册功能方法不需要发邮件的话这步可以跳过
@@ -43,16 +31,73 @@ sudo systemctl enable postfix
 sudo systemctl start postfix
 ```
 
-### 4、开始安装
-这个安装有点慢，看网速内存与cpu。我1核2G低配版，等了好久。
-```
-sudo EXTERNAL_URL="http://你的ip地址" yum install -y gitlab-ce
+
+
+### 3、更新Yum源
+
+[包路径: https://packages.gitlab.com/gitlab/gitlab-ce/](https://packages.gitlab.com/gitlab/gitlab-ce/)
+> gitlab 分为gitlab-ce和gitlab-ee，我们要安装ce社区版,gitlab-ce是社区版，免费的、gitlab-ee是企业版，收费的
 
 ```
+## 企业版、收费
+# curl https://packages.gitlab.com/install/repositories/gitlab/gitlab-ee/script.rpm.sh | sudo bash
+
+## 社区版、免费,添加gitlab的yum源仓库
+curl -s https://packages.gitlab.com/install/repositories/gitlab/gitlab-ce/script.rpm.sh | sudo bash
+```
+
+**可以配置其他yum源**
++ 可以换源：清华大学开源软件镜像站。
++ 添加yum源文件：`/etc/yum.repos.d/gitlab-ce.repo`
++ 编辑如下内容：
+
+```
+# vi /etc/yum.repos.d/gitlab-ce.repo
+[gitlab-ce]
+name=Gitlab CE Repository
+baseurl=https://mirrors.tuna.tsinghua.edu.cn/gitlab-ce/yum/el$releasever/
+gpgcheck=0
+enabled=1
+```
+
++ 然后可以缓存一下，也可以略过
+
+```bash
+# yum makecache就是把服务器的包信息下载到本地电脑缓存起来
+yum makecache
+
+```
+
+
+
+### 4、开始安装
++ 开始安装。
+
+```
+# 自动安装最新版，免提示
+yum install -y gitlab-ce
+
+# 安装最新版
+# yum install gitlab-ce
+
+# 安装指定版本
+# yum install gitlab-ce-x.x.x   
+```
+
++ 其默认安装路径为 `/opt/gitlab/`、程序数据及配置文件保存路径为`/var/opt/gitlab`下。
++ 代码仓库保存位置：`/var/opt/gitlab/git-data/repositories/`
++ 代码仓库备份位置：`/var/opt/gitlab/backups/`
++ postgresql数据及配置目录：`/var/opt/gitlab/postgresql/data/`
++ redis默认配置目录：`/var/opt/gitlab/redis`
++ gitlab主要配置文件：`/etc/gitlab/gitlab.rb`
 
 > 可以修改配置：
 > `vim /etc/gitlab/gitlab.rb`
 > 自己看吧，注释里面有说明
+
+
+
+
 
 #### 如果出现卡死-解决方案：
 ```
@@ -192,5 +237,30 @@ gitlab-rake gitlab:backup:restore BACKUP=1605253846_2020_11_13_13.5.3
 + 还有就是新旧的Gitlab版本要一致，否则恢复可能会失败
 + 恢复时有个警告的大致意思是：敏感性信息（`gitlab.rb,gitlab-secrets.json`）不会包含在备份中
 + 恢复之后，可能需要修改`gitlab.rb`,比如 `external_url`参数
+
+## 二、离线安装Gitlab
++ 直接下载gitlab的离线rpm包，然后安装即可
++ 地址：
++ 清华大学镜像：[https://mirror.tuna.tsinghua.edu.cn/gitlab-ce/yum/el7/?C=M&O=A](https://mirror.tuna.tsinghua.edu.cn/gitlab-ce/yum/el7/?C=M&O=A)
++ 官网包地址：[https://packages.gitlab.com/gitlab/gitlab-ce/](https://packages.gitlab.com/gitlab/gitlab-ce/)
++ 下载你想安装的版本之后，上传到服务器如下图：
+
+![](package.png)
+
+
+```
+# 开始安装，我下载的是13.7.6 版本的
+yum install gitlab-ce-13.7.6-ce.0.el7.x86_64.rpm
+
+# 或者
+# rpm -ivh gitlab-ce-13.7.6-ce.0.el7.x86_64.rpm
+
+# 之后如上面一下修改：/etc/gitlab/gitlab.rb 里面的 external_url 'http://yourIp:port' 
+# 然后重新配置一下就可以启动了
+gitlab-ctl reconfigure
+
+# 重新启动
+gitlab-ctl restart
+```
 
 **基本用法到此结束**
