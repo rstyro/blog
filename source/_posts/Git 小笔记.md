@@ -74,3 +74,28 @@ git config --global credential.helper cache
 # 第一次需要输入账号密码，300秒内不必再输入
 git config --global credential.helper 'cache --timeout=300'
 ```
+
+### 五、如何把git仓库（包含所有提交历史）迁移到gitlab
+
++ 一般执行：`git remote` 会列出你指定的每一个远程服务器的简写
++ 如果你已经克隆了自己的仓库，那么至少应该能看到 `origin` ——这是 Git 给你克隆的仓库服务器的默认名字
++ 所以我们要迁移代码，只需要添加远程仓库即可，在gitlab上new一个project
++ 跳转到本地的git 目录中，运行命令：`git remote add <shortname> <url>` 添加一个新的远程Git仓库
++ 如下示例：
+
+```bash
+
+# 添加远程仓库
+git remote add gitlab http://192.168.1.110/rstyro/demo.git
+
+# 执行如下命令，应该能看到多了一个远程仓库名称gitlab
+git remote
+
+# 将本地git仓库的 master分支 push到远程仓库 gitlab
+git push gitlab master
+
+# 将本地git仓库的 dev分支 push到远程仓库 gitlab（如果有dev的话，或其他分支的话）
+git push gitlab dev
+
+
+```
