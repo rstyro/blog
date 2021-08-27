@@ -1,8 +1,8 @@
 ---
 title: 关于HTML 代码注入，XSS攻击问题解决
 date: 2017-10-13 18:04:53
-tags: [JavaScript, HTML, CSS]
-categories: Java
+tags: [Javascript, HTML, CSS]
+categories: 前端
 ---
 # 大部分的网站一般都有评论功能或留言功能，或类似可以让用户写东西的地方。
 

@@ -1,8 +1,8 @@
 ---
 title: JDBC 笔记小结
 date: 2017-06-19 14:54:05
-tags: [干货]
-categories: 笔记
+tags: [JDBC]
+categories: Java
 ---
 # JDBC 详解
 ## 一、JDBC 概述

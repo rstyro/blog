@@ -3,7 +3,7 @@ title: Markdown流程图语法示例
 date: 2021-06-28 18:01:04
 updated: 2021-06-28 18:01:04
 tags: [Markdown,流程图]
-categories: 工具
+categories: 其他
 ---
 ### 一、Markdown 流程图语法示例
 + 不在 Markdown 涵盖范围之内的标签，都可以直接在文档里面用 HTML 撰写。

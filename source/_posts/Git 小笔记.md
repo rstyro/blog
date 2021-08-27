@@ -2,7 +2,7 @@
 title: Git 小笔记
 date: 2017-05-20 10:00:13
 tags: [Git]
-categories: 笔记
+categories: 开发工具
 ---
 ### 一、git 删除远程idea 文件
 ```bash

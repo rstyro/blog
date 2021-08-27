@@ -1,8 +1,9 @@
 ---
 title: Mysql 零散笔记
 date: 2018-01-04 18:03:27
+updated: 2018-01-04 18:03:27
 tags: [MYSQL]
-categories: 笔记
+categories: 数据库
 ---
 # Mysql 零散笔记
 

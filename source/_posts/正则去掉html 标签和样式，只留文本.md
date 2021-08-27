@@ -1,8 +1,9 @@
 ---
 title: 正则去掉html 标签和样式，只留文本
 date: 2017-07-23 21:51:19
-tags: [JavaScript, HTML]
-categories: Java
+updated: 2017-07-23 21:51:19
+tags: [Javascript, HTML]
+categories: 前端
 ---
 ## 在工作中遇到，记录一下
 ### demo

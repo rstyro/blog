@@ -1,8 +1,9 @@
 ---
 title: Iframe 框架的一些笔记
 date: 2017-08-25 15:22:59
-tags: [JavaScript, HTML]
-categories: 笔记
+updated: 2017-08-25 15:22:59
+tags: [Javascript, HTML]
+categories: 前端
 ---
 ## 一、Iframe 的自适应方法：
 ```html

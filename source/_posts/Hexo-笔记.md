@@ -1,8 +1,9 @@
 ---
 title: Hexo-笔记
 date: 2019-01-10 18:37:24
-tags: "Hexo"
-categories: 笔记
+updated: 2019-01-10 18:37:24
+tags: [Hexo]
+categories: 其他
 ---
 
 ## 一、前置条件

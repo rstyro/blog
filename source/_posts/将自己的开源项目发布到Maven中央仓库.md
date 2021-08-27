@@ -1,8 +1,9 @@
 ---
 title: 将自己的开源项目发布到Maven中央仓库
 date: 2019-04-28 15:37:20
+updated: 2019-04-28 15:37:20
 tags: [Maven]
-categories: 笔记
+categories: 其他
 ---
 
 ## 一、创建Sonatype账户

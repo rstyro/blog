@@ -1,8 +1,8 @@
 ---
 title: Jquery 相关笔记
 date: 2017-11-21 15:32:03
-tags: [JavaScript]
-categories: 笔记
+tags: [Javascript]
+categories: 前端
 ---
 # 笔记
 

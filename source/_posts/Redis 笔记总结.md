@@ -2,7 +2,7 @@
 title: Redis 笔记总结
 date: 2017-06-18 18:30:03
 tags: [Redis]
-categories: 笔记
+categories: 开发工具
 ---
 ## 前言
 **很早之前就使用redis 了，但都没有好好总结过，来一次吧**

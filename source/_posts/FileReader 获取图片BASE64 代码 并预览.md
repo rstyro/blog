@@ -1,8 +1,9 @@
 ---
 title: FileReader 获取图片BASE64 代码 并预览
 date: 2017-09-12 15:32:25
-tags: [JavaScript, HTML]
-categories: Java
+updated: 2017-09-12 15:32:25
+tags: [Javascript, HTML]
+categories: 前端
 ---
 # FileReader 获取图片的base64 代码  并预览
 ### FileReader ，老实说我也不怎么熟悉。在这里只是记录使用方法。

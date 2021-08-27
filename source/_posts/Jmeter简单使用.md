@@ -3,7 +3,7 @@ title: Jmeter简单使用
 date: 2021-06-09 16:41:59
 updated: 2021-06-09 16:41:59
 tags: [JMeter]
-categories: 工具
+categories: 开发工具
 ---
 
 ### 一、Jmeter下载

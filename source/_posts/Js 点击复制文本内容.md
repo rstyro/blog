@@ -1,7 +1,7 @@
 ---
 title: Js 点击复制文本内容
 date: 2018-01-13 15:13:38
-tags: [JavaScript]
+tags: [Javascript]
 categories: Java
 ---
 # Js 点击复制文本内容
