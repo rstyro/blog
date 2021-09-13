@@ -1,7 +1,7 @@
 ---
 title: Jmeter简单使用
-date: 2021-06-09 16:41:59
-updated: 2021-06-09 16:41:59
+date: 2021-06-09 18:41:59
+updated: 2021-06-09 18:41:59
 tags: [JMeter]
 categories: 开发工具
 ---
@@ -15,10 +15,19 @@ categories: 开发工具
 + windows 下载解压后
 + 执行jmeter根目录下的bin文件夹下的`jmeter.bat`即可
 
-#### 1、修改语言
+#### 1、修改默认编码
++ Jmeter默认使用`ISO-8859-1`编码，接口返回有时会乱码，所以修改为`UTF-8`
++ 进入Jmeter的bin目录下，找到`jmeter.properties`文件
++ 找到`sampleresult.default.encoding`这个参数，此行默认是注释的。
++ 将`ISO-8859-1`修改成`utf-8`，去掉注释符号，重启Jmeter
+
+#### 2、修改语言
 + 默认是英文版的，可以选择`Option`->`Choose Language`-> `Chinese` 修改为中文
 
 ![](lang.png)
+
++ 获取直接修改`jmeter.properties`文件将`language`那行改为`language=zh_CN`，如果有注释的话就取消注释
+
 
 ### 三、简单使用
 + 文件-> 新建
