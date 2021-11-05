@@ -36,6 +36,7 @@ modprobe kvm-intel
 ![](kvm.png)
 
 ##### 安装依赖
+
 ```bash
 # 安装依赖包解析
 # libvirt     		--虚拟机管理工具

@@ -205,5 +205,3 @@ return o1.getLevel() > o2.getLevel() ? 1:-1; //这个是按照 Level 升序序�
 // o2.getUserName().compareTo(o1.getUserName())   o2 在前，所以按o2 的排序，而o2 是参数2，所以是降序
 ```
 
-
-> 正文到此结束，觉得有用，何不点个赞呢！
