@@ -1,6 +1,7 @@
 ---
 title: mybatis 中 foreach collection的 用法
 date: 2017-05-03 14:58:22
+updated: 2017-05-03 14:58:22
 tags: [MYSQL, Java]
 categories: Java
 ---
@@ -24,7 +25,8 @@ categories: Java
 ## 上例子
 
 ### 一、通过id获取多条数据
-List 类型的我都配置了别名list,参数是 `List<Article>` ，Article 是我自己定义的实体类
++ List 类型的我都配置了别名list,参数是 `List<Article>` ，Article 是我自己定义的实体类
+
 ```sql
 <!-- 获取标签文章列表 -->
 <select id="getArticleList" parameterType="list"  resultType="pm">
@@ -44,6 +46,7 @@ order by
 ```
 
 ### 二、批量插入数据
+
 ```sql
 <!-- 批量新增-->
 <insert id="batchSaveArticleLabel" parameterType="list">
@@ -61,6 +64,7 @@ order by
 ```
 
 ### 三、对一个字段进行多次模糊匹配
+
 ```sql
 select * from table
 <where>
@@ -73,6 +77,7 @@ select * from table
 ### 上面的参数都是 `List`,如果是 `String[]` 这种的就是把collection 的值改为array,如下demo
 
 ### 四、批量删除
+
 ```sql
 <delete id="getArticleList" parameterType="String">
 DEKETE
@@ -87,8 +92,9 @@ a.article_id in
 ```
 
 ### 五、批量修改
-参数是 `Map<String,Object>` ,我下面写map 是因为配置了别名
-Java 代码是这样的:
++ 参数是 `Map<String,Object>` ,我下面写map 是因为配置了别名
++ Java 代码是这样的:
+
 ```java
 Map<String,Object> map = new HashMap<>();
 String[] ids = {"1","2","3"};
@@ -110,6 +116,7 @@ id in
 ```
 
 #### 还有一种
+
 ```sql
 <update id="updateUserChildNum" parameterType="list">
 		UPDATE usr_relation_umbrella
@@ -125,6 +132,7 @@ id in
 	</update>
 ```
 #### 多个
+
 ```sql
 UPDATE categories 
     SET display_order = CASE id 
@@ -139,3 +147,37 @@ UPDATE categories
     END
 WHERE id IN (1,2,3)
 ```
+
+#### Mybatis 主键自增的时候，保存时返回主键。
++  如下demo,在mapper.xml 中定义
+
+```sql
+<!-- 保存文章 -->
+	<insert id="saveArticle" parameterType="pm" useGeneratedKeys="true" keyProperty="article_id">
+		insert into blog_article(
+			<if test="user_id != null and user_id != ''">
+				user_id,
+			</if>
+			title,
+			content,
+			<if test="text != null and text != ''">
+				text,
+			</if>
+			create_time
+		)values(
+			<if test="user_id != null and user_id != ''">
+				#{user_id},
+			</if>
+			#{title},
+			#{content},
+			<if test="text != null and text != ''">
+				#{text},
+			</if>
+			#{create_time}
+		)
+	</insert>
+```
+
++ `useGeneratedKeys` 表示给主键设置自增长
++ `keyProperty` 表示将自增长后的Id赋值给 你的实体类pm添加 article_id 这个字段。pm 是我封装的一个实体类
+
