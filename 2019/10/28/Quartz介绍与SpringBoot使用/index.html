@@ -558,10 +558,10 @@
 <li>这个时候就该设置如何应对这种变化了。激活失败指令（<code>Misfire Instructions</code>）是触发器的一个重要属性</li>
 </ul>
 <p><strong>发生Misfire 对于SimpleTrigger的处理策略</strong></p>
-<figure class="highlight 1c"><table><tr><td class="code"><pre><span class="line"><span class="comment">//将任务马上执行一次。对于不会重复执行的任务，这是默认的处理策略。</span></span><br><span class="line">MISFIRE_INSTRUCTION_FIRE_NOW = <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 调度引擎重新调度该任务，立即执行任务，repeat count 保持不变，</span></span><br><span class="line"><span class="comment">// 按照原有制定的执行方案执行repeat count次，但是，如果当前时间，已经晚于end-time，那么这个触发器将不会再被触发</span></span><br><span class="line"><span class="comment">// 简单的说就是，错过了应该触发的时间没有按时执行，但是最终它还是以原来的重复次数执行，就是会比预计终止的时间晚。</span></span><br><span class="line">MISFIRE_INSTRUCTION_RESCHEDULE_NOW_WITH_EXISTING_REPEAT_COUNT</span><br><span class="line"></span><br><span class="line"><span class="comment">//和上面的类似，区别就是不会立马执行，而是在下一个激活点执行，且超时期内错过的执行机会作废。　							</span></span><br><span class="line">MISFIRE_INSTRUCTION_RESCHEDULE_NEXT_WITH_REMAINING_COUNT</span><br><span class="line"></span><br><span class="line"><span class="comment">// 这个也是重新调度任务，但是它只按照剩余次数来触发，</span></span><br><span class="line"><span class="comment">// 比如，应该执行10次，但是中间错过了3次没有执行，那它最终只会执行剩余次数 7次。</span></span><br><span class="line">MISFIRE_INSTRUCTION_RESCHEDULE_NOW_WITH_REMAINING_REPEAT_COUNT</span><br><span class="line"></span><br><span class="line"><span class="comment">//在下一个激活点执行，并重复到指定的次数。</span></span><br><span class="line">MISFIRE_INSTRUCTION_RESCHEDULE_NEXT_WITH_EXISTING_COUNT</span><br><span class="line"></span><br><span class="line"><span class="comment">// 立即执行任务，repeat count 保持不变，就算到了endtime,也继续执行</span></span><br><span class="line">MISFIRE_INSTRUCTION_IGNORE_MISFIRE_POLICY</span><br></pre></td></tr></table></figure>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="comment">//将任务马上执行一次。对于不会重复执行的任务，这是默认的处理策略。</span></span><br><span class="line">MISFIRE_INSTRUCTION_FIRE_NOW = <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 调度引擎重新调度该任务，立即执行任务，repeat count 保持不变，</span></span><br><span class="line"><span class="comment">// 按照原有制定的执行方案执行repeat count次，但是，如果当前时间，已经晚于end-time，那么这个触发器将不会再被触发</span></span><br><span class="line"><span class="comment">// 简单的说就是，错过了应该触发的时间没有按时执行，但是最终它还是以原来的重复次数执行，就是会比预计终止的时间晚。</span></span><br><span class="line">MISFIRE_INSTRUCTION_RESCHEDULE_NOW_WITH_EXISTING_REPEAT_COUNT</span><br><span class="line"></span><br><span class="line"><span class="comment">//和上面的类似，区别就是不会立马执行，而是在下一个激活点执行，且超时期内错过的执行机会作废。　							</span></span><br><span class="line">MISFIRE_INSTRUCTION_RESCHEDULE_NEXT_WITH_REMAINING_COUNT</span><br><span class="line"></span><br><span class="line"><span class="comment">// 这个也是重新调度任务，但是它只按照剩余次数来触发，</span></span><br><span class="line"><span class="comment">// 比如，应该执行10次，但是中间错过了3次没有执行，那它最终只会执行剩余次数 7次。</span></span><br><span class="line">MISFIRE_INSTRUCTION_RESCHEDULE_NOW_WITH_REMAINING_REPEAT_COUNT</span><br><span class="line"></span><br><span class="line"><span class="comment">//在下一个激活点执行，并重复到指定的次数。</span></span><br><span class="line">MISFIRE_INSTRUCTION_RESCHEDULE_NEXT_WITH_EXISTING_COUNT</span><br><span class="line"></span><br><span class="line"><span class="comment">// 立即执行任务，repeat count 保持不变，就算到了endtime,也继续执行</span></span><br><span class="line">MISFIRE_INSTRUCTION_IGNORE_MISFIRE_POLICY</span><br></pre></td></tr></table></figure>
 
 <p><strong>发生Misfire 对于其他的Trigger</strong></p>
-<figure class="highlight 1c"><table><tr><td class="code"><pre><span class="line"><span class="comment">//立刻执行一次，然后就按照正常的计划执行。</span></span><br><span class="line">MISFIRE_INSTRUCTION_FIRE_ONCE_NOW</span><br><span class="line"></span><br><span class="line"><span class="comment">//目前不执行，然后就按照正常的计划执行。这意味着如果下次执行时间超过了end time，实际上就没有执行机会了。</span></span><br><span class="line">MISFIRE_INSTRUCTION_DO_NOTHING</span><br></pre></td></tr></table></figure>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="comment">//立刻执行一次，然后就按照正常的计划执行。</span></span><br><span class="line">MISFIRE_INSTRUCTION_FIRE_ONCE_NOW</span><br><span class="line"></span><br><span class="line"><span class="comment">//目前不执行，然后就按照正常的计划执行。这意味着如果下次执行时间超过了end time，实际上就没有执行机会了。</span></span><br><span class="line">MISFIRE_INSTRUCTION_DO_NOTHING</span><br></pre></td></tr></table></figure>
 
 <h4 id="Scheduler"><a href="#Scheduler" class="headerlink" title="Scheduler"></a>Scheduler</h4><ul>
 <li>调度器，主要是用来管理<code>Trigger</code>、<code>JobDetail</code>的。</li>
@@ -665,7 +665,7 @@
 <li>当我们引入<code>spring-boot-starter-quartz</code>的依赖后，springboot在启动的时候会自动加载配置类：<code>org.springframework.boot.autoconfigure.quartz.QuartzAutoConfiguration</code>。</li>
 <li>会帮我们初始化好调度器,源码：<code>SchedulerFactoryBean</code>实现<code>InitializingBean</code>，重写<code>afterPropertiesSet()</code> 里面就有了。</li>
 <li>而且Scheduler,Spring默认是帮我们启动的，不需要手动启动。</li>
-<li>使用如下：<figure class="highlight arduino"><table><tr><td class="code"><pre><span class="line">@Autowired</span><br><span class="line"><span class="keyword">private</span> <span class="built_in">Scheduler</span> scheduler;</span><br></pre></td></tr></table></figure>
+<li>使用如下：<figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="keyword">@Autowired</span></span><br><span class="line">private Scheduler scheduler;</span><br></pre></td></tr></table></figure>
 
 </li>
 </ul>
@@ -868,7 +868,7 @@
                 
                   <a href="/blog/archives/">
                 
-                    <span class="site-state-item-count">195</span>
+                    <span class="site-state-item-count">201</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -905,9 +905,7 @@
                     
                       
                     
-                      
-                    
-                    <span class="site-state-item-count">13</span>
+                    <span class="site-state-item-count">12</span>
                     <span class="site-state-item-name">分类</span>
                   </a>
                 </div>
@@ -1018,7 +1016,41 @@
                     
                       
                     
-                    <span class="site-state-item-count">49</span>
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">66</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>
@@ -1184,7 +1216,7 @@ show_date_time();
 
     <footer id="footer" class="footer">
       <div class="footer-inner">
-        <div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2022</span>
   <span class="with-love" id="animate">
     <i class="fa fa-heart"></i>
   </span>
@@ -1214,7 +1246,7 @@ show_date_time();
 
 <div class="theme-info">
   <div class="powered-by"></div>
-  <span class="post-count">博客全站共322.1k字</span>
+  <span class="post-count">博客全站共340.3k字</span>
 </div>
         
 <div class="busuanzi-count">

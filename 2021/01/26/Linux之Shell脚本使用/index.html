@@ -120,7 +120,7 @@
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="https://rstyro.github.io/blog/2021/01/26/Linux之Shell脚本使用/helloworld.png">
 <meta property="og:image" content="https://rstyro.github.io/blog/2021/01/26/Linux之Shell脚本使用/test.png">
-<meta property="og:updated_time" content="2021-04-25T12:14:55.994Z">
+<meta property="og:updated_time" content="2022-01-08T07:55:34.036Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Linux之Shell脚本使用">
 <meta name="twitter:description" content="一、Shell简介Shell 是一个用 C 语言编写的程序，它是用户使用 Linux 的桥梁。Shell 既是一种命令语言，又是一种程序设计语言。Shell 是指一种应用程序，这个应用程序提供了一个界面，用户通过这个界面访问操作系统内核的服务。Ken Thompson 的 sh 是第一种 Unix Shell，Windows Explorer 是一个典型的图形界面 Shell。 业界所说的 she">
@@ -467,7 +467,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2021-04-25 20:14:55" itemprop="dateModified" datetime="2021-04-25T20:14:55+08:00">2021-04-25</time>
+                <time title="修改时间：2022-01-08 15:55:34" itemprop="dateModified" datetime="2022-01-08T15:55:34+08:00">2022-01-08</time>
               
             
           </span>
@@ -861,7 +861,7 @@
 <li>不同点：只有在双引号中体现出来。假设在脚本运行时写了三个参数 1、2、3，，则 “ * “ 等价于 “1 2 3”（传递了一个参数），而 “@” 等价于 “1” “2” “3”（传递了三个参数）。</li>
 </ul>
 <h3 id="八、函数"><a href="#八、函数" class="headerlink" title="八、函数"></a>八、函数</h3><p>函数的本质是一段可以重复使用的脚本代码，这段代码被提前编写好了，放在了指定的位置，使用时直接调取即可。<br>函数的格式：</p>
-<figure class="highlight actionscript"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">methodName</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="comment">// doing</span></span><br><span class="line">    [<span class="keyword">return</span> value]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">methodName</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="comment">// doing</span></span><br><span class="line">    [<span class="keyword">return</span> value]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <ul>
 <li>function是 Shell 中的关键字，专门用来定义函数；</li>
@@ -885,6 +885,12 @@
 <li>发现 <code>$?</code> 最大能接收的值是：255，刚好是一个byte类型。</li>
 <li>连续使用两次 <code>echo $?</code>，得到的结果不同。第一次<code>$?</code>是add 函数的返回值，第二次就是 <code>echo &quot;输入的两个数字之和为 $? !&quot;</code> 的返回值了。</li>
 </ul>
+<p><strong>实例三：</strong></p>
+<ul>
+<li>方法带参数的调用方式</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="meta">#!/bin/bash</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="title">add</span></span>()&#123;</span><br><span class="line">    <span class="built_in">echo</span> <span class="string">"两个数字分别为 <span class="variable">$1</span> 和 <span class="variable">$2</span> !"</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="variable">$1</span>+<span class="variable">$2</span>=$((<span class="variable">$1</span>+<span class="variable">$2</span>))</span><br><span class="line">    <span class="built_in">return</span> $((<span class="variable">$1</span>+<span class="variable">$2</span>))</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 在调用的方法后面添加参数即可</span></span><br><span class="line">add 1 2</span><br></pre></td></tr></table></figure>
+
 <h3 id="九、多线程用法"><a href="#九、多线程用法" class="headerlink" title="九、多线程用法"></a>九、多线程用法</h3><p>shell也是有多线程用法的，先看例子：</p>
 <h4 id="1、串行例子"><a href="#1、串行例子" class="headerlink" title="1、串行例子"></a>1、串行例子</h4><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="meta">#!/bin/bash</span></span><br><span class="line">begin_time=`date <span class="string">"+%s"</span>`</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> `seq 1 10`</span><br><span class="line"><span class="keyword">do</span></span><br><span class="line">	sleep 1s</span><br><span class="line">    <span class="built_in">echo</span> <span class="string">"i=<span class="variable">$i</span>"</span></span><br><span class="line"><span class="keyword">done</span></span><br><span class="line"></span><br><span class="line">end_time=`date <span class="string">"+%s"</span>`</span><br><span class="line"></span><br><span class="line">offset_time=`expr <span class="variable">$end_time</span> - <span class="variable">$begin_time</span>`</span><br><span class="line"></span><br><span class="line"><span class="built_in">echo</span> <span class="string">"开始时间=<span class="variable">$&#123;begin_time&#125;</span>s"</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">"结束时间=<span class="variable">$&#123;end_time&#125;</span>s"</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="built_in">echo</span> <span class="string">"总耗时=<span class="variable">$&#123;offset_time&#125;</span>s"</span></span><br></pre></td></tr></table></figure>
 
@@ -1112,7 +1118,7 @@
                 
                   <a href="/blog/archives/">
                 
-                    <span class="site-state-item-count">195</span>
+                    <span class="site-state-item-count">201</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -1149,9 +1155,7 @@
                     
                       
                     
-                      
-                    
-                    <span class="site-state-item-count">13</span>
+                    <span class="site-state-item-count">12</span>
                     <span class="site-state-item-name">分类</span>
                   </a>
                 </div>
@@ -1262,7 +1266,41 @@
                     
                       
                     
-                    <span class="site-state-item-count">49</span>
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">66</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>
@@ -1428,7 +1466,7 @@ show_date_time();
 
     <footer id="footer" class="footer">
       <div class="footer-inner">
-        <div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2022</span>
   <span class="with-love" id="animate">
     <i class="fa fa-heart"></i>
   </span>
@@ -1458,7 +1496,7 @@ show_date_time();
 
 <div class="theme-info">
   <div class="powered-by"></div>
-  <span class="post-count">博客全站共322.1k字</span>
+  <span class="post-count">博客全站共340.3k字</span>
 </div>
         
 <div class="busuanzi-count">
