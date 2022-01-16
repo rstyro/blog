@@ -532,10 +532,10 @@
       
 
       
-        <h1 id="SpringCloud-常见问题总结"><a href="#SpringCloud-常见问题总结" class="headerlink" title="SpringCloud 常见问题总结"></a>SpringCloud 常见问题总结</h1><h3 id="1-Eureka-Environment的配置："><a href="#1-Eureka-Environment的配置：" class="headerlink" title="1.Eureka Environment的配置："></a>1.Eureka Environment的配置：</h3><figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="selector-tag">eureka</span><span class="selector-class">.environment</span>: 字符串</span><br></pre></td></tr></table></figure>
+        <h1 id="SpringCloud-常见问题总结"><a href="#SpringCloud-常见问题总结" class="headerlink" title="SpringCloud 常见问题总结"></a>SpringCloud 常见问题总结</h1><h3 id="1-Eureka-Environment的配置："><a href="#1-Eureka-Environment的配置：" class="headerlink" title="1.Eureka Environment的配置："></a>1.Eureka Environment的配置：</h3><figure class="highlight avrasm"><table><tr><td class="code"><pre><span class="line"><span class="symbol">eureka.environment:</span> 字符串</span><br></pre></td></tr></table></figure>
 
 <p>参考文档：<br><a href="https://github.com/Netflix/eureka/wiki/Configuring-Eureka" target="_blank" rel="noopener">https://github.com/Netflix/eureka/wiki/Configuring-Eureka</a></p>
-<h3 id="2-Eureka-DataCenter的配置"><a href="#2-Eureka-DataCenter的配置" class="headerlink" title="2.Eureka DataCenter的配置"></a>2.Eureka DataCenter的配置</h3><figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="selector-tag">eureka</span><span class="selector-class">.datacenter</span>: <span class="selector-tag">cloud</span></span><br></pre></td></tr></table></figure>
+<h3 id="2-Eureka-DataCenter的配置"><a href="#2-Eureka-DataCenter的配置" class="headerlink" title="2.Eureka DataCenter的配置"></a>2.Eureka DataCenter的配置</h3><figure class="highlight avrasm"><table><tr><td class="code"><pre><span class="line"><span class="symbol">eureka.datacenter:</span> cloud</span><br></pre></td></tr></table></figure>
 
 <p><a href="https://github.com/Netflix/eureka/wiki/Configuring-Eureka" target="_blank" rel="noopener">https://github.com/Netflix/eureka/wiki/Configuring-Eureka</a><br>这边说：配置-Deureka.datacenter=cloud，这样eureka将会知道是在AWS云上</p>
 <h3 id="3-Eureka开启自我保护的提示"><a href="#3-Eureka开启自我保护的提示" class="headerlink" title="3.Eureka开启自我保护的提示"></a>3.Eureka开启自我保护的提示</h3><figure class="highlight fortran"><table><tr><td class="code"><pre><span class="line">EMERGENCY<span class="comment">! EUREKA MAY BE INCORRECTLY CLAIMING INSTANCES ARE UP WHEN THEY'RE NOT. RENEWALS ARE LESSER THAN THRESHOLD AND HENCE THE INSTANCES ARE NOT BEING EXPIRED JUST TO BE SAFE.</span></span><br></pre></td></tr></table></figure>
@@ -553,7 +553,7 @@
 <p>作为实例还涉及到与注册中心的周期性心跳，默认持续时间为30秒（通过serviceUrl）。在实例、服务器、客户端都在本地缓存中具有相同的元数据之前，服务不可用于客户端发现（所以可能需要3次心跳）。你可以使用eureka.instance.leaseRenewalIntervalInSeconds 配置，这将加快客户端连接到其他服务的过程。在生产中，最好坚持使用默认值，因为在服务器内部有一些计算，他们对续约做出假设。</p>
 </blockquote>
 <h3 id="5-如何解决Eureka-Server不踢出已关停的节点的问题？"><a href="#5-如何解决Eureka-Server不踢出已关停的节点的问题？" class="headerlink" title="5.如何解决Eureka Server不踢出已关停的节点的问题？"></a>5.如何解决Eureka Server不踢出已关停的节点的问题？</h3><p><strong>server端:</strong></p>
-<figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="selector-tag">eureka</span><span class="selector-class">.server</span><span class="selector-class">.enable-self-preservation</span>			（设为<span class="selector-tag">false</span>，关闭自我保护主要）</span><br><span class="line"><span class="selector-tag">eureka</span><span class="selector-class">.server</span><span class="selector-class">.eviction-interval-timer-in-ms</span>     清理间隔（单位毫秒，默认是60*1000）</span><br></pre></td></tr></table></figure>
+<figure class="highlight crmsh"><table><tr><td class="code"><pre><span class="line">eureka.server.enable-self-preservation			（设为<span class="literal">false</span>，关闭自我保护主要）</span><br><span class="line">eureka.server.eviction-interval-timer-<span class="keyword">in</span>-<span class="keyword">ms</span>     <span class="title">清理间隔（单位毫秒，默认是60</span>*<span class="number">1000</span>）</span><br></pre></td></tr></table></figure>
 
 <p><strong>client端：</strong></p>
 <figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="attr">eureka.client.healthcheck.enabled</span> = <span class="literal">true</span>			开启健康检查（需要spring-boot-starter-actuator依赖）</span><br><span class="line"><span class="attr">eureka.instance.lease-renewal-interval-in-seconds</span> =<span class="number">10</span>		租期更新时间间隔（默认<span class="number">30</span>秒）</span><br><span class="line"><span class="attr">eureka.instance.lease-expiration-duration-in-seconds</span> =<span class="number">30</span>  租期到期时间（默认<span class="number">90</span>秒）</span><br></pre></td></tr></table></figure>
@@ -761,7 +761,7 @@
                 
                   <a href="/blog/archives/">
                 
-                    <span class="site-state-item-count">201</span>
+                    <span class="site-state-item-count">194</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -941,9 +941,7 @@
                     
                       
                     
-                      
-                    
-                    <span class="site-state-item-count">66</span>
+                    <span class="site-state-item-count">65</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>
@@ -1139,7 +1137,7 @@ show_date_time();
 
 <div class="theme-info">
   <div class="powered-by"></div>
-  <span class="post-count">博客全站共340.3k字</span>
+  <span class="post-count">博客全站共337.6k字</span>
 </div>
         
 <div class="busuanzi-count">

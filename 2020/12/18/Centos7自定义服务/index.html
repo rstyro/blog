@@ -118,7 +118,7 @@
 <meta property="og:site_name" content="帅大叔的博客">
 <meta property="og:description" content="一、前言 在CentOS7下，已经不再使用chkconfig命令管理系统开机自启动服务和条件自定义脚本服务了， 而是使用管理unit的方式来控制开机自启动服务和添加自定义脚本服务。 如果想把自定义的脚本变成服务进程，都需要写对应的service配置文件，这样才能被unit所管理.  二、自定义服务配置脚本文件解析一般服务脚本文件由三部分组成：  [Unit]    单元的定义，描述 [Servic">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2020-12-18T07:40:49.128Z">
+<meta property="og:updated_time" content="2022-01-16T03:28:11.185Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Centos7自定义服务">
 <meta name="twitter:description" content="一、前言 在CentOS7下，已经不再使用chkconfig命令管理系统开机自启动服务和条件自定义脚本服务了， 而是使用管理unit的方式来控制开机自启动服务和添加自定义脚本服务。 如果想把自定义的脚本变成服务进程，都需要写对应的service配置文件，这样才能被unit所管理.  二、自定义服务配置脚本文件解析一般服务脚本文件由三部分组成：  [Unit]    单元的定义，描述 [Servic">
@@ -447,12 +447,24 @@
                 
               
 
-              <time title="创建时间：2020-12-18 18:00:33 / 修改时间：15:40:49" itemprop="dateCreated datePublished" datetime="2020-12-18T18:00:33+08:00">2020-12-18</time>
+              <time title="创建时间：2020-12-18 18:00:33" itemprop="dateCreated datePublished" datetime="2020-12-18T18:00:33+08:00">2020-12-18</time>
             
 
             
               
 
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2022-01-16 11:28:11" itemprop="dateModified" datetime="2022-01-16T11:28:11+08:00">2022-01-16</time>
               
             
           </span>
@@ -613,7 +625,7 @@
 
 <h3 id="三、其他"><a href="#三、其他" class="headerlink" title="三、其他"></a>三、其他</h3><p>其实可以把3个脚本整合成一个脚本，然后通过参数执行对应的方法，如下</p>
 <p><strong>minibox-server.sh</strong></p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="meta">#!/bin/bash</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">'==minibox-server=='</span></span><br><span class="line">JAVA_HOME=/usr/<span class="built_in">local</span>/java/jdk8</span><br><span class="line">PATH=<span class="variable">$PATH</span>:<span class="variable">$JAVA_HOME</span>/bin</span><br><span class="line"></span><br><span class="line">killminibox()</span><br><span class="line">&#123;</span><br><span class="line">box_pid=`ps -ef | grep minibox.jar |grep -v color |grep -v grep | awk <span class="string">'&#123;print $2&#125;'</span>`</span><br><span class="line"><span class="keyword">if</span> [[ <span class="variable">$box_pid</span> != <span class="string">""</span> ]]</span><br><span class="line"><span class="keyword">then</span></span><br><span class="line">	<span class="built_in">echo</span> <span class="string">" pid= <span class="variable">$box_pid</span>"</span></span><br><span class="line">	<span class="built_in">echo</span> <span class="string">"stop..."</span></span><br><span class="line">	<span class="built_in">kill</span> -9 <span class="variable">$box_pid</span></span><br><span class="line">	<span class="built_in">echo</span> <span class="string">"已停止minibox"</span></span><br><span class="line"><span class="keyword">else</span></span><br><span class="line">	<span class="built_in">echo</span> <span class="string">"程序未启动"</span></span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">startminibox()</span><br><span class="line">&#123;</span><br><span class="line"><span class="comment"># 远程调试的启动方法</span></span><br><span class="line"><span class="comment"># nohup java -jar -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005  /usr/local/minibox/minibox.jar &gt;out.log 2&gt;&amp;1 &amp;</span></span><br><span class="line">nohup java -jar  /usr/<span class="built_in">local</span>/minibox/minibox.jar &gt;out.log 2&gt;&amp;1 &amp;</span><br><span class="line"><span class="built_in">echo</span> <span class="string">"启动成功"</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">case</span> <span class="variable">$1</span> <span class="keyword">in</span></span><br><span class="line">start)</span><br><span class="line">startminibox</span><br><span class="line">;;</span><br><span class="line">stop)</span><br><span class="line">killminibox</span><br><span class="line">;;</span><br><span class="line">restart)</span><br><span class="line">killminibox</span><br><span class="line">startminibox</span><br><span class="line">;;</span><br><span class="line">*)</span><br><span class="line"><span class="built_in">echo</span> <span class="string">"命令错误，请检查"</span></span><br><span class="line">;;</span><br><span class="line"><span class="keyword">esac</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="meta">#!/bin/bash</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">'==minibox-server=='</span></span><br><span class="line">JAVA_HOME=/usr/<span class="built_in">local</span>/java/jdk8</span><br><span class="line">PATH=<span class="variable">$PATH</span>:<span class="variable">$JAVA_HOME</span>/bin</span><br><span class="line"></span><br><span class="line">killminibox()</span><br><span class="line">&#123;</span><br><span class="line">box_pid=`ps -ef | grep minibox.jar |grep -v color |grep -v grep | awk <span class="string">'&#123;print $2&#125;'</span>`</span><br><span class="line"><span class="keyword">if</span> [[ <span class="variable">$box_pid</span> != <span class="string">""</span> ]]</span><br><span class="line"><span class="keyword">then</span></span><br><span class="line">	<span class="built_in">echo</span> <span class="string">" pid= <span class="variable">$box_pid</span>"</span></span><br><span class="line">	<span class="built_in">echo</span> <span class="string">"stop..."</span></span><br><span class="line">	<span class="built_in">kill</span> -9 <span class="variable">$box_pid</span></span><br><span class="line">	<span class="built_in">echo</span> <span class="string">"已停止minibox"</span></span><br><span class="line"><span class="keyword">else</span></span><br><span class="line">	<span class="built_in">echo</span> <span class="string">"程序未启动"</span></span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">startminibox()</span><br><span class="line">&#123;</span><br><span class="line"><span class="comment"># 远程调试的启动方法</span></span><br><span class="line"><span class="comment"># nohup java -jar -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005  /usr/local/minibox/minibox.jar &gt;out.log 2&gt;&amp;1 &amp;</span></span><br><span class="line">nohup java -jar  /usr/<span class="built_in">local</span>/minibox/minibox.jar --spring.profiles.active=prd &gt;out.log 2&gt;&amp;1 &amp;</span><br><span class="line"><span class="built_in">echo</span> <span class="string">"启动成功"</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">case</span> <span class="variable">$1</span> <span class="keyword">in</span></span><br><span class="line">start)</span><br><span class="line">startminibox</span><br><span class="line">;;</span><br><span class="line">stop)</span><br><span class="line">killminibox</span><br><span class="line">;;</span><br><span class="line">restart)</span><br><span class="line">killminibox</span><br><span class="line">startminibox</span><br><span class="line">;;</span><br><span class="line">*)</span><br><span class="line"><span class="built_in">echo</span> <span class="string">"命令错误，请检查"</span></span><br><span class="line">;;</span><br><span class="line"><span class="keyword">esac</span></span><br></pre></td></tr></table></figure>
 
 <p>通过case 函数，选择执行什么脚本，执行方式如下：</p>
 <figure class="highlight vbscript"><table><tr><td class="code"><pre><span class="line">./minibox-<span class="built_in">server</span>.sh start</span><br><span class="line">./minibox-<span class="built_in">server</span>.sh <span class="keyword">stop</span></span><br><span class="line">./minibox-<span class="built_in">server</span>.sh restart</span><br></pre></td></tr></table></figure>
@@ -810,7 +822,7 @@
                 
                   <a href="/blog/archives/">
                 
-                    <span class="site-state-item-count">201</span>
+                    <span class="site-state-item-count">194</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -990,9 +1002,7 @@
                     
                       
                     
-                      
-                    
-                    <span class="site-state-item-count">66</span>
+                    <span class="site-state-item-count">65</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>
@@ -1188,7 +1198,7 @@ show_date_time();
 
 <div class="theme-info">
   <div class="powered-by"></div>
-  <span class="post-count">博客全站共340.3k字</span>
+  <span class="post-count">博客全站共337.6k字</span>
 </div>
         
 <div class="busuanzi-count">
