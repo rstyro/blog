@@ -1028,6 +1028,25 @@ echo "ip=$ip"
 + 类似这个 `cat /proc/net/arp | grep 52:54:00:b0:4f:13`，但是arp有时会有多条（缓存）
 
 
+#### 5、其他
+```bash
+# 获取脚本执行的当前路径
+CUR_PATH=$( cd ${0%/*} && pwd )
+
+# 获取脚本执行的当前路径
+CUR_PATH=$(cd "$(dirname "$0")" && pwd)
+
+# 查看当前目录下的 .jar 文件名得到，例：./abc.jar
+# 其中 ”-maxdepth 1“ 1代表只查当前目录，2是查看当前目录和其子目录，3子目录的子目录...
+JAR=$(find . -maxdepth 1 -name "*.jar")
+# 去掉前面的 ./   , 例： abc.jar
+JAR="${JAR:2}"
+
+# 完整路径
+JAR_PATH="$CUR_PATH/$JAR"
+
+
+```
 
 
 **参考链接：**

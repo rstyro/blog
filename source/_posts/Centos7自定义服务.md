@@ -202,7 +202,7 @@ startminibox()
 {
 # 远程调试的启动方法
 # nohup java -jar -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005  /usr/local/minibox/minibox.jar >out.log 2>&1 &
-nohup java -jar  /usr/local/minibox/minibox.jar >out.log 2>&1 &
+nohup java -jar  /usr/local/minibox/minibox.jar --spring.profiles.active=prd >out.log 2>&1 &
 echo "启动成功"
 }
 
