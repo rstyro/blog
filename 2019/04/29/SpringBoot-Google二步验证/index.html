@@ -1,0 +1,1670 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/blog/css/main.css?v=6.7.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon.jpg?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon.jpg?v=6.7.0">
+
+
+  <link rel="mask-icon" href="/blog/images/logo.svg?v=6.7.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/blog/',
+    scheme: 'Mist',
+    version: '6.7.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":true},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+<script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+<link href="//cdn.bootcss.com/pace/1.0.2/themes/pink/pace-theme-flash.css" rel="stylesheet">
+  <style>
+      .pace .pace-progress {
+          background: #1E92FB; /*进度条颜色*/
+          height: 3px;
+      }
+      .pace .pace-progress-inner {
+           box-shadow: 0 0 10px #1E92FB, 0 0 5px     #1E92FB; /*阴影颜色*/
+      }
+      .pace .pace-activity {
+          border-top-color: #1E92FB;    /*上边框颜色*/
+          border-left-color: #1E92FB;    /*左边框颜色*/
+      }
+  </style>
+
+  <meta name="description" content="SpringBoot-Google二步验证 概念：Google身份验证器Google Authenticator是谷歌推出的基于时间的一次性密码(Time-based One-time Password，简称TOTP)，只需要在手机上安装该APP，就可以生成一个随着时间变化的一次性密码，用于帐户验证。 Google身份验证器是一款基于时间与哈希的一次性密码算法的两步验证软件令牌，此软件用于Goog">
+<meta name="keywords" content="帅大叔,个人博客,">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SpringBoot-Google二步验证">
+<meta property="og:url" content="https://rstyro.github.io/blog/2019/04/29/SpringBoot-Google二步验证/index.html">
+<meta property="og:site_name" content="帅大叔的博客">
+<meta property="og:description" content="SpringBoot-Google二步验证 概念：Google身份验证器Google Authenticator是谷歌推出的基于时间的一次性密码(Time-based One-time Password，简称TOTP)，只需要在手机上安装该APP，就可以生成一个随着时间变化的一次性密码，用于帐户验证。 Google身份验证器是一款基于时间与哈希的一次性密码算法的两步验证软件令牌，此软件用于Goog">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://rstyro.github.io/blog/2019/04/29/SpringBoot-Google二步验证/0.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2019/04/29/SpringBoot-Google二步验证/1.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2019/04/29/SpringBoot-Google二步验证/2.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2019/04/29/SpringBoot-Google二步验证/3.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2019/04/29/SpringBoot-Google二步验证/4.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2019/04/29/SpringBoot-Google二步验证/5.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2019/04/29/SpringBoot-Google二步验证/6.png">
+<meta property="og:updated_time" content="2022-01-21T06:16:17.113Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="SpringBoot-Google二步验证">
+<meta name="twitter:description" content="SpringBoot-Google二步验证 概念：Google身份验证器Google Authenticator是谷歌推出的基于时间的一次性密码(Time-based One-time Password，简称TOTP)，只需要在手机上安装该APP，就可以生成一个随着时间变化的一次性密码，用于帐户验证。 Google身份验证器是一款基于时间与哈希的一次性密码算法的两步验证软件令牌，此软件用于Goog">
+<meta name="twitter:image" content="https://rstyro.github.io/blog/2019/04/29/SpringBoot-Google二步验证/0.png">
+
+
+
+  <link rel="alternate" href="/blog/atom.xml" title="帅大叔的博客" type="application/atom+xml">
+
+
+
+
+  <link rel="canonical" href="https://rstyro.github.io/blog/2019/04/29/SpringBoot-Google二步验证/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>SpringBoot-Google二步验证 | 帅大叔的博客</title>
+  
+
+
+
+
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?cd2197f8af1d69b326360027b8f93d92";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+	<a href="https://github.com/rstyro" class="github-corner" aria-label="View source on GitHub"><svg width="80" height="80" viewbox="0 0 250 250" style="fill:#151513; color:#fff; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"/><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"/><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"/></svg></a><style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/blog/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">帅大叔的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">信你所信，为你所见</p>
+      
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/" rel="section">首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/about/" rel="section">关于</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/tags/" rel="section">标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/categories/" rel="section">分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/archives/" rel="section">归档</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-guestbook">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/guestbook/" rel="section">留言</a>
+
+  </li>
+
+      
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            搜索</a>
+        </li>
+      
+    </ul>
+  
+
+  
+    
+
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://rstyro.github.io/blog/blog/2019/04/29/SpringBoot-Google二步验证/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="rstyro">
+      <meta itemprop="description" content="个人博客,瞎写一些技术笔记等。">
+      <meta itemprop="image" content="/blog/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="帅大叔的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">SpringBoot-Google二步验证
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-04-29 16:19:47" itemprop="dateCreated datePublished" datetime="2019-04-29T16:19:47+08:00">2019-04-29</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2022-01-21 14:16:17" itemprop="dateModified" datetime="2022-01-21T14:16:17+08:00">2022-01-21</time>
+              
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/blog/2019/04/29/SpringBoot-Google二步验证/#comments" itemprop="discussionUrl">
+                  <span class="post-meta-item-text">评论数：</span> <span class="post-comments-count valine-comment-count" data-xid="/blog/2019/04/29/SpringBoot-Google二步验证/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="post-meta-item-icon">
+            <i class="fa fa-eye"></i>
+             阅读次数： 
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="SpringBoot-Google二步验证"><a href="#SpringBoot-Google二步验证" class="headerlink" title="SpringBoot-Google二步验证"></a>SpringBoot-Google二步验证</h1><ul>
+<li>概念：Google身份验证器Google Authenticator是谷歌推出的基于时间的一次性密码(Time-based One-time Password，简称TOTP)，只需要在手机上安装该APP，就可以生成一个随着时间变化的一次性密码，用于帐户验证。</li>
+<li>Google身份验证器是一款基于时间与哈希的一次性密码算法的两步验证软件令牌，此软件用于Google的认证服务。此项服务所使用的算法已列于RFC 6238和RFC 4226中。</li>
+</ul>
+<h2 id="一、流程"><a href="#一、流程" class="headerlink" title="一、流程"></a>一、流程</h2><ul>
+<li>用户请求服务器生成密钥</li>
+<li>服务器生成一个密钥并与用户信息进行关联，并返回密钥(类似：<code>XX57HWC7D2FA4X4GLOHOASTGPMVI5EFA</code>)和一个二维码信息（此步骤还没有绑定）</li>
+<li>用户把返回的二维码信息传给服务器，生成一个二维码<br>  信息大概长这样的：<code>otpauth://totp/https%3A%2F%2Fwww.lrshuai.top%3Arstyro?secret=XX57HWC7D2FA4X4GLOHOASTGPMVI5EFA&amp;issuer=https%3A%2F%2Fwww.lrshuai.top</code></li>
+<li>用户通过身份验证器扫描二维码即可生成一个动态的验证码</li>
+<li>用户传当前动态的验证码和密钥给服务器，校验密钥的正确性（此密钥与用户真正的绑定）</li>
+</ul>
+<blockquote>
+<ul>
+<li>上面有些步骤不必须的，看需求，可以简化为两步。</li>
+<li>1、生成密钥</li>
+<li>2、扫码<br>上面那么多只是为了准确性而已</li>
+</ul>
+</blockquote>
+<h2 id="二、安装身份验证器"><a href="#二、安装身份验证器" class="headerlink" title="二、安装身份验证器"></a>二、安装身份验证器</h2><ul>
+<li>IOS 版本：<a href="https://itunes.apple.com/cn/app/google-authenticator/id388497605" target="_blank" rel="noopener">Google Authenticator</a><br>可以在App Store搜索<code>google authenticator</code></li>
+<li>安卓：<a href="https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2" target="_blank" rel="noopener">Google Authenticator</a>  </li>
+</ul>
+<blockquote>
+<ul>
+<li>客户端每30秒就会生成新的验证码</li>
+<li>界面大概如下：</li>
+<li><img src="0.png" alt="Google Authenticator界面"></li>
+</ul>
+</blockquote>
+<h2 id="三、代码实现"><a href="#三、代码实现" class="headerlink" title="三、代码实现"></a>三、代码实现</h2><p><img src="1.png" alt="全部接口"></p>
+<h4 id="1、前言"><a href="#1、前言" class="headerlink" title="1、前言"></a>1、前言</h4><ul>
+<li>为了比较真实所以添加了注册和登录接口 </li>
+<li>为了方便集成了<code>Swagger-ui</code> 和全部是<code>GET</code>请求，不会用<code>Swagger-ui</code>,就直接地址栏请求或者<code>Postman</code>都可</li>
+<li>注册用户全部放Redis</li>
+<li>登录与Google校验，也以注解方式实现</li>
+<li>登录以token方式，所以请求其他接口的时候都要带上token，可以把token放在header里面</li>
+</ul>
+<h4 id="2、代码"><a href="#2、代码" class="headerlink" title="2、代码"></a>2、代码</h4><h5 id="UserController"><a href="#UserController" class="headerlink" title="UserController"></a>UserController</h5><ul>
+<li>控制层接口</li>
+<li>流程从上往下执行即可<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> io.swagger.annotations.Api;</span><br><span class="line"><span class="keyword">import</span> io.swagger.annotations.ApiOperation;</span><br><span class="line"><span class="keyword">import</span> org.springframework.beans.factory.annotation.Autowired;</span><br><span class="line"><span class="keyword">import</span> org.springframework.stereotype.Controller;</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.bind.annotation.*;</span><br><span class="line"><span class="keyword">import</span> top.lrshuai.googlecheck.annotation.NeedLogin;</span><br><span class="line"><span class="keyword">import</span> top.lrshuai.googlecheck.base.BaseController;</span><br><span class="line"><span class="keyword">import</span> top.lrshuai.googlecheck.common.Result;</span><br><span class="line"><span class="keyword">import</span> top.lrshuai.googlecheck.dto.GoogleDTO;</span><br><span class="line"><span class="keyword">import</span> top.lrshuai.googlecheck.dto.LoginDTO;</span><br><span class="line"><span class="keyword">import</span> top.lrshuai.googlecheck.service.UserService;</span><br><span class="line"><span class="keyword">import</span> top.lrshuai.googlecheck.utils.QRCodeUtil;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> javax.imageio.ImageIO;</span><br><span class="line"><span class="keyword">import</span> javax.servlet.http.HttpServletResponse;</span><br><span class="line"><span class="keyword">import</span> java.awt.image.BufferedImage;</span><br><span class="line"><span class="keyword">import</span> java.io.OutputStream;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Controller</span></span><br><span class="line"><span class="meta">@RequestMapping</span>(<span class="string">"/user"</span>)</span><br><span class="line"><span class="meta">@Api</span>(tags = <span class="string">"用户模块"</span>)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">UserController</span> <span class="keyword">extends</span> <span class="title">BaseController</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> UserService userService;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@GetMapping</span>(<span class="string">"/register"</span>)</span><br><span class="line">    <span class="meta">@ApiOperation</span>(<span class="string">"注册"</span>)</span><br><span class="line">    <span class="meta">@ResponseBody</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Result <span class="title">register</span><span class="params">(LoginDTO dto)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> userService.register(dto);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="meta">@GetMapping</span>(<span class="string">"/login"</span>)</span><br><span class="line">    <span class="meta">@ApiOperation</span>(<span class="string">"登录"</span>)</span><br><span class="line">    <span class="meta">@ResponseBody</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Result <span class="title">login</span><span class="params">(LoginDTO dto)</span><span class="keyword">throws</span> Exception</span>&#123;</span><br><span class="line">        <span class="keyword">return</span> userService.login(dto);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="meta">@GetMapping</span>(<span class="string">"/generateGoogleSecret"</span>)</span><br><span class="line">    <span class="meta">@ResponseBody</span></span><br><span class="line">    <span class="meta">@NeedLogin</span></span><br><span class="line">    <span class="meta">@ApiOperation</span>(<span class="string">"生成google密钥"</span>)</span><br><span class="line">    <span class="function"><span class="keyword">public</span> Result <span class="title">generateGoogleSecret</span><span class="params">()</span><span class="keyword">throws</span> Exception</span>&#123;</span><br><span class="line">        <span class="keyword">return</span> userService.generateGoogleSecret(<span class="keyword">this</span>.getUser());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 显示一个二维码图片</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> secretQrCode   generateGoogleSecret接口返回的：secretQrCode</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> response</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> Exception</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@GetMapping</span>(<span class="string">"/genQrCode"</span>)</span><br><span class="line">    <span class="meta">@ApiOperation</span>(<span class="string">"生成二维码"</span>)</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">genQrCode</span><span class="params">(String secretQrCode, HttpServletResponse response)</span> <span class="keyword">throws</span> Exception</span>&#123;</span><br><span class="line">        response.setContentType(<span class="string">"image/png"</span>);</span><br><span class="line">        OutputStream stream = response.getOutputStream();</span><br><span class="line">        QRCodeUtil.encode(secretQrCode,stream);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="meta">@GetMapping</span>(<span class="string">"/bindGoogle"</span>)</span><br><span class="line">    <span class="meta">@ResponseBody</span></span><br><span class="line">    <span class="meta">@NeedLogin</span></span><br><span class="line">    <span class="meta">@ApiOperation</span>(<span class="string">"绑定google验证"</span>)</span><br><span class="line">    <span class="function"><span class="keyword">public</span> Result <span class="title">bindGoogle</span><span class="params">(GoogleDTO dto)</span><span class="keyword">throws</span> Exception</span>&#123;</span><br><span class="line">        <span class="keyword">return</span> userService.bindGoogle(dto,<span class="keyword">this</span>.getUser(),<span class="keyword">this</span>.getRequest());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@GetMapping</span>(<span class="string">"/googleLogin"</span>)</span><br><span class="line">    <span class="meta">@ResponseBody</span></span><br><span class="line">    <span class="meta">@NeedLogin</span></span><br><span class="line">    <span class="meta">@ApiOperation</span>(<span class="string">"google登录"</span>)</span><br><span class="line">    <span class="function"><span class="keyword">public</span> Result <span class="title">googleLogin</span><span class="params">(Long code)</span> <span class="keyword">throws</span> Exception</span>&#123;</span><br><span class="line">        <span class="keyword">return</span> userService.googleLogin(code,<span class="keyword">this</span>.getUser(),<span class="keyword">this</span>.getRequest());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="meta">@GetMapping</span>(<span class="string">"/getData"</span>)</span><br><span class="line">    <span class="meta">@NeedLogin</span>(google = <span class="keyword">true</span>)</span><br><span class="line">    <span class="meta">@ApiOperation</span>(<span class="string">"获取用户数据与token数据，前提需要google认证才能访问"</span>)</span><br><span class="line">    <span class="meta">@ResponseBody</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Result <span class="title">getData</span><span class="params">()</span><span class="keyword">throws</span> Exception</span>&#123;</span><br><span class="line">        <span class="keyword">return</span> userService.getData();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h5 id="UserService"><a href="#UserService" class="headerlink" title="UserService"></a>UserService</h5><ul>
+<li>服务层，业务代码<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> org.springframework.beans.factory.annotation.Autowired;</span><br><span class="line"><span class="keyword">import</span> org.springframework.data.redis.core.RedisTemplate;</span><br><span class="line"><span class="keyword">import</span> org.springframework.stereotype.Service;</span><br><span class="line"><span class="keyword">import</span> org.springframework.util.StringUtils;</span><br><span class="line"><span class="keyword">import</span> top.lrshuai.encryption.MDUtil;</span><br><span class="line"><span class="keyword">import</span> top.lrshuai.googlecheck.common.*;</span><br><span class="line"><span class="keyword">import</span> top.lrshuai.googlecheck.dto.GoogleDTO;</span><br><span class="line"><span class="keyword">import</span> top.lrshuai.googlecheck.dto.LoginDTO;</span><br><span class="line"><span class="keyword">import</span> top.lrshuai.googlecheck.entity.User;</span><br><span class="line"><span class="keyword">import</span> top.lrshuai.googlecheck.utils.GoogleAuthenticator;</span><br><span class="line"><span class="keyword">import</span> top.lrshuai.googlecheck.utils.Tools;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> javax.servlet.http.HttpServletRequest;</span><br><span class="line"><span class="keyword">import</span> java.util.HashMap;</span><br><span class="line"><span class="keyword">import</span> java.util.Iterator;</span><br><span class="line"><span class="keyword">import</span> java.util.Map;</span><br><span class="line"><span class="keyword">import</span> java.util.Set;</span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.TimeUnit;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">UserService</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> RedisTemplate&lt;String,Object&gt; redisTemplate;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 获取缓存中的数据</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Result <span class="title">getData</span><span class="params">()</span></span>&#123;</span><br><span class="line">        Map&lt;String,Object&gt; data = <span class="keyword">new</span> HashMap&lt;&gt;();</span><br><span class="line">        setData(CacheKey.REGISTER_USER_KEY,data);</span><br><span class="line">        setData(CacheKey.TOKEN_KEY_LOGIN_KEY,data);</span><br><span class="line">        <span class="keyword">return</span> Result.ok(data);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setData</span><span class="params">(String keyword,Map&lt;String,Object&gt; data)</span></span>&#123;</span><br><span class="line">        Set&lt;String&gt; keys = redisTemplate.keys(keyword);</span><br><span class="line">        Iterator&lt;String&gt; iterator = keys.iterator();</span><br><span class="line">        <span class="keyword">while</span> (iterator.hasNext())&#123;</span><br><span class="line">            String key = iterator.next();</span><br><span class="line">            data.put(key,redisTemplate.opsForValue().get(key));</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 注册</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> dto</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> Exception</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Result <span class="title">register</span><span class="params">(LoginDTO dto)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        User user = <span class="keyword">new</span> User();</span><br><span class="line">        user.setUserId(Tools.getUUID());</span><br><span class="line">        user.setUsername(dto.getUsername());</span><br><span class="line">        user.setPassword(MDUtil.bcMD5(dto.getPassword()));</span><br><span class="line">        addUser(user);</span><br><span class="line">        <span class="keyword">return</span> Result.ok();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment">//获取用户</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> User <span class="title">getUser</span><span class="params">(String username)</span></span>&#123;</span><br><span class="line">        User cacheUser = (User) redisTemplate.opsForValue().get(String.format(CacheKey.REGISTER_USER, username));</span><br><span class="line">        <span class="keyword">return</span> cacheUser;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//添加注册用户</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">addUser</span><span class="params">(User user)</span></span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(user == <span class="keyword">null</span>) <span class="keyword">throw</span> <span class="keyword">new</span> ApiException(ApiResultEnum.ERROR_NULL);</span><br><span class="line">        User isRepeat = getUser(user.getUsername());</span><br><span class="line">        <span class="keyword">if</span>(isRepeat != <span class="keyword">null</span> )&#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> ApiException(ApiResultEnum.USER_IS_EXIST);</span><br><span class="line">        &#125;</span><br><span class="line">        redisTemplate.opsForValue().set(String.format(CacheKey.REGISTER_USER, user.getUsername()),user,<span class="number">1</span>, TimeUnit.DAYS);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//更新token用户</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">updateUser</span><span class="params">(User user,HttpServletRequest request)</span></span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(user == <span class="keyword">null</span>) <span class="keyword">throw</span> <span class="keyword">new</span> ApiException(ApiResultEnum.ERROR_NULL);</span><br><span class="line">        redisTemplate.opsForValue().set(Tools.getTokenKey(request,CacheEnum.LOGIN),user,<span class="number">1</span>, TimeUnit.DAYS);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 登录</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> dto</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> Exception</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Result <span class="title">login</span><span class="params">(LoginDTO dto)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        User user = getUser(dto.getUsername());</span><br><span class="line">        <span class="keyword">if</span>(user == <span class="keyword">null</span>)&#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> ApiException(ApiResultEnum.USER_NOT_EXIST);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span>(!user.getPassword().equals(MDUtil.bcMD5(dto.getPassword())))&#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> ApiException(ApiResultEnum.USERNAME_OR_PASSWORD_IS_WRONG);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//随机生成token</span></span><br><span class="line">        String token = Tools.getUUID();</span><br><span class="line">        redisTemplate.opsForValue().set(String.format(CacheKey.TOKEN_KEY_LOGIN,token),user,<span class="number">1</span>,TimeUnit.DAYS);</span><br><span class="line">        Map&lt;String,Object&gt; data = <span class="keyword">new</span> HashMap&lt;&gt;();</span><br><span class="line">        data.put(Consts.TOKEN,token);</span><br><span class="line">        <span class="keyword">return</span> Result.ok(data);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 生成Google 密钥</span></span><br><span class="line"><span class="comment">     * secret：密钥</span></span><br><span class="line"><span class="comment">     * secretQrCode：Google Authenticator 扫描条形码的内容</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> user</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Result <span class="title">generateGoogleSecret</span><span class="params">(User user)</span></span>&#123;</span><br><span class="line">        <span class="comment">//Google密钥</span></span><br><span class="line">        String randomSecretKey = GoogleAuthenticator.getRandomSecretKey();</span><br><span class="line">        String googleAuthenticatorBarCode = GoogleAuthenticator.getGoogleAuthenticatorBarCode(randomSecretKey, user.getUsername(), <span class="string">"https://www.lrshuai.top"</span>);</span><br><span class="line">        Map&lt;String,Object&gt; data = <span class="keyword">new</span> HashMap&lt;&gt;();</span><br><span class="line">        <span class="comment">//Google密钥</span></span><br><span class="line">        data.put(<span class="string">"secret"</span>,randomSecretKey);</span><br><span class="line">        <span class="comment">//用户二维码内容</span></span><br><span class="line">        data.put(<span class="string">"secretQrCode"</span>,googleAuthenticatorBarCode);</span><br><span class="line">        <span class="keyword">return</span> Result.ok(data);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 绑定Google</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> dto</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> user</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Result <span class="title">bindGoogle</span><span class="params">(GoogleDTO dto, User user, HttpServletRequest request)</span></span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(!StringUtils.isEmpty(user.getGoogleSecret()))&#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> ApiException(ApiResultEnum.GOOGLE_IS_BIND);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">boolean</span> isTrue = GoogleAuthenticator.check_code(dto.getSecret(), dto.getCode(), System.currentTimeMillis());</span><br><span class="line">        <span class="keyword">if</span>(!isTrue)&#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> ApiException(ApiResultEnum.GOOGLE_CODE_NOT_MATCH);</span><br><span class="line">        &#125;</span><br><span class="line">        User cacheUser = getUser(user.getUsername());</span><br><span class="line">        cacheUser.setGoogleSecret(dto.getSecret());</span><br><span class="line">        updateUser(cacheUser,request);</span><br><span class="line">        <span class="keyword">return</span> Result.ok();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * Google登录</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> code</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> user</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Result <span class="title">googleLogin</span><span class="params">(Long code,User user,HttpServletRequest request)</span></span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(StringUtils.isEmpty(user.getGoogleSecret()))&#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> ApiException(ApiResultEnum.GOOGLE_NOT_BIND);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">boolean</span> isTrue = GoogleAuthenticator.check_code(user.getGoogleSecret(), code, System.currentTimeMillis());</span><br><span class="line">        <span class="keyword">if</span>(!isTrue)&#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> ApiException(ApiResultEnum.GOOGLE_CODE_NOT_MATCH);</span><br><span class="line">        &#125;</span><br><span class="line">        redisTemplate.opsForValue().set(Tools.getTokenKey(request,CacheEnum.GOOGLE),Consts.SUCCESS,<span class="number">1</span>,TimeUnit.DAYS);</span><br><span class="line">        <span class="keyword">return</span> Result.ok();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h4 id="GoogleAuthenticator"><a href="#GoogleAuthenticator" class="headerlink" title="GoogleAuthenticator"></a>GoogleAuthenticator</h4><ul>
+<li>Google身份验证器工具类<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> com.google.zxing.BarcodeFormat;</span><br><span class="line"><span class="keyword">import</span> com.google.zxing.MultiFormatWriter;</span><br><span class="line"><span class="keyword">import</span> com.google.zxing.WriterException;</span><br><span class="line"><span class="keyword">import</span> com.google.zxing.client.j2se.MatrixToImageWriter;</span><br><span class="line"><span class="keyword">import</span> com.google.zxing.common.BitMatrix;</span><br><span class="line"><span class="keyword">import</span> org.apache.commons.codec.binary.Base32;</span><br><span class="line"><span class="keyword">import</span> org.apache.commons.codec.binary.Hex;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> javax.crypto.Mac;</span><br><span class="line"><span class="keyword">import</span> javax.crypto.spec.SecretKeySpec;</span><br><span class="line"><span class="keyword">import</span> java.io.FileOutputStream;</span><br><span class="line"><span class="keyword">import</span> java.io.IOException;</span><br><span class="line"><span class="keyword">import</span> java.io.UnsupportedEncodingException;</span><br><span class="line"><span class="keyword">import</span> java.net.URLEncoder;</span><br><span class="line"><span class="keyword">import</span> java.security.InvalidKeyException;</span><br><span class="line"><span class="keyword">import</span> java.security.NoSuchAlgorithmException;</span><br><span class="line"><span class="keyword">import</span> java.security.SecureRandom;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">GoogleAuthenticator</span> </span>&#123;</span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> String <span class="title">getRandomSecretKey</span><span class="params">()</span> </span>&#123;</span><br><span class="line">		SecureRandom random = <span class="keyword">new</span> SecureRandom();</span><br><span class="line">		<span class="keyword">byte</span>[] bytes = <span class="keyword">new</span> <span class="keyword">byte</span>[<span class="number">20</span>];</span><br><span class="line">		random.nextBytes(bytes);</span><br><span class="line">		Base32 base32 = <span class="keyword">new</span> Base32();</span><br><span class="line">		String secretKey = base32.encodeToString(bytes);</span><br><span class="line">		<span class="comment">// make the secret key more human-readable by lower-casing and</span></span><br><span class="line">		<span class="comment">// inserting spaces between each group of 4 characters</span></span><br><span class="line">		<span class="keyword">return</span> secretKey.toUpperCase(); <span class="comment">// .replaceAll("(.&#123;4&#125;)(?=.&#123;4&#125;)", "$1 ");</span></span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> String <span class="title">getTOTPCode</span><span class="params">(String secretKey)</span> </span>&#123;</span><br><span class="line">		String normalizedBase32Key = secretKey.replace(<span class="string">" "</span>, <span class="string">""</span>).toUpperCase();</span><br><span class="line">		Base32 base32 = <span class="keyword">new</span> Base32();</span><br><span class="line">		<span class="keyword">byte</span>[] bytes = base32.decode(normalizedBase32Key);</span><br><span class="line">		String hexKey = Hex.encodeHexString(bytes);</span><br><span class="line">		<span class="keyword">long</span> time = (System.currentTimeMillis() / <span class="number">1000</span>) / <span class="number">30</span>;</span><br><span class="line">		String hexTime = Long.toHexString(time);</span><br><span class="line">		<span class="keyword">return</span> TOTP.generateTOTP(hexKey, hexTime, <span class="string">"6"</span>);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> String <span class="title">getGoogleAuthenticatorBarCode</span><span class="params">(String secretKey,</span></span></span><br><span class="line"><span class="function"><span class="params">			String account, String issuer)</span> </span>&#123;</span><br><span class="line">		String normalizedBase32Key = secretKey.replace(<span class="string">" "</span>, <span class="string">""</span>).toUpperCase();</span><br><span class="line">		<span class="keyword">try</span> &#123;</span><br><span class="line">			<span class="keyword">return</span> <span class="string">"otpauth://totp/"</span></span><br><span class="line">					+ URLEncoder.encode(issuer + <span class="string">":"</span> + account, <span class="string">"UTF-8"</span>)</span><br><span class="line">							.replace(<span class="string">"+"</span>, <span class="string">"%20"</span>)</span><br><span class="line">					+ <span class="string">"?secret="</span></span><br><span class="line">					+ URLEncoder.encode(normalizedBase32Key, <span class="string">"UTF-8"</span>).replace(</span><br><span class="line">							<span class="string">"+"</span>, <span class="string">"%20"</span>) + <span class="string">"&amp;issuer="</span></span><br><span class="line">					+ URLEncoder.encode(issuer, <span class="string">"UTF-8"</span>).replace(<span class="string">"+"</span>, <span class="string">"%20"</span>);</span><br><span class="line">		&#125; <span class="keyword">catch</span> (UnsupportedEncodingException e) &#123;</span><br><span class="line">			<span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(e);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">createQRCode</span><span class="params">(String barCodeData, String filePath,</span></span></span><br><span class="line"><span class="function"><span class="params">			<span class="keyword">int</span> height, <span class="keyword">int</span> width)</span> <span class="keyword">throws</span> WriterException, IOException </span>&#123;</span><br><span class="line">		BitMatrix matrix = <span class="keyword">new</span> MultiFormatWriter().encode(barCodeData,</span><br><span class="line">				BarcodeFormat.QR_CODE, width, height);</span><br><span class="line">		<span class="keyword">try</span> (FileOutputStream out = <span class="keyword">new</span> FileOutputStream(filePath)) &#123;</span><br><span class="line">			MatrixToImageWriter.writeToStream(matrix, <span class="string">"png"</span>, out);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">static</span> <span class="keyword">int</span> window_size = <span class="number">3</span>; <span class="comment">// default 3 - max 17 (from google docs)最多可偏移的时间</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">/**</span></span><br><span class="line"><span class="comment">	 * set the windows size. This is an integer value representing the number of</span></span><br><span class="line"><span class="comment">	 * 30 second windows we allow The bigger the window, the more tolerant of</span></span><br><span class="line"><span class="comment">	 * clock skew we are.</span></span><br><span class="line"><span class="comment">	 * </span></span><br><span class="line"><span class="comment">	 * <span class="doctag">@param</span> s</span></span><br><span class="line"><span class="comment">	 *            window size - must be &gt;=1 and &lt;=17. Other values are ignored</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">setWindowSize</span><span class="params">(<span class="keyword">int</span> s)</span> </span>&#123;</span><br><span class="line">		<span class="keyword">if</span> (s &gt;= <span class="number">1</span> &amp;&amp; s &lt;= <span class="number">17</span>)</span><br><span class="line">			window_size = s;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/**</span></span><br><span class="line"><span class="comment">	 * Check the code entered by the user to see if it is valid</span></span><br><span class="line"><span class="comment">	 * </span></span><br><span class="line"><span class="comment">	 * <span class="doctag">@param</span> secret</span></span><br><span class="line"><span class="comment">	 *            The users secret.</span></span><br><span class="line"><span class="comment">	 * <span class="doctag">@param</span> code</span></span><br><span class="line"><span class="comment">	 *            The code displayed on the users device</span></span><br><span class="line"><span class="comment">	 * <span class="doctag">@param</span> timeMsec</span></span><br><span class="line"><span class="comment">	 *            The time in msec (System.currentTimeMillis() for example)</span></span><br><span class="line"><span class="comment">	 * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">boolean</span> <span class="title">check_code</span><span class="params">(String secret, <span class="keyword">long</span> code, <span class="keyword">long</span> timeMsec)</span> </span>&#123;</span><br><span class="line">		Base32 codec = <span class="keyword">new</span> Base32();</span><br><span class="line">		<span class="keyword">byte</span>[] decodedKey = codec.decode(secret);</span><br><span class="line">		<span class="comment">// convert unix msec time into a 30 second "window"</span></span><br><span class="line">		<span class="comment">// this is per the TOTP spec (see the RFC for details)</span></span><br><span class="line">		<span class="keyword">long</span> t = (timeMsec / <span class="number">1000L</span>) / <span class="number">30L</span>;</span><br><span class="line">		<span class="comment">// Window is used to check codes generated in the near past.</span></span><br><span class="line">		<span class="comment">// You can use this value to tune how far you're willing to go.</span></span><br><span class="line">		<span class="keyword">for</span> (<span class="keyword">int</span> i = -window_size; i &lt;= window_size; ++i) &#123;</span><br><span class="line">			<span class="keyword">long</span> hash;</span><br><span class="line">			<span class="keyword">try</span> &#123;</span><br><span class="line">				hash = verify_code(decodedKey, t + i);</span><br><span class="line">			&#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">				<span class="comment">// Yes, this is bad form - but</span></span><br><span class="line">				<span class="comment">// the exceptions thrown would be rare and a static</span></span><br><span class="line">				<span class="comment">// configuration problem</span></span><br><span class="line">				<span class="comment">// e.printStackTrace();</span></span><br><span class="line">				<span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException(e.getMessage());</span><br><span class="line">				<span class="comment">// return false;</span></span><br><span class="line">			&#125;</span><br><span class="line">			<span class="keyword">if</span> (hash == code) &#123;</span><br><span class="line">				<span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="comment">// The validation code is invalid.</span></span><br><span class="line">		<span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">int</span> <span class="title">verify_code</span><span class="params">(<span class="keyword">byte</span>[] key, <span class="keyword">long</span> t)</span></span></span><br><span class="line"><span class="function">			<span class="keyword">throws</span> NoSuchAlgorithmException, InvalidKeyException </span>&#123;</span><br><span class="line">		<span class="keyword">byte</span>[] data = <span class="keyword">new</span> <span class="keyword">byte</span>[<span class="number">8</span>];</span><br><span class="line">		<span class="keyword">long</span> value = t;</span><br><span class="line">		<span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">8</span>; i-- &gt; <span class="number">0</span>; value &gt;&gt;&gt;= <span class="number">8</span>) &#123;</span><br><span class="line">			data[i] = (<span class="keyword">byte</span>) value;</span><br><span class="line">		&#125;</span><br><span class="line">		SecretKeySpec signKey = <span class="keyword">new</span> SecretKeySpec(key, <span class="string">"HmacSHA1"</span>);</span><br><span class="line">		Mac mac = Mac.getInstance(<span class="string">"HmacSHA1"</span>);</span><br><span class="line">		mac.init(signKey);</span><br><span class="line">		<span class="keyword">byte</span>[] hash = mac.doFinal(data);</span><br><span class="line">		<span class="keyword">int</span> offset = hash[<span class="number">20</span> - <span class="number">1</span>] &amp; <span class="number">0xF</span>;</span><br><span class="line">		<span class="comment">// We're using a long because Java hasn't got unsigned int.</span></span><br><span class="line">		<span class="keyword">long</span> truncatedHash = <span class="number">0</span>;</span><br><span class="line">		<span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">4</span>; ++i) &#123;</span><br><span class="line">			truncatedHash &lt;&lt;= <span class="number">8</span>;</span><br><span class="line">			<span class="comment">// We are dealing with signed bytes:</span></span><br><span class="line">			<span class="comment">// we just keep the first byte.</span></span><br><span class="line">			truncatedHash |= (hash[offset + i] &amp; <span class="number">0xFF</span>);</span><br><span class="line">		&#125;</span><br><span class="line">		truncatedHash &amp;= <span class="number">0x7FFFFFFF</span>;</span><br><span class="line">		truncatedHash %= <span class="number">1000000</span>;</span><br><span class="line">		<span class="keyword">return</span> (<span class="keyword">int</span>) truncatedHash;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h4 id="主要流程图"><a href="#主要流程图" class="headerlink" title="主要流程图"></a>主要流程图</h4><p><img src="2.png" alt="登录"><br><img src="3.png" alt="生成google密钥"><br><img src="4.png" alt="扫描二维码"><br><img src="5.png" alt="Google验证器动态验证码"><br><img src="6.png" alt="绑定Google"></p>
+<h4 id="代码地址"><a href="#代码地址" class="headerlink" title="代码地址"></a>代码地址</h4><ul>
+<li>Github: <a href="https://github.com/rstyro/Springboot/tree/master/SpringBoot-Google-Check" target="_blank" rel="noopener">https://github.com/rstyro/Springboot/tree/master/SpringBoot-Google-Check</a></li>
+<li>Gitee: <a href="https://gitee.com/rstyro/spring-boot/tree/master/SpringBoot-Google-Check" target="_blank" rel="noopener">https://gitee.com/rstyro/spring-boot/tree/master/SpringBoot-Google-Check</a></li>
+</ul>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+	
+	    <div>
+	
+	<div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------本文结束 <i class="fa fa-heartbeat"></i> 感谢您的阅读-------------</div>
+    
+</div>
+	
+	</div>
+
+    
+
+    
+      
+    
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div></div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>打赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/blog/images/wechat_pay.jpg" alt="rstyro 微信支付">
+        <p>微信支付</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/blog/images/alipay.jpg" alt="rstyro 支付宝">
+        <p>支付宝</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+	
+	<div>    
+	 
+	 
+	<ul class="post-copyright">
+	  <li class="post-copyright-author">
+		  <strong>本文作者：</strong>rstyro
+	  </li>
+	  <li class="post-copyright-link">
+		<strong>本文链接：</strong>
+		<a href="/blog/2019/04/29/SpringBoot-Google二步验证/" title="SpringBoot-Google二步验证">https://rstyro.github.io/blog/2019/04/29/SpringBoot-Google二步验证/</a>
+	  </li>
+	  <li class="post-copyright-license">
+		<strong>版权： </strong>
+		转载注明出处！
+	  </li>
+	</ul>
+	
+	</div>
+	
+
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2019/04/28/将自己的开源项目发布到Maven中央仓库/" rel="next" title="将自己的开源项目发布到Maven中央仓库">
+                <i class="fa fa-chevron-left"></i> 将自己的开源项目发布到Maven中央仓库
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2019/05/05/Linux安装最新版Git/" rel="prev" title="Linux安装最新版Git">
+                Linux安装最新版Git <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+
+
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+      <div id="sidebar-dimmer"></div>
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/blog/images/avatar.jpg" alt="rstyro">
+            
+              <p class="site-author-name" itemprop="name">rstyro</p>
+              <p class="site-description motion-element" itemprop="description">个人博客,瞎写一些技术笔记等。</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/blog/archives/">
+                
+                    <span class="site-state-item-count">195</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/blog/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">12</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/blog/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">65</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+            <div class="feed-link motion-element">
+              <a href="/blog/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://github.com/rstyro" title="GitHub &rarr; https://github.com/rstyro" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://gitee.com/rstyro" title="Gitee &rarr; https://gitee.com/rstyro" rel="noopener" target="_blank"><i class="fa fa-fw fa-codiepie"></i>Gitee</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="/blog/1006059906" title="QQ &rarr; 1006059906"><i class="fa fa-fw fa-qq"></i>QQ</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://www.jianshu.com/u/651c15a1758a" title="简书 &rarr; https://www.jianshu.com/u/651c15a1758a" rel="noopener" target="_blank"><i class="fa fa-fw fa-book"></i>简书</a>
+                </span>
+              
+            </div>
+          
+
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-block">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                友链
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://rstyro.github.io/blog/" title="https://rstyro.github.io/blog/">帅大叔博客</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://www.zhyd.me/" title="https://www.zhyd.me/" rel="noopener" target="_blank">张亚东博客</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://www.devsong.org/" title="http://www.devsong.org/" rel="noopener" target="_blank">DevSONG</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://www.dalaoyang.cn/" title="https://www.dalaoyang.cn/" rel="noopener" target="_blank">dalaoyang</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://www.chenshuangyi.com/" title="https://www.chenshuangyi.com/" rel="noopener" target="_blank">陈双义博客</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+            
+          
+          <div id="days"></div>
+<script>
+function show_date_time(){
+window.setTimeout("show_date_time()", 1000);
+BirthDay=new Date("04/10/2017 15:13:14");
+today=new Date();
+timeold=(today.getTime()-BirthDay.getTime());
+sectimeold=timeold/1000
+secondsold=Math.floor(sectimeold);
+msPerDay=24*60*60*1000
+e_daysold=timeold/msPerDay
+daysold=Math.floor(e_daysold);
+e_hrsold=(e_daysold-daysold)*24;
+hrsold=setzero(Math.floor(e_hrsold));
+e_minsold=(e_hrsold-hrsold)*60;
+minsold=setzero(Math.floor((e_hrsold-hrsold)*60));
+seconds=setzero(Math.floor((e_minsold-minsold)*60));
+document.getElementById('days').innerHTML="已运行 "+daysold+" 天 "+hrsold+" 小时 "+minsold+" 分 "+seconds+" 秒";
+}
+function setzero(i){
+if (i<10)
+{i="0" + i};
+return i;
+}
+show_date_time();
+</script>
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#SpringBoot-Google二步验证"><span class="nav-number">1.</span> <span class="nav-text">SpringBoot-Google二步验证</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#一、流程"><span class="nav-number">1.1.</span> <span class="nav-text">一、流程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#二、安装身份验证器"><span class="nav-number">1.2.</span> <span class="nav-text">二、安装身份验证器</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#三、代码实现"><span class="nav-number">1.3.</span> <span class="nav-text">三、代码实现</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1、前言"><span class="nav-number">1.3.0.1.</span> <span class="nav-text">1、前言</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2、代码"><span class="nav-number">1.3.0.2.</span> <span class="nav-text">2、代码</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#UserController"><span class="nav-number">1.3.0.2.1.</span> <span class="nav-text">UserController</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#UserService"><span class="nav-number">1.3.0.2.2.</span> <span class="nav-text">UserService</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#GoogleAuthenticator"><span class="nav-number">1.3.0.3.</span> <span class="nav-text">GoogleAuthenticator</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#主要流程图"><span class="nav-number">1.3.0.4.</span> <span class="nav-text">主要流程图</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#代码地址"><span class="nav-number">1.3.0.5.</span> <span class="nav-text">代码地址</span></a></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2022</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">rstyro</span>
+
+  
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+
+  <script src="https://unpkg.com/mermaid@8.11.0/dist/mermaid.min.js"></script>
+  <script>
+    if (window.mermaid) {
+      mermaid.initialize({"startOnload":true});
+    }
+  </script>
+
+
+<div class="theme-info">
+  <div class="powered-by"></div>
+  <span class="post-count">博客全站共338.7k字</span>
+</div>
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-user"></i>
+    </span>
+    <span class="site-uv" title="总访客量">
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+    </span>
+  
+
+  
+    <span class="post-meta-divider">|</span>
+  
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-eye"></i>
+    </span>
+    <span class="site-pv" title="总访问量">
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/blog/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/blog/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/blog/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/blog/js/src/utils.js?v=6.7.0"></script>
+
+  <script src="/blog/js/src/motion.js?v=6.7.0"></script>
+
+
+
+  
+  
+
+  
+  <script src="/blog/js/src/scrollspy.js?v=6.7.0"></script>
+<script src="/blog/js/src/post-details.js?v=6.7.0"></script>
+
+
+
+  
+
+
+  <script src="/blog/js/src/bootstrap.js?v=6.7.0"></script>
+
+
+
+  
+  
+
+
+
+
+  
+
+<script src="//cdn1.lncld.net/static/js/3.11.1/av-min.js"></script>
+
+
+
+  
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/valine/1.3.4/Valine.min.js"></script>
+
+<script>
+  var GUEST = ['nick', 'mail', 'link'];
+  var guest = 'nick,mail,link';
+  guest = guest.split(',').filter(function (item) {
+    return GUEST.indexOf(item) > -1;
+  });
+  new Valine({
+    el: '#comments',
+    verify: false,
+    notify: false,
+    appId: 'LwEPiJFa7YMn2MrJdCwaUbmQ-gzGzoHsz',
+    appKey: 'JqS1y3RxYvDOki9r3NcqqoO5',
+    placeholder: '来都来了，不说几句就走，过分了啊！！！',
+    avatar: 'monsterid',
+    meta: guest,
+    pageSize: '10' || 10,
+    visitor: false
+  });
+</script>
+
+
+
+  
+
+  <script>
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/blog/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url).replace(/\/{2,}/g, '/');
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x"></i></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x"></i></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+  <script>
+    (function(){
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+      }
+      else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+      }
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+    })();
+  </script>
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

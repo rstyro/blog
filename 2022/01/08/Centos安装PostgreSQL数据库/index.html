@@ -1,0 +1,1745 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/blog/css/main.css?v=6.7.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon.jpg?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon.jpg?v=6.7.0">
+
+
+  <link rel="mask-icon" href="/blog/images/logo.svg?v=6.7.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/blog/',
+    scheme: 'Mist',
+    version: '6.7.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":true},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+<script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+<link href="//cdn.bootcss.com/pace/1.0.2/themes/pink/pace-theme-flash.css" rel="stylesheet">
+  <style>
+      .pace .pace-progress {
+          background: #1E92FB; /*进度条颜色*/
+          height: 3px;
+      }
+      .pace .pace-progress-inner {
+           box-shadow: 0 0 10px #1E92FB, 0 0 5px     #1E92FB; /*阴影颜色*/
+      }
+      .pace .pace-activity {
+          border-top-color: #1E92FB;    /*上边框颜色*/
+          border-left-color: #1E92FB;    /*左边框颜色*/
+      }
+  </style>
+
+  <meta name="description" content="一、前言 好久没写文章了，也有小段时间没学习了。 刚好公司用到 PostgreSQL ,周末来学习一波  二、PostgreSQL简介 PostgreSQL是一种特性非常齐全的自由软件的对象-关系型数据库管理系统，是以加州大学计算机系开发的POSTGRES，PostgreSQL支持大部分的SQL标准并且提供了很多其他现代特性， 如：复杂查询、外键、触发器、视图、事务完整性、多版本并发控制等。同样，">
+<meta name="keywords" content="Linux,PostgreSQL">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Centos安装PostgreSQL数据库">
+<meta property="og:url" content="https://rstyro.github.io/blog/2022/01/08/Centos安装PostgreSQL数据库/index.html">
+<meta property="og:site_name" content="帅大叔的博客">
+<meta property="og:description" content="一、前言 好久没写文章了，也有小段时间没学习了。 刚好公司用到 PostgreSQL ,周末来学习一波  二、PostgreSQL简介 PostgreSQL是一种特性非常齐全的自由软件的对象-关系型数据库管理系统，是以加州大学计算机系开发的POSTGRES，PostgreSQL支持大部分的SQL标准并且提供了很多其他现代特性， 如：复杂查询、外键、触发器、视图、事务完整性、多版本并发控制等。同样，">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://rstyro.github.io/blog/2022/01/08/Centos安装PostgreSQL数据库/rank.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2022/01/08/Centos安装PostgreSQL数据库/yum.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2022/01/08/Centos安装PostgreSQL数据库/psql.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2022/01/08/Centos安装PostgreSQL数据库/pwd.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2022/01/08/Centos安装PostgreSQL数据库/pg_hba.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2022/01/08/Centos安装PostgreSQL数据库/listen.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2022/01/08/Centos安装PostgreSQL数据库/connect.png">
+<meta property="og:updated_time" content="2022-01-08T07:35:32.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Centos安装PostgreSQL数据库">
+<meta name="twitter:description" content="一、前言 好久没写文章了，也有小段时间没学习了。 刚好公司用到 PostgreSQL ,周末来学习一波  二、PostgreSQL简介 PostgreSQL是一种特性非常齐全的自由软件的对象-关系型数据库管理系统，是以加州大学计算机系开发的POSTGRES，PostgreSQL支持大部分的SQL标准并且提供了很多其他现代特性， 如：复杂查询、外键、触发器、视图、事务完整性、多版本并发控制等。同样，">
+<meta name="twitter:image" content="https://rstyro.github.io/blog/2022/01/08/Centos安装PostgreSQL数据库/rank.png">
+
+
+
+  <link rel="alternate" href="/blog/atom.xml" title="帅大叔的博客" type="application/atom+xml">
+
+
+
+
+  <link rel="canonical" href="https://rstyro.github.io/blog/2022/01/08/Centos安装PostgreSQL数据库/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>Centos安装PostgreSQL数据库 | 帅大叔的博客</title>
+  
+
+
+
+
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?cd2197f8af1d69b326360027b8f93d92";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+	<a href="https://github.com/rstyro" class="github-corner" aria-label="View source on GitHub"><svg width="80" height="80" viewbox="0 0 250 250" style="fill:#151513; color:#fff; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"/><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"/><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"/></svg></a><style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/blog/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">帅大叔的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">信你所信，为你所见</p>
+      
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/" rel="section">首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/about/" rel="section">关于</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/tags/" rel="section">标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/categories/" rel="section">分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/archives/" rel="section">归档</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-guestbook">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/guestbook/" rel="section">留言</a>
+
+  </li>
+
+      
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            搜索</a>
+        </li>
+      
+    </ul>
+  
+
+  
+    
+
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://rstyro.github.io/blog/blog/2022/01/08/Centos安装PostgreSQL数据库/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="rstyro">
+      <meta itemprop="description" content="个人博客,瞎写一些技术笔记等。">
+      <meta itemprop="image" content="/blog/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="帅大叔的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Centos安装PostgreSQL数据库
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2022-01-08 15:35:32" itemprop="dateCreated datePublished" datetime="2022-01-08T15:35:32+08:00">2022-01-08</time>
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/blog/categories/开发工具/" itemprop="url" rel="index"><span itemprop="name">开发工具</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/blog/2022/01/08/Centos安装PostgreSQL数据库/#comments" itemprop="discussionUrl">
+                  <span class="post-meta-item-text">评论数：</span> <span class="post-comments-count valine-comment-count" data-xid="/blog/2022/01/08/Centos安装PostgreSQL数据库/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="post-meta-item-icon">
+            <i class="fa fa-eye"></i>
+             阅读次数： 
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h3 id="一、前言"><a href="#一、前言" class="headerlink" title="一、前言"></a>一、前言</h3><ul>
+<li>好久没写文章了，也有小段时间没学习了。</li>
+<li>刚好公司用到 PostgreSQL ,周末来学习一波</li>
+</ul>
+<h3 id="二、PostgreSQL简介"><a href="#二、PostgreSQL简介" class="headerlink" title="二、PostgreSQL简介"></a>二、PostgreSQL简介</h3><ul>
+<li>PostgreSQL是一种特性非常齐全的自由软件的对象-关系型数据库管理系统，是以加州大学计算机系开发的POSTGRES，PostgreSQL支持大部分的SQL标准并且提供了很多其他现代特性， 如：复杂查询、外键、触发器、视图、事务完整性、多版本并发控制等。同样，PostgreSQL也可以用许多方法扩展，例如通过增加新的数据类型、函数、操作符、聚集函数、索引方法、过程语言等。另外，因为许可证的灵活，任何人都可以以任何目的免费使用、修改和分发PostgreSQL。</li>
+</ul>
+<p><strong>优点：</strong></p>
+<ul>
+<li>操作系统支持： WINDOWS、Linux、UNIX、MAC OS X、BSD。</li>
+<li>支持ACID、关联完整性、数据库事务、Unicode多国语言。</li>
+<li>支持R-/R+tree索引、哈希索引、反向索引、部分索引、Expression 索引、GiST、GIN（用来加速全文检索）<blockquote>
+<p>从8.3版本开始支持位图索引。</p>
+</blockquote>
+</li>
+</ul>
+<p><strong>受欢迎程度</strong></p>
+<ul>
+<li>自从MySQL被Oracle收购以后，PostgreSQL逐渐成为开源关系型数据库的首选。</li>
+<li>因为开源，所以很多国产数据库都是基于它开发的，比如Greenplum数据库</li>
+<li>而且PostgreSQL在数据库排名也是挺靠前的，使用的人越来越多了</li>
+</ul>
+<p><img src="rank.png" alt></p>
+<blockquote>
+<p>来自网站： <a href="https://db-engines.com/en/ranking" target="_blank" rel="noopener">https://db-engines.com/en/ranking</a></p>
+</blockquote>
+<h3 id="三、安装PostgreSQL"><a href="#三、安装PostgreSQL" class="headerlink" title="三、安装PostgreSQL"></a>三、安装PostgreSQL</h3><ul>
+<li>官网地址：<a href="https://www.postgresql.org/download/" target="_blank" rel="noopener">https://www.postgresql.org/download/</a></li>
+<li>中文文档：<a href="http://www.postgres.cn/v2/document" target="_blank" rel="noopener">http://www.postgres.cn/v2/document</a></li>
+</ul>
+<blockquote>
+<p>PostgreSQL 数据库写着太长了，以下简称 PG 数据库，哈哈</p>
+</blockquote>
+<h4 id="1、Centos7-安装PG数据库"><a href="#1、Centos7-安装PG数据库" class="headerlink" title="1、Centos7 安装PG数据库"></a>1、Centos7 安装PG数据库</h4><ul>
+<li>PG 支持很多系统，本文主要学习Linux 系统下的Centos7 安装，Centos算是常用的服务器系统</li>
+<li>Centos7安装有两种方式，一种是直接使用YUM安装，一种使用源码安装。</li>
+</ul>
+<h5 id="①、YUM安装"><a href="#①、YUM安装" class="headerlink" title="①、YUM安装"></a>①、YUM安装</h5><ul>
+<li>访问网址：<a href="https://www.postgresql.org/download/linux/redhat/" target="_blank" rel="noopener">https://www.postgresql.org/download/linux/redhat/</a></li>
+<li>选择你要安装的版本，然后执行官方给出的命令脚本即可，如下：</li>
+</ul>
+<p><img src="yum.png" alt></p>
+<ul>
+<li>脚本如下：</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 安装yum 源</span></span><br><span class="line">sudo yum install -y https://download.postgresql.org/pub/repos/yum/reporpms/EL-7-x86_64/pgdg-redhat-repo-latest.noarch.rpm</span><br><span class="line"><span class="comment"># 安装PG</span></span><br><span class="line">sudo yum install -y postgresql13-server</span><br><span class="line"></span><br><span class="line"><span class="comment"># 初始化数据库</span></span><br><span class="line">sudo /usr/pgsql-13/bin/postgresql-13-setup initdb</span><br><span class="line"><span class="comment"># PG数据库开机自启动</span></span><br><span class="line">sudo systemctl <span class="built_in">enable</span> postgresql-13</span><br><span class="line"><span class="comment"># 启动PG数据库</span></span><br><span class="line">sudo systemctl start postgresql-13</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>上面命令执行完之后，就可以使用PG数据库了。</li>
+<li>默认的安装目录是：<code>/usr/pgsql-13/</code>,数据目录在：<code>/var/lib/pgsql/13/data/</code></li>
+<li>安装完毕后，系统会创建一个数据库超级用户 <code>postgres</code>，密码随机，但是psql可以连接。</li>
+<li>执行 <code>psql</code> 连接数据库，但是需要切换到 <code>postgres</code> 用户。</li>
+</ul>
+<p><img src="psql.png" alt></p>
+<p><strong>修改postgres的默认密码：</strong></p>
+<ul>
+<li><strong>方式一：</strong><ul>
+<li>1、操作系统切换到<code>postgres</code>用户，执行、<code>psql</code> 进入控制台。</li>
+<li>2、然后执行：<code>\password</code>，然后按提示输入你要修改的密码即可。</li>
+</ul>
+</li>
+<li>方式二：<ul>
+<li>1、操作系统切换到<code>postgres</code>用户，执行、<code>psql</code> 进入控制台。</li>
+<li>2、执行如下即可：</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 切换到postgres 库</span></span><br><span class="line">\c postgres</span><br><span class="line"></span><br><span class="line"><span class="comment"># 修改postgres 用户的密码</span></span><br><span class="line">alter user postgres with PASSWORD <span class="string">'yourPassword'</span>;</span><br></pre></td></tr></table></figure>
+
+<p><img src="pwd.png" alt></p>
+<p><strong>还有其他命令</strong></p>
+<ul>
+<li><p>如，关闭重启服务，如下：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 重启PG数据库</span></span><br><span class="line">sudo systemctl restart postgresql-13</span><br><span class="line"><span class="comment"># 关闭PG数据库</span></span><br><span class="line">sudo systemctl stop postgresql-13</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>YUM安装到这基本就结束了</p>
+</li>
+</ul>
+<h5 id="②、源码安装"><a href="#②、源码安装" class="headerlink" title="②、源码安装"></a>②、源码安装</h5><ul>
+<li>访问官网地址：<a href="https://www.postgresql.org/ftp/source/v13.5/" target="_blank" rel="noopener">https://www.postgresql.org/ftp/source/v13.5/</a></li>
+<li>下载对应的版本，我这边还是下载13 的版本</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment"># 下载安装包</span></span><br><span class="line">wget --no-check-certificate  https://ftp.postgresql.org/pub/<span class="built_in">source</span>/v13.5/postgresql-13.5.tar.gz</span><br><span class="line"></span><br><span class="line"><span class="comment"># 解压安装包，到 /opt</span></span><br><span class="line">tar -zxvf postgresql-13.5.tar.gz -C /opt</span><br><span class="line"></span><br><span class="line"><span class="comment"># 安装依赖</span></span><br><span class="line">yum install -y readline-devel zlib-devel make gcc</span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建postgres 管理员用户其组</span></span><br><span class="line">groupadd postgres</span><br><span class="line">useradd -g postgres postgres</span><br><span class="line"></span><br><span class="line"><span class="comment"># 进入解压的安装目录</span></span><br><span class="line"><span class="built_in">cd</span> /opt/postgresql-13.5</span><br><span class="line"></span><br><span class="line"><span class="comment"># 配置参数，安装到 /usr/local/postgresql-13 目录</span></span><br><span class="line">./configure --prefix=/usr/<span class="built_in">local</span>/postgresql-13</span><br><span class="line"></span><br><span class="line"><span class="comment"># 编译并安装</span></span><br><span class="line">make &amp;&amp; make install</span><br></pre></td></tr></table></figure>
+
+<p><strong>Ⅰ、配置postgres用户环境变量</strong></p>
+<ul>
+<li>编辑postgres用户的 <code>.bash_profile</code>文件</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">vim /home/postgres/.bash_profile</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 在文件末尾添加如下配置</span></span><br><span class="line"><span class="built_in">export</span> PGHOME=/usr/<span class="built_in">local</span>/postgresql-13</span><br><span class="line"><span class="built_in">export</span> PGDATA=/postgresql/data</span><br><span class="line"><span class="built_in">export</span> PATH=<span class="variable">$PATH</span>:<span class="variable">$PGHOME</span>/bin:<span class="variable">$PGDATA</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>其中 <code>/postgresql/data</code> 是PG数据库的存放数据目录</li>
+</ul>
+<p><strong>Ⅱ、初始化数据库</strong></p>
+<ul>
+<li>开始初始化数据库</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 创建PG数据库的数据目录</span></span><br><span class="line">mkdir -p /postgresql/data</span><br><span class="line"></span><br><span class="line"><span class="comment"># 修改权限</span></span><br><span class="line">chown -R postgres:postgres /postgresql</span><br><span class="line"></span><br><span class="line"><span class="comment"># 切换到postgres</span></span><br><span class="line">su - postgres</span><br><span class="line"></span><br><span class="line"><span class="comment"># 初始化PG数据库,-D 后面是初始化的数据目录（上面配置了，其实是可以不加-D的）</span></span><br><span class="line">initdb -D /postgresql/data</span><br><span class="line"></span><br><span class="line"><span class="comment"># 然后按照提示启动PG数据库即可,-l 是日志写入到当前目录的logfile文件</span></span><br><span class="line">pg_ctl -D /postgresql/data -l logfile start</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>然后就可以执行 <code>psql</code> 登陆到控制台了，后面的操作就可以yum按照一样了。</li>
+</ul>
+<p><strong>常用命令：</strong></p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">pg_ctl start</span><br><span class="line">pg_ctl restart</span><br><span class="line">pg_ctl stop</span><br><span class="line"></span><br><span class="line"><span class="comment"># -m 是一个关闭的模式，有3钟可以选择，可通过： pg_ctl --help 查看参数含义</span></span><br><span class="line">pg_ctl stop -mf</span><br></pre></td></tr></table></figure>
+
+<h4 id="2、PG数据库配置远程连接"><a href="#2、PG数据库配置远程连接" class="headerlink" title="2、PG数据库配置远程连接"></a>2、PG数据库配置远程连接</h4><ul>
+<li>需要进入到PG数据库的数据目录</li>
+<li>修改<code>pg_hba.conf</code> 和 <code>postgresql.conf</code> 配置文件</li>
+</ul>
+<p><strong>1、修改pg_hba.conf</strong></p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 新增如下,把192.168.32.1 改成你所在的网段即可</span></span><br><span class="line"><span class="comment"># 或者也可以直接设置为： 0.0.0.0/0 就是所有IP 都可以访问</span></span><br><span class="line"></span><br><span class="line">host    all     all    192.168.32.1/32    trust</span><br></pre></td></tr></table></figure>
+
+<p><img src="pg_hba.png" alt></p>
+<p><strong>2、修改postgresql.conf</strong></p>
+<ul>
+<li>把 <code>listen_addresses=&#39;localhost&#39;</code> 改成 <code>listen_addresses=&#39;*&#39;</code> </li>
+<li>如下图所示，两个文件都修改了之后，重启一下服务：<code>pg_ctl restart</code></li>
+</ul>
+<p><img src="listen.png" alt></p>
+<blockquote>
+<p>记得把系统防火墙放开，默认的PG数据库端口是 5432</p>
+</blockquote>
+<p><img src="connect.png" alt></p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+	
+	    <div>
+	
+	<div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------本文结束 <i class="fa fa-heartbeat"></i> 感谢您的阅读-------------</div>
+    
+</div>
+	
+	</div>
+
+    
+
+    
+      
+    
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div></div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>打赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/blog/images/wechat_pay.jpg" alt="rstyro 微信支付">
+        <p>微信支付</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/blog/images/alipay.jpg" alt="rstyro 支付宝">
+        <p>支付宝</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+	
+	<div>    
+	 
+	 
+	<ul class="post-copyright">
+	  <li class="post-copyright-author">
+		  <strong>本文作者：</strong>rstyro
+	  </li>
+	  <li class="post-copyright-link">
+		<strong>本文链接：</strong>
+		<a href="/blog/2022/01/08/Centos安装PostgreSQL数据库/" title="Centos安装PostgreSQL数据库">https://rstyro.github.io/blog/2022/01/08/Centos安装PostgreSQL数据库/</a>
+	  </li>
+	  <li class="post-copyright-license">
+		<strong>版权： </strong>
+		转载注明出处！
+	  </li>
+	</ul>
+	
+	</div>
+	
+
+      
+        <div class="post-tags">
+          
+            <a href="/blog/tags/Linux/" rel="tag"><i class="fa fa-tag"></i> Linux</a>
+          
+            <a href="/blog/tags/PostgreSQL/" rel="tag"><i class="fa fa-tag"></i> PostgreSQL</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2021/10/21/mhvtl安装使用/" rel="next" title="mhvtl安装使用">
+                <i class="fa fa-chevron-left"></i> mhvtl安装使用
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2022/01/21/Centos7监控程序挂机自动重启/" rel="prev" title="Centos7监控程序挂机自动重启">
+                Centos7监控程序挂机自动重启 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+
+
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+      <div id="sidebar-dimmer"></div>
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/blog/images/avatar.jpg" alt="rstyro">
+            
+              <p class="site-author-name" itemprop="name">rstyro</p>
+              <p class="site-description motion-element" itemprop="description">个人博客,瞎写一些技术笔记等。</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/blog/archives/">
+                
+                    <span class="site-state-item-count">195</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/blog/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">12</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/blog/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">65</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+            <div class="feed-link motion-element">
+              <a href="/blog/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://github.com/rstyro" title="GitHub &rarr; https://github.com/rstyro" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://gitee.com/rstyro" title="Gitee &rarr; https://gitee.com/rstyro" rel="noopener" target="_blank"><i class="fa fa-fw fa-codiepie"></i>Gitee</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="/blog/1006059906" title="QQ &rarr; 1006059906"><i class="fa fa-fw fa-qq"></i>QQ</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://www.jianshu.com/u/651c15a1758a" title="简书 &rarr; https://www.jianshu.com/u/651c15a1758a" rel="noopener" target="_blank"><i class="fa fa-fw fa-book"></i>简书</a>
+                </span>
+              
+            </div>
+          
+
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-block">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                友链
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://rstyro.github.io/blog/" title="https://rstyro.github.io/blog/">帅大叔博客</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://www.zhyd.me/" title="https://www.zhyd.me/" rel="noopener" target="_blank">张亚东博客</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://www.devsong.org/" title="http://www.devsong.org/" rel="noopener" target="_blank">DevSONG</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://www.dalaoyang.cn/" title="https://www.dalaoyang.cn/" rel="noopener" target="_blank">dalaoyang</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://www.chenshuangyi.com/" title="https://www.chenshuangyi.com/" rel="noopener" target="_blank">陈双义博客</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+            
+          
+          <div id="days"></div>
+<script>
+function show_date_time(){
+window.setTimeout("show_date_time()", 1000);
+BirthDay=new Date("04/10/2017 15:13:14");
+today=new Date();
+timeold=(today.getTime()-BirthDay.getTime());
+sectimeold=timeold/1000
+secondsold=Math.floor(sectimeold);
+msPerDay=24*60*60*1000
+e_daysold=timeold/msPerDay
+daysold=Math.floor(e_daysold);
+e_hrsold=(e_daysold-daysold)*24;
+hrsold=setzero(Math.floor(e_hrsold));
+e_minsold=(e_hrsold-hrsold)*60;
+minsold=setzero(Math.floor((e_hrsold-hrsold)*60));
+seconds=setzero(Math.floor((e_minsold-minsold)*60));
+document.getElementById('days').innerHTML="已运行 "+daysold+" 天 "+hrsold+" 小时 "+minsold+" 分 "+seconds+" 秒";
+}
+function setzero(i){
+if (i<10)
+{i="0" + i};
+return i;
+}
+show_date_time();
+</script>
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#一、前言"><span class="nav-number">1.</span> <span class="nav-text">一、前言</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#二、PostgreSQL简介"><span class="nav-number">2.</span> <span class="nav-text">二、PostgreSQL简介</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#三、安装PostgreSQL"><span class="nav-number">3.</span> <span class="nav-text">三、安装PostgreSQL</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1、Centos7-安装PG数据库"><span class="nav-number">3.1.</span> <span class="nav-text">1、Centos7 安装PG数据库</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#①、YUM安装"><span class="nav-number">3.1.1.</span> <span class="nav-text">①、YUM安装</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#②、源码安装"><span class="nav-number">3.1.2.</span> <span class="nav-text">②、源码安装</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2、PG数据库配置远程连接"><span class="nav-number">3.2.</span> <span class="nav-text">2、PG数据库配置远程连接</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2022</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">rstyro</span>
+
+  
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+
+  <script src="https://unpkg.com/mermaid@8.11.0/dist/mermaid.min.js"></script>
+  <script>
+    if (window.mermaid) {
+      mermaid.initialize({"startOnload":true});
+    }
+  </script>
+
+
+<div class="theme-info">
+  <div class="powered-by"></div>
+  <span class="post-count">博客全站共338.7k字</span>
+</div>
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-user"></i>
+    </span>
+    <span class="site-uv" title="总访客量">
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+    </span>
+  
+
+  
+    <span class="post-meta-divider">|</span>
+  
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-eye"></i>
+    </span>
+    <span class="site-pv" title="总访问量">
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/blog/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/blog/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/blog/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/blog/js/src/utils.js?v=6.7.0"></script>
+
+  <script src="/blog/js/src/motion.js?v=6.7.0"></script>
+
+
+
+  
+  
+
+  
+  <script src="/blog/js/src/scrollspy.js?v=6.7.0"></script>
+<script src="/blog/js/src/post-details.js?v=6.7.0"></script>
+
+
+
+  
+
+
+  <script src="/blog/js/src/bootstrap.js?v=6.7.0"></script>
+
+
+
+  
+  
+
+
+
+
+  
+
+<script src="//cdn1.lncld.net/static/js/3.11.1/av-min.js"></script>
+
+
+
+  
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/valine/1.3.4/Valine.min.js"></script>
+
+<script>
+  var GUEST = ['nick', 'mail', 'link'];
+  var guest = 'nick,mail,link';
+  guest = guest.split(',').filter(function (item) {
+    return GUEST.indexOf(item) > -1;
+  });
+  new Valine({
+    el: '#comments',
+    verify: false,
+    notify: false,
+    appId: 'LwEPiJFa7YMn2MrJdCwaUbmQ-gzGzoHsz',
+    appKey: 'JqS1y3RxYvDOki9r3NcqqoO5',
+    placeholder: '来都来了，不说几句就走，过分了啊！！！',
+    avatar: 'monsterid',
+    meta: guest,
+    pageSize: '10' || 10,
+    visitor: false
+  });
+</script>
+
+
+
+  
+
+  <script>
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/blog/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url).replace(/\/{2,}/g, '/');
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x"></i></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x"></i></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+  <script>
+    (function(){
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+      }
+      else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+      }
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+    })();
+  </script>
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

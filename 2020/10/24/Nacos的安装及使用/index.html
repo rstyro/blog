@@ -1,0 +1,1751 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/blog/css/main.css?v=6.7.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon.jpg?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon.jpg?v=6.7.0">
+
+
+  <link rel="mask-icon" href="/blog/images/logo.svg?v=6.7.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/blog/',
+    scheme: 'Mist',
+    version: '6.7.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":true},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+<script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+<link href="//cdn.bootcss.com/pace/1.0.2/themes/pink/pace-theme-flash.css" rel="stylesheet">
+  <style>
+      .pace .pace-progress {
+          background: #1E92FB; /*进度条颜色*/
+          height: 3px;
+      }
+      .pace .pace-progress-inner {
+           box-shadow: 0 0 10px #1E92FB, 0 0 5px     #1E92FB; /*阴影颜色*/
+      }
+      .pace .pace-activity {
+          border-top-color: #1E92FB;    /*上边框颜色*/
+          border-left-color: #1E92FB;    /*左边框颜色*/
+      }
+  </style>
+
+  <meta name="description" content="一、Nacos简介Nacos 是构建以“服务”为中心的现代应用架构 (例如微服务范式、云原生范式) 的服务基础设施。 Nacos 的主要特性有：  1、服务发现和服务健康检测简单的讲就是微服务的注册中心组件 2、动态配置服务简单的讲就是微服务的配置中心组件 3、动态DNS服务DNS解析服务，可配置路由的权重，实现中间层的负载均衡 4、服务及元数据管理可视化管理服务的元数据、包括服务的描述、生命周期">
+<meta name="keywords" content="SpringCloud-Alibaba,SpringCloud">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Nacos的安装及使用">
+<meta property="og:url" content="https://rstyro.github.io/blog/2020/10/24/Nacos的安装及使用/index.html">
+<meta property="og:site_name" content="帅大叔的博客">
+<meta property="og:description" content="一、Nacos简介Nacos 是构建以“服务”为中心的现代应用架构 (例如微服务范式、云原生范式) 的服务基础设施。 Nacos 的主要特性有：  1、服务发现和服务健康检测简单的讲就是微服务的注册中心组件 2、动态配置服务简单的讲就是微服务的配置中心组件 3、动态DNS服务DNS解析服务，可配置路由的权重，实现中间层的负载均衡 4、服务及元数据管理可视化管理服务的元数据、包括服务的描述、生命周期">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://rstyro.github.io/blog/2020/10/24/Nacos的安装及使用/info.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2020/10/24/Nacos的安装及使用/nacos.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2020/10/24/Nacos的安装及使用/dir.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2020/10/24/Nacos的安装及使用/cluster.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2020/10/24/Nacos的安装及使用/cluster2.png">
+<meta property="og:updated_time" content="2022-01-21T06:16:17.076Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Nacos的安装及使用">
+<meta name="twitter:description" content="一、Nacos简介Nacos 是构建以“服务”为中心的现代应用架构 (例如微服务范式、云原生范式) 的服务基础设施。 Nacos 的主要特性有：  1、服务发现和服务健康检测简单的讲就是微服务的注册中心组件 2、动态配置服务简单的讲就是微服务的配置中心组件 3、动态DNS服务DNS解析服务，可配置路由的权重，实现中间层的负载均衡 4、服务及元数据管理可视化管理服务的元数据、包括服务的描述、生命周期">
+<meta name="twitter:image" content="https://rstyro.github.io/blog/2020/10/24/Nacos的安装及使用/info.png">
+
+
+
+  <link rel="alternate" href="/blog/atom.xml" title="帅大叔的博客" type="application/atom+xml">
+
+
+
+
+  <link rel="canonical" href="https://rstyro.github.io/blog/2020/10/24/Nacos的安装及使用/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>Nacos的安装及使用 | 帅大叔的博客</title>
+  
+
+
+
+
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?cd2197f8af1d69b326360027b8f93d92";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+	<a href="https://github.com/rstyro" class="github-corner" aria-label="View source on GitHub"><svg width="80" height="80" viewbox="0 0 250 250" style="fill:#151513; color:#fff; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"/><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"/><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"/></svg></a><style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/blog/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">帅大叔的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">信你所信，为你所见</p>
+      
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/" rel="section">首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/about/" rel="section">关于</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/tags/" rel="section">标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/categories/" rel="section">分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/archives/" rel="section">归档</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-guestbook">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/guestbook/" rel="section">留言</a>
+
+  </li>
+
+      
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            搜索</a>
+        </li>
+      
+    </ul>
+  
+
+  
+    
+
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://rstyro.github.io/blog/blog/2020/10/24/Nacos的安装及使用/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="rstyro">
+      <meta itemprop="description" content="个人博客,瞎写一些技术笔记等。">
+      <meta itemprop="image" content="/blog/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="帅大叔的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Nacos的安装及使用
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2020-10-24 19:55:26" itemprop="dateCreated datePublished" datetime="2020-10-24T19:55:26+08:00">2020-10-24</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2022-01-21 14:16:17" itemprop="dateModified" datetime="2022-01-21T14:16:17+08:00">2022-01-21</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/blog/categories/Java/" itemprop="url" rel="index"><span itemprop="name">Java</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/blog/2020/10/24/Nacos的安装及使用/#comments" itemprop="discussionUrl">
+                  <span class="post-meta-item-text">评论数：</span> <span class="post-comments-count valine-comment-count" data-xid="/blog/2020/10/24/Nacos的安装及使用/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="post-meta-item-icon">
+            <i class="fa fa-eye"></i>
+             阅读次数： 
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="一、Nacos简介"><a href="#一、Nacos简介" class="headerlink" title="一、Nacos简介"></a>一、Nacos简介</h2><p>Nacos 是构建以“服务”为中心的现代应用架构 (例如微服务范式、云原生范式) 的服务基础设施。</p>
+<p>Nacos 的主要特性有：</p>
+<ul>
+<li><strong>1、服务发现和服务健康检测</strong><br>简单的讲就是微服务的注册中心组件</li>
+<li><strong>2、动态配置服务</strong><br>简单的讲就是微服务的配置中心组件</li>
+<li><strong>3、动态DNS服务</strong><br>DNS解析服务，可配置路由的权重，实现中间层的负载均衡</li>
+<li><strong>4、服务及元数据管理</strong><br>可视化管理服务的元数据、包括服务的描述、生命周期、健康状态、流量管理等等</li>
+</ul>
+<p>可查看官网战略图：</p>
+<p><img src="info.png" alt></p>
+<p><strong>官网地址：<a href="https://nacos.io/zh-cn/index.html" target="_blank" rel="noopener">https://nacos.io/zh-cn/index.html</a></strong></p>
+<h2 id="二、Nacos安装与使用"><a href="#二、Nacos安装与使用" class="headerlink" title="二、Nacos安装与使用"></a>二、Nacos安装与使用</h2><p>快速开始使用</p>
+<h3 id="1、下载"><a href="#1、下载" class="headerlink" title="1、下载"></a>1、下载</h3><h4 id="方式1、下载发行版"><a href="#方式1、下载发行版" class="headerlink" title="方式1、下载发行版"></a>方式1、下载发行版</h4><p>Nacos 的代码开源在Github 上，所以它的发行版也在上面。随便下载： <code>.zip</code> 和<code>.tar.gz</code> 其中一个即可</p>
+<ul>
+<li><strong>1、Github发行地址：</strong><a href="https://github.com/alibaba/nacos/releases" target="_blank" rel="noopener">https://github.com/alibaba/nacos/releases</a><br>Github在国内访问，速度是真的慢，所以速度慢的可以使用国内的gitee进行下载</li>
+<li><strong>2、Gitee发行地址：</strong><a href="https://gitee.com/mirrors/Nacos/releases" target="_blank" rel="noopener">https://gitee.com/mirrors/Nacos/releases</a><br>Gitee下载下来是源码，需要自己编译安装，但是gitee 还有百度网盘的下载地址，在介绍页的最后有<a href="https://pan.baidu.com/s/1186nmlqPGows9gUZKAx8Zw" target="_blank" rel="noopener">Baidu Netdisk</a>点击即可下载，提取码是：<code>rest</code>。</li>
+</ul>
+<blockquote>
+<p>注意这个网盘地址，可能会失效，如失效可自行去Gitee找最新的地址。</p>
+</blockquote>
+<h4 id="方式2、下载源码自己编译"><a href="#方式2、下载源码自己编译" class="headerlink" title="方式2、下载源码自己编译"></a>方式2、下载源码自己编译</h4><p>这种方式我也是推荐的，github速度慢，源码可以在gitee上下载，每天同步一次。</p>
+<figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="comment"># Github</span></span><br><span class="line"><span class="string">git</span> <span class="string">clone</span> <span class="string">https://github.com/alibaba/nacos.git</span></span><br><span class="line"><span class="comment"># Gitee（国内推荐这个，可以clone具体的版本哦！）</span></span><br><span class="line"><span class="string">git</span> <span class="string">clone</span> <span class="string">https://gitee.com/mirrors/Nacos.git</span></span><br><span class="line"></span><br><span class="line"><span class="string">cd</span> <span class="string">nacos/</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 编译</span></span><br><span class="line"><span class="string">mvn</span> <span class="string">-Prelease-nacos</span> <span class="string">-Dmaven.test.skip=true</span> <span class="string">clean</span> <span class="string">install</span> <span class="string">-U</span>  </span><br><span class="line"></span><br><span class="line"><span class="string">ls</span> <span class="string">-al</span> <span class="string">distribution/target/</span></span><br></pre></td></tr></table></figure>
+
+<p>编译完成之后，生成的安装包在 <code>distribution/target/</code>目录下面有两个<code>.zip</code> 和<code>.tar.gz</code>的就是安装包了。解压即可。</p>
+<h3 id="2、启动"><a href="#2、启动" class="headerlink" title="2、启动"></a>2、启动</h3><p>在上面下载或自己编译得到的压缩文件，自己动手解压之后，就可以启动了。<br>我记得我之前在<code>1.0.0</code>版本还是之前的哪个版本用过的，在windows下直接双击<code>bin/startup.cmd</code>即可运行。<br>但是我现在用的是最新版本：<code>1.3.2</code>这个版本nacos的启动模式默认是集群模式，所以双击启动会报错。</p>
+<p>解决方法：</p>
+<h4 id="在Linux-Unix-Mac下"><a href="#在Linux-Unix-Mac下" class="headerlink" title="在Linux/Unix/Mac下"></a>在Linux/Unix/Mac下</h4><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 启动命令(standalone代表着单机模式运行，非集群模式):</span></span><br><span class="line">sh startup.sh -m standalone</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 如果您使用的是ubuntu系统，或者运行脚本报错提示[[符号找不到，可尝试如下运行：</span></span><br><span class="line">bash startup.sh -m standalone</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>在启动的时候可以加参数：<code>-m standalone</code>单机启动。</li>
+<li>或者修改<code>bin/startup.sh</code>,找到<code>export MODE=&quot;cluster&quot;</code> 改为：<code>export MODE=&quot;standalone&quot;</code> 即可。</li>
+</ul>
+<h4 id="在windows下"><a href="#在windows下" class="headerlink" title="在windows下"></a>在windows下</h4><ul>
+<li>这个和上面的一样，启动加参数:<code>startup.cmd -m standalone</code></li>
+<li>或者修改bin目录下的：<code>startup.cmd</code>文件找到<code>set MODE=&quot;cluster&quot;</code> 改为：<code>set MODE=&quot;standalone&quot;</code>即可</li>
+</ul>
+<h3 id="3、访问Nacos"><a href="#3、访问Nacos" class="headerlink" title="3、访问Nacos"></a>3、访问Nacos</h3><ul>
+<li>在上面步骤启动成功之后访问：<a href="http://127.0.0.1:8848/nacos/#/login" target="_blank" rel="noopener">http://127.0.0.1:8848/nacos/#/login</a></li>
+<li>即可登陆到nacos管理界面,<strong>默认的账号和密码都是:<code>nacos</code></strong></li>
+<li>Nacos默认启动端口是<code>8848</code>,这不就是珠穆朗玛峰的高度吗？</li>
+</ul>
+<p><img src="nacos.png" alt></p>
+<h3 id="4、测试"><a href="#4、测试" class="headerlink" title="4、测试"></a>4、测试</h3><p>启动之后我们看到nacos的管理界面有：</p>
+<ul>
+<li>配置管理<br>这个就是配置中心了，随意配置</li>
+<li>服务管理<br>注册中心的服务管理</li>
+<li>权限控制<br>这个是nacos的用户角色管理</li>
+<li>命名空间<br>不同的命名空间可以有不同的配置与服务，像生产环境、开发环境、测试环境的各种配置什么的就可以以命名空间隔开</li>
+<li>集群管理<br>这个是nacos的高可用，集群列表</li>
+</ul>
+<p>感觉都不算难，比较人性化，可以自己随便玩一玩，试一试。可以使用<code>postman</code>接口请求测试,或者使用<code>curl</code></p>
+<figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 服务注册</span></span><br><span class="line"><span class="string">POST</span> <span class="string">http://127.0.0.1:8848/nacos/v1/ns/instance?serviceName=nacos.naming.serviceName&amp;ip=20.18.7.10&amp;port=8080</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 服务发现</span></span><br><span class="line"><span class="string">GET</span> <span class="string">http://127.0.0.1:8848/nacos/v1/ns/instance/list?serviceName=nacos.naming.serviceName</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 发布配置</span></span><br><span class="line"><span class="string">POST</span> <span class="string">http://127.0.0.1:8848/nacos/v1/cs/configs?dataId=nacos.cfg.dataId&amp;group=test&amp;content=HelloWorld</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 获取配置</span></span><br><span class="line"><span class="string">GET</span> <span class="string">http://127.0.0.1:8848/nacos/v1/cs/configs?dataId=nacos.cfg.dataId&amp;group=test</span></span><br></pre></td></tr></table></figure>
+
+<p>当然，也是可以使用nacos 客户端进行测试的。</p>
+<h3 id="5、关闭服务"><a href="#5、关闭服务" class="headerlink" title="5、关闭服务"></a>5、关闭服务</h3><p>直接执行bin目录下的<code>shutdown</code>可执行文件即可。</p>
+<figure class="highlight arduino"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line"><span class="built_in">shutdown</span>.sh</span><br><span class="line"></span><br><span class="line"><span class="built_in">shutdown</span>.cmd</span><br></pre></td></tr></table></figure>
+
+<h2 id="三、Nacos数据持久化"><a href="#三、Nacos数据持久化" class="headerlink" title="三、Nacos数据持久化"></a>三、Nacos数据持久化</h2><p>nacos默认的数据是保存在本地文件中，其实Nacos也是提供配置让我们保存在Mysql中的。</p>
+<p>我的环境：</p>
+<ul>
+<li>Nacos版本:<code>1.3.2</code></li>
+<li>Mysql版本:<code>mysql8.0</code></li>
+</ul>
+<h3 id="1、导入Mysql脚本"><a href="#1、导入Mysql脚本" class="headerlink" title="1、导入Mysql脚本"></a>1、导入Mysql脚本</h3><ul>
+<li>首先新建一个叫做:<code>nacos</code>的数据库（名字随便取）</li>
+<li>然后在nacos的conf目录下，找到<code>nacos-mysql.sql</code> 把它导入到<code>nacos</code>数据库。</li>
+</ul>
+<h3 id="2、更新配置"><a href="#2、更新配置" class="headerlink" title="2、更新配置"></a>2、更新配置</h3><ul>
+<li>修改nacos的conf目录下的<code>application.properties</code>，的mysql配置</li>
+<li>把注释打开，然后修改为你自己mysql的配置即可</li>
+</ul>
+<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="comment">### If use MySQL as datasource:</span></span><br><span class="line"><span class="attr">spring.datasource.platform</span>=mysql</span><br><span class="line"></span><br><span class="line"><span class="comment">### Count of DB:</span></span><br><span class="line"><span class="attr">db.num</span>=<span class="number">1</span></span><br><span class="line"></span><br><span class="line"><span class="comment">### Connect URL of DB:</span></span><br><span class="line"><span class="attr">db.url.0</span>=jdbc:mysql://<span class="number">127.0</span>.<span class="number">0.1</span>:<span class="number">3306</span>/nacos?characterEncoding=utf8&amp;connectTimeout=<span class="number">1000</span>&amp;socketTimeout=<span class="number">3000</span>&amp;autoReconnect=<span class="literal">true</span>&amp;useUnicode=<span class="literal">true</span>&amp;useSSL=<span class="literal">false</span>&amp;serverTimezone=UTC</span><br><span class="line"><span class="attr">db.user</span>=root</span><br><span class="line"><span class="attr">db.password</span>=root</span><br></pre></td></tr></table></figure>
+
+<p>更新完配置，照常启动即可。</p>
+<h2 id="四、Nacos集群"><a href="#四、Nacos集群" class="headerlink" title="四、Nacos集群"></a>四、Nacos集群</h2><ul>
+<li>Nacos的高可用，配置集群。其实配置集群非常简单</li>
+<li>在nacos的conf目录有一个叫做<code>cluster.conf.example</code>这个就是配置集群的模板文件。</li>
+<li>打开发现里面只需要填写ip即可。我们可以修改它为<code>cluster.conf</code>（也就是把后缀去掉）。</li>
+<li>或者新增一个<code>cluster.conf</code>，然后再里面写上各个节点的nacos地址即可。</li>
+<li>如果是集群模式的话默认会去查找数据源，如果没有配置外置数据源则使用内置数据源,命令：<code>startup.sh -p embedded</code>。</li>
+<li>使用外置数据源：<code>startup.sh</code>,所以，如果没有配置数据源，记得加参数：<code>-p embedded</code>。</li>
+</ul>
+<h3 id="1、在不同主机上运行nacos"><a href="#1、在不同主机上运行nacos" class="headerlink" title="1、在不同主机上运行nacos"></a>1、在不同主机上运行nacos</h3><p>如果在不同ip的主机上运行nacos,只需要添加<code>cluster.conf</code>文件里面每行写一个nacos所在的<code>ip:port</code>即可。</p>
+<h3 id="2、在一台电脑配置集群"><a href="#2、在一台电脑配置集群" class="headerlink" title="2、在一台电脑配置集群"></a>2、在一台电脑配置集群</h3><p>没办法，太穷，资源有限，只能提供一台机器。所以只能在一台机器以不同端口启动的方式来配置集群。</p>
+<p><strong>打算的启动端口为：</strong></p>
+<ul>
+<li>8858</li>
+<li>8868</li>
+<li>8878</li>
+</ul>
+<h4 id="操作步骤"><a href="#操作步骤" class="headerlink" title="操作步骤"></a>操作步骤</h4><ul>
+<li>1、下载nacos的发行版<a href="https://github.com/alibaba/nacos/releases/download/1.3.2/nacos-server-1.3.2.zip" target="_blank" rel="noopener">.zip</a>或<a href="https://github.com/alibaba/nacos/releases/download/1.3.2/nacos-server-1.3.2.tar.gz" target="_blank" rel="noopener">.tag.gz</a>随便一个。</li>
+<li>2、新建一个文件夹为<code>cluster</code>（随便取名，然后方便管理）</li>
+<li>3、解压上面下载的发行版，放到上面新建的<code>cluster</code>文件夹，并重命名为：<code>nacos-server-8858</code>。</li>
+<li>4、修改<code>nacos-server-8858</code>配置文件下的<code>application.properties</code>，修改端口为8858。</li>
+</ul>
+<blockquote>
+<p>Tip: 修改端口的配置项为：<code>server.port=8858</code>,修改后面的数字即可。</p>
+</blockquote>
+<ul>
+<li>5、在<code>nacos-server-8858</code>下的conf目录新增<code>cluster.conf</code>,编辑内容如下：</li>
+</ul>
+<figure class="highlight accesslog"><table><tr><td class="code"><pre><span class="line"><span class="number">127.0.0.1:8858</span></span><br><span class="line"><span class="number">127.0.0.1:8868</span></span><br><span class="line"><span class="number">127.0.0.1:8878</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>6、再从8858复制出两份，分别命名为<code>nacos-server-8868</code>、<code>nacos-server-8878</code>。</li>
+<li>7、分别修改复制出来的两个夹下的<code>application.properties</code>端口为<code>8868</code>、<code>8878</code></li>
+<li>8、因为在<code>nacos-server-8858</code>中已经新建了<code>cluster.conf</code>，所以其中两个复制出来的也自带了这个文件不需要修改。</li>
+</ul>
+<p>示例图如下：</p>
+<p><img src="dir.png" alt></p>
+<p>上面已经全部配置完成了，分别启动即可看到集群的情况。</p>
+<p><img src="cluster.png" alt></p>
+<p><img src="cluster2.png" alt></p>
+<p>自此集群就配置成功了，可以通过nginx 负载均衡</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+	
+	    <div>
+	
+	<div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------本文结束 <i class="fa fa-heartbeat"></i> 感谢您的阅读-------------</div>
+    
+</div>
+	
+	</div>
+
+    
+
+    
+      
+    
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div></div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>打赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/blog/images/wechat_pay.jpg" alt="rstyro 微信支付">
+        <p>微信支付</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/blog/images/alipay.jpg" alt="rstyro 支付宝">
+        <p>支付宝</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+	
+	<div>    
+	 
+	 
+	<ul class="post-copyright">
+	  <li class="post-copyright-author">
+		  <strong>本文作者：</strong>rstyro
+	  </li>
+	  <li class="post-copyright-link">
+		<strong>本文链接：</strong>
+		<a href="/blog/2020/10/24/Nacos的安装及使用/" title="Nacos的安装及使用">https://rstyro.github.io/blog/2020/10/24/Nacos的安装及使用/</a>
+	  </li>
+	  <li class="post-copyright-license">
+		<strong>版权： </strong>
+		转载注明出处！
+	  </li>
+	</ul>
+	
+	</div>
+	
+
+      
+        <div class="post-tags">
+          
+            <a href="/blog/tags/SpringCloud-Alibaba/" rel="tag"><i class="fa fa-tag"></i> SpringCloud-Alibaba</a>
+          
+            <a href="/blog/tags/SpringCloud/" rel="tag"><i class="fa fa-tag"></i> SpringCloud</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2020/10/23/Elasticsearch7之Reindex数据迁移详解/" rel="next" title="Elasticsearch7之Reindex数据迁移详解">
+                <i class="fa fa-chevron-left"></i> Elasticsearch7之Reindex数据迁移详解
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2020/10/26/SpringCloud-Alibaba之Nacos服务注册发现与多种消费方式/" rel="prev" title="SpringCloud-Alibaba之Nacos服务注册发现与多种消费方式">
+                SpringCloud-Alibaba之Nacos服务注册发现与多种消费方式 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+
+
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+      <div id="sidebar-dimmer"></div>
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/blog/images/avatar.jpg" alt="rstyro">
+            
+              <p class="site-author-name" itemprop="name">rstyro</p>
+              <p class="site-description motion-element" itemprop="description">个人博客,瞎写一些技术笔记等。</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/blog/archives/">
+                
+                    <span class="site-state-item-count">195</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/blog/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">12</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/blog/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">65</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+            <div class="feed-link motion-element">
+              <a href="/blog/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://github.com/rstyro" title="GitHub &rarr; https://github.com/rstyro" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://gitee.com/rstyro" title="Gitee &rarr; https://gitee.com/rstyro" rel="noopener" target="_blank"><i class="fa fa-fw fa-codiepie"></i>Gitee</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="/blog/1006059906" title="QQ &rarr; 1006059906"><i class="fa fa-fw fa-qq"></i>QQ</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://www.jianshu.com/u/651c15a1758a" title="简书 &rarr; https://www.jianshu.com/u/651c15a1758a" rel="noopener" target="_blank"><i class="fa fa-fw fa-book"></i>简书</a>
+                </span>
+              
+            </div>
+          
+
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-block">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                友链
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://rstyro.github.io/blog/" title="https://rstyro.github.io/blog/">帅大叔博客</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://www.zhyd.me/" title="https://www.zhyd.me/" rel="noopener" target="_blank">张亚东博客</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://www.devsong.org/" title="http://www.devsong.org/" rel="noopener" target="_blank">DevSONG</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://www.dalaoyang.cn/" title="https://www.dalaoyang.cn/" rel="noopener" target="_blank">dalaoyang</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://www.chenshuangyi.com/" title="https://www.chenshuangyi.com/" rel="noopener" target="_blank">陈双义博客</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+            
+          
+          <div id="days"></div>
+<script>
+function show_date_time(){
+window.setTimeout("show_date_time()", 1000);
+BirthDay=new Date("04/10/2017 15:13:14");
+today=new Date();
+timeold=(today.getTime()-BirthDay.getTime());
+sectimeold=timeold/1000
+secondsold=Math.floor(sectimeold);
+msPerDay=24*60*60*1000
+e_daysold=timeold/msPerDay
+daysold=Math.floor(e_daysold);
+e_hrsold=(e_daysold-daysold)*24;
+hrsold=setzero(Math.floor(e_hrsold));
+e_minsold=(e_hrsold-hrsold)*60;
+minsold=setzero(Math.floor((e_hrsold-hrsold)*60));
+seconds=setzero(Math.floor((e_minsold-minsold)*60));
+document.getElementById('days').innerHTML="已运行 "+daysold+" 天 "+hrsold+" 小时 "+minsold+" 分 "+seconds+" 秒";
+}
+function setzero(i){
+if (i<10)
+{i="0" + i};
+return i;
+}
+show_date_time();
+</script>
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#一、Nacos简介"><span class="nav-number">1.</span> <span class="nav-text">一、Nacos简介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#二、Nacos安装与使用"><span class="nav-number">2.</span> <span class="nav-text">二、Nacos安装与使用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1、下载"><span class="nav-number">2.1.</span> <span class="nav-text">1、下载</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#方式1、下载发行版"><span class="nav-number">2.1.1.</span> <span class="nav-text">方式1、下载发行版</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#方式2、下载源码自己编译"><span class="nav-number">2.1.2.</span> <span class="nav-text">方式2、下载源码自己编译</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2、启动"><span class="nav-number">2.2.</span> <span class="nav-text">2、启动</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#在Linux-Unix-Mac下"><span class="nav-number">2.2.1.</span> <span class="nav-text">在Linux/Unix/Mac下</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#在windows下"><span class="nav-number">2.2.2.</span> <span class="nav-text">在windows下</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3、访问Nacos"><span class="nav-number">2.3.</span> <span class="nav-text">3、访问Nacos</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4、测试"><span class="nav-number">2.4.</span> <span class="nav-text">4、测试</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5、关闭服务"><span class="nav-number">2.5.</span> <span class="nav-text">5、关闭服务</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#三、Nacos数据持久化"><span class="nav-number">3.</span> <span class="nav-text">三、Nacos数据持久化</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1、导入Mysql脚本"><span class="nav-number">3.1.</span> <span class="nav-text">1、导入Mysql脚本</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2、更新配置"><span class="nav-number">3.2.</span> <span class="nav-text">2、更新配置</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#四、Nacos集群"><span class="nav-number">4.</span> <span class="nav-text">四、Nacos集群</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1、在不同主机上运行nacos"><span class="nav-number">4.1.</span> <span class="nav-text">1、在不同主机上运行nacos</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2、在一台电脑配置集群"><span class="nav-number">4.2.</span> <span class="nav-text">2、在一台电脑配置集群</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#操作步骤"><span class="nav-number">4.2.1.</span> <span class="nav-text">操作步骤</span></a></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2022</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">rstyro</span>
+
+  
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+
+  <script src="https://unpkg.com/mermaid@8.11.0/dist/mermaid.min.js"></script>
+  <script>
+    if (window.mermaid) {
+      mermaid.initialize({"startOnload":true});
+    }
+  </script>
+
+
+<div class="theme-info">
+  <div class="powered-by"></div>
+  <span class="post-count">博客全站共338.7k字</span>
+</div>
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-user"></i>
+    </span>
+    <span class="site-uv" title="总访客量">
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+    </span>
+  
+
+  
+    <span class="post-meta-divider">|</span>
+  
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-eye"></i>
+    </span>
+    <span class="site-pv" title="总访问量">
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/blog/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/blog/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/blog/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/blog/js/src/utils.js?v=6.7.0"></script>
+
+  <script src="/blog/js/src/motion.js?v=6.7.0"></script>
+
+
+
+  
+  
+
+  
+  <script src="/blog/js/src/scrollspy.js?v=6.7.0"></script>
+<script src="/blog/js/src/post-details.js?v=6.7.0"></script>
+
+
+
+  
+
+
+  <script src="/blog/js/src/bootstrap.js?v=6.7.0"></script>
+
+
+
+  
+  
+
+
+
+
+  
+
+<script src="//cdn1.lncld.net/static/js/3.11.1/av-min.js"></script>
+
+
+
+  
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/valine/1.3.4/Valine.min.js"></script>
+
+<script>
+  var GUEST = ['nick', 'mail', 'link'];
+  var guest = 'nick,mail,link';
+  guest = guest.split(',').filter(function (item) {
+    return GUEST.indexOf(item) > -1;
+  });
+  new Valine({
+    el: '#comments',
+    verify: false,
+    notify: false,
+    appId: 'LwEPiJFa7YMn2MrJdCwaUbmQ-gzGzoHsz',
+    appKey: 'JqS1y3RxYvDOki9r3NcqqoO5',
+    placeholder: '来都来了，不说几句就走，过分了啊！！！',
+    avatar: 'monsterid',
+    meta: guest,
+    pageSize: '10' || 10,
+    visitor: false
+  });
+</script>
+
+
+
+  
+
+  <script>
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/blog/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url).replace(/\/{2,}/g, '/');
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x"></i></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x"></i></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+  <script>
+    (function(){
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+      }
+      else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+      }
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+    })();
+  </script>
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

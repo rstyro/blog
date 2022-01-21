@@ -1,0 +1,1656 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/blog/css/main.css?v=6.7.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon.jpg?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon.jpg?v=6.7.0">
+
+
+  <link rel="mask-icon" href="/blog/images/logo.svg?v=6.7.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/blog/',
+    scheme: 'Mist',
+    version: '6.7.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":true},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+<script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+<link href="//cdn.bootcss.com/pace/1.0.2/themes/pink/pace-theme-flash.css" rel="stylesheet">
+  <style>
+      .pace .pace-progress {
+          background: #1E92FB; /*进度条颜色*/
+          height: 3px;
+      }
+      .pace .pace-progress-inner {
+           box-shadow: 0 0 10px #1E92FB, 0 0 5px     #1E92FB; /*阴影颜色*/
+      }
+      .pace .pace-activity {
+          border-top-color: #1E92FB;    /*上边框颜色*/
+          border-left-color: #1E92FB;    /*左边框颜色*/
+      }
+  </style>
+
+  <meta name="description" content="一、前言在工作中需要做敏感词过滤，如何高效的过滤敏感词，然后通过科普知道了DFA算法。 二、DFA概述在计算理论中，确定有限状态自动机或确定有限自动机（英语：deterministic finite automaton, DFA）是一个能实现状态转移的自动机。与之类似还有非确定有限自动机(NFA)。 简单的说就是：DFA消耗输入符号的字符串。对每个输入符号它变换到一个新状态直到所有输入符号到被耗尽">
+<meta name="keywords" content="算法">
+<meta property="og:type" content="article">
+<meta property="og:title" content="敏感词过滤之DFA算法Java版">
+<meta property="og:url" content="https://rstyro.github.io/blog/2020/10/17/敏感词过滤之DFA算法Java版/index.html">
+<meta property="og:site_name" content="帅大叔的博客">
+<meta property="og:description" content="一、前言在工作中需要做敏感词过滤，如何高效的过滤敏感词，然后通过科普知道了DFA算法。 二、DFA概述在计算理论中，确定有限状态自动机或确定有限自动机（英语：deterministic finite automaton, DFA）是一个能实现状态转移的自动机。与之类似还有非确定有限自动机(NFA)。 简单的说就是：DFA消耗输入符号的字符串。对每个输入符号它变换到一个新状态直到所有输入符号到被耗尽">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2022-01-21T06:16:17.294Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="敏感词过滤之DFA算法Java版">
+<meta name="twitter:description" content="一、前言在工作中需要做敏感词过滤，如何高效的过滤敏感词，然后通过科普知道了DFA算法。 二、DFA概述在计算理论中，确定有限状态自动机或确定有限自动机（英语：deterministic finite automaton, DFA）是一个能实现状态转移的自动机。与之类似还有非确定有限自动机(NFA)。 简单的说就是：DFA消耗输入符号的字符串。对每个输入符号它变换到一个新状态直到所有输入符号到被耗尽">
+
+
+
+  <link rel="alternate" href="/blog/atom.xml" title="帅大叔的博客" type="application/atom+xml">
+
+
+
+
+  <link rel="canonical" href="https://rstyro.github.io/blog/2020/10/17/敏感词过滤之DFA算法Java版/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>敏感词过滤之DFA算法Java版 | 帅大叔的博客</title>
+  
+
+
+
+
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?cd2197f8af1d69b326360027b8f93d92";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+	<a href="https://github.com/rstyro" class="github-corner" aria-label="View source on GitHub"><svg width="80" height="80" viewbox="0 0 250 250" style="fill:#151513; color:#fff; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"/><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"/><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"/></svg></a><style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/blog/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">帅大叔的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">信你所信，为你所见</p>
+      
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/" rel="section">首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/about/" rel="section">关于</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/tags/" rel="section">标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/categories/" rel="section">分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/archives/" rel="section">归档</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-guestbook">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/guestbook/" rel="section">留言</a>
+
+  </li>
+
+      
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            搜索</a>
+        </li>
+      
+    </ul>
+  
+
+  
+    
+
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://rstyro.github.io/blog/blog/2020/10/17/敏感词过滤之DFA算法Java版/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="rstyro">
+      <meta itemprop="description" content="个人博客,瞎写一些技术笔记等。">
+      <meta itemprop="image" content="/blog/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="帅大叔的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">敏感词过滤之DFA算法Java版
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2020-10-17 11:22:11" itemprop="dateCreated datePublished" datetime="2020-10-17T11:22:11+08:00">2020-10-17</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2022-01-21 14:16:17" itemprop="dateModified" datetime="2022-01-21T14:16:17+08:00">2022-01-21</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/blog/categories/Java/" itemprop="url" rel="index"><span itemprop="name">Java</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/blog/2020/10/17/敏感词过滤之DFA算法Java版/#comments" itemprop="discussionUrl">
+                  <span class="post-meta-item-text">评论数：</span> <span class="post-comments-count valine-comment-count" data-xid="/blog/2020/10/17/敏感词过滤之DFA算法Java版/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="post-meta-item-icon">
+            <i class="fa fa-eye"></i>
+             阅读次数： 
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h3 id="一、前言"><a href="#一、前言" class="headerlink" title="一、前言"></a>一、前言</h3><p>在工作中需要做敏感词过滤，如何高效的过滤敏感词，然后通过科普知道了DFA算法。</p>
+<h3 id="二、DFA概述"><a href="#二、DFA概述" class="headerlink" title="二、DFA概述"></a>二、DFA概述</h3><p>在计算理论中，确定有限状态自动机或确定有限自动机（英语：<code>deterministic finite automaton, DFA</code>）是一个能实现状态转移的自动机。与之类似还有<code>非确定有限自动机(NFA)</code>。</p>
+<p>简单的说就是：DFA消耗输入符号的字符串。对每个输入符号它变换到一个新状态直到所有输入符号到被耗尽。下一个状态是唯一确定的。<br>简单的理解：就像树的结构，从根开始到枝叶子结束。</p>
+<blockquote>
+<p>个人粗俗的理解</p>
+</blockquote>
+<p>本篇不讲它的函数公式这些，直接代码走起！！！</p>
+<h3 id="三、Java代码实现"><a href="#三、Java代码实现" class="headerlink" title="三、Java代码实现"></a>三、Java代码实现</h3><p>我们知道敏感词都是一个词语，我们把词语拆成一个字然后再关联组合，这样是不是就像DFA的状态转移。在Java中可以使用HashMap来实现这样的结构。</p>
+<figure class="highlight clean"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 比如，现在的敏感词有：代开发票、代购、代购商</span></span><br><span class="line"><span class="comment">// 转为DFA 状态就会变成如下这样：</span></span><br><span class="line"></span><br><span class="line">	代 --&gt; 开 --&gt; 发--&gt;票</span><br><span class="line">	|</span><br><span class="line">	|----&gt; 购 --&gt; 商</span><br></pre></td></tr></table></figure>
+
+<h4 id="1、构建DFA-模型结构"><a href="#1、构建DFA-模型结构" class="headerlink" title="1、构建DFA 模型结构"></a>1、构建DFA 模型结构</h4><p>我们要知道什么时候结束，所以在代码里加一个结束标识(<code>isEnd</code>)。</p>
+<figure class="highlight processing"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 敏感词集合</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> Map&lt;<span class="keyword">String</span>,<span class="keyword">Object</span>&gt; sensitiveWordMap;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">    * 初始化敏感词库，构建DFA算法模型</span></span><br><span class="line"><span class="comment">    * @param sensitiveWordSet 需要加载的敏感词集合</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">   <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> load(Set&lt;<span class="keyword">String</span>&gt; sensitiveWordSet) &#123;</span><br><span class="line">       <span class="comment">//初始化敏感词容器，减少扩容操作</span></span><br><span class="line">       sensitiveWordMap = <span class="keyword">new</span> <span class="keyword">HashMap</span>&lt;&gt;(sensitiveWordSet.<span class="built_in">size</span>());</span><br><span class="line">       <span class="keyword">String</span> <span class="built_in">key</span>;</span><br><span class="line">	<span class="comment">// 总词库的指针</span></span><br><span class="line">       Map&lt;<span class="keyword">String</span>,<span class="keyword">Object</span>&gt; nowMap;</span><br><span class="line">       Iterator&lt;<span class="keyword">String</span>&gt; iterator = sensitiveWordSet.iterator();</span><br><span class="line">       <span class="keyword">while</span> (iterator.hasNext()) &#123;</span><br><span class="line">           <span class="built_in">key</span> = iterator.next();</span><br><span class="line">		<span class="comment">// 加载下一个词重新指向总词库，因为addKey里面指针被改变了</span></span><br><span class="line">           nowMap = sensitiveWordMap;</span><br><span class="line">           addKey(<span class="built_in">key</span>, nowMap);</span><br><span class="line">       &#125;</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">    * 添加敏感词</span></span><br><span class="line"><span class="comment">    *</span></span><br><span class="line"><span class="comment">    * @param key    要添加的敏感词</span></span><br><span class="line"><span class="comment">    * @param nowMap 已加载的敏感词库</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">   <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> addKey(<span class="keyword">String</span> <span class="built_in">key</span>, Map&lt;<span class="keyword">String</span>,<span class="keyword">Object</span>&gt; nowMap) &#123;</span><br><span class="line">       <span class="keyword">if</span> (StrUtil.isBlank(<span class="built_in">key</span>)) &#123;</span><br><span class="line">           <span class="keyword">return</span>;</span><br><span class="line">       &#125;</span><br><span class="line">	<span class="comment">// 把关键字拆成一个一个字</span></span><br><span class="line">       <span class="keyword">for</span> (<span class="built_in">int</span> i = <span class="number">0</span>; i &lt; <span class="built_in">key</span>.length(); i++) &#123;</span><br><span class="line">           <span class="comment">//转换成char型</span></span><br><span class="line">           <span class="built_in">char</span> keyChar = <span class="built_in">key</span>.charAt(i);</span><br><span class="line">           <span class="comment">//库中获取关键字</span></span><br><span class="line">           <span class="keyword">Object</span> wordMap = nowMap.<span class="built_in">get</span>(<span class="keyword">String</span>.valueOf(keyChar));</span><br><span class="line">           <span class="comment">//如果存在该key，直接赋值，用于下一个循环获取</span></span><br><span class="line">           <span class="keyword">if</span> (wordMap != <span class="keyword">null</span>) &#123;</span><br><span class="line">			<span class="comment">// 这里的情况就相当与上面的例子：代购 和 代购商</span></span><br><span class="line">               nowMap = (Map&lt;<span class="keyword">String</span>,<span class="keyword">Object</span>&gt;) wordMap;</span><br><span class="line">           &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">               <span class="comment">//不存在则，则构建一个map，同时将isEnd设置为0，因为他不是最后一个</span></span><br><span class="line">               Map&lt;<span class="keyword">String</span>,<span class="keyword">Object</span>&gt; newWorMap = <span class="keyword">new</span> <span class="keyword">HashMap</span>&lt;&gt;();</span><br><span class="line">               <span class="comment">//不是最后一个</span></span><br><span class="line">               newWorMap.put(<span class="string">"isEnd"</span>, <span class="string">"0"</span>);</span><br><span class="line">			<span class="comment">// 这里注意一点，这个put 的是一个对象指针，如果对象改变，put进行的对象也就改变了</span></span><br><span class="line">			<span class="comment">// 然后nowMap 最开始是总词库的指针，所以这里虽然没有出现总词库，但是总词库最终还是会添加到新的key</span></span><br><span class="line">               nowMap.put(<span class="keyword">String</span>.valueOf(keyChar), newWorMap);</span><br><span class="line">               nowMap = newWorMap;</span><br><span class="line">           &#125;</span><br><span class="line">           <span class="keyword">if</span> (i == <span class="built_in">key</span>.length() - <span class="number">1</span>) &#123;</span><br><span class="line">               <span class="comment">//最后一个</span></span><br><span class="line">               nowMap.put(<span class="string">"isEnd"</span>, <span class="string">"1"</span>);</span><br><span class="line">           &#125;</span><br><span class="line">       &#125;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+
+<p>上面已经构建好了DFA 词库模型。长如下：</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="attr">"代"</span>: &#123;</span><br><span class="line">        <span class="attr">"开"</span>: &#123;</span><br><span class="line">            <span class="attr">"发"</span>: &#123;</span><br><span class="line">                <span class="attr">"票"</span>: &#123;</span><br><span class="line">                    <span class="attr">"isEnd"</span>: <span class="string">"1"</span></span><br><span class="line">                &#125;,</span><br><span class="line">                <span class="attr">"isEnd"</span>: <span class="string">"0"</span></span><br><span class="line">            &#125;,</span><br><span class="line">            <span class="attr">"isEnd"</span>: <span class="string">"0"</span></span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="attr">"isEnd"</span>: <span class="string">"0"</span>,</span><br><span class="line">        <span class="attr">"购"</span>: &#123;</span><br><span class="line">            <span class="attr">"商"</span>: &#123;</span><br><span class="line">                <span class="attr">"isEnd"</span>: <span class="string">"1"</span></span><br><span class="line">            &#125;,</span><br><span class="line">            <span class="attr">"isEnd"</span>: <span class="string">"1"</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>发现 <code>购</code> 和 <code>商</code> 的标识都是 <code>1</code> 也就是结束，这是正常的。</p>
+<h4 id="2、如何查找"><a href="#2、如何查找" class="headerlink" title="2、如何查找"></a>2、如何查找</h4><p>我们查找是否包含敏感词的时候也是一个一个去找，代码如下：</p>
+<figure class="highlight dart"><table><tr><td class="code"><pre><span class="line"><span class="comment"><span class="markdown">/**</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">    * </span>判断文字是否包含敏感字符</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="code">    *</span></span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">    * </span>@param txt       文字</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">    * </span>@param matchType 匹配规则 1：最小匹配规则，2：最大匹配规则</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">    * </span>@return 若包含返回true，否则返回false</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="code">    */</span></span></span></span><br><span class="line">   public <span class="keyword">static</span> boolean contains(<span class="built_in">String</span> txt, <span class="built_in">int</span> matchType) &#123;</span><br><span class="line">	<span class="comment">// 总词库的指针</span></span><br><span class="line">       <span class="built_in">Map</span>&lt;<span class="built_in">String</span>,<span class="built_in">Object</span>&gt; sensitiveMap = sensitiveWordMap;</span><br><span class="line">       <span class="keyword">for</span> (<span class="built_in">int</span> i = <span class="number">0</span>; i &lt; txt.length(); i++) &#123;</span><br><span class="line">           <span class="comment">//判断是否包含敏感字符</span></span><br><span class="line">           <span class="built_in">int</span> matchFlag = checkWord(txt, i, matchType, sensitiveMap);</span><br><span class="line">           <span class="keyword">if</span> (matchFlag &gt; <span class="number">0</span>) &#123;</span><br><span class="line">               <span class="comment">//大于0存在，返回true</span></span><br><span class="line">               <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">           &#125;</span><br><span class="line">       &#125;</span><br><span class="line">       <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"><span class="markdown">/**</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">    * </span>校验文字是否包含敏感词</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">    * </span>@param txt          文字</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">    * </span>@param beginIndex   开始索引</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">    * </span>@param matchType    匹配规则</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">    * </span>@param wordStoreMap 敏感词库</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">    * </span>@return 返回找到敏感词字符的长度</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="code">    */</span></span></span></span><br><span class="line">   private <span class="keyword">static</span> <span class="built_in">int</span> checkWord(<span class="built_in">String</span> txt, <span class="built_in">int</span> beginIndex, <span class="built_in">int</span> matchType, <span class="built_in">Map</span>&lt;<span class="built_in">String</span>,<span class="built_in">Object</span>&gt; wordStoreMap) &#123;</span><br><span class="line">       <span class="comment">//敏感词结束标识位：用于敏感词只有1位的情况</span></span><br><span class="line">       boolean flag = <span class="keyword">false</span>;</span><br><span class="line">       <span class="comment">//匹配标识数默认为0</span></span><br><span class="line">       <span class="built_in">int</span> matchFlag = <span class="number">0</span>;</span><br><span class="line">       char word;</span><br><span class="line">       <span class="built_in">Map</span>&lt;<span class="built_in">String</span>,<span class="built_in">Object</span>&gt; nowMap = wordStoreMap;</span><br><span class="line">       <span class="keyword">for</span> (<span class="built_in">int</span> i = beginIndex; i &lt; txt.length(); i++) &#123;</span><br><span class="line">           word = txt.charAt(i);</span><br><span class="line">           <span class="comment">//获取指定key</span></span><br><span class="line">           nowMap = (<span class="built_in">Map</span>&lt;<span class="built_in">String</span>,<span class="built_in">Object</span>&gt;) nowMap.<span class="keyword">get</span>(<span class="built_in">String</span>.valueOf(word));</span><br><span class="line">           <span class="comment">//存在，则判断是否为最后一个</span></span><br><span class="line">           <span class="keyword">if</span> (nowMap != <span class="keyword">null</span>) &#123;</span><br><span class="line">               <span class="comment">//找到相应key，匹配标识+1</span></span><br><span class="line">               matchFlag++;</span><br><span class="line">               <span class="comment">//如果为最后一个匹配规则,结束循环，返回匹配标识数</span></span><br><span class="line">               <span class="keyword">if</span> (<span class="string">"1"</span>.equals(nowMap.<span class="keyword">get</span>(<span class="string">"isEnd"</span>))) &#123;</span><br><span class="line">                   <span class="comment">//结束标志位为true</span></span><br><span class="line">                   flag = <span class="keyword">true</span>;</span><br><span class="line">                   <span class="comment">//最小规则，直接返回,最大规则还需继续查找</span></span><br><span class="line">                   <span class="keyword">if</span> (MIN_MATCHTYPE == matchType) &#123;</span><br><span class="line">                       <span class="keyword">break</span>;</span><br><span class="line">                   &#125;</span><br><span class="line">               &#125;</span><br><span class="line">           &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">               <span class="comment">//不存在，直接返回</span></span><br><span class="line">               <span class="keyword">break</span>;</span><br><span class="line">           &#125;</span><br><span class="line">       &#125;</span><br><span class="line">       <span class="keyword">return</span> flag ? matchFlag : <span class="number">0</span>;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+
+<p>其实代码不一定非得和我上面写得一样，我只是拆得比较细，后面再组装，只要看懂思路之后随便改成你想要的方法。</p>
+<p>完整版的：</p>
+<figure class="highlight dart"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> lombok.extern.slf4j.Slf4j;</span><br><span class="line"><span class="keyword">import</span> java.io.BufferedReader;</span><br><span class="line"><span class="keyword">import</span> java.io.File;</span><br><span class="line"><span class="keyword">import</span> java.io.FileInputStream;</span><br><span class="line"><span class="keyword">import</span> java.io.InputStreamReader;</span><br><span class="line"><span class="keyword">import</span> java.nio.charset.StandardCharsets;</span><br><span class="line"><span class="keyword">import</span> java.util.*;</span><br><span class="line"><span class="keyword">import</span> java.util.regex.<span class="built_in">Pattern</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment"><span class="markdown">/**</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet"> * </span>DFA算法</span></span></span><br><span class="line"><span class="comment"><span class="markdown"> *</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet"> * </span>@author lrs</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet"> * </span>@since 2020-10-16</span></span></span><br><span class="line"><span class="comment"><span class="markdown"> */</span></span></span><br><span class="line"><span class="meta">@Slf</span>4j</span><br><span class="line">public <span class="class"><span class="keyword">class</span> <span class="title">SensitiveWordUtils</span> </span>&#123;</span><br><span class="line">    <span class="comment"><span class="markdown">/**</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>敏感词匹配规则</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>最小匹配规则，如：敏感词库["代购","代购商"]，语句："我是代购商"，匹配结果：我是[代购]商</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="code">     */</span></span></span></span><br><span class="line">    public <span class="keyword">static</span> <span class="keyword">final</span> <span class="built_in">int</span> MIN_MATCHTYPE = <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment"><span class="markdown">/**</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>最大匹配规则，如：敏感词库["代购","代购商"]，语句："我是代购商"，匹配结果：我是[代购商]</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="code">     */</span></span></span></span><br><span class="line">    public <span class="keyword">static</span> <span class="keyword">final</span> <span class="built_in">int</span> MAX_MATCHTYPE = <span class="number">2</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment"><span class="markdown">/**</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>敏感词集合</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="code">     */</span></span></span></span><br><span class="line">    public <span class="keyword">static</span> <span class="built_in">Map</span>&lt;<span class="built_in">String</span>,<span class="built_in">Object</span>&gt; sensitiveWordMap;</span><br><span class="line"></span><br><span class="line">    <span class="comment"><span class="markdown">/**</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>加载敏感词库</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>@param sensitiveWordSet 敏感词库</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="code">     */</span></span></span></span><br><span class="line">    public <span class="keyword">static</span> synchronized <span class="keyword">void</span> load(<span class="built_in">Set</span>&lt;<span class="built_in">String</span>&gt; sensitiveWordSet) &#123;</span><br><span class="line">        initWords(sensitiveWordSet);</span><br><span class="line">        log.info(<span class="string">"==加载敏感词库=&#123;&#125;个=="</span>, sensitiveWordSet.size());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment"><span class="markdown">/**</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>初始化敏感词库，构建DFA算法模型</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>@param sensitiveWordSet 敏感词库</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="code">     */</span></span></span></span><br><span class="line">    private <span class="keyword">static</span> <span class="keyword">void</span> initWords(<span class="built_in">Set</span>&lt;<span class="built_in">String</span>&gt; sensitiveWordSet) &#123;</span><br><span class="line">        <span class="comment">//初始化敏感词容器，减少扩容操作</span></span><br><span class="line">        sensitiveWordMap = <span class="keyword">new</span> HashMap&lt;&gt;(sensitiveWordSet.size());</span><br><span class="line">        <span class="built_in">String</span> word;</span><br><span class="line">        <span class="built_in">Map</span>&lt;<span class="built_in">String</span>,<span class="built_in">Object</span>&gt; nowMap;</span><br><span class="line">        <span class="built_in">Iterator</span>&lt;<span class="built_in">String</span>&gt; iterator = sensitiveWordSet.iterator();</span><br><span class="line">        <span class="keyword">while</span> (iterator.hasNext()) &#123;</span><br><span class="line">            word = iterator.next();</span><br><span class="line">            nowMap = sensitiveWordMap;</span><br><span class="line">            addWord(word, nowMap);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment"><span class="markdown">/**</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>添加敏感词</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="code">     *</span></span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>@param word    要添加的敏感词</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>@param nowMap 已加载的敏感词库</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="code">     */</span></span></span></span><br><span class="line">    public <span class="keyword">static</span> <span class="keyword">void</span> addWord(<span class="built_in">String</span> word, <span class="built_in">Map</span>&lt;<span class="built_in">String</span>, <span class="built_in">Object</span>&gt; nowMap) &#123;</span><br><span class="line">        <span class="keyword">if</span> (StrUtil.isBlank(word)) &#123;</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">for</span> (<span class="built_in">int</span> i = <span class="number">0</span>; i &lt; word.length(); i++) &#123;</span><br><span class="line">            <span class="comment">//转换成char型</span></span><br><span class="line">            char keyChar = word.charAt(i);</span><br><span class="line">            <span class="comment">//库中获取关键字</span></span><br><span class="line">            <span class="built_in">Object</span> wordMap = nowMap.<span class="keyword">get</span>(<span class="built_in">String</span>.valueOf(keyChar));</span><br><span class="line">            <span class="comment">//如果存在该key，直接赋值，用于下一个循环获取</span></span><br><span class="line">            <span class="keyword">if</span> (wordMap != <span class="keyword">null</span>) &#123;</span><br><span class="line">                nowMap = (<span class="built_in">Map</span>&lt;<span class="built_in">String</span>, <span class="built_in">Object</span>&gt;) wordMap;</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="comment">//不存在则，则构建一个map，同时将isEnd设置为0，因为他不是最后一个</span></span><br><span class="line">                <span class="built_in">Map</span>&lt;<span class="built_in">String</span>, <span class="built_in">Object</span>&gt; newWorMap = <span class="keyword">new</span> HashMap&lt;&gt;();</span><br><span class="line">                <span class="comment">//不是最后一个</span></span><br><span class="line">                newWorMap.put(<span class="string">"isEnd"</span>, <span class="string">"0"</span>);</span><br><span class="line">                nowMap.put(<span class="built_in">String</span>.valueOf(keyChar), newWorMap);</span><br><span class="line">                nowMap = newWorMap;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (i == word.length() - <span class="number">1</span>) &#123;</span><br><span class="line">                <span class="comment">//最后一个</span></span><br><span class="line">                nowMap.put(<span class="string">"isEnd"</span>, <span class="string">"1"</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">	</span><br><span class="line">	<span class="comment"><span class="markdown">/**</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>移除敏感词</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>@param word 敏感词</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>@param nowMap 总词库</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>@return boolean</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="code">     */</span></span></span></span><br><span class="line">    public <span class="keyword">static</span> boolean removeWord(<span class="built_in">String</span> word, <span class="built_in">Map</span>&lt;<span class="built_in">String</span>, <span class="built_in">Object</span>&gt; nowMap) &#123;</span><br><span class="line">        <span class="keyword">if</span> (StrUtil.isBlank(word)) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        boolean canRemove=<span class="keyword">false</span>;</span><br><span class="line">        <span class="built_in">String</span> oneLeveKey = <span class="built_in">String</span>.valueOf(word.charAt(<span class="number">0</span>));</span><br><span class="line">        <span class="comment">// 最外层的map</span></span><br><span class="line">        <span class="built_in">Map</span>&lt;<span class="built_in">String</span>,<span class="built_in">Object</span>&gt;  tempMap = (<span class="built_in">Map</span>&lt;<span class="built_in">String</span>, <span class="built_in">Object</span>&gt;) nowMap.<span class="keyword">get</span>(oneLeveKey);</span><br><span class="line">        <span class="keyword">for</span> (<span class="built_in">int</span> i = <span class="number">1</span>; i &lt; word.length(); i++) &#123;</span><br><span class="line">            <span class="comment">//转换成char型</span></span><br><span class="line">            char keyChar = word.charAt(i);</span><br><span class="line">            <span class="comment">//库中获取关键字</span></span><br><span class="line">            <span class="built_in">Object</span> wordMap = tempMap.<span class="keyword">get</span>(<span class="built_in">String</span>.valueOf(keyChar));</span><br><span class="line">            <span class="keyword">if</span>(wordMap==<span class="keyword">null</span>)&#123;</span><br><span class="line">                canRemove=<span class="keyword">false</span>;</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            tempMap= (<span class="built_in">Map</span>&lt;<span class="built_in">String</span>, <span class="built_in">Object</span>&gt;) wordMap;</span><br><span class="line">            canRemove=<span class="keyword">true</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span>(canRemove &amp;&amp; tempMap!=<span class="keyword">null</span>)&#123;</span><br><span class="line">            <span class="keyword">if</span>(tempMap.size()==<span class="number">1</span>)&#123;</span><br><span class="line">                nowMap.remove(oneLeveKey);</span><br><span class="line">                log.info(<span class="string">"敏感词库已移除：&#123;&#125; 关键词"</span>,word);</span><br><span class="line">            &#125;<span class="keyword">else</span> &#123;</span><br><span class="line">                tempMap.put(<span class="string">"isEnd"</span>,<span class="string">"0"</span>);</span><br><span class="line">                log.info(<span class="string">"敏感词库已更新：&#123;&#125; 状态"</span>,word);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> canRemove;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment"><span class="markdown">/**</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>获取词库的方法，本地或redis</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>@return 返回本地敏感词库，可改为redis</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="code">     */</span></span></span></span><br><span class="line">    public <span class="keyword">static</span> <span class="built_in">Map</span>&lt;<span class="built_in">String</span>,<span class="built_in">Object</span>&gt; getSensitiveMap() &#123;</span><br><span class="line">        <span class="keyword">return</span> sensitiveWordMap;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment"><span class="markdown">/**</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>判断文字是否包含敏感字符</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="code">     *</span></span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>@param txt       文字</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>@param matchType 匹配规则 1：最小匹配规则，2：最大匹配规则</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>@return 若包含返回true，否则返回false</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="code">     */</span></span></span></span><br><span class="line">    public <span class="keyword">static</span> boolean contains(<span class="built_in">String</span> txt, <span class="built_in">int</span> matchType) &#123;</span><br><span class="line">        <span class="built_in">Map</span>&lt;<span class="built_in">String</span>,<span class="built_in">Object</span>&gt; sensitiveMap = getSensitiveMap();</span><br><span class="line">        <span class="keyword">for</span> (<span class="built_in">int</span> i = <span class="number">0</span>; i &lt; txt.length(); i++) &#123;</span><br><span class="line">            <span class="comment">//判断是否包含敏感字符</span></span><br><span class="line">            <span class="built_in">int</span> matchFlag = checkWord(txt, i, matchType, sensitiveMap);</span><br><span class="line">            <span class="keyword">if</span> (matchFlag &gt; <span class="number">0</span>) &#123;</span><br><span class="line">                <span class="comment">//大于0存在，返回true</span></span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment"><span class="markdown">/**</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>判断文字是否包含敏感字符</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="code">     *</span></span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>@param txt 文字</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>@return 若包含返回true，否则返回false</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="code">     */</span></span></span></span><br><span class="line">    public <span class="keyword">static</span> boolean contains(<span class="built_in">String</span> txt) &#123;</span><br><span class="line">        <span class="keyword">return</span> contains(txt, MIN_MATCHTYPE);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment"><span class="markdown">/**</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>获取文字中的敏感词</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="code">     *</span></span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>@param txt       文字</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>@param matchType 匹配规则 1：最小匹配规则，2：最大匹配规则</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>@return 返回匹配的敏感词</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="code">     */</span></span></span></span><br><span class="line">    public <span class="keyword">static</span> <span class="built_in">Set</span>&lt;<span class="built_in">String</span>&gt; getSensitiveWord(<span class="built_in">String</span> txt, <span class="built_in">int</span> matchType) &#123;</span><br><span class="line">        <span class="built_in">Map</span>&lt;<span class="built_in">String</span>,<span class="built_in">Object</span>&gt; sensitiveMap = getSensitiveMap();</span><br><span class="line">        <span class="built_in">Set</span>&lt;<span class="built_in">String</span>&gt; resultSet = <span class="keyword">new</span> HashSet&lt;&gt;();</span><br><span class="line">        <span class="keyword">for</span> (<span class="built_in">int</span> i = <span class="number">0</span>; i &lt; txt.length(); i++) &#123;</span><br><span class="line">            <span class="comment">//判断是否包含敏感字符</span></span><br><span class="line">            <span class="built_in">int</span> length = checkWord(txt, i, matchType, sensitiveMap);</span><br><span class="line">            <span class="comment">//存在,加入list中</span></span><br><span class="line">            <span class="keyword">if</span> (length &gt; <span class="number">0</span>) &#123;</span><br><span class="line">                resultSet.add(txt.substring(i, i + length));</span><br><span class="line">                <span class="comment">//减1的原因，是因为for会自增</span></span><br><span class="line">                i = i + length - <span class="number">1</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> resultSet;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment"><span class="markdown">/**</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>获取文字中的敏感词</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>@param txt 文字</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>@return 返回敏感词</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="code">     */</span></span></span></span><br><span class="line">    public <span class="keyword">static</span> <span class="built_in">Set</span>&lt;<span class="built_in">String</span>&gt; getSensitiveWord(<span class="built_in">String</span> txt) &#123;</span><br><span class="line">        <span class="keyword">return</span> getSensitiveWord(txt, MIN_MATCHTYPE);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment"><span class="markdown">/**</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>替换敏感字字符</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>@param txt 文本</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>@param replaceValue 替换的字符，替换单个字</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>@return 返回替换后的字符串</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="code">     */</span></span></span></span><br><span class="line">    public <span class="keyword">static</span> <span class="built_in">String</span> replaceWordByOne(<span class="built_in">String</span> txt, <span class="built_in">String</span> replaceValue) &#123;</span><br><span class="line">        <span class="keyword">return</span> replaceWord(txt, replaceValue, MAX_MATCHTYPE,<span class="keyword">false</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment"><span class="markdown">/**</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>替换敏感字字符</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>@param txt 文本</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>@param replaceStr 替换的字符串，替换整个词</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>@return 返回替换后的字符串</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="code">     */</span></span></span></span><br><span class="line">    public <span class="keyword">static</span> <span class="built_in">String</span> replaceWordByAll(<span class="built_in">String</span> txt, <span class="built_in">String</span> replaceStr) &#123;</span><br><span class="line">        <span class="keyword">return</span> replaceWord(txt, replaceStr, MAX_MATCHTYPE,<span class="keyword">true</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment"><span class="markdown">/**</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>替换敏感字字符</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>@param txt 文本</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>@param replaceValue 替换的字符</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>@param matchType   敏感词匹配规则</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>@param isReplaceAll replaceValue 替换所有还是替换 敏感词的一个字，true-所有。false- 一个</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>@return 返回替换后的字符串</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="code">     */</span></span></span></span><br><span class="line">    public <span class="keyword">static</span> <span class="built_in">String</span> replaceWord(<span class="built_in">String</span> txt, <span class="built_in">String</span> replaceValue, <span class="built_in">int</span> matchType,boolean isReplaceAll) &#123;</span><br><span class="line">        <span class="built_in">String</span> resultTxt = txt;</span><br><span class="line">        <span class="comment">//获取所有的敏感词</span></span><br><span class="line">        <span class="built_in">Set</span>&lt;<span class="built_in">String</span>&gt; <span class="keyword">set</span> = getSensitiveWord(txt, matchType);</span><br><span class="line">        <span class="built_in">Iterator</span>&lt;<span class="built_in">String</span>&gt; iterator = <span class="keyword">set</span>.iterator();</span><br><span class="line">        <span class="built_in">String</span> word;</span><br><span class="line">        <span class="built_in">String</span> replaceString;</span><br><span class="line">        <span class="keyword">while</span> (iterator.hasNext()) &#123;</span><br><span class="line">            word = iterator.next();</span><br><span class="line">            replaceString = isReplaceAll?replaceValue:getReplaceChars(replaceValue, word.length());</span><br><span class="line">            resultTxt = resultTxt.replaceAll(word, replaceString);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> resultTxt;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment"><span class="markdown">/**</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>获取替换字符串</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>@param replaceChar 替换的字符</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>@param length 长度</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>@return 返回 length 个 replaceChar</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="code">     */</span></span></span></span><br><span class="line">    private <span class="keyword">static</span> <span class="built_in">String</span> getReplaceChars(<span class="built_in">Object</span> replaceChar, <span class="built_in">int</span> length) &#123;</span><br><span class="line">        StringBuilder sb = <span class="keyword">new</span> StringBuilder();</span><br><span class="line">        sb.append(replaceChar);</span><br><span class="line">        <span class="keyword">for</span> (<span class="built_in">int</span> i = <span class="number">1</span>; i &lt; length; i++) &#123;</span><br><span class="line">            sb.append(replaceChar);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> sb.toString();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment"><span class="markdown">/**</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>校验文字是否包含敏感词</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>@param txt          文字</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>@param beginIndex   开始索引</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>@param matchType    匹配规则</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>@param wordStoreMap 敏感词库</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>@return 返回找到敏感词字符的长度</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="code">     */</span></span></span></span><br><span class="line">    private <span class="keyword">static</span> <span class="built_in">int</span> checkWord(<span class="built_in">String</span> txt, <span class="built_in">int</span> beginIndex, <span class="built_in">int</span> matchType, <span class="built_in">Map</span>&lt;<span class="built_in">String</span>,<span class="built_in">Object</span>&gt; wordStoreMap) &#123;</span><br><span class="line">        <span class="comment">//敏感词结束标识位：用于敏感词只有1位的情况</span></span><br><span class="line">        boolean flag = <span class="keyword">false</span>;</span><br><span class="line">        <span class="comment">//匹配标识数默认为0</span></span><br><span class="line">        <span class="built_in">int</span> matchFlag = <span class="number">0</span>;</span><br><span class="line">        char word;</span><br><span class="line">        <span class="built_in">Map</span>&lt;<span class="built_in">String</span>,<span class="built_in">Object</span>&gt; nowMap = wordStoreMap;</span><br><span class="line">        <span class="keyword">for</span> (<span class="built_in">int</span> i = beginIndex; i &lt; txt.length(); i++) &#123;</span><br><span class="line">            word = txt.charAt(i);</span><br><span class="line">            <span class="comment">//获取指定key</span></span><br><span class="line">            nowMap = (<span class="built_in">Map</span>&lt;<span class="built_in">String</span>,<span class="built_in">Object</span>&gt;) nowMap.<span class="keyword">get</span>(<span class="built_in">String</span>.valueOf(word));</span><br><span class="line">            <span class="comment">//存在，则判断是否为最后一个</span></span><br><span class="line">            <span class="keyword">if</span> (nowMap != <span class="keyword">null</span>) &#123;</span><br><span class="line">                <span class="comment">//找到相应key，匹配标识+1</span></span><br><span class="line">                matchFlag++;</span><br><span class="line">                <span class="comment">//如果为最后一个匹配规则,结束循环，返回匹配标识数</span></span><br><span class="line">                <span class="keyword">if</span> (<span class="string">"1"</span>.equals(nowMap.<span class="keyword">get</span>(<span class="string">"isEnd"</span>))) &#123;</span><br><span class="line">                    <span class="comment">//结束标志位为true</span></span><br><span class="line">                    flag = <span class="keyword">true</span>;</span><br><span class="line">                    <span class="comment">//最小规则，直接返回,最大规则还需继续查找</span></span><br><span class="line">                    <span class="keyword">if</span> (MIN_MATCHTYPE == matchType) &#123;</span><br><span class="line">                        <span class="keyword">break</span>;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="comment">//不存在，直接返回</span></span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> flag ? matchFlag : <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment"><span class="markdown">/**</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>过滤常见特殊字符与空格</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>@param str</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>@return</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="code">     */</span></span></span></span><br><span class="line">    public <span class="keyword">static</span> <span class="built_in">String</span> filterSpecialStr(<span class="built_in">String</span> str) &#123;</span><br><span class="line">        <span class="built_in">String</span> regEx = <span class="string">"[`~!@#$%^&amp;*()+=|&#123;&#125;:;\\\\[\\\\].&lt;&gt;/?~！@#￥%……&amp;*（）——+|&#123;&#125;【】‘；：”“’。，、？']"</span>;</span><br><span class="line">        <span class="built_in">Pattern</span> pattern = <span class="built_in">Pattern</span>.compile(regEx);</span><br><span class="line">        <span class="keyword">return</span> pattern.matcher(str).replaceAll(<span class="string">""</span>).replaceAll(<span class="string">" "</span>,<span class="string">""</span>).trim();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment"><span class="markdown">/**</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>读取敏感词文件</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>@param filePaths 文件绝对路径，支持多个文件</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="bullet">     * </span>@return 返回敏感词词库</span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="code">     */</span></span></span></span><br><span class="line">    public <span class="keyword">static</span> <span class="built_in">Set</span>&lt;<span class="built_in">String</span>&gt; readFile(<span class="built_in">List</span>&lt;<span class="built_in">String</span>&gt; filePaths) &#123;</span><br><span class="line">        <span class="built_in">Set</span>&lt;<span class="built_in">String</span>&gt; result = <span class="keyword">new</span> HashSet&lt;&gt;();</span><br><span class="line">        InputStreamReader read = <span class="keyword">null</span>;</span><br><span class="line">        BufferedReader bufferedReader = <span class="keyword">null</span>;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="keyword">if</span> (filePaths != <span class="keyword">null</span> &amp;&amp; filePaths.size() &gt; <span class="number">0</span>) &#123;</span><br><span class="line">                <span class="keyword">for</span> (<span class="built_in">String</span> filePath : filePaths) &#123;</span><br><span class="line">                    File file = <span class="keyword">new</span> File(filePath);</span><br><span class="line">                    <span class="built_in">int</span> count = <span class="number">0</span>;</span><br><span class="line">                    <span class="comment">//判断文件是否存在</span></span><br><span class="line">                    <span class="keyword">if</span> (file.isFile() &amp;&amp; file.exists()) &#123;</span><br><span class="line">                        read = <span class="keyword">new</span> InputStreamReader(<span class="keyword">new</span> FileInputStream(file), StandardCharsets.UTF_8);</span><br><span class="line">                        bufferedReader = <span class="keyword">new</span> BufferedReader(read);</span><br><span class="line">                        <span class="built_in">String</span> lineTxt ;</span><br><span class="line">                        <span class="keyword">while</span> ((lineTxt = bufferedReader.readLine()) != <span class="keyword">null</span>) &#123;</span><br><span class="line">                            <span class="keyword">if</span> (StrUtil.isNotBlank(lineTxt)) &#123;</span><br><span class="line">                                result.add(lineTxt);</span><br><span class="line">                                count++;</span><br><span class="line">                            &#125;</span><br><span class="line">                        &#125;</span><br><span class="line">                    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                        log.info(<span class="string">"找不到指定的文件=&#123;&#125;"</span>, filePath);</span><br><span class="line">                    &#125;</span><br><span class="line">                    log.info(<span class="string">"加载文件：&#123;&#125;，个数=&#123;&#125;"</span>, filePath, count);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (bufferedReader != <span class="keyword">null</span>) &#123;</span><br><span class="line">                bufferedReader.close();</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (read != <span class="keyword">null</span>) &#123;</span><br><span class="line">                read.close();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            log.error(<span class="string">"加载敏感词文件出错"</span>, e);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> result;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    public <span class="keyword">static</span> <span class="keyword">void</span> main(<span class="built_in">String</span>[] args) &#123;</span><br><span class="line">        test();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    public <span class="keyword">static</span> <span class="keyword">void</span> test() &#123;</span><br><span class="line">        <span class="built_in">List</span>&lt;<span class="built_in">String</span>&gt; fileList = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">        fileList.add(<span class="string">"D:\\敏感词\\广告.txt"</span>);</span><br><span class="line"><span class="comment">//        fileList.add("D:\\敏感词\\色情类.txt");</span></span><br><span class="line"><span class="comment">//        fileList.add("D:\\敏感词\\涉枪涉爆违法信息关键词.txt");</span></span><br><span class="line"><span class="comment">//        fileList.add("D:\\敏感词\\政治类.txt");</span></span><br><span class="line"><span class="comment">//        fileList.add("D:\\敏感词\\网址.txt");</span></span><br><span class="line">        <span class="built_in">Set</span>&lt;<span class="built_in">String</span>&gt; sensitiveWordSet = readFile(fileList);</span><br><span class="line">        System.out.println(<span class="string">"加载敏感词个数："</span> + sensitiveWordSet.size());</span><br><span class="line">        <span class="comment">//初始化敏感词库</span></span><br><span class="line">        SensitiveWordUtils2.load(sensitiveWordSet);</span><br><span class="line">        <span class="built_in">String</span> content = <span class="string">"结束标志位结束代购商标职业志位结束标志敏感位结束标志位代购结束标志位结束苹果标"</span>;</span><br><span class="line">        long beginTime = System.currentTimeMillis();</span><br><span class="line">        boolean isContains = contains(content);</span><br><span class="line">        <span class="built_in">Set</span>&lt;<span class="built_in">String</span>&gt; sensitiveWord = getSensitiveWord(content);</span><br><span class="line">        System.out.println(<span class="string">"敏感词="</span> + sensitiveWord);</span><br><span class="line">        System.out.println(<span class="string">"耗时："</span> + (System.currentTimeMillis() - beginTime) + <span class="string">"ms"</span>);</span><br><span class="line">        System.out.println(replaceWordByOne(content, <span class="string">"*"</span>));</span><br><span class="line">        System.out.println(replaceWordByAll(content, <span class="string">"替换整个词"</span>));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>不需要的方法自行去掉，判空地方:<code>StrUtil.isNotBlank(str)</code>可能会报错，自己改一些就行。</p>
+<h4 id="3、参考链接"><a href="#3、参考链接" class="headerlink" title="3、参考链接"></a>3、参考链接</h4><ul>
+<li><a href="https://houbb.github.io/2020/01/07/sensitive-word-dfa#%E5%BC%80%E6%BA%90%E6%A1%86%E6%9E%B6" target="_blank" rel="noopener">https://houbb.github.io/2020/01/07/sensitive-word-dfa#%E5%BC%80%E6%BA%90%E6%A1%86%E6%9E%B6</a></li>
+</ul>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+	
+	    <div>
+	
+	<div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------本文结束 <i class="fa fa-heartbeat"></i> 感谢您的阅读-------------</div>
+    
+</div>
+	
+	</div>
+
+    
+
+    
+      
+    
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div></div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>打赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/blog/images/wechat_pay.jpg" alt="rstyro 微信支付">
+        <p>微信支付</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/blog/images/alipay.jpg" alt="rstyro 支付宝">
+        <p>支付宝</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+	
+	<div>    
+	 
+	 
+	<ul class="post-copyright">
+	  <li class="post-copyright-author">
+		  <strong>本文作者：</strong>rstyro
+	  </li>
+	  <li class="post-copyright-link">
+		<strong>本文链接：</strong>
+		<a href="/blog/2020/10/17/敏感词过滤之DFA算法Java版/" title="敏感词过滤之DFA算法Java版">https://rstyro.github.io/blog/2020/10/17/敏感词过滤之DFA算法Java版/</a>
+	  </li>
+	  <li class="post-copyright-license">
+		<strong>版权： </strong>
+		转载注明出处！
+	  </li>
+	</ul>
+	
+	</div>
+	
+
+      
+        <div class="post-tags">
+          
+            <a href="/blog/tags/算法/" rel="tag"><i class="fa fa-tag"></i> 算法</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2020/10/14/Elasticsearch7之Script使用/" rel="next" title="Elasticsearch7之Script使用">
+                <i class="fa fa-chevron-left"></i> Elasticsearch7之Script使用
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2020/10/22/Springboot2接口加解密全过程详解(含前端代码)/" rel="prev" title="Springboot2接口加解密全过程详解(含前端代码)">
+                Springboot2接口加解密全过程详解(含前端代码) <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+
+
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+      <div id="sidebar-dimmer"></div>
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/blog/images/avatar.jpg" alt="rstyro">
+            
+              <p class="site-author-name" itemprop="name">rstyro</p>
+              <p class="site-description motion-element" itemprop="description">个人博客,瞎写一些技术笔记等。</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/blog/archives/">
+                
+                    <span class="site-state-item-count">195</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/blog/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">12</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/blog/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">65</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+            <div class="feed-link motion-element">
+              <a href="/blog/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://github.com/rstyro" title="GitHub &rarr; https://github.com/rstyro" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://gitee.com/rstyro" title="Gitee &rarr; https://gitee.com/rstyro" rel="noopener" target="_blank"><i class="fa fa-fw fa-codiepie"></i>Gitee</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="/blog/1006059906" title="QQ &rarr; 1006059906"><i class="fa fa-fw fa-qq"></i>QQ</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://www.jianshu.com/u/651c15a1758a" title="简书 &rarr; https://www.jianshu.com/u/651c15a1758a" rel="noopener" target="_blank"><i class="fa fa-fw fa-book"></i>简书</a>
+                </span>
+              
+            </div>
+          
+
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-block">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                友链
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://rstyro.github.io/blog/" title="https://rstyro.github.io/blog/">帅大叔博客</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://www.zhyd.me/" title="https://www.zhyd.me/" rel="noopener" target="_blank">张亚东博客</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://www.devsong.org/" title="http://www.devsong.org/" rel="noopener" target="_blank">DevSONG</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://www.dalaoyang.cn/" title="https://www.dalaoyang.cn/" rel="noopener" target="_blank">dalaoyang</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://www.chenshuangyi.com/" title="https://www.chenshuangyi.com/" rel="noopener" target="_blank">陈双义博客</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+            
+          
+          <div id="days"></div>
+<script>
+function show_date_time(){
+window.setTimeout("show_date_time()", 1000);
+BirthDay=new Date("04/10/2017 15:13:14");
+today=new Date();
+timeold=(today.getTime()-BirthDay.getTime());
+sectimeold=timeold/1000
+secondsold=Math.floor(sectimeold);
+msPerDay=24*60*60*1000
+e_daysold=timeold/msPerDay
+daysold=Math.floor(e_daysold);
+e_hrsold=(e_daysold-daysold)*24;
+hrsold=setzero(Math.floor(e_hrsold));
+e_minsold=(e_hrsold-hrsold)*60;
+minsold=setzero(Math.floor((e_hrsold-hrsold)*60));
+seconds=setzero(Math.floor((e_minsold-minsold)*60));
+document.getElementById('days').innerHTML="已运行 "+daysold+" 天 "+hrsold+" 小时 "+minsold+" 分 "+seconds+" 秒";
+}
+function setzero(i){
+if (i<10)
+{i="0" + i};
+return i;
+}
+show_date_time();
+</script>
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#一、前言"><span class="nav-number">1.</span> <span class="nav-text">一、前言</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#二、DFA概述"><span class="nav-number">2.</span> <span class="nav-text">二、DFA概述</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#三、Java代码实现"><span class="nav-number">3.</span> <span class="nav-text">三、Java代码实现</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1、构建DFA-模型结构"><span class="nav-number">3.1.</span> <span class="nav-text">1、构建DFA 模型结构</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2、如何查找"><span class="nav-number">3.2.</span> <span class="nav-text">2、如何查找</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3、参考链接"><span class="nav-number">3.3.</span> <span class="nav-text">3、参考链接</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2022</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">rstyro</span>
+
+  
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+
+  <script src="https://unpkg.com/mermaid@8.11.0/dist/mermaid.min.js"></script>
+  <script>
+    if (window.mermaid) {
+      mermaid.initialize({"startOnload":true});
+    }
+  </script>
+
+
+<div class="theme-info">
+  <div class="powered-by"></div>
+  <span class="post-count">博客全站共338.7k字</span>
+</div>
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-user"></i>
+    </span>
+    <span class="site-uv" title="总访客量">
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+    </span>
+  
+
+  
+    <span class="post-meta-divider">|</span>
+  
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-eye"></i>
+    </span>
+    <span class="site-pv" title="总访问量">
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/blog/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/blog/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/blog/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/blog/js/src/utils.js?v=6.7.0"></script>
+
+  <script src="/blog/js/src/motion.js?v=6.7.0"></script>
+
+
+
+  
+  
+
+  
+  <script src="/blog/js/src/scrollspy.js?v=6.7.0"></script>
+<script src="/blog/js/src/post-details.js?v=6.7.0"></script>
+
+
+
+  
+
+
+  <script src="/blog/js/src/bootstrap.js?v=6.7.0"></script>
+
+
+
+  
+  
+
+
+
+
+  
+
+<script src="//cdn1.lncld.net/static/js/3.11.1/av-min.js"></script>
+
+
+
+  
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/valine/1.3.4/Valine.min.js"></script>
+
+<script>
+  var GUEST = ['nick', 'mail', 'link'];
+  var guest = 'nick,mail,link';
+  guest = guest.split(',').filter(function (item) {
+    return GUEST.indexOf(item) > -1;
+  });
+  new Valine({
+    el: '#comments',
+    verify: false,
+    notify: false,
+    appId: 'LwEPiJFa7YMn2MrJdCwaUbmQ-gzGzoHsz',
+    appKey: 'JqS1y3RxYvDOki9r3NcqqoO5',
+    placeholder: '来都来了，不说几句就走，过分了啊！！！',
+    avatar: 'monsterid',
+    meta: guest,
+    pageSize: '10' || 10,
+    visitor: false
+  });
+</script>
+
+
+
+  
+
+  <script>
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/blog/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url).replace(/\/{2,}/g, '/');
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x"></i></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x"></i></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+  <script>
+    (function(){
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+      }
+      else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+      }
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+    })();
+  </script>
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,1636 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/blog/css/main.css?v=6.7.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon.jpg?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon.jpg?v=6.7.0">
+
+
+  <link rel="mask-icon" href="/blog/images/logo.svg?v=6.7.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/blog/',
+    scheme: 'Mist',
+    version: '6.7.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":true},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+<script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+<link href="//cdn.bootcss.com/pace/1.0.2/themes/pink/pace-theme-flash.css" rel="stylesheet">
+  <style>
+      .pace .pace-progress {
+          background: #1E92FB; /*进度条颜色*/
+          height: 3px;
+      }
+      .pace .pace-progress-inner {
+           box-shadow: 0 0 10px #1E92FB, 0 0 5px     #1E92FB; /*阴影颜色*/
+      }
+      .pace .pace-activity {
+          border-top-color: #1E92FB;    /*上边框颜色*/
+          border-left-color: #1E92FB;    /*左边框颜色*/
+      }
+  </style>
+
+  <meta name="description" content="栗子：1、address.xml&amp;lt;select&amp;gt;  	&amp;lt;option value=&quot;AL&quot;&amp;gt;阿尔巴尼亚&amp;lt;/option&amp;gt;  	&amp;lt;option value=&quot;DZ&quot;&amp;gt;阿尔及利亚&amp;lt;/option&amp;gt;  	&amp;lt;option value=&quot;AF&quot;&amp;gt;阿富汗&amp;lt;/option&amp;gt;  	&amp;lt;option value=&quot;AR&quot;&amp;gt;">
+<meta name="keywords" content="MYSQL">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Mysql 导入xml文件">
+<meta property="og:url" content="https://rstyro.github.io/blog/2017/12/19/Mysql 导入xml文件/index.html">
+<meta property="og:site_name" content="帅大叔的博客">
+<meta property="og:description" content="栗子：1、address.xml&amp;lt;select&amp;gt;  	&amp;lt;option value=&quot;AL&quot;&amp;gt;阿尔巴尼亚&amp;lt;/option&amp;gt;  	&amp;lt;option value=&quot;DZ&quot;&amp;gt;阿尔及利亚&amp;lt;/option&amp;gt;  	&amp;lt;option value=&quot;AF&quot;&amp;gt;阿富汗&amp;lt;/option&amp;gt;  	&amp;lt;option value=&quot;AR&quot;&amp;gt;">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://rstyro.github.io/blog/2017/12/19/Mysql%20导入xml文件/95740.png">
+<meta property="og:updated_time" content="2022-01-21T06:16:17.076Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Mysql 导入xml文件">
+<meta name="twitter:description" content="栗子：1、address.xml&amp;lt;select&amp;gt;  	&amp;lt;option value=&quot;AL&quot;&amp;gt;阿尔巴尼亚&amp;lt;/option&amp;gt;  	&amp;lt;option value=&quot;DZ&quot;&amp;gt;阿尔及利亚&amp;lt;/option&amp;gt;  	&amp;lt;option value=&quot;AF&quot;&amp;gt;阿富汗&amp;lt;/option&amp;gt;  	&amp;lt;option value=&quot;AR&quot;&amp;gt;">
+<meta name="twitter:image" content="https://rstyro.github.io/blog/2017/12/19/Mysql%20导入xml文件/95740.png">
+
+
+
+  <link rel="alternate" href="/blog/atom.xml" title="帅大叔的博客" type="application/atom+xml">
+
+
+
+
+  <link rel="canonical" href="https://rstyro.github.io/blog/2017/12/19/Mysql 导入xml文件/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>Mysql 导入xml文件 | 帅大叔的博客</title>
+  
+
+
+
+
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?cd2197f8af1d69b326360027b8f93d92";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+	<a href="https://github.com/rstyro" class="github-corner" aria-label="View source on GitHub"><svg width="80" height="80" viewbox="0 0 250 250" style="fill:#151513; color:#fff; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"/><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"/><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"/></svg></a><style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/blog/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">帅大叔的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">信你所信，为你所见</p>
+      
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/" rel="section">首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/about/" rel="section">关于</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/tags/" rel="section">标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/categories/" rel="section">分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/archives/" rel="section">归档</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-guestbook">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/guestbook/" rel="section">留言</a>
+
+  </li>
+
+      
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            搜索</a>
+        </li>
+      
+    </ul>
+  
+
+  
+    
+
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://rstyro.github.io/blog/blog/2017/12/19/Mysql 导入xml文件/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="rstyro">
+      <meta itemprop="description" content="个人博客,瞎写一些技术笔记等。">
+      <meta itemprop="image" content="/blog/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="帅大叔的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Mysql 导入xml文件
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2017-12-19 13:16:54" itemprop="dateCreated datePublished" datetime="2017-12-19T13:16:54+08:00">2017-12-19</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2022-01-21 14:16:17" itemprop="dateModified" datetime="2022-01-21T14:16:17+08:00">2022-01-21</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/blog/categories/数据库/" itemprop="url" rel="index"><span itemprop="name">数据库</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/blog/2017/12/19/Mysql 导入xml文件/#comments" itemprop="discussionUrl">
+                  <span class="post-meta-item-text">评论数：</span> <span class="post-comments-count valine-comment-count" data-xid="/blog/2017/12/19/Mysql 导入xml文件/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="post-meta-item-icon">
+            <i class="fa fa-eye"></i>
+             阅读次数： 
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h4 id="栗子："><a href="#栗子：" class="headerlink" title="栗子："></a>栗子：</h4><h3 id="1、address-xml"><a href="#1、address-xml" class="headerlink" title="1、address.xml"></a>1、address.xml</h3><figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">select</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"AL"</span>&gt;</span>阿尔巴尼亚<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"DZ"</span>&gt;</span>阿尔及利亚<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"AF"</span>&gt;</span>阿富汗<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"AR"</span>&gt;</span>阿根廷<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"AE"</span>&gt;</span>阿拉伯联合酋长国<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"AW"</span>&gt;</span>阿鲁巴<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"OM"</span>&gt;</span>阿曼<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"AZ"</span>&gt;</span>阿塞拜疆<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"EG"</span>&gt;</span>埃及<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"ET"</span>&gt;</span>埃塞俄比亚<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"IE"</span>&gt;</span>爱尔兰<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"EE"</span>&gt;</span>爱沙尼亚<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"AD"</span>&gt;</span>安道尔<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"AO"</span>&gt;</span>安哥拉<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"AI"</span>&gt;</span>安圭拉岛<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"AG"</span>&gt;</span>安提瓜和巴布达<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"AT"</span>&gt;</span>奥地利<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"AX"</span>&gt;</span>奥兰岛<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"AU"</span>&gt;</span>澳大利亚<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"MO"</span>&gt;</span>澳门特别行政区<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"BB"</span>&gt;</span>巴巴多斯<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"PG"</span>&gt;</span>巴布亚新几内亚<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"BS"</span>&gt;</span>巴哈马<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"PK"</span>&gt;</span>巴基斯坦<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"PY"</span>&gt;</span>巴拉圭<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"PS"</span>&gt;</span>巴勒斯坦民族权力机构<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"BH"</span>&gt;</span>巴林<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"PA"</span>&gt;</span>巴拿马<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"BR"</span>&gt;</span>巴西<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"BY"</span>&gt;</span>白俄罗斯<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"BM"</span>&gt;</span>百慕大群岛<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"BG"</span>&gt;</span>保加利亚<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"MP"</span>&gt;</span>北马里亚纳群岛<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"BJ"</span>&gt;</span>贝宁<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"BE"</span>&gt;</span>比利时<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"IS"</span>&gt;</span>冰岛<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"PR"</span>&gt;</span>波多黎各<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"PL"</span>&gt;</span>波兰<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"BA"</span>&gt;</span>波斯尼亚和黑塞哥维那<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"BO"</span>&gt;</span>玻利维亚<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"BZ"</span>&gt;</span>伯利兹<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"BW"</span>&gt;</span>博茨瓦纳<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"BQ"</span>&gt;</span>博内尔<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"BT"</span>&gt;</span>不丹<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"BF"</span>&gt;</span>布基纳法索<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"BI"</span>&gt;</span>布隆迪<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"BV"</span>&gt;</span>布韦岛<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"KP"</span>&gt;</span>朝鲜<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"GQ"</span>&gt;</span>赤道几内亚<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"DK"</span>&gt;</span>丹麦<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"DE"</span>&gt;</span>德国<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"TL"</span>&gt;</span>东帝汶<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"TG"</span>&gt;</span>多哥<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"DO"</span>&gt;</span>多米尼加共和国<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"DM"</span>&gt;</span>多米尼克<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"RU"</span>&gt;</span>俄罗斯<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"EC"</span>&gt;</span>厄瓜多尔<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"ER"</span>&gt;</span>厄立特里亚<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"FR"</span>&gt;</span>法国<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"FO"</span>&gt;</span>法罗群岛<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"PF"</span>&gt;</span>法属波利尼西亚<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"GF"</span>&gt;</span>法属圭亚那<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"TF"</span>&gt;</span>法属南极地区<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"VA"</span>&gt;</span>梵蒂冈城<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"PH"</span>&gt;</span>菲律宾<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"FJ"</span>&gt;</span>斐济群岛<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"FI"</span>&gt;</span>芬兰<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"CV"</span>&gt;</span>佛得角<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"FK"</span>&gt;</span>福克兰群岛(马尔维纳斯群岛)<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"GM"</span>&gt;</span>冈比亚<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"CD"</span>&gt;</span>刚果(DRC)<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"CG"</span>&gt;</span>刚果共和国<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"CO"</span>&gt;</span>哥伦比亚<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"CR"</span>&gt;</span>哥斯达黎加<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"GG"</span>&gt;</span>格恩西岛<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"GD"</span>&gt;</span>格林纳达<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"GL"</span>&gt;</span>格陵兰<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"GE"</span>&gt;</span>格鲁吉亚<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"CU"</span>&gt;</span>古巴<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"GP"</span>&gt;</span>瓜德罗普岛<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"GU"</span>&gt;</span>关岛<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"GY"</span>&gt;</span>圭亚那<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"KZ"</span>&gt;</span>哈萨克斯坦<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"HT"</span>&gt;</span>海地<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"KR"</span>&gt;</span>韩国<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"NL"</span>&gt;</span>荷兰<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"HM"</span>&gt;</span>赫德和麦克唐纳群岛<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"ME"</span>&gt;</span>黑山共和国<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"HN"</span>&gt;</span>洪都拉斯<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"KI"</span>&gt;</span>基里巴斯<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"DJ"</span>&gt;</span>吉布提<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"KG"</span>&gt;</span>吉尔吉斯斯坦<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"GN"</span>&gt;</span>几内亚<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"GW"</span>&gt;</span>几内亚比绍<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"CA"</span>&gt;</span>加拿大<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"GH"</span>&gt;</span>加纳<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"GA"</span>&gt;</span>加蓬<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"KH"</span>&gt;</span>柬埔寨<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"CZ"</span>&gt;</span>捷克共和国<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"ZW"</span>&gt;</span>津巴布韦<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"CM"</span>&gt;</span>喀麦隆<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"QA"</span>&gt;</span>卡塔尔<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"KY"</span>&gt;</span>开曼群岛<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"CC"</span>&gt;</span>科科斯群岛(基灵群岛)<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"KM"</span>&gt;</span>科摩罗联盟<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"CI"</span>&gt;</span>科特迪瓦共和国<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"KW"</span>&gt;</span>科威特<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"HR"</span>&gt;</span>克罗地亚<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"KE"</span>&gt;</span>肯尼亚<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"CK"</span>&gt;</span>库可群岛<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"CW"</span>&gt;</span>库拉索<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"LV"</span>&gt;</span>拉脱维亚<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"LS"</span>&gt;</span>莱索托<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"LA"</span>&gt;</span>老挝<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"LB"</span>&gt;</span>黎巴嫩<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"LT"</span>&gt;</span>立陶宛<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"LR"</span>&gt;</span>利比里亚<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"LY"</span>&gt;</span>利比亚<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"LI"</span>&gt;</span>列支敦士登<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"RE"</span>&gt;</span>留尼汪岛<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"LU"</span>&gt;</span>卢森堡<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"RW"</span>&gt;</span>卢旺达<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"RO"</span>&gt;</span>罗马尼亚<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"MG"</span>&gt;</span>马达加斯加<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"IM"</span>&gt;</span>马恩岛<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"MV"</span>&gt;</span>马尔代夫<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"MT"</span>&gt;</span>马耳他<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"MW"</span>&gt;</span>马拉维<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"MY"</span>&gt;</span>马来西亚<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"ML"</span>&gt;</span>马里<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"MK"</span>&gt;</span>马其顿, 前南斯拉夫共和国<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"MH"</span>&gt;</span>马绍尔群岛<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"MQ"</span>&gt;</span>马提尼克岛<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"YT"</span>&gt;</span>马约特岛<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"MU"</span>&gt;</span>毛里求斯<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"MR"</span>&gt;</span>毛利塔尼亚<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"US"</span>&gt;</span>美国<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"AS"</span>&gt;</span>美属萨摩亚<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"UM"</span>&gt;</span>美属外岛<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"VI"</span>&gt;</span>美属维尔京群岛<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"MN"</span>&gt;</span>蒙古<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"MS"</span>&gt;</span>蒙特塞拉特<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"BD"</span>&gt;</span>孟加拉国<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"PE"</span>&gt;</span>秘鲁<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"FM"</span>&gt;</span>密克罗尼西亚<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"MM"</span>&gt;</span>缅甸<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"MD"</span>&gt;</span>摩尔多瓦<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"MA"</span>&gt;</span>摩洛哥<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"MC"</span>&gt;</span>摩纳哥<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"MZ"</span>&gt;</span>莫桑比克<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"MX"</span>&gt;</span>墨西哥<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"NA"</span>&gt;</span>纳米比亚<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"ZA"</span>&gt;</span>南非<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"AQ"</span>&gt;</span>南极洲<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"GS"</span>&gt;</span>南乔治亚和南德桑威奇群岛<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"NR"</span>&gt;</span>瑙鲁<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"NP"</span>&gt;</span>尼泊尔<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"NI"</span>&gt;</span>尼加拉瓜<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"NE"</span>&gt;</span>尼日尔<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"NG"</span>&gt;</span>尼日利亚<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"NU"</span>&gt;</span>纽埃<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"NO"</span>&gt;</span>挪威<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"NF"</span>&gt;</span>诺福克岛<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"PW"</span>&gt;</span>帕劳群岛<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"PN"</span>&gt;</span>皮特凯恩群岛<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"PT"</span>&gt;</span>葡萄牙<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"JP"</span>&gt;</span>日本<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"SE"</span>&gt;</span>瑞典<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"CH"</span>&gt;</span>瑞士<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"SV"</span>&gt;</span>萨尔瓦多<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"WS"</span>&gt;</span>萨摩亚<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"RS"</span>&gt;</span>塞尔维亚共和国<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"SL"</span>&gt;</span>塞拉利昂<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"SN"</span>&gt;</span>塞内加尔<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"CY"</span>&gt;</span>塞浦路斯<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"SC"</span>&gt;</span>塞舌尔<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"XS"</span>&gt;</span>沙巴岛<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"SA"</span>&gt;</span>沙特阿拉伯<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"BL"</span>&gt;</span>圣巴泰勒米岛<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"CX"</span>&gt;</span>圣诞岛<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"ST"</span>&gt;</span>圣多美和普林西比<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"SH"</span>&gt;</span>圣赫勒拿岛<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"KN"</span>&gt;</span>圣基茨和尼维斯<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"LC"</span>&gt;</span>圣卢西亚<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"MF"</span>&gt;</span>圣马丁岛<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"SX"</span>&gt;</span>圣马丁岛<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"SM"</span>&gt;</span>圣马力诺<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"PM"</span>&gt;</span>圣皮埃尔岛和密克隆岛<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"VC"</span>&gt;</span>圣文森特和格林纳丁斯<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"XE"</span>&gt;</span>圣尤斯特歇斯岛<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"LK"</span>&gt;</span>斯里兰卡<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"SK"</span>&gt;</span>斯洛伐克<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"SI"</span>&gt;</span>斯洛文尼亚<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"SZ"</span>&gt;</span>斯威士兰<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"SD"</span>&gt;</span>苏丹<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"SR"</span>&gt;</span>苏里南<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"SB"</span>&gt;</span>所罗门群岛<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"SO"</span>&gt;</span>索马里<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"TJ"</span>&gt;</span>塔吉克斯坦<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"TW"</span>&gt;</span>台湾<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"TH"</span>&gt;</span>泰国<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"TZ"</span>&gt;</span>坦桑尼亚<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"TO"</span>&gt;</span>汤加<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"TC"</span>&gt;</span>特克斯和凯科斯群岛<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"TT"</span>&gt;</span>特立尼达和多巴哥<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"TN"</span>&gt;</span>突尼斯<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"TV"</span>&gt;</span>图瓦卢<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"TR"</span>&gt;</span>土耳其<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"TM"</span>&gt;</span>土库曼斯坦<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"TK"</span>&gt;</span>托克劳<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"WF"</span>&gt;</span>瓦利斯和富图纳<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"VU"</span>&gt;</span>瓦努阿图<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"GT"</span>&gt;</span>危地马拉<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"VG"</span>&gt;</span>维尔京群岛(英属)<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"VE"</span>&gt;</span>委内瑞拉<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"BN"</span>&gt;</span>文莱<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"UG"</span>&gt;</span>乌干达<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"UA"</span>&gt;</span>乌克兰<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"UY"</span>&gt;</span>乌拉圭<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"UZ"</span>&gt;</span>乌兹别克斯坦<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"ES"</span>&gt;</span>西班牙<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"GR"</span>&gt;</span>希腊<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"HK"</span>&gt;</span>香港特别行政区<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"SG"</span>&gt;</span>新加坡<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"NC"</span>&gt;</span>新喀里多尼亚<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"NZ"</span>&gt;</span>新西兰<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"HU"</span>&gt;</span>匈牙利<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"SY"</span>&gt;</span>叙利亚<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"JM"</span>&gt;</span>牙买加<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"AM"</span>&gt;</span>亚美尼亚<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"SJ"</span>&gt;</span>扬马延岛<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"YE"</span>&gt;</span>也门<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"IQ"</span>&gt;</span>伊拉克<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"IR"</span>&gt;</span>伊朗<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"IL"</span>&gt;</span>以色列<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"IT"</span>&gt;</span>意大利<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"IN"</span>&gt;</span>印度<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"ID"</span>&gt;</span>印度尼西亚<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"UK"</span>&gt;</span>英国<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"IO"</span>&gt;</span>英属印度洋领地<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"JO"</span>&gt;</span>约旦<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"VN"</span>&gt;</span>越南<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"ZM"</span>&gt;</span>赞比亚<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"JE"</span>&gt;</span>泽西<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"TD"</span>&gt;</span>乍得<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"GI"</span>&gt;</span>直布罗陀<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"CL"</span>&gt;</span>智利<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"CF"</span>&gt;</span>中非共和国<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">"CN"</span>&gt;</span>中国<span class="tag">&lt;/<span class="name">option</span>&gt;</span>  </span><br><span class="line"><span class="tag">&lt;/<span class="name">select</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="2、表结构"><a href="#2、表结构" class="headerlink" title="2、表结构"></a>2、表结构</h3><p><img src="95740.png" alt></p>
+<h3 id="3、运行命令："><a href="#3、运行命令：" class="headerlink" title="3、运行命令："></a>3、运行命令：</h3><figure class="highlight routeros"><table><tr><td class="code"><pre><span class="line">LOAD XML LOCAL INFILE <span class="string">'f:\address.xml'</span></span><br><span class="line">INTO TABLE address</span><br><span class="line">ROWS IDENTIFIED BY <span class="string">'&lt;option&gt;'</span>;</span><br></pre></td></tr></table></figure>
+
+<p>参考：<a href="https://dev.mysql.com/doc/refman/5.5/en/load-xml.html" target="_blank" rel="noopener">https://dev.mysql.com/doc/refman/5.5/en/load-xml.html</a></p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+	
+	    <div>
+	
+	<div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------本文结束 <i class="fa fa-heartbeat"></i> 感谢您的阅读-------------</div>
+    
+</div>
+	
+	</div>
+
+    
+
+    
+      
+    
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div></div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>打赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/blog/images/wechat_pay.jpg" alt="rstyro 微信支付">
+        <p>微信支付</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/blog/images/alipay.jpg" alt="rstyro 支付宝">
+        <p>支付宝</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+	
+	<div>    
+	 
+	 
+	<ul class="post-copyright">
+	  <li class="post-copyright-author">
+		  <strong>本文作者：</strong>rstyro
+	  </li>
+	  <li class="post-copyright-link">
+		<strong>本文链接：</strong>
+		<a href="/blog/2017/12/19/Mysql 导入xml文件/" title="Mysql 导入xml文件">https://rstyro.github.io/blog/2017/12/19/Mysql 导入xml文件/</a>
+	  </li>
+	  <li class="post-copyright-license">
+		<strong>版权： </strong>
+		转载注明出处！
+	  </li>
+	</ul>
+	
+	</div>
+	
+
+      
+        <div class="post-tags">
+          
+            <a href="/blog/tags/MYSQL/" rel="tag"><i class="fa fa-tag"></i> MYSQL</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2017/12/12/ElasticSearch 创建ik 索引/" rel="next" title="ElasticSearch 创建ik 索引">
+                <i class="fa fa-chevron-left"></i> ElasticSearch 创建ik 索引
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2018/01/03/Java 面试题之前篇/" rel="prev" title="Java 面试题之前篇">
+                Java 面试题之前篇 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+
+
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+      <div id="sidebar-dimmer"></div>
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/blog/images/avatar.jpg" alt="rstyro">
+            
+              <p class="site-author-name" itemprop="name">rstyro</p>
+              <p class="site-description motion-element" itemprop="description">个人博客,瞎写一些技术笔记等。</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/blog/archives/">
+                
+                    <span class="site-state-item-count">195</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/blog/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">12</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/blog/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">65</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+            <div class="feed-link motion-element">
+              <a href="/blog/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://github.com/rstyro" title="GitHub &rarr; https://github.com/rstyro" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://gitee.com/rstyro" title="Gitee &rarr; https://gitee.com/rstyro" rel="noopener" target="_blank"><i class="fa fa-fw fa-codiepie"></i>Gitee</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="/blog/1006059906" title="QQ &rarr; 1006059906"><i class="fa fa-fw fa-qq"></i>QQ</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://www.jianshu.com/u/651c15a1758a" title="简书 &rarr; https://www.jianshu.com/u/651c15a1758a" rel="noopener" target="_blank"><i class="fa fa-fw fa-book"></i>简书</a>
+                </span>
+              
+            </div>
+          
+
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-block">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                友链
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://rstyro.github.io/blog/" title="https://rstyro.github.io/blog/">帅大叔博客</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://www.zhyd.me/" title="https://www.zhyd.me/" rel="noopener" target="_blank">张亚东博客</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://www.devsong.org/" title="http://www.devsong.org/" rel="noopener" target="_blank">DevSONG</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://www.dalaoyang.cn/" title="https://www.dalaoyang.cn/" rel="noopener" target="_blank">dalaoyang</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://www.chenshuangyi.com/" title="https://www.chenshuangyi.com/" rel="noopener" target="_blank">陈双义博客</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+            
+          
+          <div id="days"></div>
+<script>
+function show_date_time(){
+window.setTimeout("show_date_time()", 1000);
+BirthDay=new Date("04/10/2017 15:13:14");
+today=new Date();
+timeold=(today.getTime()-BirthDay.getTime());
+sectimeold=timeold/1000
+secondsold=Math.floor(sectimeold);
+msPerDay=24*60*60*1000
+e_daysold=timeold/msPerDay
+daysold=Math.floor(e_daysold);
+e_hrsold=(e_daysold-daysold)*24;
+hrsold=setzero(Math.floor(e_hrsold));
+e_minsold=(e_hrsold-hrsold)*60;
+minsold=setzero(Math.floor((e_hrsold-hrsold)*60));
+seconds=setzero(Math.floor((e_minsold-minsold)*60));
+document.getElementById('days').innerHTML="已运行 "+daysold+" 天 "+hrsold+" 小时 "+minsold+" 分 "+seconds+" 秒";
+}
+function setzero(i){
+if (i<10)
+{i="0" + i};
+return i;
+}
+show_date_time();
+</script>
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#栗子："><span class="nav-number">1.</span> <span class="nav-text">栗子：</span></a></li></ol><li class="nav-item nav-level-3"><a class="nav-link" href="#1、address-xml"><span class="nav-number"></span> <span class="nav-text">1、address.xml</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2、表结构"><span class="nav-number"></span> <span class="nav-text">2、表结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3、运行命令："><span class="nav-number"></span> <span class="nav-text">3、运行命令：</span></a></li></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2022</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">rstyro</span>
+
+  
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+
+  <script src="https://unpkg.com/mermaid@8.11.0/dist/mermaid.min.js"></script>
+  <script>
+    if (window.mermaid) {
+      mermaid.initialize({"startOnload":true});
+    }
+  </script>
+
+
+<div class="theme-info">
+  <div class="powered-by"></div>
+  <span class="post-count">博客全站共338.7k字</span>
+</div>
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-user"></i>
+    </span>
+    <span class="site-uv" title="总访客量">
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+    </span>
+  
+
+  
+    <span class="post-meta-divider">|</span>
+  
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-eye"></i>
+    </span>
+    <span class="site-pv" title="总访问量">
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/blog/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/blog/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/blog/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/blog/js/src/utils.js?v=6.7.0"></script>
+
+  <script src="/blog/js/src/motion.js?v=6.7.0"></script>
+
+
+
+  
+  
+
+  
+  <script src="/blog/js/src/scrollspy.js?v=6.7.0"></script>
+<script src="/blog/js/src/post-details.js?v=6.7.0"></script>
+
+
+
+  
+
+
+  <script src="/blog/js/src/bootstrap.js?v=6.7.0"></script>
+
+
+
+  
+  
+
+
+
+
+  
+
+<script src="//cdn1.lncld.net/static/js/3.11.1/av-min.js"></script>
+
+
+
+  
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/valine/1.3.4/Valine.min.js"></script>
+
+<script>
+  var GUEST = ['nick', 'mail', 'link'];
+  var guest = 'nick,mail,link';
+  guest = guest.split(',').filter(function (item) {
+    return GUEST.indexOf(item) > -1;
+  });
+  new Valine({
+    el: '#comments',
+    verify: false,
+    notify: false,
+    appId: 'LwEPiJFa7YMn2MrJdCwaUbmQ-gzGzoHsz',
+    appKey: 'JqS1y3RxYvDOki9r3NcqqoO5',
+    placeholder: '来都来了，不说几句就走，过分了啊！！！',
+    avatar: 'monsterid',
+    meta: guest,
+    pageSize: '10' || 10,
+    visitor: false
+  });
+</script>
+
+
+
+  
+
+  <script>
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/blog/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url).replace(/\/{2,}/g, '/');
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x"></i></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x"></i></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+  <script>
+    (function(){
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+      }
+      else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+      }
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+    })();
+  </script>
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

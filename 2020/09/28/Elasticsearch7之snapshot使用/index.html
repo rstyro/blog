@@ -1,0 +1,1725 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/blog/css/main.css?v=6.7.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon.jpg?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon.jpg?v=6.7.0">
+
+
+  <link rel="mask-icon" href="/blog/images/logo.svg?v=6.7.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/blog/',
+    scheme: 'Mist',
+    version: '6.7.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":true},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+<script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+<link href="//cdn.bootcss.com/pace/1.0.2/themes/pink/pace-theme-flash.css" rel="stylesheet">
+  <style>
+      .pace .pace-progress {
+          background: #1E92FB; /*进度条颜色*/
+          height: 3px;
+      }
+      .pace .pace-progress-inner {
+           box-shadow: 0 0 10px #1E92FB, 0 0 5px     #1E92FB; /*阴影颜色*/
+      }
+      .pace .pace-activity {
+          border-top-color: #1E92FB;    /*上边框颜色*/
+          border-left-color: #1E92FB;    /*左边框颜色*/
+      }
+  </style>
+
+  <meta name="description" content="一、snapshot 简介在网络中最重要的是数据，所有在存储应用中，定期的做数据备份还是很有必要的。而snapshot 就是Elasticsearch为了做数据备份用的api。翻译过来就是快照。ES的高可用是通过多节点多副本来实现的，但是副本的数据并没有提供灾难性故障的保护。所有提供一个快照api是很有必要。比如集群数据转移功能，通过snapshot 数据拷贝还是很方便的。 但是有版本还原限制，可">
+<meta name="keywords" content="ElasticSearch">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Elasticsearch7之snapshot使用">
+<meta property="og:url" content="https://rstyro.github.io/blog/2020/09/28/Elasticsearch7之snapshot使用/index.html">
+<meta property="og:site_name" content="帅大叔的博客">
+<meta property="og:description" content="一、snapshot 简介在网络中最重要的是数据，所有在存储应用中，定期的做数据备份还是很有必要的。而snapshot 就是Elasticsearch为了做数据备份用的api。翻译过来就是快照。ES的高可用是通过多节点多副本来实现的，但是副本的数据并没有提供灾难性故障的保护。所有提供一个快照api是很有必要。比如集群数据转移功能，通过snapshot 数据拷贝还是很方便的。 但是有版本还原限制，可">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://rstyro.github.io/blog/2020/09/28/Elasticsearch7之snapshot使用/snapshot-version.png">
+<meta property="og:updated_time" content="2022-01-21T06:16:17.006Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Elasticsearch7之snapshot使用">
+<meta name="twitter:description" content="一、snapshot 简介在网络中最重要的是数据，所有在存储应用中，定期的做数据备份还是很有必要的。而snapshot 就是Elasticsearch为了做数据备份用的api。翻译过来就是快照。ES的高可用是通过多节点多副本来实现的，但是副本的数据并没有提供灾难性故障的保护。所有提供一个快照api是很有必要。比如集群数据转移功能，通过snapshot 数据拷贝还是很方便的。 但是有版本还原限制，可">
+<meta name="twitter:image" content="https://rstyro.github.io/blog/2020/09/28/Elasticsearch7之snapshot使用/snapshot-version.png">
+
+
+
+  <link rel="alternate" href="/blog/atom.xml" title="帅大叔的博客" type="application/atom+xml">
+
+
+
+
+  <link rel="canonical" href="https://rstyro.github.io/blog/2020/09/28/Elasticsearch7之snapshot使用/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>Elasticsearch7之snapshot使用 | 帅大叔的博客</title>
+  
+
+
+
+
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?cd2197f8af1d69b326360027b8f93d92";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+	<a href="https://github.com/rstyro" class="github-corner" aria-label="View source on GitHub"><svg width="80" height="80" viewbox="0 0 250 250" style="fill:#151513; color:#fff; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"/><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"/><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"/></svg></a><style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/blog/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">帅大叔的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">信你所信，为你所见</p>
+      
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/" rel="section">首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/about/" rel="section">关于</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/tags/" rel="section">标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/categories/" rel="section">分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/archives/" rel="section">归档</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-guestbook">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/guestbook/" rel="section">留言</a>
+
+  </li>
+
+      
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            搜索</a>
+        </li>
+      
+    </ul>
+  
+
+  
+    
+
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://rstyro.github.io/blog/blog/2020/09/28/Elasticsearch7之snapshot使用/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="rstyro">
+      <meta itemprop="description" content="个人博客,瞎写一些技术笔记等。">
+      <meta itemprop="image" content="/blog/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="帅大叔的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Elasticsearch7之snapshot使用
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2020-09-28 18:35:44" itemprop="dateCreated datePublished" datetime="2020-09-28T18:35:44+08:00">2020-09-28</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2022-01-21 14:16:17" itemprop="dateModified" datetime="2022-01-21T14:16:17+08:00">2022-01-21</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/blog/categories/搜索引擎/" itemprop="url" rel="index"><span itemprop="name">搜索引擎</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/blog/2020/09/28/Elasticsearch7之snapshot使用/#comments" itemprop="discussionUrl">
+                  <span class="post-meta-item-text">评论数：</span> <span class="post-comments-count valine-comment-count" data-xid="/blog/2020/09/28/Elasticsearch7之snapshot使用/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="post-meta-item-icon">
+            <i class="fa fa-eye"></i>
+             阅读次数： 
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h3 id="一、snapshot-简介"><a href="#一、snapshot-简介" class="headerlink" title="一、snapshot 简介"></a>一、snapshot 简介</h3><p>在网络中最重要的是数据，所有在存储应用中，定期的做数据备份还是很有必要的。而snapshot 就是Elasticsearch为了做数据备份用的api。翻译过来就是快照。<br>ES的高可用是通过多节点多副本来实现的，但是副本的数据并没有提供灾难性故障的保护。所有提供一个快照api是很有必要。<br>比如集群数据转移功能，通过snapshot 数据拷贝还是很方便的。</p>
+<p>但是有版本还原限制，可以从低到高</p>
+<p><img src="snapshot-version.png" alt></p>
+<h3 id="二、配置snapshot-repository"><a href="#二、配置snapshot-repository" class="headerlink" title="二、配置snapshot repository"></a>二、配置snapshot repository</h3><p>在创建快照(<code>snapshot</code>)之前，首先需要创建快照仓库(<code>repository</code>)，一个仓库里面可以有多个快照。而创建快照仓库需要在<code>elasticsearch.yml</code>配置仓库地址。<br>在<code>elasticsearch.yml</code> 中添加：</p>
+<figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 可以填多个仓库地址，后面添加快照时保存地址必须在下面配置地址之中</span></span><br><span class="line"><span class="attr">path.repo:</span> <span class="string">["/opt/elasticsearch-cluster/snapshot_repo",</span> <span class="string">"/opt/elasticsearch-cluster/data_backups"</span><span class="string">]</span></span><br></pre></td></tr></table></figure>
+
+<p>配置之后，需要重启ES服务</p>
+<h4 id="1、创建快照仓库"><a href="#1、创建快照仓库" class="headerlink" title="1、创建快照仓库"></a>1、创建快照仓库</h4><p>创建一个名为<code>my_backup</code>的快照仓库</p>
+<figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="comment"># location 需要在上面配置的地址数组路径之中</span></span><br><span class="line"><span class="string">PUT</span> <span class="string">http://172.16.1.236:9201/_snapshot/my_backup</span></span><br><span class="line"><span class="string">&#123;</span></span><br><span class="line">    <span class="attr">"type":</span> <span class="string">"fs"</span><span class="string">,</span> </span><br><span class="line">    <span class="attr">"settings":</span> <span class="string">&#123;</span></span><br><span class="line">        <span class="attr">"location":</span> <span class="string">"/opt/elasticsearch-cluster/snapshot_repo/my_backup"</span> </span><br><span class="line">    <span class="string">&#125;</span></span><br><span class="line"><span class="string">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>这样就创建了一个仓库地址，之后就可以在这个仓库之后添加快照。</p>
+<p>可以验证集群各个节点是否可以使用这个仓库：</p>
+<figure class="highlight groovy"><table><tr><td class="code"><pre><span class="line">POST <span class="string">http:</span><span class="comment">//172.16.1.236:9201/_snapshot/my_backup/_verify</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//返回，说明我3个节点的集群都验证通过</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="string">"nodes"</span>: &#123;</span><br><span class="line">        <span class="string">"S2ZU6-25TO-bBSQACZDhqQ"</span>: &#123;</span><br><span class="line">            <span class="string">"name"</span>: <span class="string">"mtNode2"</span></span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="string">"hXWHAW6uQQi7lMHdargp0w"</span>: &#123;</span><br><span class="line">            <span class="string">"name"</span>: <span class="string">"mtNode1"</span></span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="string">"xgFCwPHQTPaaTmG9SW2Ctg"</span>: &#123;</span><br><span class="line">            <span class="string">"name"</span>: <span class="string">"mtNode3"</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="2、其他参数"><a href="#2、其他参数" class="headerlink" title="2、其他参数"></a>2、其他参数</h4><p>创建仓库还有其他的参数可以设置：</p>
+<ul>
+<li>location<br>仓库地址</li>
+<li>compress<br>是否压缩，默认true,</li>
+<li>chunk_size<br>是否将大文件分解成块，分解成块的单位，例子: <code>1GB</code>, <code>10MB</code>, <code>5KB</code>, <code>500B</code>，默认：<code>null</code>(不限制)</li>
+<li>max_restore_bytes_per_sec<br>快照恢复的速度，默认：无限制</li>
+<li>max_snapshot_bytes_per_sec<br>节点出入站的速率，默认：<code>40mb/s</code></li>
+<li>readonly<br>仓库快照是否时只读，默认：<code>false</code></li>
+</ul>
+<h4 id="3、第三方插件"><a href="#3、第三方插件" class="headerlink" title="3、第三方插件"></a>3、第三方插件</h4><p><strong>以上介绍的是基于本地存储，可以配置仓库插件就可以存储在其他地方，如：</strong></p>
+<ul>
+<li><a href="https://www.elastic.co/guide/en/elasticsearch/plugins/7.9/repository-s3.html" target="_blank" rel="noopener">repository-s3</a> 支持S3 仓库</li>
+<li><a href="https://www.elastic.co/guide/en/elasticsearch/plugins/7.9/repository-hdfs.html" target="_blank" rel="noopener">repository-hdfs</a> 支持HDFS 仓库</li>
+<li><a href="https://www.elastic.co/guide/en/elasticsearch/plugins/7.9/repository-azure.html" target="_blank" rel="noopener">repository-azure</a> 支持Azure 仓库</li>
+<li><a href="https://www.elastic.co/guide/en/elasticsearch/plugins/7.9/repository-gcs.html" target="_blank" rel="noopener">repository-gcs</a> 支持 Google Cloud 仓库</li>
+</ul>
+<h3 id="三、snapshot-备份"><a href="#三、snapshot-备份" class="headerlink" title="三、snapshot 备份"></a>三、snapshot 备份</h3><p>仓库配置好了，就可以开始备份了。</p>
+<h4 id="1、保存集群下的所有索引快照"><a href="#1、保存集群下的所有索引快照" class="headerlink" title="1、保存集群下的所有索引快照"></a>1、保存集群下的所有索引快照</h4><p>所有索引</p>
+<figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 格式：/_snapshot/仓库名称/快照名称</span></span><br><span class="line"><span class="string">PUT</span> <span class="string">http://172.16.1.236:9201/_snapshot/my_backup/snapshot_1</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="2、保存集群下的指定索引快照"><a href="#2、保存集群下的指定索引快照" class="headerlink" title="2、保存集群下的指定索引快照"></a>2、保存集群下的指定索引快照</h4><p>指定索引,添加<code>wait_for_completion</code> 参数，等于<code>true</code>时，将等待快照保存结束时才会返回结果。反之异步返回结果</p>
+<figure class="highlight elixir"><table><tr><td class="code"><pre><span class="line">PUT <span class="symbol">http:</span>/<span class="regexp">/172.16.1.236:9201/</span>_snapshot/my_backup/snapshot_2?wait_for_completion=<span class="keyword">true</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="string">"indices"</span>: <span class="string">".security-7,topic,indexName"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>快照是增量的，有可能很多快照依赖于过去的段，在仓库下的文件要注意了不要手动删除</strong></p>
+<h4 id="3、获取指定快照状态"><a href="#3、获取指定快照状态" class="headerlink" title="3、获取指定快照状态"></a>3、获取指定快照状态</h4><p>除了上边加的<code>wait_for_completion</code> 参数，可以知道快照是否完成之外，可以使用如下：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">GET http:<span class="comment">//172.16.1.236:9201/_snapshot/my_backup/snapshot_2/_status</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// 返回</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="string">"snapshots"</span>: [</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="string">"snapshot"</span>: <span class="string">"snapshot_2"</span>,</span><br><span class="line">            <span class="string">"repository"</span>: <span class="string">"my_backup"</span>,</span><br><span class="line">            <span class="string">"uuid"</span>: <span class="string">"yGDt-O2-TcKvqn35DI8Wyg"</span>,</span><br><span class="line">            <span class="string">"state"</span>: <span class="string">"SUCCESS"</span>,</span><br><span class="line">            <span class="string">"include_global_state"</span>: <span class="literal">true</span>,</span><br><span class="line">            <span class="string">"shards_stats"</span>: &#123;</span><br><span class="line">                <span class="string">"initializing"</span>: <span class="number">0</span>,</span><br><span class="line">                <span class="string">"started"</span>: <span class="number">0</span>,</span><br><span class="line">                <span class="string">"finalizing"</span>: <span class="number">0</span>,</span><br><span class="line">                <span class="string">"done"</span>: <span class="number">4</span>,</span><br><span class="line">                <span class="string">"failed"</span>: <span class="number">0</span>,</span><br><span class="line">                <span class="string">"total"</span>: <span class="number">4</span></span><br><span class="line">            &#125;,</span><br><span class="line">            <span class="string">"stats"</span>: &#123;</span><br><span class="line">                <span class="string">"incremental"</span>: &#123;</span><br><span class="line">                    <span class="string">"file_count"</span>: <span class="number">0</span>,</span><br><span class="line">                    <span class="string">"size_in_bytes"</span>: <span class="number">0</span></span><br><span class="line">                &#125;,</span><br><span class="line">                <span class="string">"total"</span>: &#123;</span><br><span class="line">                    <span class="string">"file_count"</span>: <span class="number">61</span>,</span><br><span class="line">                    <span class="string">"size_in_bytes"</span>: <span class="number">105076</span></span><br><span class="line">                &#125;,</span><br><span class="line">                <span class="string">"start_time_in_millis"</span>: <span class="number">1601196083846</span>,</span><br><span class="line">                <span class="string">"time_in_millis"</span>: <span class="number">1601</span></span><br><span class="line">            &#125;,</span><br><span class="line">            <span class="string">"indices"</span>: &#123;</span><br><span class="line">                <span class="string">".security-7"</span>: &#123;</span><br><span class="line">                    <span class="string">"shards_stats"</span>: &#123;</span><br><span class="line">                        <span class="string">"initializing"</span>: <span class="number">0</span>,</span><br><span class="line">                        <span class="string">"started"</span>: <span class="number">0</span>,</span><br><span class="line">                        <span class="string">"finalizing"</span>: <span class="number">0</span>,</span><br><span class="line">                        <span class="string">"done"</span>: <span class="number">1</span>,</span><br><span class="line">                        <span class="string">"failed"</span>: <span class="number">0</span>,</span><br><span class="line">                        <span class="string">"total"</span>: <span class="number">1</span></span><br><span class="line">                    &#125;,</span><br><span class="line">                    <span class="string">"stats"</span>: &#123;</span><br><span class="line">                        <span class="string">"incremental"</span>: &#123;</span><br><span class="line">                            <span class="string">"file_count"</span>: <span class="number">0</span>,</span><br><span class="line">                            <span class="string">"size_in_bytes"</span>: <span class="number">0</span></span><br><span class="line">                        &#125;,</span><br><span class="line">                        <span class="string">"total"</span>: &#123;</span><br><span class="line">                            <span class="string">"file_count"</span>: <span class="number">22</span>,</span><br><span class="line">                            <span class="string">"size_in_bytes"</span>: <span class="number">26134</span></span><br><span class="line">                        &#125;,</span><br><span class="line">                        <span class="string">"start_time_in_millis"</span>: <span class="number">1601196084171</span>,</span><br><span class="line">                        <span class="string">"time_in_millis"</span>: <span class="number">0</span></span><br><span class="line">                    &#125;,</span><br><span class="line">                    <span class="string">"shards"</span>: &#123;</span><br><span class="line">                        <span class="string">"0"</span>: &#123;</span><br><span class="line">                            <span class="string">"stage"</span>: <span class="string">"DONE"</span>,</span><br><span class="line">                            <span class="string">"stats"</span>: &#123;</span><br><span class="line">                                <span class="string">"incremental"</span>: &#123;</span><br><span class="line">                                    <span class="string">"file_count"</span>: <span class="number">0</span>,</span><br><span class="line">                                    <span class="string">"size_in_bytes"</span>: <span class="number">0</span></span><br><span class="line">                                &#125;,</span><br><span class="line">                                <span class="string">"total"</span>: &#123;</span><br><span class="line">                                    <span class="string">"file_count"</span>: <span class="number">22</span>,</span><br><span class="line">                                    <span class="string">"size_in_bytes"</span>: <span class="number">26134</span></span><br><span class="line">                                &#125;,</span><br><span class="line">                                <span class="string">"start_time_in_millis"</span>: <span class="number">1601196084171</span>,</span><br><span class="line">                                <span class="string">"time_in_millis"</span>: <span class="number">0</span></span><br><span class="line">                            &#125;</span><br><span class="line">                        &#125;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;,</span><br><span class="line">                <span class="string">"topic"</span>: &#123;</span><br><span class="line">                    <span class="string">"shards_stats"</span>: &#123;</span><br><span class="line">                        <span class="string">"initializing"</span>: <span class="number">0</span>,</span><br><span class="line">                        <span class="string">"started"</span>: <span class="number">0</span>,</span><br><span class="line">                        <span class="string">"finalizing"</span>: <span class="number">0</span>,</span><br><span class="line">                        <span class="string">"done"</span>: <span class="number">3</span>,</span><br><span class="line">                        <span class="string">"failed"</span>: <span class="number">0</span>,</span><br><span class="line">                        <span class="string">"total"</span>: <span class="number">3</span></span><br><span class="line">                    &#125;,</span><br><span class="line">                    <span class="string">"stats"</span>: &#123;</span><br><span class="line">                        <span class="string">"incremental"</span>: &#123;</span><br><span class="line">                            <span class="string">"file_count"</span>: <span class="number">0</span>,</span><br><span class="line">                            <span class="string">"size_in_bytes"</span>: <span class="number">0</span></span><br><span class="line">                        &#125;,</span><br><span class="line">                        <span class="string">"total"</span>: &#123;</span><br><span class="line">                            <span class="string">"file_count"</span>: <span class="number">39</span>,</span><br><span class="line">                            <span class="string">"size_in_bytes"</span>: <span class="number">78942</span></span><br><span class="line">                        &#125;,</span><br><span class="line">                        <span class="string">"start_time_in_millis"</span>: <span class="number">1601196084246</span>,</span><br><span class="line">                        <span class="string">"time_in_millis"</span>: <span class="number">525</span></span><br><span class="line">                    &#125;,</span><br><span class="line">                    <span class="string">"shards"</span>: &#123;</span><br><span class="line">                        <span class="string">"0"</span>: &#123;</span><br><span class="line">                            <span class="string">"stage"</span>: <span class="string">"DONE"</span>,</span><br><span class="line">                            <span class="string">"stats"</span>: &#123;</span><br><span class="line">                                <span class="string">"incremental"</span>: &#123;</span><br><span class="line">                                    <span class="string">"file_count"</span>: <span class="number">0</span>,</span><br><span class="line">                                    <span class="string">"size_in_bytes"</span>: <span class="number">0</span></span><br><span class="line">                                &#125;,</span><br><span class="line">                                <span class="string">"total"</span>: &#123;</span><br><span class="line">                                    <span class="string">"file_count"</span>: <span class="number">16</span>,</span><br><span class="line">                                    <span class="string">"size_in_bytes"</span>: <span class="number">32821</span></span><br><span class="line">                                &#125;,</span><br><span class="line">                                <span class="string">"start_time_in_millis"</span>: <span class="number">1601196084771</span>,</span><br><span class="line">                                <span class="string">"time_in_millis"</span>: <span class="number">0</span></span><br><span class="line">                            &#125;</span><br><span class="line">                        &#125;,</span><br><span class="line">                        <span class="string">"1"</span>: &#123;</span><br><span class="line">                            <span class="string">"stage"</span>: <span class="string">"DONE"</span>,</span><br><span class="line">                            <span class="string">"stats"</span>: &#123;</span><br><span class="line">                                <span class="string">"incremental"</span>: &#123;</span><br><span class="line">                                    <span class="string">"file_count"</span>: <span class="number">0</span>,</span><br><span class="line">                                    <span class="string">"size_in_bytes"</span>: <span class="number">0</span></span><br><span class="line">                                &#125;,</span><br><span class="line">                                <span class="string">"total"</span>: &#123;</span><br><span class="line">                                    <span class="string">"file_count"</span>: <span class="number">4</span>,</span><br><span class="line">                                    <span class="string">"size_in_bytes"</span>: <span class="number">6728</span></span><br><span class="line">                                &#125;,</span><br><span class="line">                                <span class="string">"start_time_in_millis"</span>: <span class="number">1601196084571</span>,</span><br><span class="line">                                <span class="string">"time_in_millis"</span>: <span class="number">0</span></span><br><span class="line">                            &#125;</span><br><span class="line">                        &#125;,</span><br><span class="line">                        <span class="string">"2"</span>: &#123;</span><br><span class="line">                            <span class="string">"stage"</span>: <span class="string">"DONE"</span>,</span><br><span class="line">                            <span class="string">"stats"</span>: &#123;</span><br><span class="line">                                <span class="string">"incremental"</span>: &#123;</span><br><span class="line">                                    <span class="string">"file_count"</span>: <span class="number">0</span>,</span><br><span class="line">                                    <span class="string">"size_in_bytes"</span>: <span class="number">0</span></span><br><span class="line">                                &#125;,</span><br><span class="line">                                <span class="string">"total"</span>: &#123;</span><br><span class="line">                                    <span class="string">"file_count"</span>: <span class="number">19</span>,</span><br><span class="line">                                    <span class="string">"size_in_bytes"</span>: <span class="number">39393</span></span><br><span class="line">                                &#125;,</span><br><span class="line">                                <span class="string">"start_time_in_millis"</span>: <span class="number">1601196084246</span>,</span><br><span class="line">                                <span class="string">"time_in_millis"</span>: <span class="number">0</span></span><br><span class="line">                            &#125;</span><br><span class="line">                        &#125;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>分片的状态有</strong>：</p>
+<ul>
+<li><strong>INITIALIZING</strong><br>分片在检查集群状态看看自己是否可以被快照。这个一般是非常快的。</li>
+<li><strong>STARTED</strong><br>数据正在被传输到仓库。</li>
+<li><strong>FINALIZING</strong><br>数据传输完成；分片现在在发送快照元数据</li>
+<li><strong>DONE</strong><br>快照完成！</li>
+<li><strong>FAILED</strong><br>快照处理的时候碰到了错误，这个分片/索引/快照不可能完成了。检查你的日志获取更多信息。</li>
+</ul>
+<h4 id="4、获取所有快照信息"><a href="#4、获取所有快照信息" class="headerlink" title="4、获取所有快照信息"></a>4、获取所有快照信息</h4><figure class="highlight awk"><table><tr><td class="code"><pre><span class="line">GET http:<span class="regexp">//</span><span class="number">172.16</span>.<span class="number">1.236</span>:<span class="number">9201</span><span class="regexp">/_snapshot/my</span>_backup<span class="regexp">/_all</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="5、获取指定快照信息"><a href="#5、获取指定快照信息" class="headerlink" title="5、获取指定快照信息"></a>5、获取指定快照信息</h4><p>获取<code>snapshot_2</code> 快照信息</p>
+<figure class="highlight awk"><table><tr><td class="code"><pre><span class="line">GET http:<span class="regexp">//</span><span class="number">172.16</span>.<span class="number">1.236</span>:<span class="number">9201</span><span class="regexp">/_snapshot/my</span>_backup<span class="regexp">/snapshot_2</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="6、创建日期表达式的快照"><a href="#6、创建日期表达式的快照" class="headerlink" title="6、创建日期表达式的快照"></a>6、创建日期表达式的快照</h4><p>和之前文章<a href="https://rstyro.gitee.io/blog/2020/09/27/Elasticsearch7%E4%B9%8BRollover%E4%BD%BF%E7%94%A8%E8%AF%A6%E8%A7%A3/" target="_blank" rel="noopener">rollover创建日期索引</a>一样，也是需要用日期表达式而且也需要放在尖括号中且最终转为URI编码。</p>
+<figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 创建格式为：snapshot-2020-09-28 转为表达式：&lt;snapshot-&#123;now/d&#125;&gt;   转为URI: %3Csnapshot-%7Bnow%2Fd%7D%3E</span></span><br><span class="line"><span class="comment"># 创建以当前日期保存所有索引的快照</span></span><br><span class="line"><span class="string">PUT</span> <span class="string">http://172.16.1.236:9201/_snapshot/my_backup/%3Csnapshot-%7Bnow%2Fd%7D%3E</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="7、获取通配符快照信息"><a href="#7、获取通配符快照信息" class="headerlink" title="7、获取通配符快照信息"></a>7、获取通配符快照信息</h4><p>获取模糊快照信息,多个用逗号隔开</p>
+<figure class="highlight groovy"><table><tr><td class="code"><pre><span class="line">GET <span class="string">http:</span><span class="comment">//172.16.1.236:9201/_snapshot/my_backup/snap*</span></span><br><span class="line"></span><br><span class="line">GET <span class="string">http:</span><span class="comment">//172.16.1.236:9201/_snapshot/my_backup/snap*,test*</span></span><br><span class="line"></span><br><span class="line">GET <span class="string">http:</span><span class="comment">//172.16.1.236:9201/_snapshot/my_backup/snapshot_2,snapshot_1</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="四、snapshot-还原"><a href="#四、snapshot-还原" class="headerlink" title="四、snapshot 还原"></a>四、snapshot 还原</h3><p>一旦你备份过了数据，恢复它就简单了：只要在你希望恢复回集群的快照ID后面加上 <code>_restore</code> 即可：</p>
+<figure class="highlight awk"><table><tr><td class="code"><pre><span class="line">POST http:<span class="regexp">//</span><span class="number">172.16</span>.<span class="number">1.236</span>:<span class="number">9201</span><span class="regexp">/_snapshot/my</span>_backup<span class="regexp">/snapshot_1/</span>_restore</span><br></pre></td></tr></table></figure>
+
+<p>如上，就会恢复快照中的所有索引与数据，如果集群中已有快照的索引那就会报索引已存在的错误。</p>
+<p><strong>如果你想在不替换现有数据的前提下，恢复老数据来验证内容，或者做其他处理。可以从快照里恢复单个索引并提供一个替换的名称：</strong></p>
+<figure class="highlight groovy"><table><tr><td class="code"><pre><span class="line">POST <span class="string">http:</span><span class="comment">//172.16.1.236:9201/_snapshot/my_backup/snapshot_1/_restore</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="string">"indices"</span>: <span class="string">"topic"</span>,</span><br><span class="line">  <span class="string">"ignore_unavailable"</span>: <span class="literal">true</span>,</span><br><span class="line">  <span class="string">"include_global_state"</span>: <span class="literal">false</span>,              </span><br><span class="line">  <span class="string">"rename_pattern"</span>: <span class="string">"topic"</span>,</span><br><span class="line">  <span class="string">"rename_replacement"</span>: <span class="string">"restored_topic"</span>,</span><br><span class="line">  <span class="string">"include_aliases"</span>: <span class="literal">false</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>partial:false</code>可选，默认：false，如果快照包含一个或多个索引没有所有主碎片可用，则整个还原操作将失败。 如果为true，则允许恢复具有不可用碎片的索引的部分快照。将只恢复快照中成功包含的碎片。所有丢失的碎片将重新创建为空 。</li>
+<li><code>include_global_state:false</code> 将还原快照中的所有数据流和索引，但不还原群集状态 。</li>
+<li>如果<code>ignore_unavailable:false</code>时，当缺少topic索引时报错</li>
+<li><code>include_aliases</code> 是否需要别名，true恢复，false不恢复别名</li>
+<li>这个<code>rename_pattern</code> 与<code>rename_replacement</code> 支持正则表达式可以参考：<a href="https://docs.oracle.com/javase/8/docs/api/java/util/regex/Matcher.html#appendReplacement-java.lang.StringBuffer-java.lang.String-" target="_blank" rel="noopener">Matcher.appendReplacement</a>，也可以像上面直接写死。</li>
+</ul>
+<p><strong>使用正则表达式：</strong></p>
+<figure class="highlight dart"><table><tr><td class="code"><pre><span class="line">POST http:<span class="comment">//172.16.1.236:9201/_snapshot/my_backup/snapshot_1/_restore</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="string">"indices"</span>: <span class="string">"test-01"</span>,</span><br><span class="line">  <span class="string">"ignore_unavailable"</span>: <span class="keyword">true</span>,</span><br><span class="line">  <span class="string">"include_global_state"</span>: <span class="keyword">false</span>,              </span><br><span class="line">  <span class="string">"rename_pattern"</span>: <span class="string">"test-0(.+)"</span>,</span><br><span class="line">  <span class="string">"rename_replacement"</span>: <span class="string">"restored_test_<span class="subst">$1</span>"</span>,</span><br><span class="line">  <span class="string">"include_aliases"</span>: <span class="keyword">false</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>还原数据的时候，修改索引配置</strong></p>
+<figure class="highlight awk"><table><tr><td class="code"><pre><span class="line">POST http:<span class="regexp">//</span><span class="number">172.16</span>.<span class="number">1.236</span>:<span class="number">9201</span><span class="regexp">/_snapshot/my</span>_backup<span class="regexp">/snapshot_1/</span>_restore</span><br><span class="line">&#123;</span><br><span class="line">  <span class="string">"indices"</span>: <span class="string">"index_1"</span>,</span><br><span class="line">  <span class="string">"ignore_unavailable"</span>: true,</span><br><span class="line">  <span class="string">"index_settings"</span>: &#123;</span><br><span class="line">    <span class="string">"index.number_of_replicas"</span>: <span class="number">0</span></span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="string">"ignore_index_settings"</span>: [</span><br><span class="line">    <span class="string">"index.refresh_interval"</span></span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>恢复数据时，把恢复索引的副本数改为0（不需要副本）。</p>
+<h3 id="五、其他"><a href="#五、其他" class="headerlink" title="五、其他"></a>五、其他</h3><p>快照的用法不只有这些，像配置插件使用这些因条件有限等使用到在补充</p>
+<h4 id="1、删除快照"><a href="#1、删除快照" class="headerlink" title="1、删除快照"></a>1、删除快照</h4><figure class="highlight awk"><table><tr><td class="code"><pre><span class="line">DELETE http:<span class="regexp">//</span><span class="number">172.16</span>.<span class="number">1.236</span>:<span class="number">9201</span><span class="regexp">/_snapshot/my</span>_backup<span class="regexp">/snapshot_2</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="2、删除多个"><a href="#2、删除多个" class="headerlink" title="2、删除多个"></a>2、删除多个</h4><figure class="highlight awk"><table><tr><td class="code"><pre><span class="line">DELETE http:<span class="regexp">//</span><span class="number">172.16</span>.<span class="number">1.236</span>:<span class="number">9201</span><span class="regexp">/_snapshot/my</span>_backup<span class="regexp">/snapshot_2,snapshot_3,snapshot_4</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="3、通配符删除"><a href="#3、通配符删除" class="headerlink" title="3、通配符删除"></a>3、通配符删除</h4><figure class="highlight awk"><table><tr><td class="code"><pre><span class="line">DELETE http:<span class="regexp">//</span><span class="number">172.16</span>.<span class="number">1.236</span>:<span class="number">9201</span><span class="regexp">/_snapshot/my</span>_backup<span class="regexp">/snaps*</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="4、过期快照清理"><a href="#4、过期快照清理" class="headerlink" title="4、过期快照清理"></a>4、过期快照清理</h4><figure class="highlight awk"><table><tr><td class="code"><pre><span class="line">POST http:<span class="regexp">//</span><span class="number">172.16</span>.<span class="number">1.236</span>:<span class="number">9201</span><span class="regexp">/_snapshot/my</span>_backup<span class="regexp">/_cleanup</span></span><br></pre></td></tr></table></figure>
+
+<p>本文只是在同一个集群做快照保存与恢复，不同集群的快照恢复，有兴趣的同学可以看<a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/snapshots-register-repository.html#snapshots-repository-plugins" target="_blank" rel="noopener">官方文档</a>和<a href="https://www.elastic.co/guide/en/elasticsearch/plugins/7.9/repository.html" target="_blank" rel="noopener">repository插件</a>。</p>
+<p><strong>参考文档：</strong></p>
+<ul>
+<li><a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/snapshot-restore.html" target="_blank" rel="noopener">snapshot-restore</a></li>
+</ul>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+	
+	    <div>
+	
+	<div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------本文结束 <i class="fa fa-heartbeat"></i> 感谢您的阅读-------------</div>
+    
+</div>
+	
+	</div>
+
+    
+
+    
+      
+    
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div></div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>打赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/blog/images/wechat_pay.jpg" alt="rstyro 微信支付">
+        <p>微信支付</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/blog/images/alipay.jpg" alt="rstyro 支付宝">
+        <p>支付宝</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+	
+	<div>    
+	 
+	 
+	<ul class="post-copyright">
+	  <li class="post-copyright-author">
+		  <strong>本文作者：</strong>rstyro
+	  </li>
+	  <li class="post-copyright-link">
+		<strong>本文链接：</strong>
+		<a href="/blog/2020/09/28/Elasticsearch7之snapshot使用/" title="Elasticsearch7之snapshot使用">https://rstyro.github.io/blog/2020/09/28/Elasticsearch7之snapshot使用/</a>
+	  </li>
+	  <li class="post-copyright-license">
+		<strong>版权： </strong>
+		转载注明出处！
+	  </li>
+	</ul>
+	
+	</div>
+	
+
+      
+        <div class="post-tags">
+          
+            <a href="/blog/tags/ElasticSearch/" rel="tag"><i class="fa fa-tag"></i> ElasticSearch</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2020/09/27/Elasticsearch7之Rollover使用详解/" rel="next" title="Elasticsearch7之Rollover使用详解">
+                <i class="fa fa-chevron-left"></i> Elasticsearch7之Rollover使用详解
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2020/10/12/Elasticsearch7之nested与join详解/" rel="prev" title="Elasticsearch7之nested与join详解">
+                Elasticsearch7之nested与join详解 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+
+
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+      <div id="sidebar-dimmer"></div>
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/blog/images/avatar.jpg" alt="rstyro">
+            
+              <p class="site-author-name" itemprop="name">rstyro</p>
+              <p class="site-description motion-element" itemprop="description">个人博客,瞎写一些技术笔记等。</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/blog/archives/">
+                
+                    <span class="site-state-item-count">195</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/blog/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">12</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/blog/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">65</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+            <div class="feed-link motion-element">
+              <a href="/blog/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://github.com/rstyro" title="GitHub &rarr; https://github.com/rstyro" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://gitee.com/rstyro" title="Gitee &rarr; https://gitee.com/rstyro" rel="noopener" target="_blank"><i class="fa fa-fw fa-codiepie"></i>Gitee</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="/blog/1006059906" title="QQ &rarr; 1006059906"><i class="fa fa-fw fa-qq"></i>QQ</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://www.jianshu.com/u/651c15a1758a" title="简书 &rarr; https://www.jianshu.com/u/651c15a1758a" rel="noopener" target="_blank"><i class="fa fa-fw fa-book"></i>简书</a>
+                </span>
+              
+            </div>
+          
+
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-block">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                友链
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://rstyro.github.io/blog/" title="https://rstyro.github.io/blog/">帅大叔博客</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://www.zhyd.me/" title="https://www.zhyd.me/" rel="noopener" target="_blank">张亚东博客</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://www.devsong.org/" title="http://www.devsong.org/" rel="noopener" target="_blank">DevSONG</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://www.dalaoyang.cn/" title="https://www.dalaoyang.cn/" rel="noopener" target="_blank">dalaoyang</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://www.chenshuangyi.com/" title="https://www.chenshuangyi.com/" rel="noopener" target="_blank">陈双义博客</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+            
+          
+          <div id="days"></div>
+<script>
+function show_date_time(){
+window.setTimeout("show_date_time()", 1000);
+BirthDay=new Date("04/10/2017 15:13:14");
+today=new Date();
+timeold=(today.getTime()-BirthDay.getTime());
+sectimeold=timeold/1000
+secondsold=Math.floor(sectimeold);
+msPerDay=24*60*60*1000
+e_daysold=timeold/msPerDay
+daysold=Math.floor(e_daysold);
+e_hrsold=(e_daysold-daysold)*24;
+hrsold=setzero(Math.floor(e_hrsold));
+e_minsold=(e_hrsold-hrsold)*60;
+minsold=setzero(Math.floor((e_hrsold-hrsold)*60));
+seconds=setzero(Math.floor((e_minsold-minsold)*60));
+document.getElementById('days').innerHTML="已运行 "+daysold+" 天 "+hrsold+" 小时 "+minsold+" 分 "+seconds+" 秒";
+}
+function setzero(i){
+if (i<10)
+{i="0" + i};
+return i;
+}
+show_date_time();
+</script>
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#一、snapshot-简介"><span class="nav-number">1.</span> <span class="nav-text">一、snapshot 简介</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#二、配置snapshot-repository"><span class="nav-number">2.</span> <span class="nav-text">二、配置snapshot repository</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1、创建快照仓库"><span class="nav-number">2.1.</span> <span class="nav-text">1、创建快照仓库</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2、其他参数"><span class="nav-number">2.2.</span> <span class="nav-text">2、其他参数</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3、第三方插件"><span class="nav-number">2.3.</span> <span class="nav-text">3、第三方插件</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#三、snapshot-备份"><span class="nav-number">3.</span> <span class="nav-text">三、snapshot 备份</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1、保存集群下的所有索引快照"><span class="nav-number">3.1.</span> <span class="nav-text">1、保存集群下的所有索引快照</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2、保存集群下的指定索引快照"><span class="nav-number">3.2.</span> <span class="nav-text">2、保存集群下的指定索引快照</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3、获取指定快照状态"><span class="nav-number">3.3.</span> <span class="nav-text">3、获取指定快照状态</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4、获取所有快照信息"><span class="nav-number">3.4.</span> <span class="nav-text">4、获取所有快照信息</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5、获取指定快照信息"><span class="nav-number">3.5.</span> <span class="nav-text">5、获取指定快照信息</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#6、创建日期表达式的快照"><span class="nav-number">3.6.</span> <span class="nav-text">6、创建日期表达式的快照</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#7、获取通配符快照信息"><span class="nav-number">3.7.</span> <span class="nav-text">7、获取通配符快照信息</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#四、snapshot-还原"><span class="nav-number">4.</span> <span class="nav-text">四、snapshot 还原</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#五、其他"><span class="nav-number">5.</span> <span class="nav-text">五、其他</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1、删除快照"><span class="nav-number">5.1.</span> <span class="nav-text">1、删除快照</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2、删除多个"><span class="nav-number">5.2.</span> <span class="nav-text">2、删除多个</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3、通配符删除"><span class="nav-number">5.3.</span> <span class="nav-text">3、通配符删除</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4、过期快照清理"><span class="nav-number">5.4.</span> <span class="nav-text">4、过期快照清理</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2022</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">rstyro</span>
+
+  
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+
+  <script src="https://unpkg.com/mermaid@8.11.0/dist/mermaid.min.js"></script>
+  <script>
+    if (window.mermaid) {
+      mermaid.initialize({"startOnload":true});
+    }
+  </script>
+
+
+<div class="theme-info">
+  <div class="powered-by"></div>
+  <span class="post-count">博客全站共338.7k字</span>
+</div>
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-user"></i>
+    </span>
+    <span class="site-uv" title="总访客量">
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+    </span>
+  
+
+  
+    <span class="post-meta-divider">|</span>
+  
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-eye"></i>
+    </span>
+    <span class="site-pv" title="总访问量">
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/blog/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/blog/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/blog/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/blog/js/src/utils.js?v=6.7.0"></script>
+
+  <script src="/blog/js/src/motion.js?v=6.7.0"></script>
+
+
+
+  
+  
+
+  
+  <script src="/blog/js/src/scrollspy.js?v=6.7.0"></script>
+<script src="/blog/js/src/post-details.js?v=6.7.0"></script>
+
+
+
+  
+
+
+  <script src="/blog/js/src/bootstrap.js?v=6.7.0"></script>
+
+
+
+  
+  
+
+
+
+
+  
+
+<script src="//cdn1.lncld.net/static/js/3.11.1/av-min.js"></script>
+
+
+
+  
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/valine/1.3.4/Valine.min.js"></script>
+
+<script>
+  var GUEST = ['nick', 'mail', 'link'];
+  var guest = 'nick,mail,link';
+  guest = guest.split(',').filter(function (item) {
+    return GUEST.indexOf(item) > -1;
+  });
+  new Valine({
+    el: '#comments',
+    verify: false,
+    notify: false,
+    appId: 'LwEPiJFa7YMn2MrJdCwaUbmQ-gzGzoHsz',
+    appKey: 'JqS1y3RxYvDOki9r3NcqqoO5',
+    placeholder: '来都来了，不说几句就走，过分了啊！！！',
+    avatar: 'monsterid',
+    meta: guest,
+    pageSize: '10' || 10,
+    visitor: false
+  });
+</script>
+
+
+
+  
+
+  <script>
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/blog/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url).replace(/\/{2,}/g, '/');
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x"></i></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x"></i></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+  <script>
+    (function(){
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+      }
+      else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+      }
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+    })();
+  </script>
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,1759 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/blog/css/main.css?v=6.7.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon.jpg?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon.jpg?v=6.7.0">
+
+
+  <link rel="mask-icon" href="/blog/images/logo.svg?v=6.7.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/blog/',
+    scheme: 'Mist',
+    version: '6.7.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":true},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+<script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+<link href="//cdn.bootcss.com/pace/1.0.2/themes/pink/pace-theme-flash.css" rel="stylesheet">
+  <style>
+      .pace .pace-progress {
+          background: #1E92FB; /*进度条颜色*/
+          height: 3px;
+      }
+      .pace .pace-progress-inner {
+           box-shadow: 0 0 10px #1E92FB, 0 0 5px     #1E92FB; /*阴影颜色*/
+      }
+      .pace .pace-activity {
+          border-top-color: #1E92FB;    /*上边框颜色*/
+          border-left-color: #1E92FB;    /*左边框颜色*/
+      }
+  </style>
+
+  <meta name="description" content="一、mhvtl 安装1、依赖环境安装 依赖安装  # 安装依赖yum -y install zlib-devel lzo-devel gcc prel kernel-devel# 安装依赖yum -y install mtx mt-st lsscsi sysstat sg3_utils git   lsscsi  查看SCSI设备信息(必选)  mtx 操作带库机械臂(必选)  mt-st – 操">
+<meta name="keywords" content="mhvtl,iscsi">
+<meta property="og:type" content="article">
+<meta property="og:title" content="mhvtl安装使用">
+<meta property="og:url" content="https://rstyro.github.io/blog/2021/10/21/mhvtl安装使用/index.html">
+<meta property="og:site_name" content="帅大叔的博客">
+<meta property="og:description" content="一、mhvtl 安装1、依赖环境安装 依赖安装  # 安装依赖yum -y install zlib-devel lzo-devel gcc prel kernel-devel# 安装依赖yum -y install mtx mt-st lsscsi sysstat sg3_utils git   lsscsi  查看SCSI设备信息(必选)  mtx 操作带库机械臂(必选)  mt-st – 操">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://rstyro.github.io/blog/2021/10/21/mhvtl安装使用/src.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2021/10/21/mhvtl安装使用/iscsi_init.png">
+<meta property="og:updated_time" content="2021-10-21T08:15:30.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="mhvtl安装使用">
+<meta name="twitter:description" content="一、mhvtl 安装1、依赖环境安装 依赖安装  # 安装依赖yum -y install zlib-devel lzo-devel gcc prel kernel-devel# 安装依赖yum -y install mtx mt-st lsscsi sysstat sg3_utils git   lsscsi  查看SCSI设备信息(必选)  mtx 操作带库机械臂(必选)  mt-st – 操">
+<meta name="twitter:image" content="https://rstyro.github.io/blog/2021/10/21/mhvtl安装使用/src.png">
+
+
+
+  <link rel="alternate" href="/blog/atom.xml" title="帅大叔的博客" type="application/atom+xml">
+
+
+
+
+  <link rel="canonical" href="https://rstyro.github.io/blog/2021/10/21/mhvtl安装使用/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>mhvtl安装使用 | 帅大叔的博客</title>
+  
+
+
+
+
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?cd2197f8af1d69b326360027b8f93d92";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+	<a href="https://github.com/rstyro" class="github-corner" aria-label="View source on GitHub"><svg width="80" height="80" viewbox="0 0 250 250" style="fill:#151513; color:#fff; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"/><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"/><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"/></svg></a><style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/blog/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">帅大叔的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">信你所信，为你所见</p>
+      
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/" rel="section">首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/about/" rel="section">关于</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/tags/" rel="section">标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/categories/" rel="section">分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/archives/" rel="section">归档</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-guestbook">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/guestbook/" rel="section">留言</a>
+
+  </li>
+
+      
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            搜索</a>
+        </li>
+      
+    </ul>
+  
+
+  
+    
+
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://rstyro.github.io/blog/blog/2021/10/21/mhvtl安装使用/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="rstyro">
+      <meta itemprop="description" content="个人博客,瞎写一些技术笔记等。">
+      <meta itemprop="image" content="/blog/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="帅大叔的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">mhvtl安装使用
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2021-10-21 16:15:30" itemprop="dateCreated datePublished" datetime="2021-10-21T16:15:30+08:00">2021-10-21</time>
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/blog/categories/其他/" itemprop="url" rel="index"><span itemprop="name">其他</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/blog/2021/10/21/mhvtl安装使用/#comments" itemprop="discussionUrl">
+                  <span class="post-meta-item-text">评论数：</span> <span class="post-comments-count valine-comment-count" data-xid="/blog/2021/10/21/mhvtl安装使用/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="post-meta-item-icon">
+            <i class="fa fa-eye"></i>
+             阅读次数： 
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h3 id="一、mhvtl-安装"><a href="#一、mhvtl-安装" class="headerlink" title="一、mhvtl 安装"></a>一、mhvtl 安装</h3><h4 id="1、依赖环境安装"><a href="#1、依赖环境安装" class="headerlink" title="1、依赖环境安装"></a>1、依赖环境安装</h4><ul>
+<li>依赖安装</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 安装依赖</span></span><br><span class="line">yum -y install zlib-devel lzo-devel gcc prel kernel-devel</span><br><span class="line"></span><br><span class="line"><span class="comment"># 安装依赖</span></span><br><span class="line">yum -y install mtx mt-st lsscsi sysstat sg3_utils git</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>lsscsi</code>  查看SCSI设备信息(必选) </li>
+<li><code>mtx</code> 操作带库机械臂(必选) </li>
+<li><code>mt-st</code> – 操作带库的驱动(必选) </li>
+<li><code>sg3_utils</code> 、<code>iscsi-initiator-utils</code> 用于使用 SCSI 命令集的设备的实用程序</li>
+<li><code>scsi-target-utils</code>  安装stgt以便将磁带机分配给其他服务器上的备份软件使用</li>
+</ul>
+<p>开启iSCSI服务：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># centos6</span></span><br><span class="line">service tgtd start </span><br><span class="line"></span><br><span class="line"><span class="comment"># centos7,服务相关命令</span></span><br><span class="line">systemctl start tgtd</span><br><span class="line">systemctl restart tgtd</span><br><span class="line">systemctl stop tgtd</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>sysstat</code>   Linux系统管理工具包(可选)</li>
+</ul>
+<h4 id="2、下载mhvtl源码"><a href="#2、下载mhvtl源码" class="headerlink" title="2、下载mhvtl源码"></a>2、下载mhvtl源码</h4><ul>
+<li><p>Github地址：<a href="https://github.com/markh794/mhvtl" target="_blank" rel="noopener">https://github.com/markh794/mhvtl</a></p>
+</li>
+<li><p>使用Git下载源码：<code>git clone https://github.com/markh794/mhvtl.git</code></p>
+</li>
+<li><p>下载之后，大致目录如下：</p>
+</li>
+</ul>
+<p><img src="src.png" alt></p>
+<ul>
+<li>进入到如上图的目录后，执行命令编译安装：</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 根据内核，安装对应的内核开发工具，如果对应的内核没安装成功，可能会导致后面的步骤安装失败</span></span><br><span class="line">yum -y install kernel-devel-$(uname -r) kernel-headers-$(uname -r)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 进入 kernel 目录，安装内核</span></span><br><span class="line"><span class="built_in">cd</span> ./kernel/</span><br><span class="line">make &amp;&amp; make install</span><br><span class="line"></span><br><span class="line"><span class="comment"># 向内核中加载mhvtl模块</span></span><br><span class="line">modprobe mhvtl</span><br><span class="line">lsmod |grep mhvtl</span><br><span class="line"></span><br><span class="line"><span class="comment"># 返回上一级</span></span><br><span class="line"><span class="built_in">cd</span> ..</span><br><span class="line"><span class="comment"># 开始编译安装mhvtl</span></span><br><span class="line">make &amp;&amp; make install</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>安装成功后，即可启动服务</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 把mhvtl加入开机自启动计划</span></span><br><span class="line">systemctl <span class="built_in">enable</span> mhvtl.target</span><br><span class="line"><span class="comment"># 状态</span></span><br><span class="line">systemctl status mhvtl.target</span><br><span class="line"></span><br><span class="line"><span class="comment"># 启动mhvtl服务</span></span><br><span class="line">systemctl start mhvtl.target</span><br><span class="line"></span><br><span class="line"><span class="comment"># 停止服务</span></span><br><span class="line">systemctl stop mhvtl.target</span><br></pre></td></tr></table></figure>
+
+<h3 id="二、mhVTL的使用"><a href="#二、mhVTL的使用" class="headerlink" title="二、mhVTL的使用"></a>二、mhVTL的使用</h3><ul>
+<li>简单命令使用</li>
+</ul>
+<h4 id="1、查看磁带库设备相关信息"><a href="#1、查看磁带库设备相关信息" class="headerlink" title="1、查看磁带库设备相关信息"></a>1、查看磁带库设备相关信息</h4><ul>
+<li><p>命令： <code>lsscsi -g</code></p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment"># 结果如下：</span></span><br><span class="line">[root@localhost dcs-ods-nvtl]<span class="comment"># lsscsi -g</span></span><br><span class="line">[0:0:0:0]    disk    VMware   Virtual disk     2.0   /dev/sda   /dev/sg0 </span><br><span class="line">[3:0:0:0]    <span class="built_in">cd</span>/dvd  NECVMWar VMware SATA CD00 1.00  /dev/sr0   /dev/sg1 </span><br><span class="line">[33:0:0:0]   mediumx STK      L700             0106  /dev/sch1  /dev/sg6 </span><br><span class="line">[33:0:1:0]   tape    IBM      ULT3580-TD5      0106  /dev/st5   /dev/sg9 </span><br><span class="line">[33:0:2:0]   tape    IBM      ULT3580-TD5      0106  /dev/st4   /dev/sg8 </span><br><span class="line">[33:0:3:0]   tape    IBM      ULT3580-TD4      0106  /dev/st2   /dev/sg5 </span><br><span class="line">[33:0:4:0]   tape    IBM      ULT3580-TD4      0106  /dev/st1   /dev/sg4 </span><br><span class="line">[33:0:8:0]   mediumx STK      L80              0106  /dev/sch0  /dev/sg2 </span><br><span class="line">[33:0:9:0]   tape    STK      T10000B          0106  /dev/st3   /dev/sg7 </span><br><span class="line">[33:0:10:0]  tape    STK      T10000B          0106  /dev/st0   /dev/sg3 </span><br><span class="line">[33:0:11:0]  tape    STK      T10000B          0106  /dev/st7   /dev/sg11</span><br><span class="line">[33:0:12:0]  tape    STK      T10000B          0106  /dev/st6   /dev/sg10</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 返回值解析</span></span><br><span class="line"><span class="comment"># 第1列：SCSI设备id：host, channel,id,lun。</span></span><br><span class="line"><span class="comment"># 第2列：设备类型。</span></span><br><span class="line"><span class="comment"># 第3，4，5列：设备厂商，型号，版本信息。</span></span><br><span class="line"><span class="comment"># 第6列：设备主节点名。</span></span><br><span class="line"><span class="comment"># 最后一列： sg设备名</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>类型为：<code>mediumx</code> 为两个磁带机（机械手）,例： <code>/dev/sg6</code>、<code>/dev/sg2</code> </p>
+<ul>
+<li>其中<code>/dev/st5</code>、<code>/dev/st4</code>、<code>/dev/st2</code>、<code>/dev/st1</code> 分别表示·<code>/dev/sg6</code>的磁带驱动器，刚好对应从0索引开始</li>
+<li>同理可知 <code>/dev/st3</code>、<code>/dev/st0</code>、<code>/dev/st7</code>、<code>/dev/st6</code> 分别表示·<code>/dev/sg2</code>的磁带驱动器，刚好对应从0索引开始</li>
+</ul>
+</li>
+<li><p>类型为：<code>tape</code>的就是磁带驱动器，8个驱动器</p>
+</li>
+</ul>
+<ul>
+<li>lsscsi 命令参数含义：</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">-g	显示SCSI通用设备文件名称</span><br><span class="line">-k	显示内核名称而不是设备节点名</span><br><span class="line">-d	显示设备节点的主要号码和次要号码</span><br><span class="line">-H	列出当前连接到系统的SCSI主机而不是SCSI设备</span><br><span class="line">-l	显示每一个SCSI设备（主机）的附加信息</span><br><span class="line">-c	相对于执行cat /proc/scsi/scsi命令的输出</span><br><span class="line">-p	显示额外的数据完整性（保护）的信息</span><br><span class="line">-t	显示传输信息</span><br><span class="line">-L	以“属性名=值”的方式显示附加信息</span><br><span class="line">-v	显示设备属性所在目录，当信息找到时输出目录名</span><br><span class="line">-y&lt;路径&gt;	假设sysfs挂载在指定路径而不是默认的“/ sys”</span><br><span class="line">-s 显示容量大小。</span><br><span class="line">-x 以16进制显示lun号。</span><br><span class="line">-i 显示udev相关的属性</span><br><span class="line">-w 显示WWN</span><br></pre></td></tr></table></figure>
+
+<h4 id="2、磁带相关命令"><a href="#2、磁带相关命令" class="headerlink" title="2、磁带相关命令"></a>2、磁带相关命令</h4><ul>
+<li>磁带的相关命令</li>
+</ul>
+<h5 id="①、查看机械手状态"><a href="#①、查看机械手状态" class="headerlink" title="①、查看机械手状态"></a>①、查看机械手状态</h5><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 查看机械手状态: mtx -f /dev/sg6 status</span></span><br><span class="line"><span class="comment"># 如下示例：</span></span><br><span class="line">[root@localhost dcs-ods-nvtl]<span class="comment"># mtx -f /dev/sg6 status</span></span><br><span class="line">  Storage Changer /dev/sg6:4 Drives, 43 Slots ( 4 Import/Export )</span><br><span class="line"><span class="comment"># 4个驱动器  </span></span><br><span class="line">Data Transfer Element 0:Empty</span><br><span class="line">Data Transfer Element 1:Empty</span><br><span class="line">Data Transfer Element 2:Empty</span><br><span class="line">Data Transfer Element 3:Empty</span><br><span class="line"><span class="comment">#	43个磁带槽</span></span><br><span class="line">      Storage Element 1:Full :VolumeTag=E01001L4                            </span><br><span class="line">      Storage Element 2:Full :VolumeTag=E01002L4                            </span><br><span class="line">      Storage Element 3:Full :VolumeTag=E01003L4                            </span><br><span class="line">      Storage Element 4:Full :VolumeTag=E01004L4                            </span><br><span class="line">      Storage Element 5:Full :VolumeTag=E01005L4  </span><br><span class="line">      			...</span><br><span class="line">      Storage Element 39:Full :VolumeTag=F01039L5                            </span><br><span class="line">      Storage Element 40 IMPORT/EXPORT:Empty</span><br><span class="line">      Storage Element 41 IMPORT/EXPORT:Empty</span><br><span class="line">      Storage Element 42 IMPORT/EXPORT:Empty</span><br><span class="line">      Storage Element 43 IMPORT/EXPORT:Empty</span><br></pre></td></tr></table></figure>
+
+<h5 id="②、加载与卸载磁带"><a href="#②、加载与卸载磁带" class="headerlink" title="②、加载与卸载磁带"></a>②、加载与卸载磁带</h5><ul>
+<li>如下</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 装载磁带命令格式：mtx -f &lt;机械手设备号&gt; load &lt;slots&gt; &lt;drive&gt;</span></span><br><span class="line"><span class="comment"># 把1 号插槽的磁带，放入0号驱动器中</span></span><br><span class="line">[root@localhost dcs-ods-nvtl]<span class="comment"># mtx -f /dev/sg6 load 1 0</span></span><br><span class="line">Loading media from Storage Element 1 into drive 0...done</span><br><span class="line">[root@localhost dcs-ods-nvtl]<span class="comment"># </span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 卸载磁带命令格式：mtx -f &lt;机械手设备号&gt; unload &lt;slots&gt; &lt;drive&gt;</span></span><br><span class="line"><span class="comment"># 把0号驱动器中磁带，放入1号插槽中</span></span><br><span class="line">[root@localhost dcs-ods-nvtl]<span class="comment"># mtx -f /dev/sg6 unload 1 0</span></span><br><span class="line">Unloading drive 0 into Storage Element 1...done</span><br><span class="line">[root@localhost dcs-ods-nvtl]<span class="comment"># </span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看驱动器装载磁带的状态</span></span><br><span class="line">[root@localhost dcs-ods-nvtl]<span class="comment"># sg_turs /dev/st0</span></span><br><span class="line">device not ready</span><br><span class="line">[root@localhost dcs-ods-nvtl]<span class="comment">#</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 列出磁带机状态: </span></span><br><span class="line"><span class="comment"># mt -f /dev/st0 status</span></span><br><span class="line">[root@localhost dcs-ods-nvtl]<span class="comment"># mt -f /dev/st0 status</span></span><br><span class="line">SCSI 2 tape drive:</span><br><span class="line">File number=0, block number=0, partition=0.</span><br><span class="line">Tape block size 0 bytes. Density code 0x4a (no translation).</span><br><span class="line">Soft error count since last status=0</span><br><span class="line">General status bits on (41010000):</span><br><span class="line"> BOT ONLINE IM_REP_EN</span><br><span class="line"><span class="comment"># BOT ONLINE IM_REP_EN //磁带准备就绪，说明已加载磁带</span></span><br><span class="line"><span class="comment"># DR_OPEN IM_REP_EN //磁带门打开，磁带未准备好,说明磁带驱动器里面没加载磁带，对应加载磁带即可</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="③、磁带数据读写命令"><a href="#③、磁带数据读写命令" class="headerlink" title="③、磁带数据读写命令"></a>③、磁带数据读写命令</h5><ul>
+<li>可以使用tar命令</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 向驱动器读数据，假如磁带上没有任何文件，则列目录会报错，忽略即可。</span></span><br><span class="line"><span class="comment"># tar -tvf /dev/st2</span></span><br><span class="line">[root@localhost dcs-ods-nvtl]<span class="comment"># tar -tvf /dev/st2</span></span><br><span class="line">drwxr-xr-x root/root         0 2021-09-13 18:05 mhvtl/test_data/</span><br><span class="line">-rw-r--r-- root/root        15 2021-09-13 17:57 mhvtl/test_data/a.txt</span><br><span class="line">-rw-r--r-- root/root        15 2021-09-13 18:00 mhvtl/test_data/b.txt</span><br><span class="line">-rw-r--r-- root/root        15 2021-09-13 18:05 mhvtl/test_data/c.txt</span><br><span class="line">[root@localhost dcs-ods-nvtl]<span class="comment">#</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 写入数据操作,每次写入都会覆盖之前的文件。</span></span><br><span class="line"><span class="comment"># tar cvf /dev/st0 &lt;要写入的文件名&gt;</span></span><br><span class="line">[root@localhost dcs-ods-nvtl]<span class="comment"># tar -cvf /dev/st2 /mhvtl/test_data/</span></span><br><span class="line">tar: 从成员名中删除开头的“/”</span><br><span class="line">/mhvtl/test_data/</span><br><span class="line">/mhvtl/test_data/a.txt</span><br><span class="line">/mhvtl/test_data/b.txt</span><br><span class="line">/mhvtl/test_data/c.txt</span><br><span class="line">[root@localhost dcs-ods-nvtl]<span class="comment"># </span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 继续写入数据,不覆盖之前文件,tar cvf 会覆盖之前写入的文件</span></span><br><span class="line"><span class="comment"># tar rvf /dev/st0 &lt;要写入的文件名&gt;</span></span><br><span class="line">[root@localhost dcs-ods-nvtl]<span class="comment"># tar -rvf /dev/st2 /mhvtl/test_data/d.txt </span></span><br><span class="line">tar: 从成员名中删除开头的“/”</span><br><span class="line">/mhvtl/test_data/d.txt</span><br><span class="line">[root@localhost dcs-ods-nvtl]<span class="comment"># </span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 恢复目录（tar 格式）</span></span><br><span class="line"><span class="comment"># tar xvf /dev/st0 -C /tmp</span></span><br><span class="line">[root@localhost dcs-ods-nvtl]<span class="comment"># tar xvf /dev/st2 -C /mhvtl/recover</span></span><br><span class="line">mhvtl/test_data/</span><br><span class="line">mhvtl/test_data/a.txt</span><br><span class="line">mhvtl/test_data/b.txt</span><br><span class="line">mhvtl/test_data/c.txt</span><br><span class="line">mhvtl/test_data/d.txt</span><br><span class="line">[root@localhost dcs-ods-nvtl]<span class="comment"># ll /mhvtl/recover/</span></span><br><span class="line">总用量 0</span><br><span class="line">drwxr-xr-x. 3 root root 23 9月  13 18:48 mhvtl</span><br><span class="line">[root@localhost dcs-ods-nvtl]<span class="comment">#</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 读取数据到当前目录</span></span><br><span class="line"><span class="comment"># tar xvf /dev/st0 &lt;要读取的文件名&gt;</span></span><br><span class="line">[root@localhost dcs-ods-nvtl]<span class="comment"># tar -xvf /dev/st2 mhvtl/test_data/a.txt </span></span><br><span class="line">mhvtl/test_data/a.txt</span><br><span class="line">[root@localhost dcs-ods-nvtl]<span class="comment"># </span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 检查磁头是否位置磁带的起始位置  </span></span><br><span class="line">[root@localhost dcs-ods-nvtl]<span class="comment">#  mt -f /dev/st0 tell</span></span><br><span class="line">At block 0.</span><br><span class="line">[root@localhost dcs-ods-nvtl]<span class="comment">#</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="④、其他常用命令"><a href="#④、其他常用命令" class="headerlink" title="④、其他常用命令"></a>④、其他常用命令</h5><ul>
+<li>如下</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 移动磁带，从 8 插槽移动到2插槽</span></span><br><span class="line">[root@localhost ~]<span class="comment"># mtx -f /dev/sg6 transfer 8 2</span></span><br><span class="line">[root@localhost ~]<span class="comment"># </span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 倒带，将磁带卷至起始位置: </span></span><br><span class="line">[root@localhost dcs-ods-nvtl]<span class="comment"># mt -f /dev/st0 rewind</span></span><br><span class="line">[root@localhost dcs-ods-nvtl]<span class="comment"># </span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 擦除，擦掉磁带上的内容,如果是真实磁带，对磁带损伤比较大，一般不用。</span></span><br><span class="line">[root@localhost dcs-ods-nvtl]<span class="comment"># mt -f /dev/st0 erase</span></span><br><span class="line">[root@localhost dcs-ods-nvtl]<span class="comment"># </span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 出带，将磁带卷至初始位置然后从磁带机内弹出</span></span><br><span class="line">[root@localhost dcs-ods-nvtl]<span class="comment"># mt -f /dev/st0 offline</span></span><br><span class="line">[root@localhost dcs-ods-nvtl]<span class="comment"># </span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 张紧磁带盒如果磁带在读取时发生错误，你重新张紧磁带，清洁磁带驱动器，像下面这样再试一次</span></span><br><span class="line">[root@localhost dcs-ods-nvtl]<span class="comment"># mt -f /dev/st0 retension</span></span><br><span class="line">[root@localhost dcs-ods-nvtl]<span class="comment"># </span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 磁带前进n个文件</span></span><br><span class="line">mt -f /dev/nst0 fsf n</span><br><span class="line"></span><br><span class="line"><span class="comment"># 磁带后退n个文件</span></span><br><span class="line">mt -f /dev/nst0 bsf n</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看带的信息</span></span><br><span class="line">tapeinfo -f /dev/st0</span><br></pre></td></tr></table></figure>
+
+<h4 id="3、vtlcmd命令使用"><a href="#3、vtlcmd命令使用" class="headerlink" title="3、vtlcmd命令使用"></a>3、vtlcmd命令使用</h4><ul>
+<li>来看看文档先</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">Usage  : vtlcmd &lt;DeviceNo&gt; &lt;<span class="built_in">command</span>&gt; [-h|-<span class="built_in">help</span>]</span><br><span class="line">Version: 1.6.3</span><br><span class="line"></span><br><span class="line">   Where <span class="string">'DeviceNo'</span> is the number associated with tape/library daemon</span><br><span class="line"></span><br><span class="line">Global commands:</span><br><span class="line">   verbose     -&gt; To <span class="built_in">enable</span> verbose logging</span><br><span class="line">   TapeAlert <span class="comment"># -&gt; 64bit TapeAlert mask (hex)</span></span><br><span class="line">   <span class="built_in">exit</span>        -&gt; To shutdown tape/library daemon/device</span><br><span class="line"></span><br><span class="line">Tape specific commands:</span><br><span class="line">   Append Only [Yes|No] -&gt; To <span class="string">'load'</span> media ID</span><br><span class="line">   compression [zlib|lzo] -&gt; Use zlib or lzo compression</span><br><span class="line">   load ID        -&gt; To <span class="string">'load'</span> media ID</span><br><span class="line">   unload ID      -&gt; To <span class="string">'unload'</span> media ID</span><br><span class="line">   delay load n   -&gt; Set load delay to n seconds</span><br><span class="line">   delay unload n -&gt; Set unload delay to n seconds</span><br><span class="line">   delay rewind n -&gt; Set rewind delay to n seconds</span><br><span class="line">   delay position n -&gt; Set position delay to n seconds</span><br><span class="line">   delay thread n -&gt; Set thread delay to n seconds</span><br><span class="line"></span><br><span class="line">Library specific commands:</span><br><span class="line">   add slot     -&gt; Add a slot to library</span><br><span class="line">   online       -&gt; To <span class="built_in">enable</span> library</span><br><span class="line">   offline      -&gt; To take library offline</span><br><span class="line">   list map     -&gt; To list map contents</span><br><span class="line">   empty map    -&gt; To remove media from map</span><br><span class="line">   open map     -&gt; Open map to allow media <span class="built_in">export</span></span><br><span class="line">   close map    -&gt; Close map to allow media import</span><br><span class="line">   load map ID  -&gt; Load media ID into map</span><br></pre></td></tr></table></figure>
+
+<h5 id="①-、map命令的使用"><a href="#①-、map命令的使用" class="headerlink" title="① 、map命令的使用"></a>① 、map命令的使用</h5><ul>
+<li>map 命令主要是把磁带放入磁带机或从磁带机拿走</li>
+<li>命令格式：<code>vtlcmd &lt;DeviceNo&gt; &lt;command&gt;</code> </li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 列出可以操作的磁带</span></span><br><span class="line">vtlcmd 30 list map</span><br><span class="line"></span><br><span class="line"><span class="comment"># 从磁带机中拿走磁带</span></span><br><span class="line"><span class="comment"># 先打开map,才能拿出磁带</span></span><br><span class="line">vtlcmd 30 open map</span><br><span class="line"><span class="comment"># 拿出 map 槽中的所有磁带</span></span><br><span class="line">vtlcmd 30 empty map</span><br><span class="line"></span><br><span class="line"><span class="comment"># 把数据磁带放入磁带机中,F00001是磁带的唯一条形码</span></span><br><span class="line">vtlcmd 30 load map F00001</span><br><span class="line"><span class="comment"># 关上map,然后就可以移动磁带到插槽中</span></span><br><span class="line">vtlcmd 30 close map</span><br></pre></td></tr></table></figure>
+
+<h5 id="②、创建磁带"><a href="#②、创建磁带" class="headerlink" title="②、创建磁带"></a>②、创建磁带</h5><ul>
+<li>可以使用mktape,文档如下：</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">Usage: mktape [OPTIONS] [REQUIRED-PARAMS]Where OPTIONS are from:</span><br><span class="line">      -h    -- <span class="built_in">print</span> this message and <span class="built_in">exit</span></span><br><span class="line">      -v    -- verbose</span><br><span class="line">      -D[N] -- <span class="built_in">set</span> debug level to N [1]</span><br><span class="line">      -V    -- <span class="built_in">print</span> Version and <span class="built_in">exit</span></span><br><span class="line">      -C config-dir -- override default config dir [ /etc/mhvtl ]</span><br><span class="line">      -H home-dir   -- override default home dir [ /opt/mhvtl ]</span><br><span class="line">And REQUIRED-PARAMS are:</span><br><span class="line">      -l lib      -- <span class="built_in">set</span> Library number</span><br><span class="line">      -m PCL      -- <span class="built_in">set</span> Physical Cartrige Label (barcode)</span><br><span class="line">      -s size     -- <span class="built_in">set</span> size <span class="keyword">in</span> Megabytes</span><br><span class="line">      -t <span class="built_in">type</span>     -- <span class="built_in">set</span> to data, clean, WORM, or NULL</span><br><span class="line">      -d density  -- <span class="built_in">set</span> density to one of:</span><br><span class="line">           AIT1     AIT2     AIT3     AIT4</span><br><span class="line">           DDS1     DDS2     DDS3     DDS4</span><br><span class="line">           DLT3     DLT4</span><br><span class="line">           SDLT1    SDLT220  SDLT320  SDLT600</span><br><span class="line">           LTO1     LTO2     LTO3     LTO4</span><br><span class="line">           LTO5     LTO6     LTO7     LTO8</span><br><span class="line">           T10KA    T10KB    T10KC</span><br><span class="line">           9840A    9840B    9840C    9840D</span><br><span class="line">           9940A    9940B</span><br><span class="line">           J1A      E05      E06      E07</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>示例如下：</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># -l 是虚拟带库的ID，-m 是条形码，-s 是磁带容量，-t是磁带存储类型，-d 是磁带型号 </span></span><br><span class="line">mktape -l 71 -m F00001 -s 2048  -t data -d 9940A</span><br></pre></td></tr></table></figure>
+
+<h3 id="三、ISCSI相关"><a href="#三、ISCSI相关" class="headerlink" title="三、ISCSI相关"></a>三、ISCSI相关</h3><p><strong>简介</strong></p>
+<ul>
+<li>iSCSI 这个架构主要将储存装置与使用的主机分为两个部分，分别是：</li>
+<li><code>iSCSI target</code>：就是储存设备端，存放磁盘或 RAID 的设备，目前也能够将 Linux 主机仿真成 iSCSI target 了！目的在提供其他主机使用的『磁盘』</li>
+<li><code>iSCSI initiator</code>：就是能够使用 target 的客户端，通常是服务器。 也就是说，想要连接到 iSCSI target 的服务器，也必须要安装 iSCSI initiator 的相关功能后才能够使用 iSCSI target 提供的磁盘就是了</li>
+</ul>
+<p><strong>所需软件与软件结构</strong></p>
+<p>CentOS 将 tgt 的软件名称定义为<code>scsi-target-utils</code> ，因此你得要使用 yum 去安装他才行。至于用来作为 initiator 的软件则是使用 linux-iscsi 的项目，该项目所提供的软件名称则为<code>iscsi-initiator-utils</code> 。所以，总的来说，你需要的软件有：</p>
+<ul>
+<li><code>scsi-target-utils</code>：用来将 Linux 系统仿真成为 iSCSI target 的功能；</li>
+<li><code>iscsi-initiator-utils</code>：挂载来自 target 的磁盘到 Linux 本机上。</li>
+</ul>
+<p>那么 scsi-target-utils 主要提供哪些档案呢？基本上有底下几个比较重要需要注意的：</p>
+<ul>
+<li><code>/etc/tgt/targets.conf</code>：主要配置文件，设定要分享的磁盘格式与哪几颗；</li>
+<li><code>/usr/sbin/tgt-admin</code>：在线查询、删除 target 等功能的设定工具；</li>
+<li><code>/usr/sbin/tgt-setup-lun</code>：建立 target 以及设定分享的磁盘与可使用的</li>
+</ul>
+<p><strong>客户端等工具软件。</strong></p>
+<ul>
+<li><code>/usr/sbin/tgtadm</code>：手动直接管理的管理员工具 (可使用配置文件取代)；</li>
+<li><code>/usr/sbin/tgtd</code>：主要提供 iSCSI target 服务的主程序；</li>
+<li><code>/usr/sbin/tgtimg</code>：建置预计分享的映像文件装置的工具 (以映像文件仿真磁盘)；</li>
+</ul>
+<p>其实 CentOS 已经将很多功能都设定好了，因此我们只要修订配置文件，然后启动 tgtd 这个服务就可以了！ 接下来，就让我们实际来玩一玩 iSCSI target 的设定吧！</p>
+<h4 id="1、target端"><a href="#1、target端" class="headerlink" title="1、target端"></a>1、target端</h4><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 目标端，服务端</span></span><br><span class="line">yum -y install  scsi-target-utils</span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建磁盘</span></span><br><span class="line">dd <span class="keyword">if</span>=/dev/zero of=/dcs/iscsi_disks/disk01.img count=0 bs=1 seek=1G</span><br><span class="line"></span><br><span class="line"><span class="comment"># 授权</span></span><br><span class="line">chcon -Rv -t tgtd_var_lib_t /dcs/iscsi_disks/</span><br><span class="line"></span><br><span class="line"><span class="comment"># 修改配置文件</span></span><br><span class="line">vim /etc/tgt/targets.conf</span><br><span class="line"><span class="comment"># 添加如下</span></span><br><span class="line">&lt;target iqn.20210910.com.dcs:imgtgt.targrt0&gt;</span><br><span class="line">    backing-store /dcs/iscsi_disks/disk01.img</span><br><span class="line">    initiator-address 192.168.1.0/24</span><br><span class="line">&lt;/target&gt;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 重启</span></span><br><span class="line">systemctl restart tgtd</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>或者直接使用磁带相关，如下：</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 查看磁带库设备相关信息</span></span><br><span class="line">[root@localhost dcs-ods-nvtl]<span class="comment"># lsscsi -g</span></span><br><span class="line">[0:0:0:0]    disk    VMware   Virtual disk     2.0   /dev/sda   /dev/sg0 </span><br><span class="line">[3:0:0:0]    <span class="built_in">cd</span>/dvd  NECVMWar VMware SATA CD00 1.00  /dev/sr0   /dev/sg1 </span><br><span class="line">[33:0:0:0]   mediumx STK      L700             0106  /dev/sch0  /dev/sg10</span><br><span class="line">[33:0:1:0]   tape    IBM      ULT3580-TD5      0106  /dev/st0   /dev/sg2 </span><br><span class="line">[33:0:2:0]   tape    IBM      ULT3580-TD5      0106  /dev/st7   /dev/sg9 </span><br><span class="line">[33:0:3:0]   tape    IBM      ULT3580-TD4      0106  /dev/st4   /dev/sg6 </span><br><span class="line">[33:0:4:0]   tape    IBM      ULT3580-TD4      0106  /dev/st2   /dev/sg4 </span><br><span class="line">[33:0:8:0]   mediumx STK      L80              0106  /dev/sch1  /dev/sg11</span><br><span class="line">[33:0:9:0]   tape    STK      T10000B          0106  /dev/st3   /dev/sg5 </span><br><span class="line">[33:0:10:0]  tape    STK      T10000B          0106  /dev/st6   /dev/sg8 </span><br><span class="line">[33:0:11:0]  tape    STK      T10000B          0106  /dev/st1   /dev/sg3 </span><br><span class="line">[33:0:12:0]  tape    STK      T10000B          0106  /dev/st5   /dev/sg7 </span><br><span class="line">[root@localhost dcs-ods-nvtl]<span class="comment"># </span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 然后修改tgtd的配置文件</span></span><br><span class="line">vim /etc/tgt/targets.conf</span><br><span class="line"><span class="comment"># 添加如下</span></span><br><span class="line"></span><br><span class="line">&lt;target iqn.2021-09.14.com.dcs.tape&gt;</span><br><span class="line">    backing-store   /dev/sg0 </span><br><span class="line">    backing-store   /dev/sg1 </span><br><span class="line">    backing-store   /dev/sg10</span><br><span class="line">    backing-store   /dev/sg2 </span><br><span class="line">    backing-store   /dev/sg9 </span><br><span class="line">    backing-store   /dev/sg6 </span><br><span class="line">    backing-store   /dev/sg4 </span><br><span class="line">    backing-store   /dev/sg11</span><br><span class="line">    backing-store   /dev/sg5 </span><br><span class="line">    backing-store   /dev/sg8 </span><br><span class="line">    backing-store   /dev/sg3 </span><br><span class="line">    backing-store   /dev/sg7 </span><br><span class="line">    device-type pt</span><br><span class="line">    bs-type sg</span><br><span class="line">&lt;/target&gt;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 重启</span></span><br><span class="line">systemctl restart tgtd</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看</span></span><br><span class="line">[root@localhost dcs-ods-nvtl]<span class="comment"># tgtadm --lld iscsi --op show --mode target</span></span><br><span class="line">Target 1: iqn.2021-09.14.com.dcs.tape</span><br><span class="line">    System information:</span><br><span class="line">        Driver: iscsi</span><br><span class="line">        State: ready</span><br><span class="line">    I_T nexus information:</span><br><span class="line">        I_T nexus: 1</span><br><span class="line">            Initiator: iqn.1991-05.com.microsoft:desktop-uqqtbl0 <span class="built_in">alias</span>: none</span><br><span class="line">            Connection: 1</span><br><span class="line">                IP Address: 192.168.1.51</span><br><span class="line">    LUN information:</span><br><span class="line">        LUN: 0</span><br><span class="line">            Type: controller</span><br><span class="line">            SCSI ID: IET     00010000</span><br><span class="line">            SCSI SN: beaf10</span><br><span class="line">            Size: 0 MB, Block size: 1</span><br><span class="line">            Online: Yes</span><br><span class="line">            Removable media: No</span><br><span class="line">            Prevent removal: No</span><br><span class="line">            Readonly: No</span><br><span class="line">            SWP: No</span><br><span class="line">            Thin-provisioning: No</span><br><span class="line">            Backing store <span class="built_in">type</span>: null</span><br><span class="line">            Backing store path: None</span><br><span class="line">            Backing store flags: </span><br><span class="line">        LUN: 1</span><br><span class="line">            Type: passthrough</span><br><span class="line">            SCSI ID: IET     00010001</span><br><span class="line">            SCSI SN: beaf11</span><br><span class="line">            Size: 0 MB, Block size: 1</span><br><span class="line">            Online: Yes</span><br><span class="line">            Removable media: No</span><br><span class="line">            Prevent removal: No</span><br><span class="line">            Readonly: No</span><br><span class="line">            SWP: No</span><br><span class="line">            Thin-provisioning: No</span><br><span class="line">            Backing store <span class="built_in">type</span>: sg</span><br><span class="line">            Backing store path: /dev/sg0</span><br><span class="line">            Backing store flags: </span><br><span class="line">        LUN: 2</span><br><span class="line">            Type: passthrough</span><br><span class="line">            SCSI ID: IET     00010002</span><br><span class="line">            SCSI SN: beaf12</span><br><span class="line">            Size: 0 MB, Block size: 1</span><br><span class="line">            Online: Yes</span><br><span class="line">            Removable media: No</span><br><span class="line">            Prevent removal: No</span><br><span class="line">            Readonly: No</span><br><span class="line">            SWP: No</span><br><span class="line">            Thin-provisioning: No</span><br><span class="line">            Backing store <span class="built_in">type</span>: sg</span><br><span class="line">            Backing store path: /dev/sg1</span><br><span class="line">            Backing store flags: </span><br><span class="line">        LUN: 3</span><br><span class="line">            Type: passthrough</span><br><span class="line">            SCSI ID: IET     00010003</span><br><span class="line">            SCSI SN: beaf13</span><br><span class="line">            Size: 0 MB, Block size: 1</span><br><span class="line">            Online: Yes</span><br><span class="line">            Removable media: No</span><br><span class="line">            Prevent removal: No</span><br><span class="line">            Readonly: No</span><br><span class="line">            SWP: No</span><br><span class="line">            Thin-provisioning: No</span><br><span class="line">            Backing store <span class="built_in">type</span>: sg</span><br><span class="line">            Backing store path: /dev/sg10</span><br><span class="line">            Backing store flags: </span><br><span class="line">        LUN: 4</span><br><span class="line">            Type: passthrough</span><br><span class="line">            SCSI ID: IET     00010004</span><br><span class="line">            SCSI SN: beaf14</span><br><span class="line">            Size: 0 MB, Block size: 1</span><br><span class="line">            Online: Yes</span><br><span class="line">            Removable media: No</span><br><span class="line">            Prevent removal: No</span><br><span class="line">            Readonly: No</span><br><span class="line">            SWP: No</span><br><span class="line">            Thin-provisioning: No</span><br><span class="line">            Backing store <span class="built_in">type</span>: sg</span><br><span class="line">            Backing store path: /dev/sg11</span><br><span class="line">            Backing store flags: </span><br><span class="line">        LUN: 5</span><br><span class="line">            Type: passthrough</span><br><span class="line">            SCSI ID: IET     00010005</span><br><span class="line">            SCSI SN: beaf15</span><br><span class="line">            Size: 0 MB, Block size: 1</span><br><span class="line">            Online: Yes</span><br><span class="line">            Removable media: No</span><br><span class="line">            Prevent removal: No</span><br><span class="line">            Readonly: No</span><br><span class="line">            SWP: No</span><br><span class="line">            Thin-provisioning: No</span><br><span class="line">            Backing store <span class="built_in">type</span>: sg</span><br><span class="line">            Backing store path: /dev/sg2</span><br><span class="line">            Backing store flags: </span><br><span class="line">        LUN: 6</span><br><span class="line">            Type: passthrough</span><br><span class="line">            SCSI ID: IET     00010006</span><br><span class="line">            SCSI SN: beaf16</span><br><span class="line">            Size: 0 MB, Block size: 1</span><br><span class="line">            Online: Yes</span><br><span class="line">            Removable media: No</span><br><span class="line">            Prevent removal: No</span><br><span class="line">            Readonly: No</span><br><span class="line">            SWP: No</span><br><span class="line">            Thin-provisioning: No</span><br><span class="line">            Backing store <span class="built_in">type</span>: sg</span><br><span class="line">            Backing store path: /dev/sg3</span><br><span class="line">            Backing store flags: </span><br><span class="line">        LUN: 7</span><br><span class="line">            Type: passthrough</span><br><span class="line">            SCSI ID: IET     00010007</span><br><span class="line">            SCSI SN: beaf17</span><br><span class="line">            Size: 0 MB, Block size: 1</span><br><span class="line">            Online: Yes</span><br><span class="line">            Removable media: No</span><br><span class="line">            Prevent removal: No</span><br><span class="line">            Readonly: No</span><br><span class="line">            SWP: No</span><br><span class="line">            Thin-provisioning: No</span><br><span class="line">            Backing store <span class="built_in">type</span>: sg</span><br><span class="line">            Backing store path: /dev/sg4</span><br><span class="line">            Backing store flags: </span><br><span class="line">        LUN: 8</span><br><span class="line">            Type: passthrough</span><br><span class="line">            SCSI ID: IET     00010008</span><br><span class="line">            SCSI SN: beaf18</span><br><span class="line">            Size: 0 MB, Block size: 1</span><br><span class="line">            Online: Yes</span><br><span class="line">            Removable media: No</span><br><span class="line">            Prevent removal: No</span><br><span class="line">            Readonly: No</span><br><span class="line">            SWP: No</span><br><span class="line">            Thin-provisioning: No</span><br><span class="line">            Backing store <span class="built_in">type</span>: sg</span><br><span class="line">            Backing store path: /dev/sg5</span><br><span class="line">            Backing store flags: </span><br><span class="line">        LUN: 9</span><br><span class="line">            Type: passthrough</span><br><span class="line">            SCSI ID: IET     00010009</span><br><span class="line">            SCSI SN: beaf19</span><br><span class="line">            Size: 0 MB, Block size: 1</span><br><span class="line">            Online: Yes</span><br><span class="line">            Removable media: No</span><br><span class="line">            Prevent removal: No</span><br><span class="line">            Readonly: No</span><br><span class="line">            SWP: No</span><br><span class="line">            Thin-provisioning: No</span><br><span class="line">            Backing store <span class="built_in">type</span>: sg</span><br><span class="line">            Backing store path: /dev/sg6</span><br><span class="line">            Backing store flags: </span><br><span class="line">        LUN: 10</span><br><span class="line">            Type: passthrough</span><br><span class="line">            SCSI ID: IET     0001000a</span><br><span class="line">            SCSI SN: beaf110</span><br><span class="line">            Size: 0 MB, Block size: 1</span><br><span class="line">            Online: Yes</span><br><span class="line">            Removable media: No</span><br><span class="line">            Prevent removal: No</span><br><span class="line">            Readonly: No</span><br><span class="line">            SWP: No</span><br><span class="line">            Thin-provisioning: No</span><br><span class="line">            Backing store <span class="built_in">type</span>: sg</span><br><span class="line">            Backing store path: /dev/sg7</span><br><span class="line">            Backing store flags: </span><br><span class="line">        LUN: 11</span><br><span class="line">            Type: passthrough</span><br><span class="line">            SCSI ID: IET     0001000b</span><br><span class="line">            SCSI SN: beaf111</span><br><span class="line">            Size: 0 MB, Block size: 1</span><br><span class="line">            Online: Yes</span><br><span class="line">            Removable media: No</span><br><span class="line">            Prevent removal: No</span><br><span class="line">            Readonly: No</span><br><span class="line">            SWP: No</span><br><span class="line">            Thin-provisioning: No</span><br><span class="line">            Backing store <span class="built_in">type</span>: sg</span><br><span class="line">            Backing store path: /dev/sg8</span><br><span class="line">            Backing store flags: </span><br><span class="line">        LUN: 12</span><br><span class="line">            Type: passthrough</span><br><span class="line">            SCSI ID: IET     0001000c</span><br><span class="line">            SCSI SN: beaf112</span><br><span class="line">            Size: 0 MB, Block size: 1</span><br><span class="line">            Online: Yes</span><br><span class="line">            Removable media: No</span><br><span class="line">            Prevent removal: No</span><br><span class="line">            Readonly: No</span><br><span class="line">            SWP: No</span><br><span class="line">            Thin-provisioning: No</span><br><span class="line">            Backing store <span class="built_in">type</span>: sg</span><br><span class="line">            Backing store path: /dev/sg9</span><br><span class="line">            Backing store flags: </span><br><span class="line">    Account information:</span><br><span class="line">    ACL information:</span><br><span class="line">        ALL</span><br><span class="line">[root@localhost dcs-ods-nvtl]<span class="comment">#</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>还有用命令的方式：</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 将机械臂和驱动器通过ISCSI的方式映射出去</span></span><br><span class="line"><span class="comment"># 创建一个target ,iqn.com.dsc202109 自定义一个名字即可.</span></span><br><span class="line">[root@localhos mhvtl]<span class="comment">#tgtadm --lld iscsi --op new --mode target --tid 1 -T  iqn.com.dsc202109  </span></span><br><span class="line"><span class="comment"># 为id=1的target设备上添加一个新的LUN，其号码为1。lun0已经被系统预留。</span></span><br><span class="line">[root@localhost mhvtl]<span class="comment">#tgtadm --lld iscsi --op new --mode logicalunit --tid 1 --lun 1 --bstype=sg --device-type=pt -b /dev/sg0</span></span><br><span class="line">[root@localhost mhvtl]<span class="comment">#tgtadm --lld iscsi --op new --mode logicalunit --tid 1 --lun 2 --bstype=sg --device-type=pt -b /dev/sg1</span></span><br><span class="line">[root@localhost mhvtl]<span class="comment">#tgtadm --lld iscsi --op new --mode logicalunit --tid 1 --lun 3 --bstype=sg --device-type=pt -b /dev/sg10</span></span><br><span class="line">[root@localhost mhvtl]<span class="comment">#tgtadm --lld iscsi --op new --mode logicalunit --tid 1 --lun 4 --bstype=sg --device-type=pt -b /dev/sg2</span></span><br><span class="line">[root@localhost mhvtl]<span class="comment">#tgtadm --lld iscsi --op new --mode logicalunit --tid 1 --lun 5 --bstype=sg --device-type=pt -b /dev/sg9</span></span><br><span class="line"><span class="comment"># 192.168.1.0为安装VTL软件的网段设置targets访问控制策略，允许同一网段访问</span></span><br><span class="line">[root@localhost mhvtl]<span class="comment"># tgtadm --lld iscsi --op bind --mode target --tid 1 -I 192.168.1.0/24  </span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 显示所有 target </span></span><br><span class="line">[root@localhost mhvtl]<span class="comment"># tgtadm --lld iscsi --op show --mode target</span></span><br><span class="line">Target 1: iqn.com.dsc202109</span><br><span class="line">    System information:</span><br><span class="line">        Driver: iscsi</span><br><span class="line">        State: ready</span><br><span class="line">    I_T nexus information:</span><br><span class="line">        I_T nexus: 1</span><br><span class="line">            Initiator: iqn.1991-05.com.microsoft:desktop-uqqtbl0 <span class="built_in">alias</span>: none</span><br><span class="line">            Connection: 1</span><br><span class="line">                IP Address: 192.168.1.51</span><br><span class="line">    LUN information:</span><br><span class="line">        LUN: 0</span><br><span class="line">            Type: controller</span><br><span class="line">            SCSI ID: IET     00010000</span><br><span class="line">            SCSI SN: beaf10</span><br><span class="line">            Size: 0 MB, Block size: 1</span><br><span class="line">            Online: Yes</span><br><span class="line">            Removable media: No</span><br><span class="line">            Prevent removal: No</span><br><span class="line">            Readonly: No</span><br><span class="line">            SWP: No</span><br><span class="line">            Thin-provisioning: No</span><br><span class="line">            Backing store <span class="built_in">type</span>: null</span><br><span class="line">            Backing store path: None</span><br><span class="line">            Backing store flags: </span><br><span class="line">        LUN: 1</span><br><span class="line">            Type: passthrough</span><br><span class="line">            SCSI ID: IET     00010001</span><br><span class="line">            SCSI SN: beaf11</span><br><span class="line">            Size: 0 MB, Block size: 1</span><br><span class="line">            Online: Yes</span><br><span class="line">            Removable media: No</span><br><span class="line">            Prevent removal: No</span><br><span class="line">            Readonly: No</span><br><span class="line">            SWP: No</span><br><span class="line">            Thin-provisioning: No</span><br><span class="line">            Backing store <span class="built_in">type</span>: sg</span><br><span class="line">            Backing store path: /dev/sg0</span><br><span class="line">            Backing store flags: </span><br><span class="line">        LUN: 2</span><br><span class="line">            Type: passthrough</span><br><span class="line">            SCSI ID: IET     00010002</span><br><span class="line">            SCSI SN: beaf12</span><br><span class="line">            Size: 0 MB, Block size: 1</span><br><span class="line">            Online: Yes</span><br><span class="line">            Removable media: No</span><br><span class="line">            Prevent removal: No</span><br><span class="line">            Readonly: No</span><br><span class="line">            SWP: No</span><br><span class="line">            Thin-provisioning: No</span><br><span class="line">            Backing store <span class="built_in">type</span>: sg</span><br><span class="line">            Backing store path: /dev/sg1</span><br><span class="line">            Backing store flags: </span><br><span class="line">        LUN: 3</span><br><span class="line">            Type: passthrough</span><br><span class="line">            SCSI ID: IET     00010003</span><br><span class="line">            SCSI SN: beaf13</span><br><span class="line">            Size: 0 MB, Block size: 1</span><br><span class="line">            Online: Yes</span><br><span class="line">            Removable media: No</span><br><span class="line">            Prevent removal: No</span><br><span class="line">            Readonly: No</span><br><span class="line">            SWP: No</span><br><span class="line">            Thin-provisioning: No</span><br><span class="line">            Backing store <span class="built_in">type</span>: sg</span><br><span class="line">            Backing store path: /dev/sg10</span><br><span class="line">            Backing store flags: </span><br><span class="line">        LUN: 4</span><br><span class="line">            Type: passthrough</span><br><span class="line">            SCSI ID: IET     00010004</span><br><span class="line">            SCSI SN: beaf14</span><br><span class="line">            Size: 0 MB, Block size: 1</span><br><span class="line">            Online: Yes</span><br><span class="line">            Removable media: No</span><br><span class="line">            Prevent removal: No</span><br><span class="line">            Readonly: No</span><br><span class="line">            SWP: No</span><br><span class="line">            Thin-provisioning: No</span><br><span class="line">            Backing store <span class="built_in">type</span>: sg</span><br><span class="line">            Backing store path: /dev/sg2</span><br><span class="line">            Backing store flags: </span><br><span class="line">        LUN: 5</span><br><span class="line">            Type: passthrough</span><br><span class="line">            SCSI ID: IET     00010005</span><br><span class="line">            SCSI SN: beaf15</span><br><span class="line">            Size: 0 MB, Block size: 1</span><br><span class="line">            Online: Yes</span><br><span class="line">            Removable media: No</span><br><span class="line">            Prevent removal: No</span><br><span class="line">            Readonly: No</span><br><span class="line">            SWP: No</span><br><span class="line">            Thin-provisioning: No</span><br><span class="line">            Backing store <span class="built_in">type</span>: sg</span><br><span class="line">            Backing store path: /dev/sg9</span><br><span class="line">            Backing store flags: </span><br><span class="line">    Account information:</span><br><span class="line">    ACL information:</span><br><span class="line">        192.168.1.0/24</span><br></pre></td></tr></table></figure>
+
+<p><img src="iscsi_init.png" alt></p>
+<h4 id="2、iscsi客户端相关命令"><a href="#2、iscsi客户端相关命令" class="headerlink" title="2、iscsi客户端相关命令"></a>2、iscsi客户端相关命令</h4><ul>
+<li>简单命令</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 服务发现</span></span><br><span class="line">iscsiadm -m discovery -t st -p 192.168.1.160</span><br><span class="line"></span><br><span class="line"><span class="comment"># 登陆</span></span><br><span class="line">iscsiadm -m node -T iqn.test-iSCSI-0 -l</span><br><span class="line">iscsiadm -m node -T iqn.test-iSCSI-0 -p 192.168.1.160 -l</span><br><span class="line">iscsiadm -m node -T iqn.test-iSCSI-0 -p 192.168.1.160:3260 -l</span><br><span class="line"></span><br><span class="line"><span class="comment"># 注销</span></span><br><span class="line">iscsiadm -m node -T iqn.test-iSCSI-0 -p 192.168.1.160:3260 –u</span><br><span class="line"><span class="comment"># 退出所有登陆的目标器</span></span><br><span class="line">iscsiadm -m node -U all</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 连接死掉（断网或者target端断掉）时，使用如下指令：</span></span><br><span class="line">iscsiadm -m node -o delete –T  iqn.test-iSCSI-0 -p 192.168.1.160</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看目标记录列表</span></span><br><span class="line">iscsiadm -m node</span><br><span class="line"></span><br><span class="line"><span class="comment">#命令刷新（rescan）已连接</span></span><br></pre></td></tr></table></figure>
+
+
+      
+    </div>
+
+    
+
+    
+    
+    
+	
+	    <div>
+	
+	<div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------本文结束 <i class="fa fa-heartbeat"></i> 感谢您的阅读-------------</div>
+    
+</div>
+	
+	</div>
+
+    
+
+    
+      
+    
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div></div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>打赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/blog/images/wechat_pay.jpg" alt="rstyro 微信支付">
+        <p>微信支付</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/blog/images/alipay.jpg" alt="rstyro 支付宝">
+        <p>支付宝</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+	
+	<div>    
+	 
+	 
+	<ul class="post-copyright">
+	  <li class="post-copyright-author">
+		  <strong>本文作者：</strong>rstyro
+	  </li>
+	  <li class="post-copyright-link">
+		<strong>本文链接：</strong>
+		<a href="/blog/2021/10/21/mhvtl安装使用/" title="mhvtl安装使用">https://rstyro.github.io/blog/2021/10/21/mhvtl安装使用/</a>
+	  </li>
+	  <li class="post-copyright-license">
+		<strong>版权： </strong>
+		转载注明出处！
+	  </li>
+	</ul>
+	
+	</div>
+	
+
+      
+        <div class="post-tags">
+          
+            <a href="/blog/tags/mhvtl/" rel="tag"><i class="fa fa-tag"></i> mhvtl</a>
+          
+            <a href="/blog/tags/iscsi/" rel="tag"><i class="fa fa-tag"></i> iscsi</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2021/09/28/Centos7安装单机版Greenplumdb6-17/" rel="next" title="Centos7安装单机版Greenplumdb6.17">
+                <i class="fa fa-chevron-left"></i> Centos7安装单机版Greenplumdb6.17
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2022/01/08/Centos安装PostgreSQL数据库/" rel="prev" title="Centos安装PostgreSQL数据库">
+                Centos安装PostgreSQL数据库 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+
+
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+      <div id="sidebar-dimmer"></div>
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/blog/images/avatar.jpg" alt="rstyro">
+            
+              <p class="site-author-name" itemprop="name">rstyro</p>
+              <p class="site-description motion-element" itemprop="description">个人博客,瞎写一些技术笔记等。</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/blog/archives/">
+                
+                    <span class="site-state-item-count">195</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/blog/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">12</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/blog/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">65</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+            <div class="feed-link motion-element">
+              <a href="/blog/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://github.com/rstyro" title="GitHub &rarr; https://github.com/rstyro" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://gitee.com/rstyro" title="Gitee &rarr; https://gitee.com/rstyro" rel="noopener" target="_blank"><i class="fa fa-fw fa-codiepie"></i>Gitee</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="/blog/1006059906" title="QQ &rarr; 1006059906"><i class="fa fa-fw fa-qq"></i>QQ</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://www.jianshu.com/u/651c15a1758a" title="简书 &rarr; https://www.jianshu.com/u/651c15a1758a" rel="noopener" target="_blank"><i class="fa fa-fw fa-book"></i>简书</a>
+                </span>
+              
+            </div>
+          
+
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-block">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                友链
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://rstyro.github.io/blog/" title="https://rstyro.github.io/blog/">帅大叔博客</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://www.zhyd.me/" title="https://www.zhyd.me/" rel="noopener" target="_blank">张亚东博客</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://www.devsong.org/" title="http://www.devsong.org/" rel="noopener" target="_blank">DevSONG</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://www.dalaoyang.cn/" title="https://www.dalaoyang.cn/" rel="noopener" target="_blank">dalaoyang</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://www.chenshuangyi.com/" title="https://www.chenshuangyi.com/" rel="noopener" target="_blank">陈双义博客</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+            
+          
+          <div id="days"></div>
+<script>
+function show_date_time(){
+window.setTimeout("show_date_time()", 1000);
+BirthDay=new Date("04/10/2017 15:13:14");
+today=new Date();
+timeold=(today.getTime()-BirthDay.getTime());
+sectimeold=timeold/1000
+secondsold=Math.floor(sectimeold);
+msPerDay=24*60*60*1000
+e_daysold=timeold/msPerDay
+daysold=Math.floor(e_daysold);
+e_hrsold=(e_daysold-daysold)*24;
+hrsold=setzero(Math.floor(e_hrsold));
+e_minsold=(e_hrsold-hrsold)*60;
+minsold=setzero(Math.floor((e_hrsold-hrsold)*60));
+seconds=setzero(Math.floor((e_minsold-minsold)*60));
+document.getElementById('days').innerHTML="已运行 "+daysold+" 天 "+hrsold+" 小时 "+minsold+" 分 "+seconds+" 秒";
+}
+function setzero(i){
+if (i<10)
+{i="0" + i};
+return i;
+}
+show_date_time();
+</script>
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#一、mhvtl-安装"><span class="nav-number">1.</span> <span class="nav-text">一、mhvtl 安装</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1、依赖环境安装"><span class="nav-number">1.1.</span> <span class="nav-text">1、依赖环境安装</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2、下载mhvtl源码"><span class="nav-number">1.2.</span> <span class="nav-text">2、下载mhvtl源码</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#二、mhVTL的使用"><span class="nav-number">2.</span> <span class="nav-text">二、mhVTL的使用</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1、查看磁带库设备相关信息"><span class="nav-number">2.1.</span> <span class="nav-text">1、查看磁带库设备相关信息</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2、磁带相关命令"><span class="nav-number">2.2.</span> <span class="nav-text">2、磁带相关命令</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#①、查看机械手状态"><span class="nav-number">2.2.1.</span> <span class="nav-text">①、查看机械手状态</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#②、加载与卸载磁带"><span class="nav-number">2.2.2.</span> <span class="nav-text">②、加载与卸载磁带</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#③、磁带数据读写命令"><span class="nav-number">2.2.3.</span> <span class="nav-text">③、磁带数据读写命令</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#④、其他常用命令"><span class="nav-number">2.2.4.</span> <span class="nav-text">④、其他常用命令</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3、vtlcmd命令使用"><span class="nav-number">2.3.</span> <span class="nav-text">3、vtlcmd命令使用</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#①-、map命令的使用"><span class="nav-number">2.3.1.</span> <span class="nav-text">① 、map命令的使用</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#②、创建磁带"><span class="nav-number">2.3.2.</span> <span class="nav-text">②、创建磁带</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#三、ISCSI相关"><span class="nav-number">3.</span> <span class="nav-text">三、ISCSI相关</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1、target端"><span class="nav-number">3.1.</span> <span class="nav-text">1、target端</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2、iscsi客户端相关命令"><span class="nav-number">3.2.</span> <span class="nav-text">2、iscsi客户端相关命令</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2022</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">rstyro</span>
+
+  
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+
+  <script src="https://unpkg.com/mermaid@8.11.0/dist/mermaid.min.js"></script>
+  <script>
+    if (window.mermaid) {
+      mermaid.initialize({"startOnload":true});
+    }
+  </script>
+
+
+<div class="theme-info">
+  <div class="powered-by"></div>
+  <span class="post-count">博客全站共338.7k字</span>
+</div>
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-user"></i>
+    </span>
+    <span class="site-uv" title="总访客量">
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+    </span>
+  
+
+  
+    <span class="post-meta-divider">|</span>
+  
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-eye"></i>
+    </span>
+    <span class="site-pv" title="总访问量">
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/blog/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/blog/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/blog/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/blog/js/src/utils.js?v=6.7.0"></script>
+
+  <script src="/blog/js/src/motion.js?v=6.7.0"></script>
+
+
+
+  
+  
+
+  
+  <script src="/blog/js/src/scrollspy.js?v=6.7.0"></script>
+<script src="/blog/js/src/post-details.js?v=6.7.0"></script>
+
+
+
+  
+
+
+  <script src="/blog/js/src/bootstrap.js?v=6.7.0"></script>
+
+
+
+  
+  
+
+
+
+
+  
+
+<script src="//cdn1.lncld.net/static/js/3.11.1/av-min.js"></script>
+
+
+
+  
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/valine/1.3.4/Valine.min.js"></script>
+
+<script>
+  var GUEST = ['nick', 'mail', 'link'];
+  var guest = 'nick,mail,link';
+  guest = guest.split(',').filter(function (item) {
+    return GUEST.indexOf(item) > -1;
+  });
+  new Valine({
+    el: '#comments',
+    verify: false,
+    notify: false,
+    appId: 'LwEPiJFa7YMn2MrJdCwaUbmQ-gzGzoHsz',
+    appKey: 'JqS1y3RxYvDOki9r3NcqqoO5',
+    placeholder: '来都来了，不说几句就走，过分了啊！！！',
+    avatar: 'monsterid',
+    meta: guest,
+    pageSize: '10' || 10,
+    visitor: false
+  });
+</script>
+
+
+
+  
+
+  <script>
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/blog/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url).replace(/\/{2,}/g, '/');
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x"></i></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x"></i></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+  <script>
+    (function(){
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+      }
+      else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+      }
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+    })();
+  </script>
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
