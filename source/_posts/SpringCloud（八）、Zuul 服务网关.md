@@ -1,6 +1,7 @@
 ---
 title: SpringCloud （八）、Zuul 服务网关
 date: 2018-05-26 23:20:00
+updated: 2018-05-26 23:20:00
 tags: [SpringCloud]
 categories: Java
 ---

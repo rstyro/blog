@@ -1,6 +1,7 @@
 ---
 title: JDBC 笔记小结
 date: 2017-06-19 14:54:05
+updated: 2017-06-19 14:54:05
 tags: [JDBC]
 categories: Java
 ---

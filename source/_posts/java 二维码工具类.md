@@ -1,6 +1,7 @@
 ---
 title: java 二维码工具类
 date: 2018-01-05 16:20:15
+updated: 2018-01-05 16:20:15
 tags: [Java]
 categories: Java
 ---

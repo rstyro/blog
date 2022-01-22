@@ -1,6 +1,7 @@
 ---
 title: 关于使用Java Mail 发邮件，连接超时问题
 date: 2017-10-11 11:29:02
+updated: 2017-10-11 11:29:02
 tags: [Spring Boot, Java]
 categories: Java
 ---

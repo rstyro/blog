@@ -1,6 +1,7 @@
 ---
 title: MongoDB (四)：索引
 date: 2017-10-23 17:45:01
+updated: 2017-10-23 17:45:01
 tags: [MongoDB]
 categories: 数据库
 ---

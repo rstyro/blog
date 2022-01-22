@@ -1,6 +1,7 @@
 ---
 title: Spring Boot (七)：操作redis数据库
 date: 2017-07-31 11:20:44
+updated: 2017-07-31 11:20:44
 tags: [Spring Boot, Redis]
 categories: Java
 ---

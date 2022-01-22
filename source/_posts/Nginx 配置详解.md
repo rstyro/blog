@@ -1,6 +1,7 @@
 ---
 title: Nginx 配置详解
 date: 2017-11-03 15:55:33
+updated: 2017-11-03 15:55:33
 tags: [Nginx]
 categories: 开发工具
 ---

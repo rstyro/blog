@@ -1,6 +1,7 @@
 ---
 title: MBR与GPT浅析
 date: 2018-07-11 17:07:59
+updated: 2018-07-11 17:07:59
 tags: [磁盘, 系统装机]
 categories: 网络运维
 ---

@@ -1,6 +1,7 @@
 ---
 title: Centos8安装MYSQL8
 date: 2020-11-01 15:42:53
+updated: 2020-11-01 15:42:53
 tags: [Linux, MYSQL]
 categories: 网络运维
 ---

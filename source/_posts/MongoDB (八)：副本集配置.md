@@ -1,6 +1,7 @@
 ---
 title: MongoDB (八)：副本集配置
 date: 2017-10-27 16:19:23
+updated: 2017-10-27 16:19:23
 tags: [MongoDB]
 categories: 数据库
 ---

@@ -1,6 +1,7 @@
 ---
 title: Spring+mybatis 配置多个数据源
 date: 2017-05-01 21:19:07
+updated: 2017-05-01 21:19:07
 tags: [Spring, Java]
 categories: Java
 ---

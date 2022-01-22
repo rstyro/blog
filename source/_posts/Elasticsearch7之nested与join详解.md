@@ -1,6 +1,7 @@
 ---
 title: Elasticsearch7之nested与join详解
 date: 2020-10-12 18:15:30
+updated: 2020-10-12 18:15:30
 tags: [ElasticSearch]
 categories: 搜索引擎
 ---

@@ -1,6 +1,7 @@
 ---
-title: Centos7 安装tomcat，并添加服务
+title: Centos7安装tomcat并添加服务
 date: 2017-05-10 22:06:08
+updated: 2017-05-10 22:06:08
 tags: [开发工具, 系统装机, Linux]
 categories: 网络运维
 ---

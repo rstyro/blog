@@ -1,6 +1,7 @@
 ---
 title: MongoDB (七)：主从配置
 date: 2017-10-26 18:13:01
+updated: 2017-10-26 18:13:01
 tags: [MongoDB]
 categories: 数据库
 ---

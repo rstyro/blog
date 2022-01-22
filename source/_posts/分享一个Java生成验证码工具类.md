@@ -1,6 +1,7 @@
 ---
 title: 分享一个Java生成验证码工具类
 date: 2017-10-18 13:50:48
+updated: 2017-10-18 13:50:48
 tags: [Java]
 categories: Java
 ---

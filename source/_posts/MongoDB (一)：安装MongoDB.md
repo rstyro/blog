@@ -1,6 +1,7 @@
 ---
 title: MongoDB (一)：安装MongoDB
 date: 2017-10-23 10:20:04
+updated: 2017-10-23 10:20:04
 tags: [MongoDB]
 categories: 数据库
 ---

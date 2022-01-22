@@ -1,6 +1,7 @@
 ---
 title: ElasticSearch 与 Mongodb 同步数据之mongo-connector
 date: 2017-12-01 11:12:32
+updated: 2017-12-01 11:12:32
 tags: [ElasticSearch, MongoDB]
 categories: 搜索引擎
 ---

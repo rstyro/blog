@@ -1,6 +1,7 @@
 ---
 title: 安装sublime
 date: 2017-06-19 15:32:25
+updated: 2017-06-19 15:32:25
 tags: [开发工具, 干货]
 categories: 开发工具
 ---

@@ -1,6 +1,7 @@
 ---
 title: Spring Boot (十二)与 Elasticsearch 整合
 date: 2017-12-02 22:54:20
+updated: 2017-12-02 22:54:20
 tags: [ElasticSearch, Spring Boot]
 categories: Java
 ---

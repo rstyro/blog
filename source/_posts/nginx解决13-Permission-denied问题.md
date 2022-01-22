@@ -1,6 +1,7 @@
 ---
 title: 'nginx解决13-Permission-denied问题'
 date: 2021-04-12 14:51:17
+updated: 2021-04-12 14:51:17
 tags: [Nginx]
 categories: 开发工具
 ---

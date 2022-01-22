@@ -1,6 +1,7 @@
 ---
 title: Elasticsearch7索引模板
 date: 2020-09-23 09:37:38
+updated: 2020-09-23 09:37:38
 tags: [ElasticSearch]
 categories: 搜索引擎
 ---

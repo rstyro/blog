@@ -1,6 +1,7 @@
 ---
 title: Docker（六）、启动mysql时自动执行脚本
 date: 2018-01-18 17:34:52
+updated: 2018-01-18 17:34:52
 tags: [Docker]
 categories: 开发工具
 ---

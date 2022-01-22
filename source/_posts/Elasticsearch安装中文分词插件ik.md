@@ -1,6 +1,7 @@
 ---
 title: Elasticsearch安装中文分词插件ik
 date: 2017-12-11 17:13:52
+updated: 2017-12-11 17:13:52
 tags: [ElasticSearch]
 categories: 搜索引擎
 ---

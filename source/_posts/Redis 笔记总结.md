@@ -1,6 +1,7 @@
 ---
 title: Redis 笔记总结
 date: 2017-06-18 18:30:03
+updated: 2017-06-18 18:30:03
 tags: [Redis]
 categories: 开发工具
 ---

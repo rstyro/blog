@@ -1,6 +1,7 @@
 ---
 title: SpringBoot与RedisCacheManager整合
 date: 2019-04-16 17:02:09
+updated: 2019-04-16 17:02:09
 tags: [Spring Boot]
 categories: Java
 ---

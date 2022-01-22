@@ -1,6 +1,7 @@
 ---
 title: Centos7-RPM安装gcc
 date: 2018-11-03 17:03:47
+updated: 2018-11-03 17:03:47
 tags: [Linux,开发工具]
 categories: 网络运维
 ---

@@ -1,6 +1,7 @@
 ---
 title: SpringCloud （二）、Ribbon客户端负载均衡
 date: 2018-05-25 11:56:20
+updated: 2018-05-25 11:56:20
 tags: [SpringCloud]
 categories: Java
 ---

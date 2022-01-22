@@ -1,6 +1,7 @@
 ---
 title: Vue构建打包部署详解
 date: 2019-04-24 18:24:42
+updated: 2019-04-24 18:24:42
 tags: [Vue]
 categories: 前端
 ---

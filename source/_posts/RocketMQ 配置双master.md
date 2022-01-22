@@ -1,6 +1,7 @@
 ---
 title: RocketMQ 配置双master
 date: 2017-08-23 14:05:41
+updated: 2017-08-23 14:05:41
 tags: [MQ]
 categories: MQ
 ---

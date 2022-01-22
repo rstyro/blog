@@ -1,6 +1,7 @@
 ---
 title: Centos7源码安装mysql5.7
 date: 2017-05-20 23:49:28
+updated: 2017-05-20 23:49:28
 tags: [Linux, MYSQL]
 categories: 网络运维
 ---

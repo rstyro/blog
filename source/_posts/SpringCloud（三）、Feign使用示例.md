@@ -1,6 +1,7 @@
 ---
 title: SpringCloud （三）、Feign使用示例
 date: 2018-05-25 14:29:25
+updated: 2018-05-25 14:29:25
 tags: [SpringCloud]
 categories: Java
 ---

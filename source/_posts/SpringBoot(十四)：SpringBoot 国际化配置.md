@@ -1,6 +1,7 @@
 ---
 title: SpringBoot(十四)：SpringBoot 国际化配置
 date: 2018-07-26 18:31:20
+updated: 2018-07-26 18:31:20
 tags: [Spring Boot]
 categories: Java
 ---

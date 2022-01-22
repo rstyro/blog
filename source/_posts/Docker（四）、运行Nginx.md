@@ -1,6 +1,7 @@
 ---
 title: Docker（四）、运行Nginx
 date: 2018-01-13 15:53:00
+updated: 2018-01-13 15:53:00
 tags: [Docker]
 categories: 开发工具
 ---

@@ -1,6 +1,7 @@
 ---
 title: Rocketmq 配置双主双从
 date: 2017-09-25 16:32:27
+updated: 2017-09-25 16:32:27
 tags: [MQ]
 categories: MQ
 ---

@@ -1,6 +1,7 @@
 ---
 title: Elasticsearch5.0+ 安装问题集锦
 date: 2017-11-30 22:21:00
+updated: 2017-11-30 22:21:00
 tags: [ElasticSearch]
 categories: 搜索引擎
 ---

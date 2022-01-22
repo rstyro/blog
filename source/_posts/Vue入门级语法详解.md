@@ -1,6 +1,7 @@
 ---
 title: Vue入门级语法详解
 date: 2019-04-25 15:56:46
+updated: 2019-04-25 15:56:46
 tags: [Vue]
 categories: 前端
 ---

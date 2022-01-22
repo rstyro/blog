@@ -1,6 +1,7 @@
 ---
 title: Linux之proc浅析
 date: 2021-02-02 15:37:25
+updated: 2021-02-02 15:37:25
 tags: [Linux]
 categories: 网络运维
 ---

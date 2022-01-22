@@ -1,6 +1,7 @@
 ---
 title: Nacos的安装及使用
 date: 2020-10-24 19:55:26
+updated: 2020-10-24 19:55:26
 tags: [SpringCloud,SpringCloud-Alibaba]
 categories: Java
 ---

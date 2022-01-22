@@ -1,6 +1,7 @@
 ---
 title: Linux 安装redis　并配置服务
 date: 2017-06-09 15:14:58
+updated: 2017-06-09 15:14:58
 tags: [Linux, Redis]
 categories: 网络运维
 ---

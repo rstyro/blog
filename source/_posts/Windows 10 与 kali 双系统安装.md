@@ -1,6 +1,7 @@
 ---
 title: Windows 10 与 kali 双系统安装
 date: 2017-07-18 21:28:01
+updated: 2017-07-18 21:28:01
 tags: [干货, 系统装机, Linux]
 categories: 网络运维
 ---

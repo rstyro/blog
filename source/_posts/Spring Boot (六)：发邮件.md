@@ -1,6 +1,7 @@
 ---
 title: Spring Boot (六)：发邮件
 date: 2017-07-30 11:02:11
+updated: 2017-07-30 11:02:11
 tags: [Spring Boot, Java]
 categories: Java
 ---

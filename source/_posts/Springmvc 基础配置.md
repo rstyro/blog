@@ -1,6 +1,7 @@
 ---
 title: Springmvc 基础配置
 date: 2017-07-08 16:41:03
+updated: 2017-07-08 16:41:03
 tags: [Spring]
 categories: Java
 ---

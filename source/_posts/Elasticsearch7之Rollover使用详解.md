@@ -1,6 +1,7 @@
 ---
 title: Elasticsearch7之Rollover使用详解
 date: 2020-09-27 18:32:17
+updated: 2020-09-27 18:32:17
 tags: [ElasticSearch]
 categories: 搜索引擎
 ---

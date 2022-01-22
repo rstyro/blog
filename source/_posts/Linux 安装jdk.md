@@ -1,6 +1,7 @@
 ---
 title: Linux 安装jdk
 date: 2017-05-13 22:16:30
+updated: 2017-05-13 22:16:30
 tags: [Linux, Java]
 categories: Java
 ---

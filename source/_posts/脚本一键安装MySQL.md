@@ -1,6 +1,7 @@
 ---
 title: 脚本一键安装MySQL
 date: 2020-12-09 12:17:40
+updated: 2020-12-09 12:17:40
 tags: [Linux, MYSQL]
 categories: 网络运维
 ---

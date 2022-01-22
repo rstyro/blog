@@ -1,6 +1,7 @@
 ---
 title: Spring Boot (四)：日志管理
 date: 2017-07-30 10:13:22
+updated: 2017-07-30 10:13:22
 tags: [Spring Boot, Java]
 categories: Java
 ---

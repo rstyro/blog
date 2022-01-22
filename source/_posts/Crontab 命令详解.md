@@ -1,6 +1,7 @@
 ---
 title: Crontab 命令详解
 date: 2017-10-16 14:57:54
+updated: 2017-10-16 14:57:54
 tags: [Linux]
 categories: 网络运维
 ---
@@ -21,7 +22,7 @@ crontab -l
 #### 1、如果没有安装 cron 服务
 ##### Contos 
 ```
-yum -y install vixie-cron crontabs
+yum -y install cronie
 ```
 ##### ubuntu
 ```

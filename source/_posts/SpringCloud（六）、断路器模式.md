@@ -1,6 +1,7 @@
 ---
 title: SpringCloud （六）、断路器模式
 date: 2018-05-26 12:50:04
+updated: 2018-05-26 12:50:04
 tags: [SpringCloud]
 categories: Java
 ---

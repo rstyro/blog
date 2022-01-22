@@ -1,6 +1,7 @@
 ---
 title: Elasticsearch7之Script使用
 date: 2020-10-14 09:28:56
+updated: 2020-10-14 09:28:56
 tags: [ElasticSearch]
 categories: 搜索引擎
 ---

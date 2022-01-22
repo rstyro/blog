@@ -1,6 +1,7 @@
 ---
 title: SpringCloud-Alibaba之Nacos服务注册发现与多种消费方式
 date: 2020-10-26 16:19:12
+updated: 2020-10-26 16:19:12
 tags: [SpringCloud,SpringCloud-Alibaba,Nacos]
 categories: Java
 ---

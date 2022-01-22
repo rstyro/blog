@@ -1,6 +1,7 @@
 ---
 title: SpringCloud （七）、禁用Feign对Hystrix支持与Hystrix 监控
 date: 2018-05-26 17:08:09
+updated: 2018-05-26 17:08:09
 tags: [SpringCloud]
 categories: Java
 ---

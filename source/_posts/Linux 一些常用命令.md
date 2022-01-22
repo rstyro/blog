@@ -112,6 +112,9 @@ ps -ef | grep redis | grep -v grep | awk '{print "kill -9 "$2}'
  
 #后面加上|sh后，则执行这些命令，进而杀掉了这些进程
 ps -ef | grep redis | grep -v grep | awk '{print "kill -9 "$2}' | sh
+
+# 查找 demo.jar 的 PID进程号
+JAR_PID=`ps -ef | grep demo.jar  |grep -v color |grep -v grep | awk '{print $2}'`
 ```
 
 ## CPU命令

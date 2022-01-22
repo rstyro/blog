@@ -1,6 +1,7 @@
 ---
 title: 制作iso镜像全过程
 date: 2021-02-04 11:39:08
+updated: 2021-02-04 11:39:08
 tags: [Linux,系统装机]
 categories: 网络运维
 ---

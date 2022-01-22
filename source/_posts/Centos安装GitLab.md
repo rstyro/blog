@@ -1,6 +1,7 @@
 ---
 title: Centos安装GitLab
 date: 2019-09-14 17:05:17
+updated: 2019-09-14 17:05:17
 tags: [Linux, 开发工具]
 categories: 网络运维
 ---
