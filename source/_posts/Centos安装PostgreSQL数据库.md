@@ -211,3 +211,41 @@ host    all     all    192.168.32.1/32    trust
 
 
 ![](connect.png)
+
+#### 3、常用命令
++ 列出一些控制台常用的命令吧
+
+```bash
+# 设置密码
+\password
+
+# 退出命令
+\q
+
+# 查看SQL命令的解析，比如：\h grant
+\h
+
+# 查看psql命令列表
+\?
+
+# 切换数据库
+\c [database_name]
+
+# 切换用户，记得中间有个 - 
+\c - [username]
+
+# 列出当前数据库的所有表格
+\d
+
+# 列出某张表的结构
+\d [table_name]
+
+# 列出所有用户
+\du 
+
+# 创建表，并设置 id 自增
+create table test(id serial primary key,name varchar(50));
+
+# 显示执行语句的时间
+\timeing
+```
