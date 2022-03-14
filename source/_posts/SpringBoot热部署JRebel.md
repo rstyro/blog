@@ -2,7 +2,7 @@
 title: SpringBoot热部署JRebel
 date: 2022-01-25 11:14:16
 updated: 2022-01-25 11:14:16
-tags: [Spring Boot]
+tags: [Spring Boot,JRebel]
 categories: Java
 ---
 

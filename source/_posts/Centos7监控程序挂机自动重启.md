@@ -155,6 +155,7 @@ fi
 
 start()
 {
+JAR_PID=`ps -ef | grep $JAR_NAME  |grep -v color |grep -v grep | awk '{print $2}'`
 if [ ! -z "$JAR_PID" ]
 then
         echo "$JAR_NAME 正在运行,进程ID:$JAR_PID"
