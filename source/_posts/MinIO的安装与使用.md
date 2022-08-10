@@ -2,7 +2,7 @@
 title: MinIO的安装与使用
 date: 2022-08-10 14:12:58
 updated: 2022-08-10 14:12:58
-tags:  [MinIO]
+tags: [MinIO]
 categories: 开发工具
 ---
 
@@ -47,11 +47,13 @@ PS>  D:\package\minio.exe server D:\minio_data --address :9000 --console-address
 - 这里注意一点就是  设置密码 的环境变量需要大于等于8位，否则会报错。
 - 我设置之后的环境变量如下：
 
-![](env.png)
+
+![env.png](env.png)
 
 - 启动之后如下图显示就成功了：
 
-![](console.png)
+
+![控制台](console.png)
 
 
 #### 2、Linux 安装MinIO
@@ -65,7 +67,8 @@ PS>  D:\package\minio.exe server D:\minio_data --address :9000 --console-address
 - 我这边设置的，账号是：root 	密码是：root123456
 - 登录之后就可以创建一个桶（buckets）,控制台界面如下：
 
-![](bucket.png)
+
+![桶](bucket.png)
 
 
 
@@ -75,7 +78,8 @@ PS>  D:\package\minio.exe server D:\minio_data --address :9000 --console-address
 - 点击：`Identity`  --> `Service Accounts` -->  `Create service account` 
 - 如上步骤创建之后，保存密钥后面代码用到
 
-![](key.png)
+
+![密钥](key.png)
 
 
 #### 1、导入POM依赖
