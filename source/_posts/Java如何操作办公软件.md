@@ -303,7 +303,7 @@ public class Excel2Pdf {
 
 ####  2、读取PDF
 - 其实读取PDF的需求也算常见吧。
-- 读取PDF一般用到：`pdfbox` 或 `e-iceblue`
+- 读取PDF一般用到：`pdfbox` 或 `e-iceblue` 或 `Aspose.PDF for Java`
 
 ##### 第一种:pdfbox
 - 导入pom
@@ -383,5 +383,9 @@ public class Extract_Text {
 	}
 }
 ```
+
+##### 第三种:Aspose.PDF for Java
+- 下载地址：[https://repository.aspose.com/pdf/22-7-1/](https://repository.aspose.com/pdf/22-7-1/)
+- 
 
 - 有机会再补充
