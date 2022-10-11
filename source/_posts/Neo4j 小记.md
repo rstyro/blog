@@ -3,7 +3,7 @@ title: Neo4j 小记
 date: 2018-10-17 20:01:30
 updated: 2018-10-17 20:01:30
 tags: [Neo4j]
-categories: 其他
+categories: 图数据库
 ---
 ## [Neo4j下载地址](https://neo4j.com/download-center/#releases)
 ## 配置环境变量：NEO4J_HOME
