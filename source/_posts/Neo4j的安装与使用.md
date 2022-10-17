@@ -259,7 +259,7 @@ match (n:Person{name:"莫文蔚"})-[r]-(m:Movie) delete r,n;
 match (n:Person{name:"莫文蔚"})-[r]-(m:Movie) delete r,n,m;
 
 // 删除，清库
-MATCH (n) DETACH DELETE n ;
+MATCH (n) DETACH DELETE n;
 ```
 
 ##### ⑥、REMOVE
@@ -610,4 +610,98 @@ CALL apoc.load.jdbc(url,"products") YIELD row
 RETURN row
 ORDER BY row.UnitPrice DESC
 LIMIT 20
+
+// 数组属性过滤查询
+UNWIND ['紫霞仙子'] AS names
+match (n:Person)-[r]-(m:Movie) 
+where apoc.coll.contains(r.roles,names)
+return n,m
 ```
+
+#### 4、APOC文件的导入导出
+- 文件的导出导入需要添加配置文件：`apoc.conf`
+- 新建一个`apoc.conf`配置文件放在Neo4j安装目录的conf目录下
+- 编辑如下内容，一个是开启导入功能，一个开启导出功能
+
+```
+apoc.import.file.enabled=true
+apoc.export.file.enabled=true
+```
+
+- 重启Neo4j服务就可以使用相应的导入导出函数
+- Neo4j默认的导入导出目录是在`import`目录。
+- 可以在`neo4j.conf`内容中看到：`dbms.directories.import=import`（可修改）
+- 命令示例：
+
+**①、导入：**
+
+- 导入的语法格式：`apoc.import.csv(<nodes>, <relationships>, <config>)`
+
+  - <nodes> 是一个对象数组，代表节点，里面有两个属性： fileName、labels
+
+  | 属性     | 描述                       | 示例                  |
+  | -------- | -------------------------- | --------------------- |
+  | fileName | 文件所在位置，string类型   | `'file:/persons.csv'` |
+  | labels   | 节点的标签，是一个数组类型 | `['Person', 'Movie']` |
+
+  - <relationships> 是一个对象数组，代表关系，里面有两个属性：fileName、type
+
+  | 属性     | 描述                     | 示例                  |
+  | -------- | ------------------------ | --------------------- |
+  | fileName | 文件所在位置，string类型 | `'file:/persons.csv'` |
+  | type     | 关系类型                 | `'WORKS_AT'`          |
+
+  - <config> 是一个对象，代表一些配置项
+
+  | 属性                 | 类型                                                         | 默认  | 描述                                                         |
+  | -------------------- | ------------------------------------------------------------ | ----- | ------------------------------------------------------------ |
+  | delimiter            | String                                                       | ，    | 列之间的分隔符字符                                           |
+  | arrayDelimiter       | String                                                       | ；    | 数组中的分隔符字符                                           |
+  | ignoreDuplicateNodes | Boolean                                                      | false | 对于重复的节点，仅加载第一个节点并跳过其余节点（真）或导入失败（假） |
+  | quotationCharacter   | String                                                       | "     |                                                              |
+  | stringIds            | Boolean                                                      | true  | 将 ID 视为字符串                                             |
+  | skipLines            | Integer                                                      | 1     | 要跳过的行（包括标题）                                       |
+  | ignoreBlankString    | Boolean                                                      | false | 如果为 true，则忽略具有空白字符串的属性                      |
+  | ignoreEmptyCellArray | Boolean                                                      | false | 如果为 true，则忽略包含单个空字符串的数组属性，如导入工具    |
+  | compression          | Enum[NONE, BYTES, GZIP, BZIP2, DEFLATE, BLOCK_LZ4, FRAMED_SNAPPY] | null  | 允许获取未压缩（值：）或压缩（其他值）的二进制数据。请参阅[二进制文件示例](https://neo4j.com/labs/apoc/4.4/overview/apoc.load/apoc.load.csv/#_binary_file)`NONE` |
+  
+  - 例子如下：
+
+- 如果是多类型节点加关系的话，用apoc导入好麻烦，感觉用代码快多了
+- 下面时apoc导入的官方示例：
+
+```js
+// persons.csv 是存节点的，knows.csv 是建立关系
+CALL apoc.import.csv(
+  [{fileName: 'file:/persons.csv', labels: ['Person']}],
+  [{fileName: 'file:/knows.csv', type: 'KNOWS'}],
+  { arrayDelimiter: ',', stringIds: false}
+)
+```
+
+*persons.csv*
+
+```js
+:ID|name:STRING|speaks:STRING[]
+1|John|en,fr
+2|Jane|en,de
+```
+
+*knows.csv*
+
+```js
+:START_ID|:END_ID|since:INT
+1|2|2016
+```
+
+
+
+
+
+**②、导出：**
+
+```js
+//导出数据为movie1.csv文件，点击右边的下载按钮，文件会下载到安装目录的import目录下
+CALL apoc.export.csv.all("movies1.csv", {})
+```
+
