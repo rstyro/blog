@@ -705,3 +705,81 @@ CALL apoc.import.csv(
 CALL apoc.export.csv.all("movies1.csv", {})
 ```
 
+
+### 五、大数据量导入Neo4j
+- 小数据量，我们可以用Cypher语法导入
+
+- 千万上亿级别的，推荐使用 `neo4j-admin import`
+
+  - neo4j-admin 只能用于导入到未使用的数据库中，也就是需要清库
+  - 需要把数据转成 csv文件
+
+- 来看栗子：演员 -出演->电影
+- 我们现在需要准备3个csv文件：演员节点文件、电影节点文件、演员与电影的关系文件
+
+  - 演员节点文件：`actors.csv`,内容大致如下：
+
+    - ```
+      personId:ID,username,:LABEL
+      tt01111,"周星驰",Actor
+      tt02222,"朱茵",Actor
+      tt03333,"吴孟达",Actor;Person
+      ```
+
+    - `personId:ID` 中的`:ID`代表是节点的id,之后的关系连接也是用这个字段
+
+    - `username`是这个节点的属性字段：名字，如果需要多个属性，可以往后添加列
+
+    - `:LABEL` 代表生成的节点Label叫什么，如果有多个Lable用`;`隔开
+
+  - 电影节点文件：`movies.csv`,内容如下：
+
+    - ```
+      movieId:ID,title,year:int,:LABEL
+      tt01,"大话西游之月光宝盒",1994,Movie
+      tt02,"大话西游之大圣娶亲",1994,Movie
+      ```
+
+    - `movieId`代表节点ID，
+
+    - `title`和`year:int`代码节点的属性，`year:int` 代表`year`这个属性是`int`类型的。
+
+    - `:LABEL` 和演员节点一样意思，代表生成的节点Label叫什么，后期不再介绍
+
+  - 演员与电影关系文件：`rel.csv`
+
+    - ```
+      :START_ID,role,:END_ID,:TYPE
+      tt01111,"至尊宝",tt01,ACTED_IN
+      tt02222,"紫霞仙子",tt01,ACTED_IN
+      tt03333,"二当家",tt01,ACTED_IN
+      tt01111,"孙悟空",tt02,ACTED_IN
+      ```
+
+    - `:START_ID` 代表建立关系的开始节点ID
+
+    - `role`就是关系的属性，多个就在后面多加几列即可
+
+    - `:END_ID` 代表建立关系的结束节点ID
+
+    - `:TYPE` 代表关系的Label名称
+- 当文件准备好，我们就可以使用命令导入了,把上面的3个文件放到neo4j安装目录下的`import`目录下
+- 在neo4j安装目录下的bin目录下有：`neo4j-admin` 可执行程序执行它，命令如下：
+- ```bash
+  neo4j-admin import --database=neo4j --nodes=import/actors.csv --nodes=import/movies.csv --relationships=import/rel.csv --force=true --skip-duplicate-nodes=true
+  ```
+
+  - `--database` 导入到哪个库
+  - `--nodes` 代表存放节点数据的文件，包含header(列头就是属性名)
+  - `--relationships` 代表存放节点之间的关系文件
+  - `--force` 代表在导入之前强制删除任何现有数据库文件
+  - `--skip-duplicate-nodes` 代表 确定是否跳过导入具有相同 ID/组的节点
+  - 常用的其他选项参数：
+  - `--skip-bad-relationships` 代表允许跳过引用关系缺失节点ID(找不到节点)
+  - `--multiline-fields` 表示输入源中的字段是否可以跨越多行，即包含换行符
+  - `--delimiter` 表示csv数据中值之间的分隔符
+  - 还有很多选项就不一一列举了，可看官方文档：[https://neo4j.com/docs/operations-manual/4.4/tools/neo4j-admin/neo4j-admin-import/](https://neo4j.com/docs/operations-manual/4.4/tools/neo4j-admin/neo4j-admin-import/)
+
+- 导入成功如下：
+
+![](report.png)
