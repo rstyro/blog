@@ -120,6 +120,7 @@
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="https://rstyro.github.io/blog/2022/10/11/Neo4j的安装与使用/nodes.png">
 <meta property="og:image" content="https://rstyro.github.io/blog/2022/10/11/Neo4j的安装与使用/apoc.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2022/10/11/Neo4j的安装与使用/report.png">
 <meta property="og:updated_time" content="2022-10-11T07:08:35.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Neo4j的安装与使用">
@@ -965,6 +966,82 @@
 <p><strong>②、导出：</strong></p>
 <figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">//导出数据为movie1.csv文件，点击右边的下载按钮，文件会下载到安装目录的import目录下</span></span><br><span class="line">CALL apoc.export.csv.all(<span class="string">"movies1.csv"</span>, &#123;&#125;)</span><br></pre></td></tr></table></figure>
 
+<h3 id="五、大数据量导入Neo4j"><a href="#五、大数据量导入Neo4j" class="headerlink" title="五、大数据量导入Neo4j"></a>五、大数据量导入Neo4j</h3><ul>
+<li><p>小数据量，我们可以用Cypher语法导入</p>
+</li>
+<li><p>千万上亿级别的，推荐使用 <code>neo4j-admin import</code></p>
+<ul>
+<li>neo4j-admin 只能用于导入到未使用的数据库中，也就是需要清库</li>
+<li>需要把数据转成 csv文件</li>
+</ul>
+</li>
+<li><p>来看栗子：演员 -出演-&gt;电影</p>
+</li>
+<li><p>我们现在需要准备3个csv文件：演员节点文件、电影节点文件、演员与电影的关系文件</p>
+<ul>
+<li><p>演员节点文件：<code>actors.csv</code>,内容大致如下：</p>
+<ul>
+<li><figure class="highlight autohotkey"><table><tr><td class="code"><pre><span class="line"><span class="title">personId:ID,username,:</span>LABEL</span><br><span class="line"><span class="built_in">tt01111,</span><span class="string">"周星驰"</span>,Actor</span><br><span class="line"><span class="built_in">tt02222,</span><span class="string">"朱茵"</span>,Actor</span><br><span class="line"><span class="built_in">tt03333,</span><span class="string">"吴孟达"</span>,Actor<span class="comment">;Person</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><code>personId:ID</code> 中的<code>:ID</code>代表是节点的id,之后的关系连接也是用这个字段</p>
+</li>
+<li><p><code>username</code>是这个节点的属性字段：名字，如果需要多个属性，可以往后添加列</p>
+</li>
+<li><p><code>:LABEL</code> 代表生成的节点Label叫什么，如果有多个Lable用<code>;</code>隔开</p>
+</li>
+</ul>
+</li>
+<li><p>电影节点文件：<code>movies.csv</code>,内容如下：</p>
+<ul>
+<li><figure class="highlight groovy"><table><tr><td class="code"><pre><span class="line"><span class="string">movieId:</span>ID,title,<span class="string">year:</span><span class="keyword">int</span>,:LABEL</span><br><span class="line">tt01,<span class="string">"大话西游之月光宝盒"</span>,<span class="number">1994</span>,Movie</span><br><span class="line">tt02,<span class="string">"大话西游之大圣娶亲"</span>,<span class="number">1994</span>,Movie</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><code>movieId</code>代表节点ID，</p>
+</li>
+<li><p><code>title</code>和<code>year:int</code>代码节点的属性，<code>year:int</code> 代表<code>year</code>这个属性是<code>int</code>类型的。</p>
+</li>
+<li><p><code>:LABEL</code> 和演员节点一样意思，代表生成的节点Label叫什么，后期不再介绍</p>
+</li>
+</ul>
+</li>
+<li><p>演员与电影关系文件：<code>rel.csv</code></p>
+<ul>
+<li><figure class="highlight asciidoc"><table><tr><td class="code"><pre><span class="line"><span class="meta">:START_ID,role,:END_ID,:TYPE</span></span><br><span class="line"><span class="meta">tt01111,"至尊宝",tt01,ACTED_IN</span></span><br><span class="line"><span class="meta">tt02222,"紫霞仙子",tt01,ACTED_IN</span></span><br><span class="line"><span class="meta">tt03333,"二当家",tt01,ACTED_IN</span></span><br><span class="line"><span class="meta">tt01111,"孙悟空",tt02,ACTED_IN</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><code>:START_ID</code> 代表建立关系的开始节点ID</p>
+</li>
+<li><p><code>role</code>就是关系的属性，多个就在后面多加几列即可</p>
+</li>
+<li><p><code>:END_ID</code> 代表建立关系的结束节点ID</p>
+</li>
+<li><p><code>:TYPE</code> 代表关系的Label名称</p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>当文件准备好，我们就可以使用命令导入了,把上面的3个文件放到neo4j安装目录下的<code>import</code>目录下</p>
+</li>
+<li><p>在neo4j安装目录下的bin目录下有：<code>neo4j-admin</code> 可执行程序执行它，命令如下：</p>
+</li>
+<li><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">neo4j-admin import --database=neo4j --nodes=import/actors.csv --nodes=import/movies.csv --relationships=import/rel.csv --force=<span class="literal">true</span> --skip-duplicate-nodes=<span class="literal">true</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>--database</code> 导入到哪个库</li>
+<li><code>--nodes</code> 代表存放节点数据的文件，包含header(列头就是属性名)</li>
+<li><code>--relationships</code> 代表存放节点之间的关系文件</li>
+<li><code>--force</code> 代表在导入之前强制删除任何现有数据库文件</li>
+<li><code>--skip-duplicate-nodes</code> 代表 确定是否跳过导入具有相同 ID/组的节点</li>
+<li>常用的其他选项参数：</li>
+<li><code>--skip-bad-relationships</code> 代表允许跳过引用关系缺失节点ID(找不到节点)</li>
+<li><code>--multiline-fields</code> 表示输入源中的字段是否可以跨越多行，即包含换行符</li>
+<li><code>--delimiter</code> 表示csv数据中值之间的分隔符</li>
+<li>还有很多选项就不一一列举了，可看官方文档：<a href="https://neo4j.com/docs/operations-manual/4.4/tools/neo4j-admin/neo4j-admin-import/" target="_blank" rel="noopener">https://neo4j.com/docs/operations-manual/4.4/tools/neo4j-admin/neo4j-admin-import/</a></li>
+</ul>
+</li>
+<li><p>导入成功如下：</p>
+</li>
+</ul>
+<p><img src="report.png" alt></p>
 
       
     </div>
@@ -1493,7 +1570,7 @@ show_date_time();
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#一、Neo4j的概述"><span class="nav-number">1.</span> <span class="nav-text">一、Neo4j的概述</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1、Neo4J的特点"><span class="nav-number">1.1.</span> <span class="nav-text">1、Neo4J的特点</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2、Neo4j图数据库主要有以下构建块"><span class="nav-number">1.2.</span> <span class="nav-text">2、Neo4j图数据库主要有以下构建块</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#二、Neo4j的安装与使用"><span class="nav-number">2.</span> <span class="nav-text">二、Neo4j的安装与使用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#三、Cypher-简介"><span class="nav-number">3.</span> <span class="nav-text">三、Cypher 简介</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1、Cypher-语法"><span class="nav-number">3.1.</span> <span class="nav-text">1、Cypher 语法</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#①、CREATE"><span class="nav-number">3.1.1.</span> <span class="nav-text">①、CREATE</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#②、MATCH"><span class="nav-number">3.1.2.</span> <span class="nav-text">②、MATCH</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#③、RETURN"><span class="nav-number">3.1.3.</span> <span class="nav-text">③、RETURN</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#④、WHERE"><span class="nav-number">3.1.4.</span> <span class="nav-text">④、WHERE</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#⑤、DELETE"><span class="nav-number">3.1.5.</span> <span class="nav-text">⑤、DELETE</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#⑥、REMOVE"><span class="nav-number">3.1.6.</span> <span class="nav-text">⑥、REMOVE</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#⑦、ORDER-BY"><span class="nav-number">3.1.7.</span> <span class="nav-text">⑦、ORDER BY</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#⑧、SET"><span class="nav-number">3.1.8.</span> <span class="nav-text">⑧、SET</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#⑨、UNION"><span class="nav-number">3.1.9.</span> <span class="nav-text">⑨、UNION</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#⑩、MERGE"><span class="nav-number">3.1.10.</span> <span class="nav-text">⑩、MERGE</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2、其他复合查询"><span class="nav-number">3.2.</span> <span class="nav-text">2、其他复合查询</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3、Cypher函数"><span class="nav-number">3.3.</span> <span class="nav-text">3、Cypher函数</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4、Cypher索引"><span class="nav-number">3.4.</span> <span class="nav-text">4、Cypher索引</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#四、启用APOC"><span class="nav-number">4.</span> <span class="nav-text">四、启用APOC</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1、社区版安装APOC"><span class="nav-number">4.1.</span> <span class="nav-text">1、社区版安装APOC</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2、桌面版安装APOC"><span class="nav-number">4.2.</span> <span class="nav-text">2、桌面版安装APOC</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3、函数使用示例"><span class="nav-number">4.3.</span> <span class="nav-text">3、函数使用示例</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4、APOC文件的导入导出"><span class="nav-number">4.4.</span> <span class="nav-text">4、APOC文件的导入导出</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#一、Neo4j的概述"><span class="nav-number">1.</span> <span class="nav-text">一、Neo4j的概述</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1、Neo4J的特点"><span class="nav-number">1.1.</span> <span class="nav-text">1、Neo4J的特点</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2、Neo4j图数据库主要有以下构建块"><span class="nav-number">1.2.</span> <span class="nav-text">2、Neo4j图数据库主要有以下构建块</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#二、Neo4j的安装与使用"><span class="nav-number">2.</span> <span class="nav-text">二、Neo4j的安装与使用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#三、Cypher-简介"><span class="nav-number">3.</span> <span class="nav-text">三、Cypher 简介</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1、Cypher-语法"><span class="nav-number">3.1.</span> <span class="nav-text">1、Cypher 语法</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#①、CREATE"><span class="nav-number">3.1.1.</span> <span class="nav-text">①、CREATE</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#②、MATCH"><span class="nav-number">3.1.2.</span> <span class="nav-text">②、MATCH</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#③、RETURN"><span class="nav-number">3.1.3.</span> <span class="nav-text">③、RETURN</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#④、WHERE"><span class="nav-number">3.1.4.</span> <span class="nav-text">④、WHERE</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#⑤、DELETE"><span class="nav-number">3.1.5.</span> <span class="nav-text">⑤、DELETE</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#⑥、REMOVE"><span class="nav-number">3.1.6.</span> <span class="nav-text">⑥、REMOVE</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#⑦、ORDER-BY"><span class="nav-number">3.1.7.</span> <span class="nav-text">⑦、ORDER BY</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#⑧、SET"><span class="nav-number">3.1.8.</span> <span class="nav-text">⑧、SET</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#⑨、UNION"><span class="nav-number">3.1.9.</span> <span class="nav-text">⑨、UNION</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#⑩、MERGE"><span class="nav-number">3.1.10.</span> <span class="nav-text">⑩、MERGE</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2、其他复合查询"><span class="nav-number">3.2.</span> <span class="nav-text">2、其他复合查询</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3、Cypher函数"><span class="nav-number">3.3.</span> <span class="nav-text">3、Cypher函数</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4、Cypher索引"><span class="nav-number">3.4.</span> <span class="nav-text">4、Cypher索引</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#四、启用APOC"><span class="nav-number">4.</span> <span class="nav-text">四、启用APOC</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1、社区版安装APOC"><span class="nav-number">4.1.</span> <span class="nav-text">1、社区版安装APOC</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2、桌面版安装APOC"><span class="nav-number">4.2.</span> <span class="nav-text">2、桌面版安装APOC</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3、函数使用示例"><span class="nav-number">4.3.</span> <span class="nav-text">3、函数使用示例</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4、APOC文件的导入导出"><span class="nav-number">4.4.</span> <span class="nav-text">4、APOC文件的导入导出</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#五、大数据量导入Neo4j"><span class="nav-number">5.</span> <span class="nav-text">五、大数据量导入Neo4j</span></a></li></ol></div>
             
 
           </div>
@@ -1543,7 +1620,7 @@ show_date_time();
 
 <div class="theme-info">
   <div class="powered-by"></div>
-  <span class="post-count">博客全站共351.7k字</span>
+  <span class="post-count">博客全站共352.4k字</span>
 </div>
         
 <div class="busuanzi-count">
