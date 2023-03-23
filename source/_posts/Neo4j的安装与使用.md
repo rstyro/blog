@@ -85,6 +85,7 @@ neo4j status
 - Neo4j安装好之后，就可以给它添加数据了.
 - Cypher是一种声明性图形查询语言，允许对图形进行富有表现力[和有效的查询，更新和管理](https://neo4j.com/docs/cypher-manual/current/introduction/quering-updating-administering/)。
 - 文档地址：[https://neo4j.com/docs/cypher-manual/current/](https://neo4j.com/docs/cypher-manual/current/)
+- 语法格式：[https://neo4j.com/docs/cypher-cheat-sheet/4.4/](https://neo4j.com/docs/cypher-cheat-sheet/4.4/)
 
 
 #### 1、*Cypher* 语法
@@ -434,6 +435,35 @@ WHERE exists{
 }
 return p,m;
 
+// 查询朱茵到Movie都经过哪些节点，发现结果和想要的不太对
+match p=(n1:Person)-[* 0..5]-(n2:Movie) 
+where n1.name='朱茵' 
+return p;
+
+// 查看节点到节点的经过过程是怎样的，因为查的5层，会经过重复节点，所有可以过滤掉重复节点
+match p=(n:Person)-[r* 0..5]-(m:Movie) 
+where n.name='朱茵' and ALL( n1 in nodes(p) where size([n2 in nodes(p) where id(n1) = id(n2)])=1 )
+return [n in nodes(p) | coalesce(n.name,n.title)];
+
+
+// 查询两点之间的最短路径
+match p=shortestPath((n1:Person)-[* 0..3]-(n2:Movie)) 
+where n1.name='朱茵' 
+return p;
+
+// 查询所有最短路径（可能会漏）
+match p=allshortestpaths((n1:Person)-[* 0..3]-(n2:Movie)) 
+where n1.name='朱茵' 
+return p;
+
+// with 可以把之前的查询结果带到下面的查询语句中进行使用
+match (n1:Person)-[r * 0..3]-(n2:Movie) 
+where n1.name='朱茵'
+with n1,n2
+match p2=(n3)-[r:DIRECTED]->(n2)
+return n1,n2,p2
+
+
 // Call语法简单示例
 call{
     match (p:Person)-[r:ACTED_IN]->(m:Movie)
@@ -538,10 +568,16 @@ match (a:Person)-[r:DIRECTED]->(m:Movie) RETURN a.name,collect(m.title) as title
 
 #### 4、Cypher索引
 - 索引是为了加快查询速度
+- 索引配置地址：[https://neo4j.com/docs/operations-manual/4.4/performance/index-configuration/](https://neo4j.com/docs/operations-manual/4.4/performance/index-configuration/)
+
+
 
 ```js
 // 创建一个以 Person类型的name属性为索引
 CREATE INDEX pName_index FOR (a:Person) ON (a.name)
+
+// 创建全文索引
+CREATE FULLTEXT INDEX titleIndex FOR (n:Movie) ON EACH [n.title]
 
 // 这种查询就会用到上面建立的索引
 MATCH (p:Person {name: '周星驰'})
@@ -556,11 +592,14 @@ SHOW INDEXES
 // 只显示指定字段（id,name, labelsOrTypes, properties, type）的索引列表
 SHOW INDEXES YIELD id,name, labelsOrTypes, properties, type
 
-//唯一性约束，创建唯一约束也会隐式创建索引。
+//唯一性约束，创建唯一约束也会隐式创建索引。一个字段已经创建索引后，就不能继续创建索引
 CREATE CONSTRAINT uniTile FOR (m:Movie) REQUIRE m.title IS UNIQUE
 
 // 查询唯一性约束
 SHOW CONSTRAINTS
+
+// 删除索引
+DROP INDEX titleIndex
 ```
 
 
