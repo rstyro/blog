@@ -248,4 +248,28 @@ create table test(id serial primary key,name varchar(50));
 
 # 显示执行语句的时间
 \timeing
+
+
+#  创建序列
+CREATE SEQUENCE voltask_id_seq START 1;
+# 更新序列
+alter SEQUENCE doi_record_id_seq restart WITH 1;
+
+#  在字段的默认值设置：
+nextval('voltask_id_seq')
+nextval('check_datakey_id_seq')
+nextval('check_machining_id_seq')
+
+
+#  查询是否锁表了
+select oid from pg_class where relname='可能锁表了的表'
+#  pid 是进程
+select pid from pg_locks where relation='上面查出的oid'
+#  如果查询到了结果，表示该表被锁 则需要释放锁定
+select pg_cancel_backend(上面查到的pid);
+
+#  查看所有进程
+select * from pg_stat_activity;
+#  杀掉pid=2045的进程
+select pg_terminate_backend(2045); 
 ```
