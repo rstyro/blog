@@ -1,0 +1,2160 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/blog/css/main.css?v=6.7.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon.jpg?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon.jpg?v=6.7.0">
+
+
+  <link rel="mask-icon" href="/blog/images/logo.svg?v=6.7.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/blog/',
+    scheme: 'Mist',
+    version: '6.7.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":true},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+<script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+<link href="//cdn.bootcss.com/pace/1.0.2/themes/pink/pace-theme-flash.css" rel="stylesheet">
+  <style>
+      .pace .pace-progress {
+          background: #1E92FB; /*进度条颜色*/
+          height: 3px;
+      }
+      .pace .pace-progress-inner {
+           box-shadow: 0 0 10px #1E92FB, 0 0 5px     #1E92FB; /*阴影颜色*/
+      }
+      .pace .pace-activity {
+          border-top-color: #1E92FB;    /*上边框颜色*/
+          border-left-color: #1E92FB;    /*左边框颜色*/
+      }
+  </style>
+
+  <meta name="description" content="一、Neo4j的概述 Neo4j是一个高性能的,NOSQL图形数据库，它将结构化数据存储在网络上而不是表中。 它是一个嵌入式的、基于磁盘的、具备完全的事务特性的Java持久化引擎，但是它将结构化数据存储在网络(从数学角度叫做图)上而不是表中。 Neo4j也可以被看作是一个高性能的图引擎，该引擎具有成熟数据库的所有特性。 程序员工作在一个面向对象的、灵活的网络结构下而不是严格、静态的表中——但是他们">
+<meta name="keywords" content="Neo4j">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Neo4j的安装与使用">
+<meta property="og:url" content="https://rstyro.github.io/blog/2022/10/11/Neo4j的安装与使用/index.html">
+<meta property="og:site_name" content="帅大叔的博客">
+<meta property="og:description" content="一、Neo4j的概述 Neo4j是一个高性能的,NOSQL图形数据库，它将结构化数据存储在网络上而不是表中。 它是一个嵌入式的、基于磁盘的、具备完全的事务特性的Java持久化引擎，但是它将结构化数据存储在网络(从数学角度叫做图)上而不是表中。 Neo4j也可以被看作是一个高性能的图引擎，该引擎具有成熟数据库的所有特性。 程序员工作在一个面向对象的、灵活的网络结构下而不是严格、静态的表中——但是他们">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://rstyro.github.io/blog/2022/10/11/Neo4j的安装与使用/nodes.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2022/10/11/Neo4j的安装与使用/apoc.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2022/10/11/Neo4j的安装与使用/report.png">
+<meta property="og:updated_time" content="2022-10-11T07:08:35.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Neo4j的安装与使用">
+<meta name="twitter:description" content="一、Neo4j的概述 Neo4j是一个高性能的,NOSQL图形数据库，它将结构化数据存储在网络上而不是表中。 它是一个嵌入式的、基于磁盘的、具备完全的事务特性的Java持久化引擎，但是它将结构化数据存储在网络(从数学角度叫做图)上而不是表中。 Neo4j也可以被看作是一个高性能的图引擎，该引擎具有成熟数据库的所有特性。 程序员工作在一个面向对象的、灵活的网络结构下而不是严格、静态的表中——但是他们">
+<meta name="twitter:image" content="https://rstyro.github.io/blog/2022/10/11/Neo4j的安装与使用/nodes.png">
+
+
+
+  <link rel="alternate" href="/blog/atom.xml" title="帅大叔的博客" type="application/atom+xml">
+
+
+
+
+  <link rel="canonical" href="https://rstyro.github.io/blog/2022/10/11/Neo4j的安装与使用/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>Neo4j的安装与使用 | 帅大叔的博客</title>
+  
+
+
+
+
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?cd2197f8af1d69b326360027b8f93d92";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+	<a href="https://github.com/rstyro" class="github-corner" aria-label="View source on GitHub"><svg width="80" height="80" viewbox="0 0 250 250" style="fill:#151513; color:#fff; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"/><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"/><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"/></svg></a><style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/blog/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">帅大叔的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">信你所信，为你所见</p>
+      
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/" rel="section">首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/about/" rel="section">关于</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/tags/" rel="section">标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/categories/" rel="section">分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/archives/" rel="section">归档</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-guestbook">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/guestbook/" rel="section">留言</a>
+
+  </li>
+
+      
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            搜索</a>
+        </li>
+      
+    </ul>
+  
+
+  
+    
+
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://rstyro.github.io/blog/blog/2022/10/11/Neo4j的安装与使用/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="rstyro">
+      <meta itemprop="description" content="个人博客,瞎写一些技术笔记等。">
+      <meta itemprop="image" content="/blog/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="帅大叔的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Neo4j的安装与使用
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2022-10-11 15:08:35" itemprop="dateCreated datePublished" datetime="2022-10-11T15:08:35+08:00">2022-10-11</time>
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/blog/categories/图数据库/" itemprop="url" rel="index"><span itemprop="name">图数据库</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/blog/2022/10/11/Neo4j的安装与使用/#comments" itemprop="discussionUrl">
+                  <span class="post-meta-item-text">评论数：</span> <span class="post-comments-count valine-comment-count" data-xid="/blog/2022/10/11/Neo4j的安装与使用/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="post-meta-item-icon">
+            <i class="fa fa-eye"></i>
+             阅读次数： 
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h3 id="一、Neo4j的概述"><a href="#一、Neo4j的概述" class="headerlink" title="一、Neo4j的概述"></a>一、Neo4j的概述</h3><ul>
+<li>Neo4j是一个高性能的,NOSQL图形数据库，它将结构化数据存储在网络上而不是表中。</li>
+<li>它是一个嵌入式的、基于磁盘的、具备完全的事务特性的Java持久化引擎，但是它将结构化数据存储在网络(从数学角度叫做图)上而不是表中。</li>
+<li>Neo4j也可以被看作是一个高性能的图引擎，该引擎具有成熟数据库的所有特性。</li>
+<li>程序员工作在一个面向对象的、灵活的网络结构下而不是严格、静态的表中——但是他们可以享受到具备完全的事务特性、企业级的数据库的所有好处。</li>
+</ul>
+<blockquote>
+<p>来自：百度百科</p>
+</blockquote>
+<h4 id="1、Neo4J的特点"><a href="#1、Neo4J的特点" class="headerlink" title="1、Neo4J的特点"></a>1、Neo4J的特点</h4><ul>
+<li>Cypher是Neo4j的图形查询语言</li>
+<li>它遵循属性图数据模型</li>
+<li>它通过使用Apache Lucence支持索引</li>
+<li>它支持UNIQUE约束</li>
+<li>它支持完整的ACID（原子性，一致性，隔离性和持久性）规则</li>
+<li>它采用原生图形库与本地GPE（图形处理引擎）</li>
+<li>它支持查询的数据导出到JSON和XLS格式</li>
+<li>它提供了REST API，可以被任何编程语言（如Java，Spring，Scala等）访问</li>
+<li>它提供了可以通过任何UI MVC框架（如Node JS）访问的Java脚本</li>
+<li>它支持两种Java API：Cypher API和Native Java API来开发Java应用程序</li>
+</ul>
+<h4 id="2、Neo4j图数据库主要有以下构建块"><a href="#2、Neo4j图数据库主要有以下构建块" class="headerlink" title="2、Neo4j图数据库主要有以下构建块"></a>2、Neo4j图数据库主要有以下构建块</h4><ul>
+<li>节点<ul>
+<li>节点是图表的基本单位。 它包含具有键值对的属性</li>
+</ul>
+</li>
+<li>属性<ul>
+<li>属性是用于描述图节点和关系的键值对</li>
+</ul>
+</li>
+<li>关系<ul>
+<li>关系是图形数据库的另一个主要构建块。 它连接两个节点</li>
+<li>每个关系包含一个起始节点和一个结束节点</li>
+</ul>
+</li>
+<li>标签<ul>
+<li>Label将一个公共名称与一组节点或关系相关联。</li>
+<li>节点或关系可以包含一个或多个标签</li>
+<li>我们可以为现有节点或关系创建新标签，也可删除标签</li>
+</ul>
+</li>
+<li>数据浏览器<ul>
+<li>安装Neo4j后，我们可以通过浏览器访问Neo4j数据</li>
+<li>默认地址：<a href="http://localhost:7474/browser/" target="_blank" rel="noopener">http://localhost:7474/browser/</a></li>
+</ul>
+</li>
+</ul>
+<h3 id="二、Neo4j的安装与使用"><a href="#二、Neo4j的安装与使用" class="headerlink" title="二、Neo4j的安装与使用"></a>二、Neo4j的安装与使用</h3><ul>
+<li>Neo4j有三种版本：社区版（免费）、桌面版（免费一年）、企业版（收费）</li>
+<li>社区版是 Neo4j 的全功能版本，适用于单实例部署，它完全支持Neo4j的关键功能，例如符合ACID标准的事务，密码和编程API。</li>
+<li>桌面版是开发人员使用本地 Neo4j 数据库的便捷方式，不适合生产环境。</li>
+<li>企业版扩展了社区版的功能，以包括性能和可伸缩性的关键功能，例如群集体系结构和在线备份功能。其他安全功能包括基于角色的访问控制和 LDAP 支持，例如，活动目录。它是具有规模和可用性要求的生产系统的选择，例如商业解决方案和关键内部解决方案。</li>
+</ul>
+<p><strong>地址相关：</strong></p>
+<ul>
+<li>下载地址：<a href="https://neo4j.com/download-center/#community" target="_blank" rel="noopener">https://neo4j.com/download-center/#community</a></li>
+<li>操作手册地址：<a href="https://neo4j.com/docs/operations-manual/4.4/introduction/" target="_blank" rel="noopener">https://neo4j.com/docs/operations-manual/4.4/introduction/</a></li>
+<li>入门开发指南：<a href="https://neo4j.com/docs/getting-started/4.4/" target="_blank" rel="noopener">https://neo4j.com/docs/getting-started/4.4/</a></li>
+<li>桌面版文档：<a href="https://neo4j.com/docs/desktop-manual/current/" target="_blank" rel="noopener">https://neo4j.com/docs/desktop-manual/current/</a></li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 安装服务</span></span><br><span class="line">neo4j install-service</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 卸载服务</span></span><br><span class="line">neo4j uninstall-service</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 启动</span></span><br><span class="line">neo4j start</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 停止</span></span><br><span class="line">neo4j stop</span><br><span class="line">	</span><br><span class="line"><span class="meta">#</span><span class="bash"> 重启</span></span><br><span class="line">neo4j restart</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 查询服务状态</span></span><br><span class="line">neo4j status</span><br></pre></td></tr></table></figure>
+
+<h3 id="三、Cypher-简介"><a href="#三、Cypher-简介" class="headerlink" title="三、Cypher 简介"></a>三、<em>Cypher</em> 简介</h3><ul>
+<li>Neo4j安装好之后，就可以给它添加数据了.</li>
+<li>Cypher是一种声明性图形查询语言，允许对图形进行富有表现力<a href="https://neo4j.com/docs/cypher-manual/current/introduction/quering-updating-administering/" target="_blank" rel="noopener">和有效的查询，更新和管理</a>。</li>
+<li>文档地址：<a href="https://neo4j.com/docs/cypher-manual/current/" target="_blank" rel="noopener">https://neo4j.com/docs/cypher-manual/current/</a></li>
+<li>语法格式：<a href="https://neo4j.com/docs/cypher-cheat-sheet/4.4/" target="_blank" rel="noopener">https://neo4j.com/docs/cypher-cheat-sheet/4.4/</a></li>
+</ul>
+<h4 id="1、Cypher-语法"><a href="#1、Cypher-语法" class="headerlink" title="1、Cypher 语法"></a>1、<em>Cypher</em> 语法</h4><ul>
+<li>常用的语法有</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>语法</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>CREATE</td>
+<td>创建节点，关系和属性</td>
+</tr>
+<tr>
+<td>MATCH</td>
+<td>检索有关节点，关系和属性数据，要匹配的图形模式。这是从图形中获取数据的最常见方法。</td>
+</tr>
+<tr>
+<td>RETURN</td>
+<td>返回查询结果</td>
+</tr>
+<tr>
+<td>WHERE</td>
+<td>提供条件过滤检索数据</td>
+</tr>
+<tr>
+<td>DELETE</td>
+<td>删除节点和关系</td>
+</tr>
+<tr>
+<td>REMOVE</td>
+<td>删除节点和关系的属性</td>
+</tr>
+<tr>
+<td>ORDER BY</td>
+<td>排序检索数据</td>
+</tr>
+<tr>
+<td>SET</td>
+<td>添加或更新标签属性</td>
+</tr>
+<tr>
+<td>MERGE</td>
+<td>创建节点，关系和属性</td>
+</tr>
+</tbody></table>
+<h5 id="①、CREATE"><a href="#①、CREATE" class="headerlink" title="①、CREATE"></a>①、CREATE</h5><ul>
+<li>创建语法格式大致如下：</li>
+</ul>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 方式一： 格式</span></span><br><span class="line">CREATE (</span><br><span class="line">   &lt;node-name&gt;:<span class="xml"><span class="tag">&lt;<span class="name">label-name</span>&gt;</span></span></span><br><span class="line"><span class="xml">   &#123; 	</span></span><br><span class="line">      &lt;Property1-name&gt;:&lt;Property1-Value&gt;</span><br><span class="line">      ........</span><br><span class="line">      &lt;Propertyn-name&gt;:&lt;Propertyn-Value&gt;</span><br><span class="line">   &#125;</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">// 方式二: 创建几点的时候，直接建立关系</span><br><span class="line">CREATE (节点名称)-[:关系]-&gt;(节点名称)-[:关系]-&gt;(节点)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">// 方式三 一个节点创建多个标签，Movie, Person是m节点的多个标签名称</span><br><span class="line">CREATE (m:Movie:Person)</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>来一个实战语法：</li>
+</ul>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 创建大话西游两部电影节点 Movie</span></span><br><span class="line">CREATE (moon:Movie &#123;<span class="attr">title</span>:<span class="string">'大话西游之月光宝盒'</span>, <span class="attr">released</span>:<span class="number">1994</span>, <span class="attr">tagline</span>:<span class="string">'是由周星驰彩星电影公司和西安电影制片厂联合摄制的爱情悲喜剧系列电影，由刘镇伟执导，周星驰、朱茵、吴孟达、蓝洁瑛、莫文蔚等主演'</span>&#125;)</span><br><span class="line">CREATE (marry:Movie &#123;<span class="attr">title</span>:<span class="string">'大话西游之大圣娶亲'</span>, <span class="attr">released</span>:<span class="number">1995</span>, <span class="attr">tagline</span>:<span class="string">'是由周星驰彩星电影公司和西安电影制片厂联合摄制的爱情悲喜剧系列电影，由刘镇伟执导，周星驰、朱茵、吴孟达、蓝洁瑛、莫文蔚等主演'</span>&#125;)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 创建人物节点 Person</span></span><br><span class="line">CREATE (zhouxx:Person &#123;<span class="attr">name</span>:<span class="string">'周星驰'</span>, <span class="attr">born</span>:<span class="number">1962</span>&#125;)</span><br><span class="line">CREATE (zy:Person &#123;<span class="attr">name</span>:<span class="string">'朱茵'</span>, <span class="attr">born</span>:<span class="number">1962</span>&#125;)</span><br><span class="line">CREATE (wmd:Person &#123;<span class="attr">name</span>:<span class="string">'吴孟达'</span>, <span class="attr">born</span>:<span class="number">1963</span>&#125;)</span><br><span class="line">CREATE (mww:Person &#123;<span class="attr">name</span>:<span class="string">'莫文蔚'</span>, <span class="attr">born</span>:<span class="number">1964</span>&#125;)</span><br><span class="line">CREATE (ljy:Person &#123;<span class="attr">name</span>:<span class="string">'蓝洁瑛'</span>, <span class="attr">born</span>:<span class="number">1965</span>&#125;)</span><br><span class="line">CREATE (luo:Person &#123;<span class="attr">name</span>:<span class="string">'罗家英'</span>, <span class="attr">born</span>:<span class="number">1965</span>&#125;)</span><br><span class="line">CREATE (zsf:Person &#123;<span class="attr">name</span>:<span class="string">'蔡少芬'</span>, <span class="attr">born</span>:<span class="number">1965</span>&#125;)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 创建人物与电影的关系</span></span><br><span class="line">CREATE</span><br><span class="line">  (zhouxx)-[:ACTED_IN &#123;<span class="attr">roles</span>:[<span class="string">'至尊宝'</span>,<span class="string">'孙悟空'</span>]&#125;]-&gt;(moon),</span><br><span class="line">  (zhouxx)-[:ACTED_IN &#123;<span class="attr">roles</span>:[<span class="string">'至尊宝、孙悟空、夕阳武士'</span>]&#125;]-&gt;(marry),</span><br><span class="line">  (zy)-[:ACTED_IN &#123;<span class="attr">roles</span>:[<span class="string">'紫霞仙子'</span>]&#125;]-&gt;(moon),</span><br><span class="line">  (wmd)-[:ACTED_IN &#123;<span class="attr">roles</span>:[<span class="string">'二当家、猪八戒'</span>]&#125;]-&gt;(moon),</span><br><span class="line">  (mww)-[:ACTED_IN &#123;<span class="attr">roles</span>:[<span class="string">'白晶晶'</span>]&#125;]-&gt;(moon),</span><br><span class="line">  (ljy)-[:ACTED_IN &#123;<span class="attr">roles</span>:[<span class="string">' 春三十娘'</span>]&#125;]-&gt;(moon),</span><br><span class="line">  (luo)-[:ACTED_IN &#123;<span class="attr">roles</span>:[<span class="string">'唐三藏'</span>]&#125;]-&gt;(moon), </span><br><span class="line">  (zsf)-[:ACTED_IN &#123;<span class="attr">roles</span>:[<span class="string">'铁扇公主'</span>]&#125;]-&gt;(moon),</span><br><span class="line">  (zy)-[:ACTED_IN &#123;<span class="attr">roles</span>:[<span class="string">'紫霞仙子、青霞仙子、盘丝大仙'</span>]&#125;]-&gt;(marry),</span><br><span class="line"> (wmd)-[:ACTED_IN &#123;<span class="attr">roles</span>:[<span class="string">'二当家、猪八戒'</span>]&#125;]-&gt;(marry),</span><br><span class="line"> (mww)-[:ACTED_IN &#123;<span class="attr">roles</span>:[<span class="string">'白晶晶'</span>]&#125;]-&gt;(marry),</span><br><span class="line"> (luo)-[:ACTED_IN &#123;<span class="attr">roles</span>:[<span class="string">'唐僧'</span>]&#125;]-&gt;(marry),</span><br><span class="line">  (zsf)-[:ACTED_IN &#123;<span class="attr">roles</span>:[<span class="string">'铁扇公主'</span>]&#125;]-&gt;(marry),</span><br><span class="line">  (ljy)-[:ACTED_IN &#123;<span class="attr">roles</span>:[<span class="string">' 春三十娘'</span>]&#125;]-&gt;(marry),</span><br><span class="line">  (zhouxx)-[:DIRECTED]-&gt;(moon),</span><br><span class="line">  (zhouxx)-[:DIRECTED]-&gt;(marry)</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p> ACTED_IN 代表关系类型，表演的意思，DIRECTED 也是关系类型，导演</p>
+</blockquote>
+<ul>
+<li>执行上面命令之后，可得节点如下：</li>
+</ul>
+<p><img src="nodes.png" alt></p>
+<h5 id="②、MATCH"><a href="#②、MATCH" class="headerlink" title="②、MATCH"></a>②、MATCH</h5><ul>
+<li>MATCH 检索有关节点，关系和属性数据</li>
+<li>如下：</li>
+</ul>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 查询所有节点</span></span><br><span class="line">MATCH (n) RETURN n</span><br><span class="line"></span><br><span class="line"><span class="comment">// LIMIT 分页获取节点</span></span><br><span class="line">MATCH (n) RETURN n LIMIT <span class="number">10</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// SKIP 跳过几个节点，LIMIT 分页</span></span><br><span class="line">MATCH (n) RETURN n  SKIP <span class="number">10</span> LIMIT <span class="number">2</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 查询导演的节点关系，加 LIMIT 25分页</span></span><br><span class="line">MATCH p=()-[r:DIRECTED]-&gt;() RETURN p </span><br><span class="line"></span><br><span class="line"><span class="comment">// 查询 表演关系节点，分页</span></span><br><span class="line">MATCH p=()-[r:ACTED_IN]-&gt;() RETURN p LIMIT <span class="number">25</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="③、RETURN"><a href="#③、RETURN" class="headerlink" title="③、RETURN"></a>③、RETURN</h5><ul>
+<li>RETURN常与其他语法组合使用</li>
+<li>可以返回节点的某些属性，或所有属性，关联关系的属性等</li>
+</ul>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment">// 查询name=周星驰的节点</span></span><br><span class="line">MATCH (n:Person&#123;<span class="attr">name</span>:<span class="string">"周星驰"</span>&#125;) <span class="keyword">return</span> n;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 返回节点的部分属性</span></span><br><span class="line">MATCH (n:Person&#123;<span class="attr">name</span>:<span class="string">"周星驰"</span>&#125;) <span class="keyword">return</span> n.name,n.born;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 查询 Person类型的所有节点</span></span><br><span class="line">MATCH (n:Person) <span class="keyword">return</span> n;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 查询 Persion和Movie两种类型的节点</span></span><br><span class="line">MATCH (n:Person) MATCH(a:Movie) <span class="keyword">return</span> n,a;</span><br></pre></td></tr></table></figure>
+
+<h5 id="④、WHERE"><a href="#④、WHERE" class="headerlink" title="④、WHERE"></a>④、WHERE</h5><ul>
+<li>WHERE子句一般是用来过滤MATCH查询的结果</li>
+</ul>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment">// 查询 Person节点，born=1962的所有节点</span></span><br><span class="line">MATCH (n:Person) WHERE n.born=<span class="number">1962</span> <span class="keyword">return</span> n;</span><br><span class="line"></span><br><span class="line"><span class="comment">// in 查询</span></span><br><span class="line">MATCH (p:Person) WHERE p.name <span class="keyword">in</span>[<span class="string">"周星驰"</span>,<span class="string">"朱茵"</span>] <span class="keyword">return</span> p;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 查询 born 不为空的</span></span><br><span class="line">MATCH (p:Person) WHERE p.born is NOT NULL <span class="keyword">return</span> p;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 查询 born 为空的</span></span><br><span class="line">MATCH (p:Person) WHERE p.born is NULL <span class="keyword">return</span> p;</span><br><span class="line"></span><br><span class="line"><span class="comment">// OR 关系运算符，还有AND </span></span><br><span class="line">MATCH (n:Person) WHERE n.name=<span class="string">"周星驰"</span> OR n.born=<span class="number">1962</span> <span class="keyword">return</span> n;</span><br><span class="line"></span><br><span class="line"><span class="comment">//这种类似 MATCH (n:Person) WHERE n.name="周星驰" AND n.born=1962 return n;</span></span><br><span class="line">MATCH (n:Person&#123;<span class="attr">name</span>:<span class="string">"周星驰"</span>&#125;) WHERE n.born=<span class="number">1962</span> <span class="keyword">return</span> n;</span><br></pre></td></tr></table></figure>
+
+<h5 id="⑤、DELETE"><a href="#⑤、DELETE" class="headerlink" title="⑤、DELETE"></a>⑤、DELETE</h5><ul>
+<li>DELETE可以删除节点及其关联节点和关系。</li>
+</ul>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment">// 删除与某个节点的关系</span></span><br><span class="line">match (n:Person&#123;<span class="attr">name</span>:<span class="string">"蔡少芬"</span>&#125;)-[r]-(m:Movie&#123;<span class="attr">title</span>:<span class="string">"大话西游之大圣娶亲"</span>&#125;)  <span class="keyword">delete</span> r;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 删除与某个节点的关系</span></span><br><span class="line">match (n:Person&#123;<span class="attr">name</span>:<span class="string">"蔡少芬"</span>&#125;)-[r]-(m:Movie) </span><br><span class="line">where m.title=<span class="string">'大话西游之月光宝盒'</span>  <span class="keyword">delete</span> r;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 删除 name=莫文蔚 点与所有节点的所有关系链</span></span><br><span class="line">match (n:Person&#123;<span class="attr">name</span>:<span class="string">"莫文蔚"</span>&#125;)-[r]-(m:Movie) <span class="keyword">delete</span> r;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 删除 name=莫文蔚 的所有关系链,和其本身节点</span></span><br><span class="line">match (n:Person&#123;<span class="attr">name</span>:<span class="string">"莫文蔚"</span>&#125;)-[r]-(m:Movie) <span class="keyword">delete</span> r,n;</span><br><span class="line"></span><br><span class="line"><span class="comment">//  删除 name=莫文蔚 的所有关系链与本身节点和相关联的节点</span></span><br><span class="line"><span class="comment">// （保证两节点都没有和其他节点有关系才可删除）</span></span><br><span class="line">match (n:Person&#123;<span class="attr">name</span>:<span class="string">"莫文蔚"</span>&#125;)-[r]-(m:Movie) <span class="keyword">delete</span> r,n,m;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 删除，清库</span></span><br><span class="line">MATCH (n) DETACH DELETE n;</span><br></pre></td></tr></table></figure>
+
+<h5 id="⑥、REMOVE"><a href="#⑥、REMOVE" class="headerlink" title="⑥、REMOVE"></a>⑥、REMOVE</h5><ul>
+<li>REMOVE命令用于：</li>
+<li>删除节点或关系的标签</li>
+<li>删除节点或关系的属性</li>
+</ul>
+<p><strong>和DELETE的主要区别</strong></p>
+<ul>
+<li>DELETE操作用于删除节点和关联关系。</li>
+<li>REMOVE操作用于删除标签和属性。</li>
+</ul>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 删除 节点name=莫文蔚的born属性</span></span><br><span class="line">MATCH (n:Person&#123;<span class="attr">name</span>:<span class="string">"莫文蔚"</span>&#125;) REMOVE n.born <span class="keyword">return</span> n</span><br><span class="line"></span><br><span class="line"><span class="comment">// 和上面一样意思，第二种写法</span></span><br><span class="line">MATCH (n:Person) where n.name=<span class="string">"莫文蔚"</span> REMOVE n.born <span class="keyword">return</span> n</span><br><span class="line"></span><br><span class="line"><span class="comment">// 删除 关系类型的 roles 属性</span></span><br><span class="line">match (n:Person&#123;<span class="attr">name</span>:<span class="string">"吴孟达"</span>&#125;)-[r]-(m:Movie&#123;<span class="attr">title</span>:<span class="string">"大话西游之大圣娶亲"</span>&#125;) </span><br><span class="line">REMOVE r.roles</span><br><span class="line"><span class="keyword">return</span> r,n;</span><br></pre></td></tr></table></figure>
+
+<h5 id="⑦、ORDER-BY"><a href="#⑦、ORDER-BY" class="headerlink" title="⑦、ORDER BY"></a>⑦、ORDER BY</h5><ul>
+<li>和数据库SQL一样，也是排序的意思</li>
+<li>例子如下：</li>
+</ul>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 查询 Person所有节点，按born升序返回</span></span><br><span class="line">MATCH (p:Person) <span class="keyword">return</span> p.born,p.name order by p.born asc</span><br><span class="line"></span><br><span class="line"><span class="comment">// 查询 Person所有节点，按born降序返回</span></span><br><span class="line">MATCH (p:Person) <span class="keyword">return</span> p.born,p.name order by p.born desc</span><br></pre></td></tr></table></figure>
+
+<h5 id="⑧、SET"><a href="#⑧、SET" class="headerlink" title="⑧、SET"></a>⑧、SET</h5><ul>
+<li>可以向现有节点或关系添加新属性。</li>
+<li>添加或更新属性值</li>
+<li>例子如下：</li>
+</ul>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 上面删除了吴孟达的关系属性roles,现在重新给他加上</span></span><br><span class="line">match (n:Person&#123;<span class="attr">name</span>:<span class="string">"吴孟达"</span>&#125;)-[r]-(m:Movie&#123;<span class="attr">title</span>:<span class="string">"大话西游之大圣娶亲"</span>&#125;) </span><br><span class="line">SET r.roles=[<span class="string">"猪八戒"</span>,<span class="string">"二师兄"</span>]</span><br><span class="line"><span class="comment">// return 这个可加可不加，加的话会查询返回节点，不加就只显示是否更新成功的提示</span></span><br><span class="line"><span class="keyword">return</span> n,m;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 给朱茵这个节点加上一个age属性</span></span><br><span class="line">match (n:Person&#123;<span class="attr">name</span>:<span class="string">"朱茵"</span>&#125;)</span><br><span class="line">SET n.age=<span class="number">18</span></span><br><span class="line"><span class="keyword">return</span> n;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 给朱茵这个节点加上多个属性</span></span><br><span class="line">match (n:Person&#123;<span class="attr">name</span>:<span class="string">"朱茵"</span>&#125;)</span><br><span class="line">SET n.nickName=<span class="string">"紫霞仙子"</span>,n.race=<span class="string">'仙'</span></span><br><span class="line"><span class="keyword">return</span> n;</span><br></pre></td></tr></table></figure>
+
+<h5 id="⑨、UNION"><a href="#⑨、UNION" class="headerlink" title="⑨、UNION"></a>⑨、UNION</h5><ul>
+<li><code>UNION</code>的意思是合并，可以将不同的结果合并成一组结果</li>
+<li><code>UNION ALL</code> 也是合并，和<code>UNION</code>不同的是:<code>UNION</code>会去重，<code>UNION ALL</code>不会</li>
+</ul>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 合并 Person类型和Movie类型，不同字段名，所以需要用as 使用别名</span></span><br><span class="line">MATCH (p:Person) </span><br><span class="line"><span class="keyword">return</span> p.name <span class="keyword">as</span> name,p.born <span class="keyword">as</span> year</span><br><span class="line">UNION ALL</span><br><span class="line">Match (m:Movie) </span><br><span class="line"><span class="keyword">return</span> m.title <span class="keyword">as</span> name,m.released <span class="keyword">as</span> year</span><br></pre></td></tr></table></figure>
+
+<h5 id="⑩、MERGE"><a href="#⑩、MERGE" class="headerlink" title="⑩、MERGE"></a>⑩、MERGE</h5><ul>
+<li>MERGE 命令检查该节点在数据库中是否可用。避免重复</li>
+<li>如果它不存在，它创建新节点。 否则，它不创建新的。</li>
+<li>例子：</li>
+</ul>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 这个是创建节点不成功的，因为Person已经有name=周星驰的节点了</span></span><br><span class="line">MERGE (zxx:Person &#123;<span class="attr">name</span>:<span class="string">'周星驰'</span>&#125;)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 这个命令会创建一个新的节点，因为name=周星驰有了，</span></span><br><span class="line"><span class="comment">// 但是 born=2022这个值不相等，所以会创建新的节点</span></span><br><span class="line">MERGE (zxx:Person &#123;<span class="attr">name</span>:<span class="string">'周星驰'</span>,<span class="attr">born</span>:<span class="number">2022</span>&#125;)</span><br></pre></td></tr></table></figure>
+
+<h4 id="2、其他复合查询"><a href="#2、其他复合查询" class="headerlink" title="2、其他复合查询"></a>2、其他复合查询</h4><ul>
+<li>上面已经基本介绍了简单语法，现在来试试把他们组合成复杂语法</li>
+<li>例子：</li>
+</ul>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 创建意中人关系的A、B节点</span></span><br><span class="line">MATCH (a:Person &#123; <span class="attr">name</span>: <span class="string">'朱茵'</span> &#125;)</span><br><span class="line">MATCH (b:Person &#123; <span class="attr">name</span>: <span class="string">'周星驰'</span> &#125;)</span><br><span class="line">create (a)-[r:Feel &#123;<span class="attr">role</span>:<span class="string">"意中人"</span>,<span class="attr">remark</span>:<span class="string">"紫霞仙子等了至尊宝500年"</span>&#125;]-&gt;(b)</span><br><span class="line"><span class="keyword">return</span> a,b;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 除了上面的CREATE语法，也可以使用MERGE，加一个牛魔王 如下</span></span><br><span class="line">MATCH (a:Person &#123; <span class="attr">name</span>: <span class="string">'朱茵'</span> &#125;)</span><br><span class="line">MATCH (b:Person &#123; <span class="attr">name</span>: <span class="string">'周星驰'</span> &#125;)</span><br><span class="line">MERGE (c:Person&#123;<span class="attr">name</span>:<span class="string">"牛魔王"</span>&#125;)-[:Feel&#123;<span class="attr">role</span>:<span class="string">"意中人"</span>,<span class="attr">remark</span>:<span class="string">"第三者，横刀夺爱"</span>&#125;]-&gt;(a)-[:Feel&#123;<span class="attr">role</span>:<span class="string">"意中人"</span>,<span class="attr">remark</span>:<span class="string">"紫霞仙子等了至尊宝500年"</span>&#125;]-&gt;(b)</span><br><span class="line">RETURN a,b,c;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 查询Person节点存在nickName 属性的节点</span></span><br><span class="line">MATCH (p:Person)</span><br><span class="line">WHERE exists(p.nickName)</span><br><span class="line">RETURN p;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// 查询Person节点不存在nickName 属性的节点</span></span><br><span class="line">MATCH (p:Person)</span><br><span class="line">WHERE not exists(p.nickName)</span><br><span class="line">RETURN p;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 查询标题以 大 开头的电影节点</span></span><br><span class="line">MATCH (p:Movie)</span><br><span class="line">WHERE p.title STARTS WITH <span class="string">'大'</span></span><br><span class="line">RETURN p.title;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 查询名称以 英 结尾的人物节点</span></span><br><span class="line">MATCH (p:Person)</span><br><span class="line">WHERE p.name ENDS WITH  <span class="string">'英'</span></span><br><span class="line">RETURN p;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 查询 标题包含 大 的电影节点</span></span><br><span class="line">MATCH (p:Movie)</span><br><span class="line">WHERE p.title CONTAINS <span class="string">'大'</span></span><br><span class="line">RETURN p.title;</span><br><span class="line"></span><br><span class="line"><span class="comment">// ~ 开头的后面可以使用正则表达式</span></span><br><span class="line">MATCH (p:Person)</span><br><span class="line">WHERE p.name =~ <span class="string">'周.*'</span></span><br><span class="line">RETURN p.name;</span><br><span class="line"></span><br><span class="line"><span class="comment">// OPTIONAL 有点像左连接</span></span><br><span class="line">MATCH (p:Person)</span><br><span class="line">WHERE p.born&gt;<span class="number">1950</span></span><br><span class="line">OPTIONAL MATCH (p)-[r]-(other:Movie&#123;<span class="attr">title</span>:<span class="string">"大话西游之大圣娶亲"</span>&#125;)</span><br><span class="line">RETURN p.name, other.title;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 查询多组关系，谁 出演电影 又导演电影</span></span><br><span class="line">MATCH (j:Person)-[r:ACTED_IN]-&gt;(m:Movie ),</span><br><span class="line">      (j)-[:DIRECTED]-(m),</span><br><span class="line">      (p)-[r1:Feel]-(j)</span><br><span class="line">RETURN j.name,m.title,p.name;</span><br><span class="line"></span><br><span class="line"><span class="comment">// DISTINCT 过滤掉重复的数据</span></span><br><span class="line">MATCH (j:Person)-[r:ACTED_IN]-&gt;(m:Movie ),</span><br><span class="line">      (j)-[:DIRECTED]-(m),</span><br><span class="line">      (p)-[r1:Feel]-(j)</span><br><span class="line">RETURN DISTINCT j.name,p.name;</span><br><span class="line"></span><br><span class="line"><span class="comment">// unwind 可以展开然后 通过 as 起一个别名</span></span><br><span class="line">WITH [<span class="number">1965</span>, <span class="number">1962</span>] AS list</span><br><span class="line">UNWIND list AS number</span><br><span class="line">MATCH (p:Person&#123;<span class="attr">born</span>:number&#125;)</span><br><span class="line">RETURN p.name, p.born ORDER BY p.born DESC;</span><br><span class="line"></span><br><span class="line"><span class="comment">// MERGE ON CREATE 当不存在时执行，否则执行MERGE ON MATCH 分支</span></span><br><span class="line">MERGE (p:Person &#123;<span class="attr">name</span>: <span class="string">'周星驰测试'</span>&#125;)-[r:ACTED_IN]-(m:Movie)</span><br><span class="line">  ON CREATE SET r.since = date(<span class="string">'2018-03-01'</span>)</span><br><span class="line">  ON MATCH SET r.updated = date()</span><br><span class="line">RETURN p, r, m;</span><br><span class="line"></span><br><span class="line"><span class="comment">// exists 可以使用&#123;&#125;包起来</span></span><br><span class="line">match (p:Person)-[r:ACTED_IN]-&gt;(m:Movie)</span><br><span class="line">WHERE exists&#123;</span><br><span class="line">    match (n:Person)-[r1:Feel]-&gt;(p) </span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">return</span> p,m;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 查询朱茵到Movie都经过哪些节点，发现结果和想要的不太对</span></span><br><span class="line">match p=(n1:Person)-[* <span class="number">0.</span><span class="number">.5</span>]-(n2:Movie) </span><br><span class="line">where n1.name=<span class="string">'朱茵'</span> </span><br><span class="line"><span class="keyword">return</span> p;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 查看节点到节点的经过过程是怎样的，因为查的5层，会经过重复节点，所有可以过滤掉重复节点</span></span><br><span class="line">match p=(n:Person)-[r* <span class="number">0.</span><span class="number">.5</span>]-(m:Movie) </span><br><span class="line">where n.name=<span class="string">'朱茵'</span> and ALL( n1 <span class="keyword">in</span> nodes(p) where size([n2 <span class="keyword">in</span> nodes(p) where id(n1) = id(n2)])=<span class="number">1</span> )</span><br><span class="line"><span class="keyword">return</span> [n <span class="keyword">in</span> nodes(p) | coalesce(n.name,n.title)];</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// 查询两点之间的最短路径</span></span><br><span class="line">match p=shortestPath((n1:Person)-[* <span class="number">0.</span><span class="number">.3</span>]-(n2:Movie)) </span><br><span class="line">where n1.name=<span class="string">'朱茵'</span> </span><br><span class="line"><span class="keyword">return</span> p;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 查询所有最短路径（可能会漏）</span></span><br><span class="line">match p=allshortestpaths((n1:Person)-[* <span class="number">0.</span><span class="number">.3</span>]-(n2:Movie)) </span><br><span class="line">where n1.name=<span class="string">'朱茵'</span> </span><br><span class="line"><span class="keyword">return</span> p;</span><br><span class="line"></span><br><span class="line"><span class="comment">// with 可以把之前的查询结果带到下面的查询语句中进行使用</span></span><br><span class="line">match (n1:Person)-[r * <span class="number">0.</span><span class="number">.3</span>]-(n2:Movie) </span><br><span class="line">where n1.name=<span class="string">'朱茵'</span></span><br><span class="line"><span class="keyword">with</span> n1,n2</span><br><span class="line">match p2=(n3)-[r:DIRECTED]-&gt;(n2)</span><br><span class="line"><span class="keyword">return</span> n1,n2,p2</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// Call语法简单示例</span></span><br><span class="line">call&#123;</span><br><span class="line">    match (p:Person)-[r:ACTED_IN]-&gt;(m:Movie)</span><br><span class="line">    WHERE exists&#123;</span><br><span class="line">        match (n:Person)-[r1:Feel]-&gt;(p) </span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> p</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">with</span> p,[(a)-[:Feel]-&gt;(p) | a.name] <span class="keyword">as</span> tName</span><br><span class="line"><span class="keyword">return</span> p.name,p.born,tName</span><br></pre></td></tr></table></figure>
+
+<h4 id="3、Cypher函数"><a href="#3、Cypher函数" class="headerlink" title="3、Cypher函数"></a>3、Cypher函数</h4><ul>
+<li><p>常用函数有：</p>
+</li>
+<li><p>字符串函数</p>
+<ul>
+<li>toUpper<ul>
+<li>它用于将所有字母更改为大写字母</li>
+</ul>
+</li>
+<li>toLower<ul>
+<li>它用于将所有字母改为小写字母。</li>
+</ul>
+</li>
+<li>coalesce<ul>
+<li>可以判断字符串是否为空，可以给一个默认值</li>
+</ul>
+</li>
+<li>substring<ul>
+<li>字符串截取</li>
+</ul>
+</li>
+<li>replace<ul>
+<li>它用于替换一个字符串的子字符串。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>数字相关函数</p>
+<ul>
+<li>count</li>
+<li>max</li>
+<li>min</li>
+<li>sum</li>
+<li>avg</li>
+</ul>
+</li>
+<li><p>关系函数</p>
+<ul>
+<li><p>STARTNODE</p>
+<ul>
+<li>它用于知道关系的开始节点。</li>
+</ul>
+</li>
+<li><p>ENDNODE</p>
+<ul>
+<li>它用于知道关系的结束节点。</li>
+</ul>
+</li>
+<li><p>ID</p>
+<ul>
+<li>它用于知道关系的ID。</li>
+</ul>
+</li>
+<li><p>TYPE</p>
+<ul>
+<li>它用于知道字符串表示中的一个关系的TYPE。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li>其他函数<ul>
+<li>size<ul>
+<li>用户返回列表集合的个数</li>
+</ul>
+</li>
+<li>collect<ul>
+<li>可以把列的数据收集起来</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 朱茵的 eName 大写返回</span></span><br><span class="line">MATCH (e:Person&#123;<span class="attr">name</span>:<span class="string">"朱茵"</span>&#125;) RETURN e.name,e.eName,toUpper(e.eName) </span><br><span class="line"></span><br><span class="line"><span class="comment">// 朱茵的 eName 小写返回</span></span><br><span class="line">MATCH (e:Person&#123;<span class="attr">name</span>:<span class="string">"朱茵"</span>&#125;) RETURN e.name,e.eName,toLower(e.eName)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 朱茵的 eName 不存在就给一个 默认值</span></span><br><span class="line">MATCH (e:Person&#123;<span class="attr">name</span>:<span class="string">"朱茵"</span>&#125;) RETURN e.name,coalesce(e.eName,<span class="string">"默认值"</span>) <span class="keyword">as</span> eName</span><br><span class="line"></span><br><span class="line"><span class="comment">// 字符串截取</span></span><br><span class="line">MATCH (e:Person&#123;<span class="attr">name</span>:<span class="string">"朱茵"</span>&#125;) RETURN e.name,substring(e.nickName,<span class="number">0</span>,<span class="number">1</span>) <span class="keyword">as</span> eName</span><br><span class="line"></span><br><span class="line"><span class="comment">// 字符串替换</span></span><br><span class="line">MATCH (e:Person&#123;<span class="attr">name</span>:<span class="string">"朱茵"</span>&#125;) RETURN e.name,replace(e.nickName,<span class="string">"紫霞"</span>,<span class="string">"紫霞和紫青"</span>) <span class="keyword">as</span> eName</span><br><span class="line"></span><br><span class="line"><span class="comment">// 查询Person节点包含born属性的节点个数</span></span><br><span class="line">MATCH (p:Person) RETURN count(p.born);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 查询Person所有节点个数</span></span><br><span class="line">MATCH (p:Person) RETURN count(*);</span><br><span class="line">                              </span><br><span class="line"><span class="comment">// 求最大值                              </span></span><br><span class="line">MATCH (p:Person) RETURN max(p.born);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 求最小值</span></span><br><span class="line">MATCH (p:Person) RETURN min(p.born);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 求和</span></span><br><span class="line">MATCH (p:Person) RETURN sum(p.born);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 求平均数</span></span><br><span class="line">MATCH (p:Person) RETURN avg(p.born);</span><br><span class="line"><span class="comment">// 数据聚类</span></span><br><span class="line">MATCH (p:Person) RETURN count(p.born),max(p.born),min(p.born),sum(p.born),avg(p.born);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 返回 r 关系的开始节点</span></span><br><span class="line">MATCH (a)-[r:ACTED_IN]-&gt;(b) RETURN STARTNODE(r);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 返回 r 关系的结束节点</span></span><br><span class="line">MATCH (a)-[r:ACTED_IN]-&gt;(b) RETURN ENDNODE(r);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 返回 关系的ID 和关系的 类型</span></span><br><span class="line">MATCH (a)-[r]-&gt;(b) RETURN ID(r),TYPE(r),size(r.roles)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 返回 导演与 收集导演导过的电影剧名titleList</span></span><br><span class="line">match (a:Person)-[r:DIRECTED]-&gt;(m:Movie) RETURN a.name,collect(m.title) <span class="keyword">as</span> titleList,size(collect(m.title))</span><br></pre></td></tr></table></figure>
+
+<h4 id="4、Cypher索引"><a href="#4、Cypher索引" class="headerlink" title="4、Cypher索引"></a>4、Cypher索引</h4><ul>
+<li>索引是为了加快查询速度</li>
+<li>索引配置地址：<a href="https://neo4j.com/docs/operations-manual/4.4/performance/index-configuration/" target="_blank" rel="noopener">https://neo4j.com/docs/operations-manual/4.4/performance/index-configuration/</a></li>
+</ul>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 创建一个以 Person类型的name属性为索引</span></span><br><span class="line">CREATE INDEX pName_index FOR (a:Person) ON (a.name)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 创建全文索引</span></span><br><span class="line">CREATE FULLTEXT INDEX titleIndex FOR (n:Movie) ON EACH [n.title]</span><br><span class="line"></span><br><span class="line"><span class="comment">// 这种查询就会用到上面建立的索引</span></span><br><span class="line">MATCH (p:Person &#123;<span class="attr">name</span>: <span class="string">'周星驰'</span>&#125;)</span><br><span class="line">RETURN p.name</span><br><span class="line"></span><br><span class="line"><span class="comment">// 多个字段属性，建立的索引，也可以叫 复合索引</span></span><br><span class="line">CREATE INDEX pb_index FOR (a:Person) ON (a.name,a.born)</span><br><span class="line"></span><br><span class="line"><span class="comment">//显示数据库中都创建了哪些索引</span></span><br><span class="line">SHOW INDEXES</span><br><span class="line"></span><br><span class="line"><span class="comment">// 只显示指定字段（id,name, labelsOrTypes, properties, type）的索引列表</span></span><br><span class="line">SHOW INDEXES YIELD id,name, labelsOrTypes, properties, type</span><br><span class="line"></span><br><span class="line"><span class="comment">//唯一性约束，创建唯一约束也会隐式创建索引。一个字段已经创建索引后，就不能继续创建索引</span></span><br><span class="line">CREATE CONSTRAINT uniTile FOR (m:Movie) REQUIRE m.title IS UNIQUE</span><br><span class="line"></span><br><span class="line"><span class="comment">// 查询唯一性约束</span></span><br><span class="line">SHOW CONSTRAINTS</span><br><span class="line"></span><br><span class="line"><span class="comment">// 删除索引</span></span><br><span class="line">DROP INDEX titleIndex</span><br></pre></td></tr></table></figure>
+
+<h3 id="四、启用APOC"><a href="#四、启用APOC" class="headerlink" title="四、启用APOC"></a>四、启用APOC</h3><ul>
+<li>APOC是Java编写的一个Neo4j的插件库。</li>
+<li>它提供了数据集成，数据导出，数据结构，高级图查询等诸多功能</li>
+<li>文档地址：<a href="https://neo4j.com/labs/apoc/4.4/" target="_blank" rel="noopener">https://neo4j.com/labs/apoc/4.4/</a></li>
+<li>Github地址：<a href="https://github.com/neo4j-contrib/neo4j-apoc-procedures" target="_blank" rel="noopener">https://github.com/neo4j-contrib/neo4j-apoc-procedures</a></li>
+<li></li>
+</ul>
+<h4 id="1、社区版安装APOC"><a href="#1、社区版安装APOC" class="headerlink" title="1、社区版安装APOC"></a>1、社区版安装APOC</h4><ul>
+<li>如果是下载的是社区版的话，在Neo4j的安装目录下有一个labs目录</li>
+<li>直接把labs下的<code>apoc-4.4.0.8-core.jar</code>（不同版本，这里的名称也不同）复制到plugins目录下即可</li>
+<li>默认情况下，只启用不使用低级API的一些函数。要启用所有APOC程序，还需要配置</li>
+<li>在<code>conf/neo4j.conf</code>配置文件中添加：<code>dbms.security.procedures.unrestricted=apoc.*</code></li>
+<li>重新启动Neo4j，然后执行命令：<code>RETURN apoc.version()</code>就会返回apoc的版本（说明成功)</li>
+<li>或者执行：<code>call apoc.help(&quot;apoc&quot;);</code> 返回apoc的函数相关信息</li>
+</ul>
+<h4 id="2、桌面版安装APOC"><a href="#2、桌面版安装APOC" class="headerlink" title="2、桌面版安装APOC"></a>2、桌面版安装APOC</h4><ul>
+<li>打开桌面版，然后点击项目=&gt; 选择一个数据库=&gt;右边选择Plugins=&gt;找到Apoc安装即可</li>
+</ul>
+<p><img src="apoc.png" alt></p>
+<h4 id="3、函数使用示例"><a href="#3、函数使用示例" class="headerlink" title="3、函数使用示例"></a>3、函数使用示例</h4><figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">// apoc 的命令帮助文档</span></span><br><span class="line">call apoc.help(<span class="string">'apoc'</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 比如查看格式化的文档</span></span><br><span class="line">call apoc.help(<span class="string">'format'</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 时间格式化</span></span><br><span class="line">RETURN apoc.date.format(timestamp()) <span class="keyword">as</span> time,</span><br><span class="line">       apoc.date.format(timestamp(),<span class="string">'ms'</span>,<span class="string">'yyyy-MM-dd'</span>) <span class="keyword">as</span> date,</span><br><span class="line">       apoc.date.parse(<span class="string">'13.01.1975'</span>,<span class="string">'s'</span>,<span class="string">'dd.MM.yyyy'</span>) <span class="keyword">as</span> unixtime,</span><br><span class="line">       apoc.date.parse(<span class="string">'2017-01-05 13:03:07'</span>) <span class="keyword">as</span> millis</span><br><span class="line">       </span><br><span class="line"><span class="comment">// 加载MYSQL数据库连接并查询</span></span><br><span class="line">WITH <span class="string">"jdbc:mysql://localhost:3306/northwind?user=root"</span> <span class="keyword">as</span> url</span><br><span class="line">CALL apoc.load.jdbc(url,<span class="string">"products"</span>) YIELD row</span><br><span class="line">RETURN row</span><br><span class="line">ORDER BY row.UnitPrice DESC</span><br><span class="line">LIMIT <span class="number">20</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 数组属性过滤查询</span></span><br><span class="line">UNWIND [<span class="string">'紫霞仙子'</span>] AS names</span><br><span class="line">match (n:Person)-[r]-(m:Movie) </span><br><span class="line">where apoc.coll.contains(r.roles,names)</span><br><span class="line"><span class="keyword">return</span> n,m</span><br></pre></td></tr></table></figure>
+
+<h4 id="4、APOC文件的导入导出"><a href="#4、APOC文件的导入导出" class="headerlink" title="4、APOC文件的导入导出"></a>4、APOC文件的导入导出</h4><ul>
+<li>文件的导出导入需要添加配置文件：<code>apoc.conf</code></li>
+<li>新建一个<code>apoc.conf</code>配置文件放在Neo4j安装目录的conf目录下</li>
+<li>编辑如下内容，一个是开启导入功能，一个开启导出功能</li>
+</ul>
+<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="attr">apoc.import.file.enabled</span>=<span class="literal">true</span></span><br><span class="line"><span class="attr">apoc.export.file.enabled</span>=<span class="literal">true</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>重启Neo4j服务就可以使用相应的导入导出函数</li>
+<li>Neo4j默认的导入导出目录是在<code>import</code>目录。</li>
+<li>可以在<code>neo4j.conf</code>内容中看到：<code>dbms.directories.import=import</code>（可修改）</li>
+<li>命令示例：</li>
+</ul>
+<p><strong>①、导入：</strong></p>
+<ul>
+<li><p>导入的语法格式：<code>apoc.import.csv(&lt;nodes&gt;, &lt;relationships&gt;, &lt;config&gt;)</code></p>
+<ul>
+<li><nodes> 是一个对象数组，代表节点，里面有两个属性： fileName、labels</nodes></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>属性</th>
+<th>描述</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>fileName</td>
+<td>文件所在位置，string类型</td>
+<td><code>&#39;file:/persons.csv&#39;</code></td>
+</tr>
+<tr>
+<td>labels</td>
+<td>节点的标签，是一个数组类型</td>
+<td><code>[&#39;Person&#39;, &#39;Movie&#39;]</code></td>
+</tr>
+</tbody></table>
+<ul>
+<li><relationships> 是一个对象数组，代表关系，里面有两个属性：fileName、type</relationships></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>属性</th>
+<th>描述</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>fileName</td>
+<td>文件所在位置，string类型</td>
+<td><code>&#39;file:/persons.csv&#39;</code></td>
+</tr>
+<tr>
+<td>type</td>
+<td>关系类型</td>
+<td><code>&#39;WORKS_AT&#39;</code></td>
+</tr>
+</tbody></table>
+<ul>
+<li><config> 是一个对象，代表一些配置项</config></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>属性</th>
+<th>类型</th>
+<th>默认</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>delimiter</td>
+<td>String</td>
+<td>，</td>
+<td>列之间的分隔符字符</td>
+</tr>
+<tr>
+<td>arrayDelimiter</td>
+<td>String</td>
+<td>；</td>
+<td>数组中的分隔符字符</td>
+</tr>
+<tr>
+<td>ignoreDuplicateNodes</td>
+<td>Boolean</td>
+<td>false</td>
+<td>对于重复的节点，仅加载第一个节点并跳过其余节点（真）或导入失败（假）</td>
+</tr>
+<tr>
+<td>quotationCharacter</td>
+<td>String</td>
+<td>“</td>
+<td></td>
+</tr>
+<tr>
+<td>stringIds</td>
+<td>Boolean</td>
+<td>true</td>
+<td>将 ID 视为字符串</td>
+</tr>
+<tr>
+<td>skipLines</td>
+<td>Integer</td>
+<td>1</td>
+<td>要跳过的行（包括标题）</td>
+</tr>
+<tr>
+<td>ignoreBlankString</td>
+<td>Boolean</td>
+<td>false</td>
+<td>如果为 true，则忽略具有空白字符串的属性</td>
+</tr>
+<tr>
+<td>ignoreEmptyCellArray</td>
+<td>Boolean</td>
+<td>false</td>
+<td>如果为 true，则忽略包含单个空字符串的数组属性，如导入工具</td>
+</tr>
+<tr>
+<td>compression</td>
+<td>Enum[NONE, BYTES, GZIP, BZIP2, DEFLATE, BLOCK_LZ4, FRAMED_SNAPPY]</td>
+<td>null</td>
+<td>允许获取未压缩（值：）或压缩（其他值）的二进制数据。请参阅<a href="https://neo4j.com/labs/apoc/4.4/overview/apoc.load/apoc.load.csv/#_binary_file" target="_blank" rel="noopener">二进制文件示例</a><code>NONE</code></td>
+</tr>
+</tbody></table>
+<ul>
+<li>例子如下：</li>
+</ul>
+</li>
+<li><p>如果是多类型节点加关系的话，用apoc导入好麻烦，感觉用代码快多了</p>
+</li>
+<li><p>下面时apoc导入的官方示例：</p>
+</li>
+</ul>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">// persons.csv 是存节点的，knows.csv 是建立关系</span></span><br><span class="line">CALL apoc.import.csv(</span><br><span class="line">  [&#123;<span class="attr">fileName</span>: <span class="string">'file:/persons.csv'</span>, <span class="attr">labels</span>: [<span class="string">'Person'</span>]&#125;],</span><br><span class="line">  [&#123;<span class="attr">fileName</span>: <span class="string">'file:/knows.csv'</span>, <span class="attr">type</span>: <span class="string">'KNOWS'</span>&#125;],</span><br><span class="line">  &#123; <span class="attr">arrayDelimiter</span>: <span class="string">','</span>, <span class="attr">stringIds</span>: <span class="literal">false</span>&#125;</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<p><em>persons.csv</em></p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">:ID|name:STRING|speaks:STRING[]</span><br><span class="line"><span class="number">1</span>|John|en,fr</span><br><span class="line"><span class="number">2</span>|Jane|en,de</span><br></pre></td></tr></table></figure>
+
+<p><em>knows.csv</em></p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">:START_ID|:END_ID|since:INT</span><br><span class="line"><span class="number">1</span>|<span class="number">2</span>|<span class="number">2016</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>②、导出：</strong></p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">//导出数据为movie1.csv文件，点击右边的下载按钮，文件会下载到安装目录的import目录下</span></span><br><span class="line">CALL apoc.export.csv.all(<span class="string">"movies1.csv"</span>, &#123;&#125;)</span><br></pre></td></tr></table></figure>
+
+<h3 id="五、大数据量导入Neo4j"><a href="#五、大数据量导入Neo4j" class="headerlink" title="五、大数据量导入Neo4j"></a>五、大数据量导入Neo4j</h3><ul>
+<li><p>小数据量，我们可以用Cypher语法导入</p>
+</li>
+<li><p>千万上亿级别的，推荐使用 <code>neo4j-admin import</code></p>
+<ul>
+<li>neo4j-admin 只能用于导入到未使用的数据库中，也就是需要清库</li>
+<li>需要把数据转成 csv文件</li>
+</ul>
+</li>
+<li><p>来看栗子：演员 -出演-&gt;电影</p>
+</li>
+<li><p>我们现在需要准备3个csv文件：演员节点文件、电影节点文件、演员与电影的关系文件</p>
+<ul>
+<li><p>演员节点文件：<code>actors.csv</code>,内容大致如下：</p>
+<ul>
+<li><figure class="highlight autohotkey"><table><tr><td class="code"><pre><span class="line"><span class="title">personId:ID,username,:</span>LABEL</span><br><span class="line"><span class="built_in">tt01111,</span><span class="string">"周星驰"</span>,Actor</span><br><span class="line"><span class="built_in">tt02222,</span><span class="string">"朱茵"</span>,Actor</span><br><span class="line"><span class="built_in">tt03333,</span><span class="string">"吴孟达"</span>,Actor<span class="comment">;Person</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><code>personId:ID</code> 中的<code>:ID</code>代表是节点的id,之后的关系连接也是用这个字段</p>
+</li>
+<li><p><code>username</code>是这个节点的属性字段：名字，如果需要多个属性，可以往后添加列</p>
+</li>
+<li><p><code>:LABEL</code> 代表生成的节点Label叫什么，如果有多个Lable用<code>;</code>隔开</p>
+</li>
+</ul>
+</li>
+<li><p>电影节点文件：<code>movies.csv</code>,内容如下：</p>
+<ul>
+<li><figure class="highlight groovy"><table><tr><td class="code"><pre><span class="line"><span class="string">movieId:</span>ID,title,<span class="string">year:</span><span class="keyword">int</span>,:LABEL</span><br><span class="line">tt01,<span class="string">"大话西游之月光宝盒"</span>,<span class="number">1994</span>,Movie</span><br><span class="line">tt02,<span class="string">"大话西游之大圣娶亲"</span>,<span class="number">1994</span>,Movie</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><code>movieId</code>代表节点ID，</p>
+</li>
+<li><p><code>title</code>和<code>year:int</code>代码节点的属性，<code>year:int</code> 代表<code>year</code>这个属性是<code>int</code>类型的。</p>
+</li>
+<li><p><code>:LABEL</code> 和演员节点一样意思，代表生成的节点Label叫什么，后期不再介绍</p>
+</li>
+</ul>
+</li>
+<li><p>演员与电影关系文件：<code>rel.csv</code></p>
+<ul>
+<li><figure class="highlight asciidoc"><table><tr><td class="code"><pre><span class="line"><span class="meta">:START_ID,role,:END_ID,:TYPE</span></span><br><span class="line"><span class="meta">tt01111,"至尊宝",tt01,ACTED_IN</span></span><br><span class="line"><span class="meta">tt02222,"紫霞仙子",tt01,ACTED_IN</span></span><br><span class="line"><span class="meta">tt03333,"二当家",tt01,ACTED_IN</span></span><br><span class="line"><span class="meta">tt01111,"孙悟空",tt02,ACTED_IN</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><code>:START_ID</code> 代表建立关系的开始节点ID</p>
+</li>
+<li><p><code>role</code>就是关系的属性，多个就在后面多加几列即可</p>
+</li>
+<li><p><code>:END_ID</code> 代表建立关系的结束节点ID</p>
+</li>
+<li><p><code>:TYPE</code> 代表关系的Label名称</p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>当文件准备好，我们就可以使用命令导入了,把上面的3个文件放到neo4j安装目录下的<code>import</code>目录下</p>
+</li>
+<li><p>在neo4j安装目录下的bin目录下有：<code>neo4j-admin</code> 可执行程序执行它，命令如下：</p>
+</li>
+<li><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">neo4j-admin import --database=neo4j --nodes=import/actors.csv --nodes=import/movies.csv --relationships=import/rel.csv --force=<span class="literal">true</span> --skip-duplicate-nodes=<span class="literal">true</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>--database</code> 导入到哪个库</li>
+<li><code>--nodes</code> 代表存放节点数据的文件，包含header(列头就是属性名)</li>
+<li><code>--relationships</code> 代表存放节点之间的关系文件</li>
+<li><code>--force</code> 代表在导入之前强制删除任何现有数据库文件</li>
+<li><code>--skip-duplicate-nodes</code> 代表 确定是否跳过导入具有相同 ID/组的节点</li>
+<li>常用的其他选项参数：</li>
+<li><code>--skip-bad-relationships</code> 代表允许跳过引用关系缺失节点ID(找不到节点)</li>
+<li><code>--multiline-fields</code> 表示输入源中的字段是否可以跨越多行，即包含换行符</li>
+<li><code>--delimiter</code> 表示csv数据中值之间的分隔符</li>
+<li>还有很多选项就不一一列举了，可看官方文档：<a href="https://neo4j.com/docs/operations-manual/4.4/tools/neo4j-admin/neo4j-admin-import/" target="_blank" rel="noopener">https://neo4j.com/docs/operations-manual/4.4/tools/neo4j-admin/neo4j-admin-import/</a></li>
+</ul>
+</li>
+<li><p>导入成功如下：</p>
+</li>
+</ul>
+<p><img src="report.png" alt></p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+	
+	    <div>
+	
+	<div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------本文结束 <i class="fa fa-heartbeat"></i> 感谢您的阅读-------------</div>
+    
+</div>
+	
+	</div>
+
+    
+
+    
+      
+    
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div></div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>打赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/blog/images/wechat_pay.jpg" alt="rstyro 微信支付">
+        <p>微信支付</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/blog/images/alipay.jpg" alt="rstyro 支付宝">
+        <p>支付宝</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+	
+	<div>    
+	 
+	 
+	<ul class="post-copyright">
+	  <li class="post-copyright-author">
+		  <strong>本文作者：</strong>rstyro
+	  </li>
+	  <li class="post-copyright-link">
+		<strong>本文链接：</strong>
+		<a href="/blog/2022/10/11/Neo4j的安装与使用/" title="Neo4j的安装与使用">https://rstyro.github.io/blog/2022/10/11/Neo4j的安装与使用/</a>
+	  </li>
+	  <li class="post-copyright-license">
+		<strong>版权： </strong>
+		转载注明出处！
+	  </li>
+	</ul>
+	
+	</div>
+	
+
+      
+        <div class="post-tags">
+          
+            <a href="/blog/tags/Neo4j/" rel="tag"><i class="fa fa-tag"></i> Neo4j</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2022/08/12/破解Aspose-PDF的Jar包/" rel="next" title="破解Aspose-PDF的Jar包">
+                <i class="fa fa-chevron-left"></i> 破解Aspose-PDF的Jar包
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2022/10/20/Js加密库相关/" rel="prev" title="Js加密库相关">
+                Js加密库相关 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+
+
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+      <div id="sidebar-dimmer"></div>
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/blog/images/avatar.jpg" alt="rstyro">
+            
+              <p class="site-author-name" itemprop="name">rstyro</p>
+              <p class="site-description motion-element" itemprop="description">个人博客,瞎写一些技术笔记等。</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/blog/archives/">
+                
+                    <span class="site-state-item-count">196</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/blog/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">13</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/blog/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">74</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+            <div class="feed-link motion-element">
+              <a href="/blog/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://github.com/rstyro" title="GitHub &rarr; https://github.com/rstyro" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://gitee.com/rstyro" title="Gitee &rarr; https://gitee.com/rstyro" rel="noopener" target="_blank"><i class="fa fa-fw fa-codiepie"></i>Gitee</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="/blog/1006059906" title="QQ &rarr; 1006059906"><i class="fa fa-fw fa-qq"></i>QQ</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://www.jianshu.com/u/651c15a1758a" title="简书 &rarr; https://www.jianshu.com/u/651c15a1758a" rel="noopener" target="_blank"><i class="fa fa-fw fa-book"></i>简书</a>
+                </span>
+              
+            </div>
+          
+
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-block">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                友链
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://rstyro.github.io/blog/" title="https://rstyro.github.io/blog/">帅大叔博客</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://www.zhyd.me/" title="https://www.zhyd.me/" rel="noopener" target="_blank">张亚东博客</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://www.devsong.org/" title="http://www.devsong.org/" rel="noopener" target="_blank">DevSONG</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://www.dalaoyang.cn/" title="https://www.dalaoyang.cn/" rel="noopener" target="_blank">dalaoyang</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://www.chenshuangyi.com/" title="https://www.chenshuangyi.com/" rel="noopener" target="_blank">陈双义博客</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+            
+          
+          <div id="days"></div>
+<script>
+function show_date_time(){
+window.setTimeout("show_date_time()", 1000);
+BirthDay=new Date("04/10/2017 15:13:14");
+today=new Date();
+timeold=(today.getTime()-BirthDay.getTime());
+sectimeold=timeold/1000
+secondsold=Math.floor(sectimeold);
+msPerDay=24*60*60*1000
+e_daysold=timeold/msPerDay
+daysold=Math.floor(e_daysold);
+e_hrsold=(e_daysold-daysold)*24;
+hrsold=setzero(Math.floor(e_hrsold));
+e_minsold=(e_hrsold-hrsold)*60;
+minsold=setzero(Math.floor((e_hrsold-hrsold)*60));
+seconds=setzero(Math.floor((e_minsold-minsold)*60));
+document.getElementById('days').innerHTML="已运行 "+daysold+" 天 "+hrsold+" 小时 "+minsold+" 分 "+seconds+" 秒";
+}
+function setzero(i){
+if (i<10)
+{i="0" + i};
+return i;
+}
+show_date_time();
+</script>
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#一、Neo4j的概述"><span class="nav-number">1.</span> <span class="nav-text">一、Neo4j的概述</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1、Neo4J的特点"><span class="nav-number">1.1.</span> <span class="nav-text">1、Neo4J的特点</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2、Neo4j图数据库主要有以下构建块"><span class="nav-number">1.2.</span> <span class="nav-text">2、Neo4j图数据库主要有以下构建块</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#二、Neo4j的安装与使用"><span class="nav-number">2.</span> <span class="nav-text">二、Neo4j的安装与使用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#三、Cypher-简介"><span class="nav-number">3.</span> <span class="nav-text">三、Cypher 简介</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1、Cypher-语法"><span class="nav-number">3.1.</span> <span class="nav-text">1、Cypher 语法</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#①、CREATE"><span class="nav-number">3.1.1.</span> <span class="nav-text">①、CREATE</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#②、MATCH"><span class="nav-number">3.1.2.</span> <span class="nav-text">②、MATCH</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#③、RETURN"><span class="nav-number">3.1.3.</span> <span class="nav-text">③、RETURN</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#④、WHERE"><span class="nav-number">3.1.4.</span> <span class="nav-text">④、WHERE</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#⑤、DELETE"><span class="nav-number">3.1.5.</span> <span class="nav-text">⑤、DELETE</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#⑥、REMOVE"><span class="nav-number">3.1.6.</span> <span class="nav-text">⑥、REMOVE</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#⑦、ORDER-BY"><span class="nav-number">3.1.7.</span> <span class="nav-text">⑦、ORDER BY</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#⑧、SET"><span class="nav-number">3.1.8.</span> <span class="nav-text">⑧、SET</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#⑨、UNION"><span class="nav-number">3.1.9.</span> <span class="nav-text">⑨、UNION</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#⑩、MERGE"><span class="nav-number">3.1.10.</span> <span class="nav-text">⑩、MERGE</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2、其他复合查询"><span class="nav-number">3.2.</span> <span class="nav-text">2、其他复合查询</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3、Cypher函数"><span class="nav-number">3.3.</span> <span class="nav-text">3、Cypher函数</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4、Cypher索引"><span class="nav-number">3.4.</span> <span class="nav-text">4、Cypher索引</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#四、启用APOC"><span class="nav-number">4.</span> <span class="nav-text">四、启用APOC</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1、社区版安装APOC"><span class="nav-number">4.1.</span> <span class="nav-text">1、社区版安装APOC</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2、桌面版安装APOC"><span class="nav-number">4.2.</span> <span class="nav-text">2、桌面版安装APOC</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3、函数使用示例"><span class="nav-number">4.3.</span> <span class="nav-text">3、函数使用示例</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4、APOC文件的导入导出"><span class="nav-number">4.4.</span> <span class="nav-text">4、APOC文件的导入导出</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#五、大数据量导入Neo4j"><span class="nav-number">5.</span> <span class="nav-text">五、大数据量导入Neo4j</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2023</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">rstyro</span>
+
+  
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+
+  <script src="https://unpkg.com/mermaid@8.11.0/dist/mermaid.min.js"></script>
+  <script>
+    if (window.mermaid) {
+      mermaid.initialize({"startOnload":true});
+    }
+  </script>
+
+
+<div class="theme-info">
+  <div class="powered-by"></div>
+  <span class="post-count">博客全站共353.9k字</span>
+</div>
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-user"></i>
+    </span>
+    <span class="site-uv" title="总访客量">
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+    </span>
+  
+
+  
+    <span class="post-meta-divider">|</span>
+  
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-eye"></i>
+    </span>
+    <span class="site-pv" title="总访问量">
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/blog/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/blog/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/blog/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/blog/js/src/utils.js?v=6.7.0"></script>
+
+  <script src="/blog/js/src/motion.js?v=6.7.0"></script>
+
+
+
+  
+  
+
+  
+  <script src="/blog/js/src/scrollspy.js?v=6.7.0"></script>
+<script src="/blog/js/src/post-details.js?v=6.7.0"></script>
+
+
+
+  
+
+
+  <script src="/blog/js/src/bootstrap.js?v=6.7.0"></script>
+
+
+
+  
+  
+
+
+
+
+  
+
+<script src="//cdn1.lncld.net/static/js/3.11.1/av-min.js"></script>
+
+
+
+  
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/valine/1.3.4/Valine.min.js"></script>
+
+<script>
+  var GUEST = ['nick', 'mail', 'link'];
+  var guest = 'nick,mail,link';
+  guest = guest.split(',').filter(function (item) {
+    return GUEST.indexOf(item) > -1;
+  });
+  new Valine({
+    el: '#comments',
+    verify: false,
+    notify: false,
+    appId: 'LwEPiJFa7YMn2MrJdCwaUbmQ-gzGzoHsz',
+    appKey: 'JqS1y3RxYvDOki9r3NcqqoO5',
+    placeholder: '来都来了，不说几句就走，过分了啊！！！',
+    avatar: 'monsterid',
+    meta: guest,
+    pageSize: '10' || 10,
+    visitor: false
+  });
+</script>
+
+
+
+  
+
+  <script>
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/blog/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url).replace(/\/{2,}/g, '/');
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x"></i></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x"></i></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+  <script>
+    (function(){
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+      }
+      else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+      }
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+    })();
+  </script>
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

@@ -647,6 +647,11 @@
 <p>记得把系统防火墙放开，默认的PG数据库端口是 5432</p>
 </blockquote>
 <p><img src="connect.png" alt></p>
+<h4 id="3、常用命令"><a href="#3、常用命令" class="headerlink" title="3、常用命令"></a>3、常用命令</h4><ul>
+<li>列出一些控制台常用的命令吧</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 设置密码</span></span><br><span class="line">\password</span><br><span class="line"></span><br><span class="line"><span class="comment"># 退出命令</span></span><br><span class="line">\q</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看SQL命令的解析，比如：\h grant</span></span><br><span class="line">\h</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看psql命令列表</span></span><br><span class="line">\?</span><br><span class="line"></span><br><span class="line"><span class="comment"># 切换数据库</span></span><br><span class="line">\c [database_name]</span><br><span class="line"></span><br><span class="line"><span class="comment"># 切换用户，记得中间有个 - </span></span><br><span class="line">\c - [username]</span><br><span class="line"></span><br><span class="line"><span class="comment"># 列出当前数据库的所有表格</span></span><br><span class="line">\d</span><br><span class="line"></span><br><span class="line"><span class="comment"># 列出某张表的结构</span></span><br><span class="line">\d [table_name]</span><br><span class="line"></span><br><span class="line"><span class="comment"># 列出所有用户</span></span><br><span class="line">\du </span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建表，并设置 id 自增</span></span><br><span class="line">create table <span class="built_in">test</span>(id serial primary key,name varchar(50));</span><br><span class="line"></span><br><span class="line"><span class="comment"># 显示执行语句的时间</span></span><br><span class="line">\timeing</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">#  创建序列</span></span><br><span class="line">CREATE SEQUENCE voltask_id_seq START 1;</span><br><span class="line"><span class="comment"># 更新序列</span></span><br><span class="line">alter SEQUENCE doi_record_id_seq restart WITH 1;</span><br><span class="line"></span><br><span class="line"><span class="comment">#  在字段的默认值设置：</span></span><br><span class="line">nextval(<span class="string">'voltask_id_seq'</span>)</span><br><span class="line">nextval(<span class="string">'check_datakey_id_seq'</span>)</span><br><span class="line">nextval(<span class="string">'check_machining_id_seq'</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">#  查询是否锁表了</span></span><br><span class="line">select oid from pg_class <span class="built_in">where</span> relname=<span class="string">'可能锁表了的表'</span></span><br><span class="line"><span class="comment">#  pid 是进程</span></span><br><span class="line">select pid from pg_locks <span class="built_in">where</span> relation=<span class="string">'上面查出的oid'</span></span><br><span class="line"><span class="comment">#  如果查询到了结果，表示该表被锁 则需要释放锁定</span></span><br><span class="line">select pg_cancel_backend(上面查到的pid);</span><br><span class="line"></span><br><span class="line"><span class="comment">#  查看所有进程</span></span><br><span class="line">select * from pg_stat_activity;</span><br><span class="line"><span class="comment">#  杀掉pid=2045的进程</span></span><br><span class="line">select pg_terminate_backend(2045);</span><br></pre></td></tr></table></figure>
+
 
       
     </div>
@@ -837,7 +842,7 @@
                 
                   <a href="/blog/archives/">
                 
-                    <span class="site-state-item-count">195</span>
+                    <span class="site-state-item-count">196</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -874,7 +879,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">12</span>
+                      
+                    
+                    <span class="site-state-item-count">13</span>
                     <span class="site-state-item-name">分类</span>
                   </a>
                 </div>
@@ -1017,7 +1024,25 @@
                     
                       
                     
-                    <span class="site-state-item-count">65</span>
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">74</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>
@@ -1163,7 +1188,7 @@ show_date_time();
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#一、前言"><span class="nav-number">1.</span> <span class="nav-text">一、前言</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#二、PostgreSQL简介"><span class="nav-number">2.</span> <span class="nav-text">二、PostgreSQL简介</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#三、安装PostgreSQL"><span class="nav-number">3.</span> <span class="nav-text">三、安装PostgreSQL</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1、Centos7-安装PG数据库"><span class="nav-number">3.1.</span> <span class="nav-text">1、Centos7 安装PG数据库</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#①、YUM安装"><span class="nav-number">3.1.1.</span> <span class="nav-text">①、YUM安装</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#②、源码安装"><span class="nav-number">3.1.2.</span> <span class="nav-text">②、源码安装</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2、PG数据库配置远程连接"><span class="nav-number">3.2.</span> <span class="nav-text">2、PG数据库配置远程连接</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#一、前言"><span class="nav-number">1.</span> <span class="nav-text">一、前言</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#二、PostgreSQL简介"><span class="nav-number">2.</span> <span class="nav-text">二、PostgreSQL简介</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#三、安装PostgreSQL"><span class="nav-number">3.</span> <span class="nav-text">三、安装PostgreSQL</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1、Centos7-安装PG数据库"><span class="nav-number">3.1.</span> <span class="nav-text">1、Centos7 安装PG数据库</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#①、YUM安装"><span class="nav-number">3.1.1.</span> <span class="nav-text">①、YUM安装</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#②、源码安装"><span class="nav-number">3.1.2.</span> <span class="nav-text">②、源码安装</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2、PG数据库配置远程连接"><span class="nav-number">3.2.</span> <span class="nav-text">2、PG数据库配置远程连接</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3、常用命令"><span class="nav-number">3.3.</span> <span class="nav-text">3、常用命令</span></a></li></ol></li></ol></div>
             
 
           </div>
@@ -1183,7 +1208,7 @@ show_date_time();
 
     <footer id="footer" class="footer">
       <div class="footer-inner">
-        <div class="copyright">&copy; <span itemprop="copyrightYear">2022</span>
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2023</span>
   <span class="with-love" id="animate">
     <i class="fa fa-heart"></i>
   </span>
@@ -1213,7 +1238,7 @@ show_date_time();
 
 <div class="theme-info">
   <div class="powered-by"></div>
-  <span class="post-count">博客全站共338.7k字</span>
+  <span class="post-count">博客全站共353.9k字</span>
 </div>
         
 <div class="busuanzi-count">
