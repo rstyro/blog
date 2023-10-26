@@ -15,6 +15,10 @@ categories: Java
 ```
 //命令打包（-Dmaven.test.skip=true 跳过测试）
 mvn clean package -Dmaven.test.skip=true
+
+
+// 按模块打包，使用 -pl 参数，后面加上模块名，-am即同时打包依赖的模块，如下示例：
+clean -Dmaven.test.skip=true package -pl  springboot/springboot-web -am
 ```
 
 #### 2.运行
