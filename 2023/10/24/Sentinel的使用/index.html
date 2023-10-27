@@ -120,6 +120,9 @@
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="https://rstyro.github.io/blog/2023/10/24/Sentinel的使用/1.png">
 <meta property="og:image" content="https://rstyro.github.io/blog/2023/10/24/Sentinel的使用/2.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2023/10/24/Sentinel的使用/c1.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2023/10/24/Sentinel的使用/c2.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2023/10/24/Sentinel的使用/c3.png">
 <meta property="og:image" content="https://rstyro.github.io/blog/2023/10/24/Sentinel的使用/3.png">
 <meta property="og:image" content="https://rstyro.github.io/blog/2023/10/24/Sentinel的使用/flow.png">
 <meta property="og:updated_time" content="2023-10-24T01:34:26.000Z">
@@ -650,6 +653,10 @@
 </li>
 </ul>
 <h5 id="①、流控规则"><a href="#①、流控规则" class="headerlink" title="①、流控规则"></a>①、流控规则</h5><ul>
+<li>可在控制台给接口添加流控规则，如下图</li>
+</ul>
+<p><img src="c1.png" alt="新建流控规则图"></p>
+<ul>
 <li><p>一条流控规则主要由下面几个因素组成，我们可以组合这些元素来实现不同的限流效果：</p>
 <ul>
 <li><p><strong>resource</strong>：资源名，即限流规则的作用对象</p>
@@ -684,12 +691,12 @@
 <figure class="highlight json"><table><tr><td class="code"><pre><span class="line">[</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="attr">"resource"</span>: <span class="string">"/sentinel/sayHi"</span>,</span><br><span class="line">        <span class="attr">"limitApp"</span>: <span class="string">"default"</span>,</span><br><span class="line">        <span class="attr">"grade"</span>: <span class="number">1</span>,</span><br><span class="line">        <span class="attr">"count"</span>: <span class="number">5</span>,</span><br><span class="line">        <span class="attr">"strategy"</span>: <span class="number">0</span>,</span><br><span class="line">        <span class="attr">"controlBehavior"</span>: <span class="number">0</span>,</span><br><span class="line">        <span class="attr">"clusterMode"</span>: <span class="literal">false</span></span><br><span class="line">    &#125;</span><br><span class="line">]</span><br></pre></td></tr></table></figure>
 
 <h5 id="②、熔断规则"><a href="#②、熔断规则" class="headerlink" title="②、熔断规则"></a>②、熔断规则</h5><ul>
-<li><p>除了流量控制以外，对调用链路中不稳定的资源进行熔断降级也是保障高可用的重要措施之一。</p>
-</li>
-<li><p>现代微服务架构都是分布式的，由非常多的服务组成。不同服务之间相互调用，组成复杂的调用链路，当链路上的某一环不稳定，就可能会层层级联，最终导致整个链路都不可用，造成雪崩。</p>
-</li>
-<li><p>熔断降级作为保护自身的手段</p>
-</li>
+<li>除了流量控制以外，对调用链路中不稳定的资源进行熔断降级也是保障高可用的重要措施之一。</li>
+<li>现代微服务架构都是分布式的，由非常多的服务组成。不同服务之间相互调用，组成复杂的调用链路，当链路上的某一环不稳定，就可能会层层级联，最终导致整个链路都不可用，造成雪崩。</li>
+<li>熔断降级作为保护自身的手段</li>
+</ul>
+<p><img src="c2.png" alt="新建熔断规则图"></p>
+<ul>
 <li><p>sentinel的熔断状态有三种状态：</p>
 <ul>
 <li><strong>OPEN</strong>: 表示熔断开启，拒绝所有请求</li>
@@ -715,6 +722,9 @@
 </ul>
 </li>
 <li>热点参数限流会统计传入参数中的热点参数，并根据配置的限流阈值与模式，对包含热点参数的资源调用进行限流。热点参数限流可以看做是一种特殊的流量控制，仅对包含热点参数的资源调用生效。</li>
+</ul>
+<p><img src="c3.png" alt="新建热点规则图"></p>
+<ul>
 <li>参数只支持基本类型</li>
 <li>热点规则参数字段解析如下</li>
 </ul>
@@ -858,7 +868,7 @@
 <h5 id="③、项目配置"><a href="#③、项目配置" class="headerlink" title="③、项目配置"></a>③、项目配置</h5><ul>
 <li>然后在项目的配置文件<code>bootstrap.yml</code>中设置sentinel的datasource：</li>
 </ul>
-<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="attr">spring:</span></span><br><span class="line">  <span class="attr">application:</span></span><br><span class="line">    <span class="attr">name:</span> <span class="string">nacos-sentinel-demo</span></span><br><span class="line">  <span class="attr">cloud:</span></span><br><span class="line">    <span class="attr">sentinel:</span></span><br><span class="line">      <span class="attr">transport:</span></span><br><span class="line">        <span class="attr">dashboard:</span> <span class="string">localhost:8080</span>       <span class="comment"># sentinel注册地址</span></span><br><span class="line">      <span class="attr">datasource:</span></span><br><span class="line">        <span class="attr">ds1:</span></span><br><span class="line">          <span class="attr">nacos:</span></span><br><span class="line">          	<span class="comment"># nacos地址</span></span><br><span class="line">            <span class="attr">server-addr:</span> <span class="string">localhost:8848</span></span><br><span class="line">            <span class="comment"># nacos中配置文件的data-id</span></span><br><span class="line">            <span class="attr">data-id:</span> <span class="string">sentinel-flow</span></span><br><span class="line">            <span class="comment"># nacos 分组</span></span><br><span class="line">            <span class="attr">group-id:</span> <span class="string">DEFAULT_GROUP</span></span><br><span class="line">            <span class="comment"># 规则类型 流控</span></span><br><span class="line">            <span class="attr">rule-type:</span> <span class="string">flow</span></span><br><span class="line">        <span class="attr">ds2:</span></span><br><span class="line">          <span class="attr">nacos:</span></span><br><span class="line">            <span class="attr">server-addr:</span> <span class="string">localhost:8848</span></span><br><span class="line">            <span class="attr">data-id:</span> <span class="string">sentinel-degrade</span></span><br><span class="line">            <span class="attr">group-id:</span> <span class="string">DEFAULT_GROUP</span></span><br><span class="line">            <span class="comment"># 规则类型 熔断</span></span><br><span class="line">            <span class="attr">rule-type:</span> <span class="string">degrade</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="attr">spring:</span></span><br><span class="line">  <span class="attr">application:</span></span><br><span class="line">    <span class="attr">name:</span> <span class="string">nacos-sentinel</span></span><br><span class="line">  <span class="attr">cloud:</span></span><br><span class="line">    <span class="attr">sentinel:</span></span><br><span class="line">      <span class="attr">transport:</span></span><br><span class="line">        <span class="attr">dashboard:</span> <span class="string">localhost:8080</span>       <span class="comment"># sentinel注册地址</span></span><br><span class="line">      <span class="attr">datasource:</span></span><br><span class="line">        <span class="attr">ds1:</span></span><br><span class="line">          <span class="attr">nacos:</span></span><br><span class="line">          	<span class="comment"># nacos地址</span></span><br><span class="line">            <span class="attr">server-addr:</span> <span class="string">localhost:8848</span></span><br><span class="line">            <span class="comment"># nacos中配置文件的data-id</span></span><br><span class="line">            <span class="attr">data-id:</span> <span class="string">sentinel-flow</span></span><br><span class="line">            <span class="comment"># nacos 分组</span></span><br><span class="line">            <span class="attr">group-id:</span> <span class="string">DEFAULT_GROUP</span></span><br><span class="line">            <span class="comment"># 规则类型 流控</span></span><br><span class="line">            <span class="attr">rule-type:</span> <span class="string">flow</span></span><br><span class="line">        <span class="attr">ds2:</span></span><br><span class="line">          <span class="attr">nacos:</span></span><br><span class="line">            <span class="attr">server-addr:</span> <span class="string">localhost:8848</span></span><br><span class="line">            <span class="attr">data-id:</span> <span class="string">sentinel-degrade</span></span><br><span class="line">            <span class="attr">group-id:</span> <span class="string">DEFAULT_GROUP</span></span><br><span class="line">            <span class="comment"># 规则类型 熔断</span></span><br><span class="line">            <span class="attr">rule-type:</span> <span class="string">degrade</span></span><br></pre></td></tr></table></figure>
 
 <ul>
 <li>Nacos配置的规则类型如下：<ul>
