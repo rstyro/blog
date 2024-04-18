@@ -236,12 +236,18 @@ tar -zxvf grafana-enterprise-10.4.2.linux-amd64.tar.gz
 - Grafana 中所有的 Dashboard 都通过 JSON 进行共享，下载并且导入这些 JSON 文件，就可以直接使用这些已经定义好的 Dashboard，或者通过加载URL或ID。
 - 比如我们导入：Dashboards  > Import dashboard，可以通过加载ID：3662（地址：https://grafana.com/grafana/dashboards/3662-prometheus-2-0-overview/）来进行导入
 
+![](dashboard.png)
 
 ![](load1.png)
 
 
 ![](load2.png)
 
+![](view.png)
+
 
 - 我们可以通过Dashboard搜索JVM，然后导入一个我们的jvm可视化。(ID=4701)
 
+![](jvm.png)
+
+![](jvm2.png)
