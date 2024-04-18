@@ -1,0 +1,2028 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/blog/css/main.css?v=6.7.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon.jpg?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon.jpg?v=6.7.0">
+
+
+  <link rel="mask-icon" href="/blog/images/logo.svg?v=6.7.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/blog/',
+    scheme: 'Mist',
+    version: '6.7.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":true},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+<script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+<link href="//cdn.bootcss.com/pace/1.0.2/themes/pink/pace-theme-flash.css" rel="stylesheet">
+  <style>
+      .pace .pace-progress {
+          background: #1E92FB; /*进度条颜色*/
+          height: 3px;
+      }
+      .pace .pace-progress-inner {
+           box-shadow: 0 0 10px #1E92FB, 0 0 5px     #1E92FB; /*阴影颜色*/
+      }
+      .pace .pace-activity {
+          border-top-color: #1E92FB;    /*上边框颜色*/
+          border-left-color: #1E92FB;    /*左边框颜色*/
+      }
+  </style>
+
+  <meta name="description" content="RapidOCRRapidOCR概述 💖目前已知运行速度最快、支持最广，完全开源免费并支持离线快速部署的多平台多语言OCR。 支持的语言: 默认是中英文，其他语言识别需要自助转换。具体参考这里 缘起：PaddleOCR工程化不是太好，为了方便大家在各种端上进行OCR推理，我们将PaddleOCR中的模型转换为ONNX格式，使用Python/C++/Java/Swift/C# 将它移植到各个平台。">
+<meta name="keywords" content="OCR,图片识别">
+<meta property="og:type" content="article">
+<meta property="og:title" content="OCR图片识别">
+<meta property="og:url" content="https://rstyro.github.io/blog/2023/09/25/OCR图片识别/index.html">
+<meta property="og:site_name" content="帅大叔的博客">
+<meta property="og:description" content="RapidOCRRapidOCR概述 💖目前已知运行速度最快、支持最广，完全开源免费并支持离线快速部署的多平台多语言OCR。 支持的语言: 默认是中英文，其他语言识别需要自助转换。具体参考这里 缘起：PaddleOCR工程化不是太好，为了方便大家在各种端上进行OCR推理，我们将PaddleOCR中的模型转换为ONNX格式，使用Python/C++/Java/Swift/C# 将它移植到各个平台。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://rstyro.github.io/blog/2023/09/25/OCR图片识别/txt.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2023/09/25/OCR图片识别/convert.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2023/09/25/OCR图片识别/package-no-example.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2023/09/25/OCR图片识别/compare.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2023/09/25/OCR图片识别/help.png">
+<meta property="og:updated_time" content="2023-09-25T08:44:07.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="OCR图片识别">
+<meta name="twitter:description" content="RapidOCRRapidOCR概述 💖目前已知运行速度最快、支持最广，完全开源免费并支持离线快速部署的多平台多语言OCR。 支持的语言: 默认是中英文，其他语言识别需要自助转换。具体参考这里 缘起：PaddleOCR工程化不是太好，为了方便大家在各种端上进行OCR推理，我们将PaddleOCR中的模型转换为ONNX格式，使用Python/C++/Java/Swift/C# 将它移植到各个平台。">
+<meta name="twitter:image" content="https://rstyro.github.io/blog/2023/09/25/OCR图片识别/txt.png">
+
+
+
+  <link rel="alternate" href="/blog/atom.xml" title="帅大叔的博客" type="application/atom+xml">
+
+
+
+
+  <link rel="canonical" href="https://rstyro.github.io/blog/2023/09/25/OCR图片识别/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>OCR图片识别 | 帅大叔的博客</title>
+  
+
+
+
+
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?cd2197f8af1d69b326360027b8f93d92";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+	<a href="https://github.com/rstyro" class="github-corner" aria-label="View source on GitHub"><svg width="80" height="80" viewbox="0 0 250 250" style="fill:#151513; color:#fff; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"/><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"/><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"/></svg></a><style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/blog/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">帅大叔的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">信你所信，为你所见</p>
+      
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/" rel="section">首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/about/" rel="section">关于</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/tags/" rel="section">标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/categories/" rel="section">分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/archives/" rel="section">归档</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-guestbook">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/guestbook/" rel="section">留言</a>
+
+  </li>
+
+      
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            搜索</a>
+        </li>
+      
+    </ul>
+  
+
+  
+    
+
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://rstyro.github.io/blog/blog/2023/09/25/OCR图片识别/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="rstyro">
+      <meta itemprop="description" content="个人博客,瞎写一些技术笔记等。">
+      <meta itemprop="image" content="/blog/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="帅大叔的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">OCR图片识别
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2023-09-25 16:44:07" itemprop="dateCreated datePublished" datetime="2023-09-25T16:44:07+08:00">2023-09-25</time>
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/blog/categories/Java/" itemprop="url" rel="index"><span itemprop="name">Java</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/blog/2023/09/25/OCR图片识别/#comments" itemprop="discussionUrl">
+                  <span class="post-meta-item-text">评论数：</span> <span class="post-comments-count valine-comment-count" data-xid="/blog/2023/09/25/OCR图片识别/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="post-meta-item-icon">
+            <i class="fa fa-eye"></i>
+             阅读次数： 
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="RapidOCR"><a href="#RapidOCR" class="headerlink" title="RapidOCR"></a>RapidOCR</h2><h3 id="RapidOCR概述"><a href="#RapidOCR概述" class="headerlink" title="RapidOCR概述"></a>RapidOCR概述</h3><ul>
+<li>💖目前已知<strong>运行速度最快、支持最广</strong>，完全开源免费并支持离线快速部署的多平台多语言OCR。</li>
+<li><strong>支持的语言</strong>: 默认是中英文，其他语言识别需要自助转换。具体参考<a href="https://rapidai.github.io/RapidOCRDocs/docs/about_model/support_language/" target="_blank" rel="noopener">这里</a></li>
+<li><strong>缘起</strong>：<a href="https://github.com/PaddlePaddle/PaddleOCR" target="_blank" rel="noopener">PaddleOCR</a>工程化不是太好，为了方便大家在各种端上进行OCR推理，我们将PaddleOCR中的模型转换为ONNX格式，使用<code>Python/C++/Java/Swift/C#</code> 将它移植到各个平台。</li>
+<li><strong>名称来源</strong>： 轻快好省并智能。基于深度学习的OCR技术，主打人工智能优势及小模型，以速度为使命，效果为主导。</li>
+<li>使用：<ul>
+<li>如果仓库下已有模型满足要求 → RapidOCR部署使用即可。</li>
+<li>不满足要求 → 基于PaddleOCR在自己数据上微调 → RapidOCR部署。</li>
+</ul>
+</li>
+<li>官方文档地址：<a href="https://rapidai.github.io/RapidOCRDocs/docs/overview/" target="_blank" rel="noopener">https://rapidai.github.io/RapidOCRDocs/docs/overview/</a></li>
+</ul>
+<h3 id="一、整体框架"><a href="#一、整体框架" class="headerlink" title="一、整体框架"></a>一、整体框架</h3><pre class="mermaid">flowchart LR
+    subgraph Step
+    direction TB
+    C(Text Det) --> D(Text Cls) --> E(Text Rec)
+    end
+
+    A[/OurSelf Dataset/] --> B(PaddleOCR) --Train--> Step --> F(PaddleOCRModelConverter)
+    F --ONNX--> G{RapidOCR Deploy\n<b>Python/C++/Java/C#</b>}
+    G --> H(Windows x86/x64) & I(Linux) & J(Android) & K(Web) & L(Raspberry Pi)
+
+    click B "https://github.com/PaddlePaddle/PaddleOCR" _blank
+    click F "https://github.com/RapidAI/PaddleOCRModelConverter" _blank</pre>
+
+
+
+<h3 id="二、在线Demo"><a href="#二、在线Demo" class="headerlink" title="二、在线Demo"></a>二、在线Demo</h3><ul>
+<li>Hugging Face上的Demo和魔搭Demo是同一套代码，都是基于<a href="https://streamlit.io/" target="_blank" rel="noopener">streamlit</a>搭建而来的。</li>
+<li>两者区别在于，魔搭是国内平台，不需要科学上网即可访问使用；Hugging Face则需要科学上网。</li>
+<li>搭建demo的目的在于：<ul>
+<li>快速查看指定图像的识别效果和识别时长</li>
+<li>快速比较不同版本的检测和识别模型效果差异</li>
+</ul>
+</li>
+</ul>
+<h4 id="1、Demo源码-link"><a href="#1、Demo源码-link" class="headerlink" title="1、Demo源码 link"></a>1、Demo源码 <a href="https://rapidai.github.io/RapidOCRDocs/docs/online_demo/#demo源码" target="_blank" rel="noopener"><em>link</em></a></h4><ul>
+<li>Hugging Face Demo: <a href="https://huggingface.co/spaces/SWHL/RapidOCRDemo/tree/main" target="_blank" rel="noopener">https://huggingface.co/spaces/SWHL/RapidOCRDemo/tree/main</a></li>
+<li>魔搭社区: <a href="https://www.modelscope.cn/studios/liekkas/RapidOCRDemo/files" target="_blank" rel="noopener">https://www.modelscope.cn/studios/liekkas/RapidOCRDemo/files</a></li>
+</ul>
+<h4 id="2、在线Demo"><a href="#2、在线Demo" class="headerlink" title="2、在线Demo"></a>2、在线Demo</h4><ul>
+<li>Hugging Face Demo: <a href="https://huggingface.co/spaces/SWHL/RapidOCRDemo" target="_blank" rel="noopener">https://huggingface.co/spaces/SWHL/RapidOCRDemo</a></li>
+<li>魔搭社区: <a href="https://www.modelscope.cn/studios/liekkas/RapidOCRDemo/summary" target="_blank" rel="noopener">https://www.modelscope.cn/studios/liekkas/RapidOCRDemo/summary</a></li>
+</ul>
+<h3 id="三、Java语言支持"><a href="#三、Java语言支持" class="headerlink" title="三、Java语言支持"></a>三、Java语言支持</h3><ul>
+<li>Github地址: <a href="https://github.com/MyMonsterCat/RapidOcr-Java" target="_blank" rel="noopener">https://github.com/MyMonsterCat/RapidOcr-Java</a></li>
+</ul>
+<h4 id="1、快速开始"><a href="#1、快速开始" class="headerlink" title="1、快速开始"></a>1、快速开始</h4><p><strong>方式一：本地直接运行</strong></p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"><span class="comment"># 项目含有库文件，导致下载可能较慢</span></span></span><br><span class="line">git clone https://github.com/MyMonsterCat/RapidOcr-Java.git</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment"># 下载之后，直接可以运行：com.github.monster.ocr.OcrUtilTest</span></span></span><br></pre></td></tr></table></figure>
+
+<p><strong>方式二：引入其他项目</strong></p>
+<ul>
+<li><p>在<strong><em>方式一</em></strong>中下载之后进行打包(<code>mv clean compile install</code>)，然后引入pom依赖，</p>
+</li>
+<li><p>不会打包可参考文档：(需要自己下载项目打包，过程参考<a href="https://github.com/MyMonsterCat/RapidOcr-Java/blob/main/docs/COMPILE_JAR.md" target="_blank" rel="noopener">如何自行打包jar包？</a>)</p>
+</li>
+</ul>
+<figure class="highlight dust"><table><tr><td class="code"><pre><span class="line"><span class="xml"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.github.monster<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>RapidOcr-Java<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>$</span><span class="template-variable">&#123;latest.version&#125;</span><span class="xml"><span class="tag">&lt;/<span class="name">version</span>&gt;</span></span></span><br><span class="line"><span class="xml"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>注意：如果是采用方式二打包，务必将src/resources下的ncnn或者onnx的库文件引入到自己的项目resources中</p>
+</blockquote>
+<p><strong>调用测试：</strong></p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">OcrUtilTest</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Test</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">NcnnTest</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 使用NCNN引擎进行识别</span></span><br><span class="line">        OcrResult NCNNResult = OcrUtil.runOcr(getResourcePath(<span class="string">"/images/40.png"</span>), LibConfig.getNcnnConfig(), ParamConfig.getDefaultConfig(), HardwareConfig.getNcnnConfig());</span><br><span class="line">        Assert.assertEquals(<span class="string">"40"</span>, NCNNResult.getStrRes().trim().toString());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Test</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">OnnxTest</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        String imgPath = getResourcePath(<span class="string">"/images/40.png"</span>);</span><br><span class="line">        OcrResult ONNXResult = OcrUtil.runOcr(imgPath);</span><br><span class="line">        Assert.assertEquals(<span class="string">"40"</span>, ONNXResult.getStrRes().trim().toString());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Test</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">OnnxDrawTest</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        String imgPath = getResourcePath(<span class="string">"/images/test.png"</span>);</span><br><span class="line">        String drawPath = imgPath.replace(<span class="string">"test"</span>, <span class="string">"40-draw"</span>);</span><br><span class="line">        File drawFile = <span class="keyword">new</span> File(drawPath);</span><br><span class="line">        <span class="comment">// 使用ONNX推理引擎进行识别</span></span><br><span class="line">        <span class="comment">// 配置参数</span></span><br><span class="line">        ParamConfig paramConfig = ParamConfig.getDefaultConfig();</span><br><span class="line">        paramConfig.setDoAngle(<span class="keyword">true</span>);</span><br><span class="line">        paramConfig.setMostAngle(<span class="keyword">true</span>);</span><br><span class="line">        <span class="comment">// 开始识别</span></span><br><span class="line">        OcrResult ONNXResult = OcrUtil.runOcr(imgPath, LibConfig.getOnnxConfig(), paramConfig);</span><br><span class="line">        <span class="comment">// 绘制推理结果</span></span><br><span class="line">        ArrayList&lt;TextBlock&gt; textBlocks = ONNXResult.getTextBlocks();</span><br><span class="line">        FileUtil.copy(imgPath, drawPath, Boolean.TRUE);</span><br><span class="line">        ByteArrayInputStream in = IoUtil.toStream(ImageUtil.drawImg(drawFile, textBlocks));</span><br><span class="line">        FileUtil.writeFromStream(in, drawFile);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Test</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">paramTest</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 配置参数</span></span><br><span class="line">        ParamConfig paramConfig = ParamConfig.getDefaultConfig();</span><br><span class="line">        paramConfig.setDoAngle(<span class="keyword">true</span>);</span><br><span class="line">        paramConfig.setMostAngle(<span class="keyword">true</span>);</span><br><span class="line">        <span class="comment">// 开始识别</span></span><br><span class="line">        OcrResult ocrResult = OcrUtil.runOcr(getResourcePath(<span class="string">"/images/test.png"</span>), LibConfig.getNcnnConfig(), paramConfig);</span><br><span class="line">        System.out.println(ocrResult);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Test</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">hardWareTest</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 配置可变参数</span></span><br><span class="line">        ParamConfig paramConfig = ParamConfig.getDefaultConfig();</span><br><span class="line">        paramConfig.setDoAngle(<span class="keyword">true</span>);</span><br><span class="line">        paramConfig.setMostAngle(<span class="keyword">true</span>);</span><br><span class="line">        <span class="comment">// 配置硬件参数：4核CPU，使用GPU0</span></span><br><span class="line">        HardwareConfig hardwareConfig = <span class="keyword">new</span> HardwareConfig(<span class="number">4</span>, <span class="number">0</span>);</span><br><span class="line">        <span class="comment">// 开始识别</span></span><br><span class="line">        OcrResult ocrResult = OcrUtil.runOcr(getResourcePath(<span class="string">"/images/test.png"</span>), LibConfig.getNcnnConfig(), paramConfig, hardwareConfig);</span><br><span class="line">        System.out.println(ocrResult);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Test</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">repeatOcr</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        String real = <span class="string">"40"</span>;</span><br><span class="line">        System.out.println(<span class="string">"NCNN 1&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; "</span>);</span><br><span class="line">        OcrResult NCNN_1 = OcrUtil.runOcr(getResourcePath(<span class="string">"/images/40.png"</span>));</span><br><span class="line">        Assert.assertEquals(real, NCNN_1.getStrRes().trim().toString());</span><br><span class="line"></span><br><span class="line">        System.out.println(<span class="string">"NCNN 2&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; "</span>);</span><br><span class="line">        OcrResult NCNN_2 = OcrUtil.runOcr(getResourcePath(<span class="string">"/images/40.png"</span>));</span><br><span class="line">        Assert.assertEquals(real, NCNN_2.getStrRes().trim().toString());</span><br><span class="line"></span><br><span class="line">        System.out.println(<span class="string">"NCNN 3&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; "</span>);</span><br><span class="line">        OcrResult NCNN_3 = OcrUtil.runOcr(getResourcePath(<span class="string">"/images/40.png"</span>));</span><br><span class="line">        Assert.assertEquals(real, NCNN_3.getStrRes().trim().toString());</span><br><span class="line"></span><br><span class="line">        System.out.println(<span class="string">"NCNN 4&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; "</span>);</span><br><span class="line">        OcrResult NCNN_4 = OcrUtil.runOcr(getResourcePath(<span class="string">"/images/system.png"</span>));</span><br><span class="line">        Assert.assertEquals(<span class="string">"System"</span>, NCNN_4.getStrRes().trim().toString());</span><br><span class="line"></span><br><span class="line">        System.out.println(<span class="string">"NCNN 5&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; "</span>);</span><br><span class="line">        OcrResult NCNN_5 = OcrUtil.runOcr(getResourcePath(<span class="string">"/images/40.png"</span>));</span><br><span class="line">        Assert.assertEquals(real, NCNN_5.getStrRes().trim().toString());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@SneakyThrows</span></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> String <span class="title">getResourcePath</span><span class="params">(String path)</span> </span>&#123;</span><br><span class="line">        String encodePath = <span class="keyword">new</span> File(OcrUtilTest<span class="class">.<span class="keyword">class</span>.<span class="title">getResource</span>(<span class="title">path</span>).<span class="title">getFile</span>()).<span class="title">toString</span>()</span>;</span><br><span class="line">        <span class="comment">// 如果包含中文会转义，所以需要转回来</span></span><br><span class="line">        <span class="keyword">return</span> URLDecoder.decode(encodePath,<span class="string">"utf-8"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="2、进阶使用"><a href="#2、进阶使用" class="headerlink" title="2、进阶使用"></a>2、进阶使用</h4><h5 id="hourglass-flowing-sand-OcrConfig参数调优"><a href="#hourglass-flowing-sand-OcrConfig参数调优" class="headerlink" title=":hourglass_flowing_sand: OcrConfig参数调优"></a>:hourglass_flowing_sand: OcrConfig参数调优</h5><p><strong>LibConfig</strong>参数说明如下：</p>
+<table>
+<thead>
+<tr>
+<th align="center">参数名</th>
+<th align="center">说明</th>
+<th align="center">类型</th>
+<th align="center">权限</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">libraryDir</td>
+<td align="center">动态链接库路径</td>
+<td align="center">String</td>
+<td align="center">读写</td>
+</tr>
+<tr>
+<td align="center">modelsDir</td>
+<td align="center">模型路径</td>
+<td align="center">String</td>
+<td align="center">读写</td>
+</tr>
+<tr>
+<td align="center">deleteOnExit</td>
+<td align="center">是否在JVM退出时删除动态链接库和模型文件</td>
+<td align="center">boolean</td>
+<td align="center">读写</td>
+</tr>
+<tr>
+<td align="center">detName</td>
+<td align="center">Det文件名称</td>
+<td align="center">String</td>
+<td align="center">只读</td>
+</tr>
+<tr>
+<td align="center">clsName</td>
+<td align="center">Cls文件名称</td>
+<td align="center">String</td>
+<td align="center">只读</td>
+</tr>
+<tr>
+<td align="center">recName</td>
+<td align="center">Rec文件名称</td>
+<td align="center">String</td>
+<td align="center">只读</td>
+</tr>
+<tr>
+<td align="center">keysName</td>
+<td align="center">词单</td>
+<td align="center">String</td>
+<td align="center">只读</td>
+</tr>
+</tbody></table>
+<p><strong>HardWareConfig</strong>参数说明如下：</p>
+<table>
+<thead>
+<tr>
+<th align="center">参数名</th>
+<th align="center">说明</th>
+<th align="center">类型</th>
+<th align="center">权限</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">numThread</td>
+<td align="center">CPU 核心数量</td>
+<td align="center">int</td>
+<td align="center">读写</td>
+</tr>
+<tr>
+<td align="center">gpuIndex</td>
+<td align="center">GPU0一般为默认GPU，参数选项：使用CPU(-1)/使用GPU0(0)/使用GPU1(1)/…，默认0</td>
+<td align="center">int</td>
+<td align="center">读写</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>⚠️ ONNX不使用GPU，即使用-1</p>
+</blockquote>
+<p><strong>ParamConfig</strong>参数说明如下：</p>
+<table>
+<thead>
+<tr>
+<th align="center">参数名</th>
+<th align="center">说明</th>
+<th align="center">类型</th>
+<th align="center">权限</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">padding</td>
+<td align="center">图像外接白框，用于提升识别率，文字框没有正确框住所有文字时，增加此值。默认50。</td>
+<td align="center">int</td>
+<td align="center">读写</td>
+</tr>
+<tr>
+<td align="center">maxSideLen</td>
+<td align="center">按图像长边进行总体缩放，放大增加识别耗时但精度更高，缩小减小耗时但精度降低，maxSideLen为0表示不缩放</td>
+<td align="center">int</td>
+<td align="center">读写</td>
+</tr>
+<tr>
+<td align="center">boxScoreThresh</td>
+<td align="center">文字框置信度门限，文字框没有正确框住所有文字时，减小此值，默认0.5f</td>
+<td align="center">float</td>
+<td align="center">读写</td>
+</tr>
+<tr>
+<td align="center">boxThresh</td>
+<td align="center">值越大，文字部分会越小，默认0.3f</td>
+<td align="center">float</td>
+<td align="center">读写</td>
+</tr>
+<tr>
+<td align="center">unClipRatio</td>
+<td align="center">单个文字框大小倍率，越大时单个文字框越大，默认1.6f</td>
+<td align="center">float</td>
+<td align="center">读写</td>
+</tr>
+<tr>
+<td align="center">doAngleFlag</td>
+<td align="center">启用(1)/禁用(0) 文字方向检测，只有图片倒置的情况下(旋转90~270度的图片)，才需要启用文字方向检测，默认关闭</td>
+<td align="center">boolean</td>
+<td align="center">读写</td>
+</tr>
+<tr>
+<td align="center">mostAngleFlag</td>
+<td align="center">启用(1)/禁用(0) 角度投票(整张图片以最大可能文字方向来识别)，当禁用文字方向检测时，此项也不起作用，默认关闭</td>
+<td align="center">boolean</td>
+<td align="center">读写</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>✍️ 想更深入了解，请移步<a href="https://rapidai.github.io/RapidOCRDocs/docs/blog/02_config_parameter/" target="_blank" rel="noopener">config.yaml参数解释</a></p>
+</blockquote>
+<h5 id="🗣️-目录说明"><a href="#🗣️-目录说明" class="headerlink" title="🗣️ 目录说明"></a>🗣️ 目录说明</h5><ul>
+<li><p>com.benjaminwan.ocrlibrary: 核心代码，用来与dll、so、dylib进行交互。‼️ 千万不要改包名！！！</p>
+</li>
+<li><p>com.github.monster.ocr</p>
+<ul>
+<li><p>config</p>
+<ul>
+<li>HardwareConfig: 硬件配置类</li>
+<li>LibConfig: 库文件配置类</li>
+<li>ParamConfig: 可调节参数配置</li>
+</ul>
+</li>
+<li><p>JarFileUtils: 从jar包中加载动态库</p>
+</li>
+<li><p>PathConstants: 模型/文件路径常量</p>
+</li>
+<li><p>OcrUtil: 调用核心代码工具类</p>
+</li>
+</ul>
+</li>
+</ul>
+<h5 id="⚠️-版本说明"><a href="#⚠️-版本说明" class="headerlink" title="⚠️ 版本说明"></a>⚠️ 版本说明</h5><p>当前使用版本如下（此处的版本指的是<a href="https://github.com/RapidAI/RapidOcrNcnn" target="_blank" rel="noopener">RapidOcrNcnn</a>或者<a href="https://github.com/RapidAI/RapidOcrOnnx" target="_blank" rel="noopener">RapidOcrOnnx</a>的版本）</p>
+<h5 id="ncnn：仅支持PP-OCRv3"><a href="#ncnn：仅支持PP-OCRv3" class="headerlink" title="ncnn：仅支持PP-OCRv3"></a>ncnn：仅支持PP-OCRv3</h5><ul>
+<li><p>Mac-Arm64: <code>v1.2.0</code></p>
+</li>
+<li><p>Mac-x86_64、Linux、Win：<code>v1.1.2</code></p>
+</li>
+<li><p>win7可能存在问题，未经测试</p>
+</li>
+</ul>
+<blockquote>
+<p>如何更新模型？</p>
+<ul>
+<li>方式一：前往<a href="https://github.com/RapidAI/RapidOcrNcnn" target="_blank" rel="noopener">自行更新地址</a>，在release下载模型</li>
+<li>方式二：自行<a href="./COMPILE_LIB.md">编译</a></li>
+</ul>
+</blockquote>
+<h5 id="onnx：支持PP-OCRv4和PP-OCRv3"><a href="#onnx：支持PP-OCRv4和PP-OCRv3" class="headerlink" title="onnx：支持PP-OCRv4和PP-OCRv3"></a>onnx：支持<a href="https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.7/doc/doc_ch/PP-OCRv4_introduction.md" target="_blank" rel="noopener">PP-OCRv4</a>和PP-OCRv3</h5><ul>
+<li><p>Mac-Arm64: <code>v1.2.2</code></p>
+</li>
+<li><p>Mac-x86_64、Linux、Win：<code>v1.2.2</code></p>
+</li>
+<li><p>win7可能存在问题，未经测试</p>
+</li>
+</ul>
+<blockquote>
+<p>如何更新模型？</p>
+<ul>
+<li>方式一：前往<a href="https://github.com/RapidAI/RapidOcrOnnx" target="_blank" rel="noopener">自行更新地址</a>，在release下载最新的模型</li>
+<li>方式二：自行<a href="./COMPILE_LIB.md">编译</a></li>
+</ul>
+</blockquote>
+<h5 id="saxophone-分支说明"><a href="#saxophone-分支说明" class="headerlink" title=":saxophone: 分支说明"></a>:saxophone: 分支说明</h5><ul>
+<li>main: 主分支，使用ncnn和onnx进行推理</li>
+<li>dev-ncnn： 仅使用ncnn进行推理</li>
+</ul>
+<h4 id="3、-如何进行模型更新"><a href="#3、-如何进行模型更新" class="headerlink" title="3、 如何进行模型更新"></a>3、 如何进行模型更新</h4><p>1.按照<a href="https://rapidai.github.io/RapidOCRDocs/docs/about_model/convert_model/" target="_blank" rel="noopener">Rapid官方说明文档</a>转换即可</p>
+<ul>
+<li>前往<a href="https://www.modelscope.cn/studios/liekkas/PaddleOCRModelConverter/summary" target="_blank" rel="noopener">魔搭</a></li>
+<li>输入模型地址: 在<a href="https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.7/doc/doc_ch/models_list.md" target="_blank" rel="noopener">官方模型地址</a>选择想转换的模型</li>
+<li>输入txt地址: 在<a href="https://github.com/PaddlePaddle/PaddleOCR" target="_blank" rel="noopener">官方地址</a>–&gt;选择分支 –&gt; utils –&gt; ppocr_keys_v1.txt</li>
+</ul>
+<p><img src="txt.png" alt></p>
+<ul>
+<li>点击covert</li>
+<li>将该模型放入<code>src\main\resources\onnx\models</code></li>
+<li>修改<code>PathConstants.MODEL_REC_NAME</code>为你模型的名称</li>
+</ul>
+<p><img src="convert.png" alt></p>
+<h4 id="4、如何自行编译-jar-包"><a href="#4、如何自行编译-jar-包" class="headerlink" title="4、如何自行编译 jar 包"></a>4、如何自行编译 jar 包</h4><h5 id="方式一：打包动态库"><a href="#方式一：打包动态库" class="headerlink" title="方式一：打包动态库"></a>方式一：打包动态库</h5><p>此方式使用了打包插件，会将resources下的所有动态库均打包进jar，这会导致jar包将近100M。</p>
+<p>当然，实际使用过程中，可以通过调整includes标签来只打包相应系统的动态库（比如只打包onnx mac-arm64，jar包只有30M左右）</p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">build</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">resources</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">resource</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">directory</span>&gt;</span>src/main/resources<span class="tag">&lt;/<span class="name">directory</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">includes</span>&gt;</span></span><br><span class="line">                <span class="comment">&lt;!--方式一：包含文件夹以及子文件夹下所有资源--&gt;</span></span><br><span class="line">                <span class="comment">&lt;!-- &lt;include&gt;**/*.*&lt;/include&gt; --&gt;</span></span><br><span class="line">                <span class="comment">&lt;!--方式二：仅打包onnx mac-arm64(按照自己的需求来，推荐👍)--&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">include</span>&gt;</span>onnx/mac/arm64/*<span class="tag">&lt;/<span class="name">include</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">include</span>&gt;</span>onnx/models/*<span class="tag">&lt;/<span class="name">include</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">includes</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">resource</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">resources</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">build</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>在这种方式下，当引入该jar后，直接使用即可</p>
+<h5 id="方式二：不打包动态库"><a href="#方式二：不打包动态库" class="headerlink" title="方式二：不打包动态库"></a>方式二：不打包动态库</h5><p>同样的，通过打包插件可以控制不打包动态库，打包后jar只有19KB</p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">build</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">resources</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">resource</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">directory</span>&gt;</span>src/main/resources<span class="tag">&lt;/<span class="name">directory</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">excludes</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">exclude</span>&gt;</span>**/*.*<span class="tag">&lt;/<span class="name">exclude</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">excludes</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">resource</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">resources</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">build</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>在这种方式下，当引入该jar后，<strong>还需在项目src/main/resources下添加相应的动态</strong>库(如下图所示)</p>
+<p><img src="package-no-example.png" alt></p>
+<p>否则会抛出NoSuchFileException</p>
+<blockquote>
+<p>具体使用哪种方式还是按照自己的需求来</p>
+</blockquote>
+<h4 id="5、Java调用OCR方式比较"><a href="#5、Java调用OCR方式比较" class="headerlink" title="5、Java调用OCR方式比较"></a>5、Java调用OCR方式比较</h4><ul>
+<li>由于认知程度跟时间成正比，调用方式可能会不断增加，当前更新时间：<strong>2023年11月4日</strong></li>
+</ul>
+<p><img src="compare.png" alt></p>
+<table>
+<thead>
+<tr>
+<th align="center">方式</th>
+<th align="center">原理/大致流程</th>
+<th align="center">优点</th>
+<th align="center">缺点</th>
+<th align="center">其他说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">使用RapidOcr-Java</td>
+<td align="center">Java程序通过JNI调用编译好的OCR动态库</td>
+<td align="center">下载即用，跨平台，开发者无需了解OCR相关知识</td>
+<td align="center">无法直接对模型进行控制</td>
+<td align="center">已开源维护，推荐使用👍</td>
+</tr>
+<tr>
+<td align="center">直接调用onnx-runtime</td>
+<td align="center">通过onnx-runtime调用并使用模型</td>
+<td align="center">下载即用，跨平台，可对模型直接进行控制</td>
+<td align="center">开发者需了解OCR相关知识</td>
+<td align="center">开发中，暂未开源，推荐使用👍</td>
+</tr>
+<tr>
+<td align="center">通过DJL实现间接调用</td>
+<td align="center">不直接使用onnx-runtime，使用DJL间接调用onnx-runtime</td>
+<td align="center">无需关注打包时平台依赖，DJL已整合好</td>
+<td align="center">DJL语法学习成本较大，开发者需了解OCR相关知识</td>
+<td align="center">开源但停止维护，不推荐</td>
+</tr>
+<tr>
+<td align="center">API调用</td>
+<td align="center">在服务器/容器中开启OCR服务，通过http请求进行OCR</td>
+<td align="center">功能解耦</td>
+<td align="center">对于小型系统来说完全没必要再引入Docker</td>
+<td align="center">自行查找镜像源或web服务，例如<a href="https://github.com/RapidAI/RapidOCR" target="_blank" rel="noopener">RapidOCR-web版本</a></td>
+</tr>
+</tbody></table>
+<h2 id="Tesseract"><a href="#Tesseract" class="headerlink" title="Tesseract"></a>Tesseract</h2><ul>
+<li>可以使用开源的 Tesseract 转换文本</li>
+<li>Tesseract最初于1985年至1994年间在英国布里斯托尔的惠普实验室和美国科罗拉多州格里利的惠普公司开发，1996年对移植到Windows进行了更多更改，并在1998年进行了一些C++化。2005年，Tesseract由HP开源。从 2006 年到 2018 年，它由谷歌开发。</li>
+</ul>
+<h3 id="一、安装Tesseract"><a href="#一、安装Tesseract" class="headerlink" title="一、安装Tesseract"></a>一、安装Tesseract</h3><ul>
+<li>安装介绍页：<a href="https://tesseract-ocr.github.io/tessdoc/Installation.html" target="_blank" rel="noopener">https://tesseract-ocr.github.io/tessdoc/Installation.html</a></li>
+<li>Windows安装包下载地址：<a href="https://github.com/UB-Mannheim/tesseract/wiki" target="_blank" rel="noopener">https://github.com/UB-Mannheim/tesseract/wiki</a></li>
+<li>各个语言的数据集：<a href="https://github.com/tesseract-ocr/tessdata" target="_blank" rel="noopener">https://github.com/tesseract-ocr/tessdata</a></li>
+<li>以windows为例，直接双击傻瓜式安装在即可。有个问题就是默认没有中文的，可以选择英文，安装成功之后把中文的包放到安装目录下的：<code>tessdata</code> 即可,可以下载中文包地址：<a href="https://github.com/tesseract-ocr/tessdata/raw/4.00/chi_sim.traineddata" target="_blank" rel="noopener">https://github.com/tesseract-ocr/tessdata/raw/4.00/chi_sim.traineddata</a></li>
+</ul>
+<h3 id="二、使用Tesseract"><a href="#二、使用Tesseract" class="headerlink" title="二、使用Tesseract"></a>二、使用Tesseract</h3><ul>
+<li>可以使用 <code>tesseract.exe --help</code> 或者 <code>tesseract.exe --help-extra</code>查看命令提示</li>
+</ul>
+<p><img src="help.png" alt></p>
+<ul>
+<li>简单例子，图片转文字</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 把图片help.png转换文字，输出到D:/test.txt</span></span><br><span class="line">tesseract.exe D:/help.png D:/test.txt -l eng+chi_sim  --dpi 300</span><br><span class="line"></span><br><span class="line"><span class="comment"># 把图片help.png转换文字，控制台输出</span></span><br><span class="line">tesseract.exe D:/help.png - -l eng+chi_sim  --dpi 300</span><br></pre></td></tr></table></figure>
+
+<h3 id="三、Java调用"><a href="#三、Java调用" class="headerlink" title="三、Java调用"></a>三、Java调用</h3><ul>
+<li>Java调用，可以使用<code>tess4j</code></li>
+<li>导入pom依赖</li>
+</ul>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="comment">&lt;!-- https://mvnrepository.com/artifact/net.sourceforge.tess4j/tess4j --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>net.sourceforge.tess4j<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>tess4j<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>5.7.0<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>代码示例：</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> net.sourceforge.tess4j.Tesseract;</span><br><span class="line"><span class="keyword">import</span> net.sourceforge.tess4j.TesseractException;</span><br><span class="line"><span class="keyword">import</span> java.io.File;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ImageToText</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> TesseractException </span>&#123;</span><br><span class="line">        <span class="comment">// 安装tesseract的路径</span></span><br><span class="line">        String tessData = <span class="string">"C:\\install\\tesseract-ocr\\tessdata"</span>;</span><br><span class="line">        Tesseract tesseract = <span class="keyword">new</span> Tesseract();</span><br><span class="line">        <span class="comment">// 设置 Tesseract OCR 引擎的语言</span></span><br><span class="line"><span class="comment">//        tesseract.setLanguage("eng");</span></span><br><span class="line">        tesseract.setLanguage(<span class="string">"eng+chi_sim"</span>);</span><br><span class="line">        tesseract.setDatapath(tessData);</span><br><span class="line">        <span class="comment">//设置 psm  默认也是3</span></span><br><span class="line">        tesseract.setPageSegMode(<span class="number">3</span>);</span><br><span class="line">        String pngPath = <span class="string">"D://test.png"</span>;</span><br><span class="line">        String text = tesseract.doOCR(<span class="keyword">new</span> File(pngPath));</span><br><span class="line">        System.out.println(<span class="string">"图片转文字="</span>+text);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="四、PDF图片转文字"><a href="#四、PDF图片转文字" class="headerlink" title="四、PDF图片转文字"></a>四、PDF图片转文字</h3><ul>
+<li><p>有些pdf是又有图片又有文字的，如果直接获取文字可能会漏字符</p>
+</li>
+<li><p>可以尝试pdf转图片，然后再使用过OCR识别</p>
+</li>
+<li><p>PDF转图片，可以使用<code>pdfbox</code></p>
+</li>
+<li><p>依赖如下：</p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.pdfbox<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>pdfbox<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.0.27<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>完整的PDF图片识别文字代码</p>
+</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> cn.hutool.core.io.file.FileWriter;</span><br><span class="line"><span class="keyword">import</span> lombok.extern.slf4j.Slf4j;</span><br><span class="line"><span class="keyword">import</span> net.sourceforge.tess4j.Tesseract;</span><br><span class="line"><span class="keyword">import</span> net.sourceforge.tess4j.TesseractException;</span><br><span class="line"><span class="keyword">import</span> org.apache.pdfbox.pdmodel.PDDocument;</span><br><span class="line"><span class="keyword">import</span> org.apache.pdfbox.rendering.PDFRenderer;</span><br><span class="line"><span class="keyword">import</span> javax.imageio.ImageIO;</span><br><span class="line"><span class="keyword">import</span> java.awt.image.BufferedImage;</span><br><span class="line"><span class="keyword">import</span> java.io.File;</span><br><span class="line"><span class="keyword">import</span> java.io.IOException;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Slf</span>4j</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">PdfToTextConverter</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 安装tesseract的路径</span></span><br><span class="line">        String tessData = <span class="string">"C:\\install\\tesseract-ocr\\tessdata"</span>;</span><br><span class="line">        Tesseract tesseract = <span class="keyword">new</span> Tesseract();</span><br><span class="line">        <span class="comment">// 设置 Tesseract OCR 引擎的语言</span></span><br><span class="line">        tesseract.setLanguage(<span class="string">"eng+chi_sim"</span>);</span><br><span class="line">        tesseract.setDatapath(tessData);</span><br><span class="line">        <span class="comment">//设置 psm  默认也是3</span></span><br><span class="line">        tesseract.setPageSegMode(<span class="number">3</span>);</span><br><span class="line">        tesseract.setTessVariable(<span class="string">"user_defined_dpi"</span>, <span class="string">"300"</span>);</span><br><span class="line">        <span class="comment">// 设置字体</span></span><br><span class="line">        tesseract.setTessVariable(<span class="string">"textonly_pdf"</span>, <span class="string">"1"</span>);</span><br><span class="line">        tesseract.setTessVariable(<span class="string">"tessedit_create_pdf"</span>, <span class="string">"1"</span>);</span><br><span class="line">        <span class="comment">//选项来将不可识别的字符替换为占位符。</span></span><br><span class="line">        tesseract.setTessVariable(<span class="string">"pdf_font_name"</span>, <span class="string">"Arial"</span>);</span><br><span class="line">        <span class="comment">// 定义 PDF 文件路径和输出文本文件路径</span></span><br><span class="line">        String pdfFilePath = <span class="string">"D:\\pdf\\email\\a.pdf"</span>;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            pdfToText(tesseract,pdfFilePath);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">           log.error(e.getMessage(),e);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * pdf提取文字</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> tesseract tesseract安装路径</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> pdfPath pdf路径</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">pdfToText</span><span class="params">(Tesseract tesseract, String pdfPath)</span> <span class="keyword">throws</span> IOException, TesseractException </span>&#123;</span><br><span class="line">        <span class="keyword">long</span> begin = System.currentTimeMillis();</span><br><span class="line">        <span class="comment">// 将 PDF 文件转换为图像文件，并保存在指定目录中</span></span><br><span class="line">        File file = <span class="keyword">new</span> File(pdfPath);</span><br><span class="line">        String pngPath = file.getPath().replace(<span class="string">".pdf"</span>, <span class="string">"_png"</span>);</span><br><span class="line">        String txtPath = file.getPath().replace(<span class="string">".pdf"</span>, <span class="string">".txt"</span>);</span><br><span class="line">        <span class="keyword">int</span> pages = convertToImage(pdfPath, pngPath, <span class="number">300</span>);</span><br><span class="line">        FileWriter fileWriter = <span class="keyword">new</span> FileWriter(txtPath);</span><br><span class="line">        fileWriter.write(<span class="string">""</span>);</span><br><span class="line">        <span class="comment">// 逐个处理图像文件，并将 OCR 文本输出到文本文件中</span></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">1</span>; i &lt;= pages; i++) &#123;</span><br><span class="line">            String imagePath = pngPath + <span class="string">"/page"</span> + i + <span class="string">".png"</span>;</span><br><span class="line">            File imageFile = <span class="keyword">new</span> File(imagePath);</span><br><span class="line">            <span class="comment">// 使用 Tesseract OCR 引擎提取文本内容</span></span><br><span class="line">            String ocrText = tesseract.doOCR(imageFile);</span><br><span class="line">            <span class="comment">// 将 OCR 文本追加到输出文本文件中</span></span><br><span class="line">            fileWriter.write(ocrText, <span class="keyword">true</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">long</span> end = System.currentTimeMillis();</span><br><span class="line">        log.info(<span class="string">"解析耗时=&#123;&#125;秒，输出文件为=&#123;&#125;"</span>, (end - begin) / <span class="number">1000</span>, txtPath);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * pdf转图片</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> pdfFilePath pdf文件路径</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> outputImageFolder 输出pdf的图片路径</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> dpi</span></span><br><span class="line"><span class="comment">     *  dpi 取值越高，输出的图片文件大小和渲染时间就越大（取值范围是 72 到 300）</span></span><br><span class="line"><span class="comment">     *  72 DPI：适用于屏幕显示和网络共享的低分辨率图片，例如 Web 图片、电子邮件附件等。</span></span><br><span class="line"><span class="comment">     *  96 DPI：适用于打印机打印和屏幕显示的中等分辨率图片，例如办公文档、幻灯片、简单的海报等。</span></span><br><span class="line"><span class="comment">     *  150 DPI：适用于打印机打印的高质量图片，例如印刷品、照片等。</span></span><br><span class="line"><span class="comment">     *  300 DPI：适用于高质量打印、印刷和出版，例如印刷品、高质量照片、艺术品等。</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> 图片个数</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">int</span> <span class="title">convertToImage</span><span class="params">(String pdfFilePath, String outputImageFolder, <span class="keyword">int</span> dpi)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">        <span class="keyword">long</span> start = System.currentTimeMillis();</span><br><span class="line">        PDDocument document = <span class="keyword">null</span>;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            File file = <span class="keyword">new</span> File(outputImageFolder);</span><br><span class="line">            <span class="keyword">if</span>(!file.exists())&#123;</span><br><span class="line">                file.mkdirs();</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">// 加载 PDF 文件</span></span><br><span class="line">            document = PDDocument.load(<span class="keyword">new</span> File(pdfFilePath));</span><br><span class="line">            <span class="comment">// 初始化 PDF 渲染器</span></span><br><span class="line">            PDFRenderer pdfRenderer = <span class="keyword">new</span> PDFRenderer(document);</span><br><span class="line">            <span class="comment">// 逐页将 PDF 文件渲染成图片，并保存到指定目录中</span></span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; document.getNumberOfPages(); i++) &#123;</span><br><span class="line">                BufferedImage image = pdfRenderer.renderImageWithDPI(i, dpi);</span><br><span class="line">                String imagePath = outputImageFolder + File.separator + <span class="string">"page"</span> + (i + <span class="number">1</span>) + <span class="string">".png"</span>;</span><br><span class="line">                ImageIO.write(image, <span class="string">"png"</span>, <span class="keyword">new</span> File(imagePath));</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">            <span class="keyword">if</span> (document != <span class="keyword">null</span>) &#123;</span><br><span class="line">                document.close();</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">long</span> end = System.currentTimeMillis();</span><br><span class="line">            log.info(<span class="string">"pdf转图片耗时=&#123;&#125;毫秒"</span>,end-start);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> document.getNumberOfPages();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>首先把pdf的每页转为图片，然后再识别每张图片转为文字</li>
+</ul>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+	
+	    <div>
+	
+	<div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------本文结束 <i class="fa fa-heartbeat"></i> 感谢您的阅读-------------</div>
+    
+</div>
+	
+	</div>
+
+    
+
+    
+      
+    
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div></div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>打赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/blog/images/wechat_pay.jpg" alt="rstyro 微信支付">
+        <p>微信支付</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/blog/images/alipay.jpg" alt="rstyro 支付宝">
+        <p>支付宝</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+	
+	<div>    
+	 
+	 
+	<ul class="post-copyright">
+	  <li class="post-copyright-author">
+		  <strong>本文作者：</strong>rstyro
+	  </li>
+	  <li class="post-copyright-link">
+		<strong>本文链接：</strong>
+		<a href="/blog/2023/09/25/OCR图片识别/" title="OCR图片识别">https://rstyro.github.io/blog/2023/09/25/OCR图片识别/</a>
+	  </li>
+	  <li class="post-copyright-license">
+		<strong>版权： </strong>
+		转载注明出处！
+	  </li>
+	</ul>
+	
+	</div>
+	
+
+      
+        <div class="post-tags">
+          
+            <a href="/blog/tags/OCR/" rel="tag"><i class="fa fa-tag"></i> OCR</a>
+          
+            <a href="/blog/tags/图片识别/" rel="tag"><i class="fa fa-tag"></i> 图片识别</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2023/09/19/seata使用笔记/" rel="next" title="seata使用笔记">
+                <i class="fa fa-chevron-left"></i> seata使用笔记
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2023/09/25/ES向量查询/" rel="prev" title="ES向量查询">
+                ES向量查询 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+
+
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+      <div id="sidebar-dimmer"></div>
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/blog/images/avatar.jpg" alt="rstyro">
+            
+              <p class="site-author-name" itemprop="name">rstyro</p>
+              <p class="site-description motion-element" itemprop="description">个人博客,瞎写一些技术笔记等。</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/blog/archives/">
+                
+                    <span class="site-state-item-count">203</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/blog/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">13</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/blog/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">81</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+            <div class="feed-link motion-element">
+              <a href="/blog/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://github.com/rstyro" title="GitHub &rarr; https://github.com/rstyro" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://gitee.com/rstyro" title="Gitee &rarr; https://gitee.com/rstyro" rel="noopener" target="_blank"><i class="fa fa-fw fa-codiepie"></i>Gitee</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="/blog/1006059906" title="QQ &rarr; 1006059906"><i class="fa fa-fw fa-qq"></i>QQ</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://www.jianshu.com/u/651c15a1758a" title="简书 &rarr; https://www.jianshu.com/u/651c15a1758a" rel="noopener" target="_blank"><i class="fa fa-fw fa-book"></i>简书</a>
+                </span>
+              
+            </div>
+          
+
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-block">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                友链
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://rstyro.github.io/blog/" title="https://rstyro.github.io/blog/">帅大叔博客</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://www.zhyd.me/" title="https://www.zhyd.me/" rel="noopener" target="_blank">张亚东博客</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://www.devsong.org/" title="http://www.devsong.org/" rel="noopener" target="_blank">DevSONG</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://www.dalaoyang.cn/" title="https://www.dalaoyang.cn/" rel="noopener" target="_blank">dalaoyang</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://www.chenshuangyi.com/" title="https://www.chenshuangyi.com/" rel="noopener" target="_blank">陈双义博客</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+            
+          
+          <div id="days"></div>
+<script>
+function show_date_time(){
+window.setTimeout("show_date_time()", 1000);
+BirthDay=new Date("04/10/2017 15:13:14");
+today=new Date();
+timeold=(today.getTime()-BirthDay.getTime());
+sectimeold=timeold/1000
+secondsold=Math.floor(sectimeold);
+msPerDay=24*60*60*1000
+e_daysold=timeold/msPerDay
+daysold=Math.floor(e_daysold);
+e_hrsold=(e_daysold-daysold)*24;
+hrsold=setzero(Math.floor(e_hrsold));
+e_minsold=(e_hrsold-hrsold)*60;
+minsold=setzero(Math.floor((e_hrsold-hrsold)*60));
+seconds=setzero(Math.floor((e_minsold-minsold)*60));
+document.getElementById('days').innerHTML="已运行 "+daysold+" 天 "+hrsold+" 小时 "+minsold+" 分 "+seconds+" 秒";
+}
+function setzero(i){
+if (i<10)
+{i="0" + i};
+return i;
+}
+show_date_time();
+</script>
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#RapidOCR"><span class="nav-number">1.</span> <span class="nav-text">RapidOCR</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#RapidOCR概述"><span class="nav-number">1.1.</span> <span class="nav-text">RapidOCR概述</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#一、整体框架"><span class="nav-number">1.2.</span> <span class="nav-text">一、整体框架</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#二、在线Demo"><span class="nav-number">1.3.</span> <span class="nav-text">二、在线Demo</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1、Demo源码-link"><span class="nav-number">1.3.1.</span> <span class="nav-text">1、Demo源码 link</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2、在线Demo"><span class="nav-number">1.3.2.</span> <span class="nav-text">2、在线Demo</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#三、Java语言支持"><span class="nav-number">1.4.</span> <span class="nav-text">三、Java语言支持</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1、快速开始"><span class="nav-number">1.4.1.</span> <span class="nav-text">1、快速开始</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2、进阶使用"><span class="nav-number">1.4.2.</span> <span class="nav-text">2、进阶使用</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#hourglass-flowing-sand-OcrConfig参数调优"><span class="nav-number">1.4.2.1.</span> <span class="nav-text">:hourglass_flowing_sand: OcrConfig参数调优</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#🗣️-目录说明"><span class="nav-number">1.4.2.2.</span> <span class="nav-text">🗣️ 目录说明</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#⚠️-版本说明"><span class="nav-number">1.4.2.3.</span> <span class="nav-text">⚠️ 版本说明</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#ncnn：仅支持PP-OCRv3"><span class="nav-number">1.4.2.4.</span> <span class="nav-text">ncnn：仅支持PP-OCRv3</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#onnx：支持PP-OCRv4和PP-OCRv3"><span class="nav-number">1.4.2.5.</span> <span class="nav-text">onnx：支持PP-OCRv4和PP-OCRv3</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#saxophone-分支说明"><span class="nav-number">1.4.2.6.</span> <span class="nav-text">:saxophone: 分支说明</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3、-如何进行模型更新"><span class="nav-number">1.4.3.</span> <span class="nav-text">3、 如何进行模型更新</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4、如何自行编译-jar-包"><span class="nav-number">1.4.4.</span> <span class="nav-text">4、如何自行编译 jar 包</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#方式一：打包动态库"><span class="nav-number">1.4.4.1.</span> <span class="nav-text">方式一：打包动态库</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#方式二：不打包动态库"><span class="nav-number">1.4.4.2.</span> <span class="nav-text">方式二：不打包动态库</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5、Java调用OCR方式比较"><span class="nav-number">1.4.5.</span> <span class="nav-text">5、Java调用OCR方式比较</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Tesseract"><span class="nav-number">2.</span> <span class="nav-text">Tesseract</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#一、安装Tesseract"><span class="nav-number">2.1.</span> <span class="nav-text">一、安装Tesseract</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#二、使用Tesseract"><span class="nav-number">2.2.</span> <span class="nav-text">二、使用Tesseract</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#三、Java调用"><span class="nav-number">2.3.</span> <span class="nav-text">三、Java调用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#四、PDF图片转文字"><span class="nav-number">2.4.</span> <span class="nav-text">四、PDF图片转文字</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">rstyro</span>
+
+  
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+
+  <script src="https://unpkg.com/mermaid@8.11.0/dist/mermaid.min.js"></script>
+  <script>
+    if (window.mermaid) {
+      mermaid.initialize({"startOnload":true});
+    }
+  </script>
+
+
+<div class="theme-info">
+  <div class="powered-by"></div>
+  <span class="post-count">博客全站共372.3k字</span>
+</div>
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-user"></i>
+    </span>
+    <span class="site-uv" title="总访客量">
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+    </span>
+  
+
+  
+    <span class="post-meta-divider">|</span>
+  
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-eye"></i>
+    </span>
+    <span class="site-pv" title="总访问量">
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/blog/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/blog/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/blog/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/blog/js/src/utils.js?v=6.7.0"></script>
+
+  <script src="/blog/js/src/motion.js?v=6.7.0"></script>
+
+
+
+  
+  
+
+  
+  <script src="/blog/js/src/scrollspy.js?v=6.7.0"></script>
+<script src="/blog/js/src/post-details.js?v=6.7.0"></script>
+
+
+
+  
+
+
+  <script src="/blog/js/src/bootstrap.js?v=6.7.0"></script>
+
+
+
+  
+  
+
+
+
+
+  
+
+<script src="//cdn1.lncld.net/static/js/3.11.1/av-min.js"></script>
+
+
+
+  
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/valine/1.3.4/Valine.min.js"></script>
+
+<script>
+  var GUEST = ['nick', 'mail', 'link'];
+  var guest = 'nick,mail,link';
+  guest = guest.split(',').filter(function (item) {
+    return GUEST.indexOf(item) > -1;
+  });
+  new Valine({
+    el: '#comments',
+    verify: false,
+    notify: false,
+    appId: 'LwEPiJFa7YMn2MrJdCwaUbmQ-gzGzoHsz',
+    appKey: 'JqS1y3RxYvDOki9r3NcqqoO5',
+    placeholder: '来都来了，不说几句就走，过分了啊！！！',
+    avatar: 'monsterid',
+    meta: guest,
+    pageSize: '10' || 10,
+    visitor: false
+  });
+</script>
+
+
+
+  
+
+  <script>
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/blog/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url).replace(/\/{2,}/g, '/');
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x"></i></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x"></i></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+  <script>
+    (function(){
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+      }
+      else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+      }
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+    })();
+  </script>
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

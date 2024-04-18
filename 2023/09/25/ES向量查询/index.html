@@ -1,0 +1,1753 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/blog/css/main.css?v=6.7.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon.jpg?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon.jpg?v=6.7.0">
+
+
+  <link rel="mask-icon" href="/blog/images/logo.svg?v=6.7.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/blog/',
+    scheme: 'Mist',
+    version: '6.7.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":true},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+<script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+<link href="//cdn.bootcss.com/pace/1.0.2/themes/pink/pace-theme-flash.css" rel="stylesheet">
+  <style>
+      .pace .pace-progress {
+          background: #1E92FB; /*进度条颜色*/
+          height: 3px;
+      }
+      .pace .pace-progress-inner {
+           box-shadow: 0 0 10px #1E92FB, 0 0 5px     #1E92FB; /*阴影颜色*/
+      }
+      .pace .pace-activity {
+          border-top-color: #1E92FB;    /*上边框颜色*/
+          border-left-color: #1E92FB;    /*左边框颜色*/
+      }
+  </style>
+
+  <meta name="description" content="一、向量检索1、向量的定义 计算机只认识数字，它只能通过数字来量化这个世界，用一组数字来表示一个事物，这样的一组数字就是一个向量（Vector） 如果一个向量由N个数字组成，它就是一个N维向量。拿目前广泛使用的人脸识别技术来说，计算机从照片或视频中提取出人脸的图像，然后将人脸图像转换为128维或者更高维度的向量。 首先我们了解下什么是向量，所谓向量就是由N个数字（二值向量由N个比特组成）组成的数组">
+<meta name="keywords" content="ElasticSearch">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ES向量查询">
+<meta property="og:url" content="https://rstyro.github.io/blog/2023/09/25/ES向量查询/index.html">
+<meta property="og:site_name" content="帅大叔的博客">
+<meta property="og:description" content="一、向量检索1、向量的定义 计算机只认识数字，它只能通过数字来量化这个世界，用一组数字来表示一个事物，这样的一组数字就是一个向量（Vector） 如果一个向量由N个数字组成，它就是一个N维向量。拿目前广泛使用的人脸识别技术来说，计算机从照片或视频中提取出人脸的图像，然后将人脸图像转换为128维或者更高维度的向量。 首先我们了解下什么是向量，所谓向量就是由N个数字（二值向量由N个比特组成）组成的数组">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://rstyro.github.io/blog/2023/09/25/ES向量查询/os.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2023/09/25/ES向量查询/cos.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2023/09/25/ES向量查询/mhd.jpg">
+<meta property="og:updated_time" content="2023-09-25T08:56:23.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="ES向量查询">
+<meta name="twitter:description" content="一、向量检索1、向量的定义 计算机只认识数字，它只能通过数字来量化这个世界，用一组数字来表示一个事物，这样的一组数字就是一个向量（Vector） 如果一个向量由N个数字组成，它就是一个N维向量。拿目前广泛使用的人脸识别技术来说，计算机从照片或视频中提取出人脸的图像，然后将人脸图像转换为128维或者更高维度的向量。 首先我们了解下什么是向量，所谓向量就是由N个数字（二值向量由N个比特组成）组成的数组">
+<meta name="twitter:image" content="https://rstyro.github.io/blog/2023/09/25/ES向量查询/os.png">
+
+
+
+  <link rel="alternate" href="/blog/atom.xml" title="帅大叔的博客" type="application/atom+xml">
+
+
+
+
+  <link rel="canonical" href="https://rstyro.github.io/blog/2023/09/25/ES向量查询/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>ES向量查询 | 帅大叔的博客</title>
+  
+
+
+
+
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?cd2197f8af1d69b326360027b8f93d92";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+	<a href="https://github.com/rstyro" class="github-corner" aria-label="View source on GitHub"><svg width="80" height="80" viewbox="0 0 250 250" style="fill:#151513; color:#fff; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"/><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"/><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"/></svg></a><style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/blog/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">帅大叔的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">信你所信，为你所见</p>
+      
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/" rel="section">首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/about/" rel="section">关于</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/tags/" rel="section">标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/categories/" rel="section">分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/archives/" rel="section">归档</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-guestbook">
+
+    
+    
+    
+
+    
+
+    <a href="/blog/guestbook/" rel="section">留言</a>
+
+  </li>
+
+      
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            搜索</a>
+        </li>
+      
+    </ul>
+  
+
+  
+    
+
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://rstyro.github.io/blog/blog/2023/09/25/ES向量查询/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="rstyro">
+      <meta itemprop="description" content="个人博客,瞎写一些技术笔记等。">
+      <meta itemprop="image" content="/blog/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="帅大叔的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">ES向量查询
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2023-09-25 16:56:23" itemprop="dateCreated datePublished" datetime="2023-09-25T16:56:23+08:00">2023-09-25</time>
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/blog/categories/搜索引擎/" itemprop="url" rel="index"><span itemprop="name">搜索引擎</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/blog/2023/09/25/ES向量查询/#comments" itemprop="discussionUrl">
+                  <span class="post-meta-item-text">评论数：</span> <span class="post-comments-count valine-comment-count" data-xid="/blog/2023/09/25/ES向量查询/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="post-meta-item-icon">
+            <i class="fa fa-eye"></i>
+             阅读次数： 
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h3 id="一、向量检索"><a href="#一、向量检索" class="headerlink" title="一、向量检索"></a>一、向量检索</h3><h4 id="1、向量的定义"><a href="#1、向量的定义" class="headerlink" title="1、向量的定义"></a>1、向量的定义</h4><ul>
+<li>计算机只认识数字，它只能通过数字来量化这个世界，用一组数字来表示一个事物，这样的一组数字就是一个向量（Vector）</li>
+<li>如果一个向量由N个数字组成，它就是一个N维向量。拿目前广泛使用的人脸识别技术来说，计算机从照片或视频中提取出人脸的图像，然后将人脸图像转换为128维或者更高维度的向量。</li>
+<li>首先我们了解下什么是向量，所谓向量就是由N个数字（二值向量由N个比特组成）组成的数组，我们称之为N维向量。</li>
+<li>而向量检索就是在一个给定向量数据集中，按照某种度量方式，检索出与查询向量相近的K个向量（K-Nearest Neighbor，KNN），但由于KNN计算量过大，我们通常只关注近似近邻（Approximate Nearest Neighbor，ANN）问题。</li>
+</ul>
+<h4 id="2、常见的向量度量"><a href="#2、常见的向量度量" class="headerlink" title="2、常见的向量度量"></a>2、常见的向量度量</h4><ul>
+<li>欧氏距离、余弦、曼哈顿距离、点积</li>
+<li><strong>欧几里得度量（euclidean metric）（也称欧氏距离）</strong> 是一个通常采用的距离定义，指在m维空间中两个点之间的真实距离，或者向量的自然长度（即该点到原点的距离）。在二维和三维空间中的欧氏距离就是两点之间的实际距离。</li>
+</ul>
+<p><img src="os.png" alt></p>
+<ul>
+<li><strong>余弦距离</strong>：也称为余弦相似度。一个向量空间中两个向量夹角间的余弦值作为衡量两个个体之间差异的大小，余弦值接近1，夹角趋于0，表明两个向量越相似，余弦值接近于0，夹角趋于90度，表明两个向量越不相似。</li>
+</ul>
+<p><img src="cos.png" alt></p>
+<ul>
+<li><strong>曼哈顿距离</strong>也称出租车几何，是由十九世纪的赫尔曼·闵可夫斯基所创词汇，是种使用在几何度量空间的几何学用语，用以标明两个点在标准坐标系上的绝对轴距总和。</li>
+</ul>
+<p><img src="mhd.jpg" alt></p>
+<blockquote>
+<p>图中红线代表曼哈顿距离，绿色代表欧氏距离，也就是直线距离，而蓝色和黄色代表等价的曼哈顿距离。</p>
+<p>曼哈顿距离——两点在南北方向上的距离加上在东西方向上的距离</p>
+</blockquote>
+<ul>
+<li><strong>点积</strong> 在数学中，又称数量积（dot product; scalar product），是指接受在实数R上的两个向量并返回一个实数值标量的二元运算。它是欧几里得空间的标准内积。</li>
+</ul>
+<blockquote>
+<p>两个向量a = [a1, a2,…, an]和b = [b1, b2,…, bn]的点积 定义为：a·b=a1b1+a2b2+……+anbn。</p>
+</blockquote>
+<h4 id="3、向量检索的方法"><a href="#3、向量检索的方法" class="headerlink" title="3、向量检索的方法"></a>3、向量检索的方法</h4><ul>
+<li>向量检索有两类方法 ：<ul>
+<li>存在最近邻检索（Nearest Neighbor Search，NN）</li>
+<li>近似最近邻检索（Approximate Nearest Neighbor Search， ANN）</li>
+</ul>
+</li>
+<li>NN 主要是说对结果进行穷举 ，计算结果也是最为精确。</li>
+<li>ANN 主要是对结果的一个近似值估计，ANN则是在可接受的精度条件下通过把向量分簇建立索引，大幅提高搜索效率，这也大规模向量检索场景下所使用的主要方法。</li>
+<li>为什么是近似，而不是我们想要的精确？这就是精度与时间、算力资源的折中，采用了牺牲精度换取时间和空间的方式，从海量的样本中实时获取跟查询最相似的样本。</li>
+</ul>
+<h3 id="二、向量的生成"><a href="#二、向量的生成" class="headerlink" title="二、向量的生成"></a>二、向量的生成</h3><ul>
+<li><p>向量可以表示一个事物，一段文字，一张图片，那向量怎么生成呢?</p>
+</li>
+<li><p>可以使用在HuggingFace中的sentence-transformers的预训练模型来生成我们的向量</p>
+<blockquote>
+<p>查看地址模型介绍：<a href="https://www.sbert.net/docs/pretrained_models.html" target="_blank" rel="noopener">https://www.sbert.net/docs/pretrained_models.html</a><br>或者访问<a href="https://huggingface.co/sentence-transformers" target="_blank" rel="noopener">HuggingFace模型中心</a></p>
+</blockquote>
+</li>
+<li><p>大部分深度学习框架都是PyTorch和TensorFlow，使用的基本都是python</p>
+</li>
+<li><p>如何通过使用Java调用这些模型呢？可以使用DJL</p>
+</li>
+<li><p>Deep Java Library （DJL） 是一个用于深度学习的开源、高级、与引擎无关的 Java 框架。</p>
+</li>
+</ul>
+<h4 id="1、转换并导出模型"><a href="#1、转换并导出模型" class="headerlink" title="1、转换并导出模型"></a>1、转换并导出模型</h4><ul>
+<li>将模型转换为 TorchScript</li>
+</ul>
+<p><strong>①、首先安装:sentence-transformers</strong></p>
+<ul>
+<li>需要安装python环境<figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line">pip <span class="keyword">install</span> -U sentence-transformers</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<p><strong>②、使用模型的python代码例子</strong></p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> sentence_transformers <span class="keyword">import</span> SentenceTransformer</span><br><span class="line">sentences = [<span class="string">"This is an example sentence"</span>, <span class="string">"Each sentence is converted"</span>]</span><br><span class="line"></span><br><span class="line">model = SentenceTransformer(<span class="string">'sentence-transformers/all-mpnet-base-v2'</span>)</span><br><span class="line">embeddings = model.encode(sentences)</span><br><span class="line">print(embeddings)</span><br></pre></td></tr></table></figure>
+
+<p><strong>③、导出为TorchScript模型</strong></p>
+<ul>
+<li>为什么要使用TorchScript对模型进行转换？</li>
+<li>TorchScript代码可以在它自己的解释器中调用，它本质上是一个受限的Python解释器。这个解释器不获取全局解释器锁，因此可以在同一个实例上同时处理多个请求。</li>
+<li>这种格式允许我们将整个模型保存到磁盘上，并将其加载到另一个环境中，比如用Python以外的语言编写的服务器中</li>
+<li>TorchScript提供了一种表示方式，我们可以在其中对代码进行编译器优化，以提供更有效的执行</li>
+<li>TorchScript允许我们与许多后端/设备运行时进行交互</li>
+<li>trace方法首先使用输入数据执行一遍模型，并记录下模型执行过程中的参数，并创建一个torch.jit.ScriptModule实例</li>
+<li>指定导出设备为CPU执行、批次1、最大分段长度128</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> sentence_transformers <span class="keyword">import</span> SentenceTransformer</span><br><span class="line"><span class="keyword">import</span> torch</span><br><span class="line"></span><br><span class="line"><span class="comment"># model = SentenceTransformer('stsb-distilbert-base', device='cpu')</span></span><br><span class="line">model = SentenceTransformer(<span class="string">'sentence-transformers/all-mpnet-base-v2'</span>, device=<span class="string">'cpu'</span>)</span><br><span class="line">model.eval()</span><br><span class="line">batch_size=<span class="number">1</span></span><br><span class="line">max_seq_length=<span class="number">128</span></span><br><span class="line">device = torch.device(<span class="string">"cpu"</span>)</span><br><span class="line">model.to(device)</span><br><span class="line">input_ids = torch.zeros(batch_size, max_seq_length, dtype=torch.long).to(device)</span><br><span class="line">input_type_ids = torch.zeros(batch_size, max_seq_length, dtype=torch.long).to(device)</span><br><span class="line">input_mask = torch.zeros(batch_size, max_seq_length, dtype=torch.long).to(device)</span><br><span class="line"><span class="comment"># input_features = (input_ids, input_type_ids, input_mask)</span></span><br><span class="line">input_features = &#123;<span class="string">'input_ids'</span>: input_ids, <span class="string">'attention_mask'</span>: input_mask&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># traced_model = torch.jit.trace(model, example_inputs=input_features)</span></span><br><span class="line">traced_model = torch.jit.trace(model,example_inputs=input_features,strict=<span class="literal">False</span>)</span><br><span class="line"><span class="comment"># 保存位置,还需要找到模型文件下的 vocab.txt</span></span><br><span class="line">traced_model.save(<span class="string">"D:/models/all-mpnet-base-v2.pt"</span>)</span><br></pre></td></tr></table></figure>
+
+<h4 id="2、代码调用"><a href="#2、代码调用" class="headerlink" title="2、代码调用"></a>2、代码调用</h4><ul>
+<li>直接使用别人写好的SDK,</li>
+<li>链接：<a href="https://gitee.com/mymagicpower/AIAS/tree/main/2_nlp_sdks/embedding/sentence_encoder_15_sdk" target="_blank" rel="noopener">https://gitee.com/mymagicpower/AIAS/tree/main/2_nlp_sdks/embedding/sentence_encoder_15_sdk</a></li>
+<li>我们只需更换预训练模型即可</li>
+</ul>
+<h3 id="三、Elasticsearch向量检索"><a href="#三、Elasticsearch向量检索" class="headerlink" title="三、Elasticsearch向量检索"></a>三、Elasticsearch向量检索</h3><ul>
+<li>ES是有向量检索的功能的。</li>
+<li>ES存储向量的类型为：<code>dense_vector</code><blockquote>
+<p>可参考官方文档的解释：<a href="https://www.elastic.co/guide/en/elasticsearch/reference/8.8/dense-vector.html" target="_blank" rel="noopener">https://www.elastic.co/guide/en/elasticsearch/reference/8.8/dense-vector.html</a></p>
+</blockquote>
+</li>
+</ul>
+<h4 id="1、创建索引"><a href="#1、创建索引" class="headerlink" title="1、创建索引"></a>1、创建索引</h4><ul>
+<li>使用dense_vector类型</li>
+</ul>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">PUT vector_test</span><br><span class="line">&#123;</span><br><span class="line">    <span class="string">"settings"</span>: &#123;</span><br><span class="line">        <span class="string">"index"</span>: &#123;</span><br><span class="line">            <span class="string">"number_of_shards"</span>: <span class="number">3</span>,</span><br><span class="line">            <span class="string">"number_of_replicas"</span>: <span class="number">0</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="string">"mappings"</span>: &#123;</span><br><span class="line">        <span class="string">"properties"</span>: &#123;       </span><br><span class="line">            <span class="string">"text"</span>: &#123;</span><br><span class="line">                <span class="string">"type"</span>: <span class="string">"text"</span>,</span><br><span class="line">                <span class="string">"analyzer"</span>: <span class="string">"ik_max_word"</span>,</span><br><span class="line">                <span class="string">"search_analyzer"</span>: <span class="string">"ik_smart"</span>,</span><br><span class="line">                <span class="string">"fields"</span>: &#123;</span><br><span class="line">                    <span class="string">"keyword"</span>: &#123;</span><br><span class="line">                        <span class="string">"type"</span>: <span class="string">"keyword"</span></span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;,</span><br><span class="line">            <span class="string">"text_vector"</span>: &#123;</span><br><span class="line">                <span class="string">"type"</span>: <span class="string">"dense_vector"</span>,</span><br><span class="line">                <span class="string">"dims"</span>: <span class="number">768</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="2、添加测试数据"><a href="#2、添加测试数据" class="headerlink" title="2、添加测试数据"></a>2、添加测试数据</h4><ul>
+<li>添加数据</li>
+</ul>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="string">PUT</span> <span class="string">vector_test/_doc/1</span></span><br><span class="line"><span class="string">&#123;</span></span><br><span class="line">  <span class="string">"text"</span> <span class="string">:</span> <span class="string">"你是一个好人"</span><span class="string">,</span></span><br><span class="line">  <span class="string">"text_vector"</span> <span class="string">:</span> <span class="string">[-0.012505854,</span> <span class="number">0.06147224</span><span class="string">,</span> <span class="number">-0.0067574065</span><span class="string">,</span> <span class="number">0.025252825</span><span class="string">,</span> <span class="number">0.014709864</span><span class="string">,</span> <span class="number">0.033223037</span><span class="string">,</span> <span class="number">-0.017184058</span><span class="string">,</span> <span class="number">-0.0051696957</span><span class="string">,</span> <span class="number">-0.035197385</span><span class="string">,</span> <span class="number">0.026809592</span><span class="string">,</span> <span class="number">0.027802333</span><span class="string">,</span> <span class="number">0.0017389302</span><span class="string">,</span> <span class="number">-0.035867143</span><span class="string">,</span> <span class="number">0.08371559</span><span class="string">,</span> <span class="number">0.001929885</span><span class="string">,</span> <span class="number">-0.00361458</span><span class="string">,</span> <span class="number">-0.00790528</span><span class="string">,</span> <span class="number">0.007553991</span><span class="string">,</span> <span class="number">-0.04324307</span><span class="string">,</span> <span class="number">-0.02613851</span><span class="string">,</span> <span class="number">-0.021153033</span><span class="string">,</span> <span class="number">0.01321285</span><span class="string">,</span> <span class="number">-0.0055257166</span><span class="string">,</span> <span class="number">-0.031233996</span><span class="string">,</span> <span class="number">0.0057854257</span><span class="string">,</span> <span class="number">-0.05406903</span><span class="string">,</span> <span class="number">0.04010051</span><span class="string">,</span> <span class="number">-0.007975791</span><span class="string">,</span> <span class="number">0.017508717</span><span class="string">,</span> <span class="number">-0.041565668</span><span class="string">,</span> <span class="number">0.017980184</span><span class="string">,</span> <span class="number">-1.2280754E-4</span><span class="string">,</span> <span class="number">-0.0013545807</span><span class="string">,</span> <span class="number">-0.03489499</span><span class="string">,</span> <span class="number">3.9524753E-6</span><span class="string">,</span> <span class="number">-0.0013673576</span><span class="string">,</span> <span class="number">0.0066923774</span><span class="string">,</span> <span class="number">0.03573856</span><span class="string">,</span> <span class="number">-0.04826888</span><span class="string">,</span> <span class="number">0.04836444</span><span class="string">,</span> <span class="number">0.007832441</span><span class="string">,</span> <span class="number">0.03425717</span><span class="string">,</span> <span class="number">-0.017280841</span><span class="string">,</span> <span class="number">-0.03295188</span><span class="string">,</span> <span class="number">0.023084749</span><span class="string">,</span> <span class="number">0.01604493</span><span class="string">,</span> <span class="number">0.011758922</span><span class="string">,</span> <span class="number">-0.026320491</span><span class="string">,</span> <span class="number">-0.04445929</span><span class="string">,</span> <span class="number">0.028686358</span><span class="string">,</span> <span class="number">0.00845232</span><span class="string">,</span> <span class="number">-0.0430134</span><span class="string">,</span> <span class="number">-0.12548839</span><span class="string">,</span> <span class="number">-0.05049735</span><span class="string">,</span> <span class="number">0.05833067</span><span class="string">,</span> <span class="number">0.0288667</span><span class="string">,</span> <span class="number">-0.0032852066</span><span class="string">,</span> <span class="number">-0.009654961</span><span class="string">,</span> <span class="number">0.016982516</span><span class="string">,</span> <span class="number">-0.0030822305</span><span class="string">,</span> <span class="number">-0.0073693004</span><span class="string">,</span> <span class="number">-0.030570433</span><span class="string">,</span> <span class="number">-0.01663565</span><span class="string">,</span> <span class="number">0.049951658</span><span class="string">,</span> <span class="number">9.3295967E-4</span><span class="string">,</span> <span class="number">0.032069236</span><span class="string">,</span> <span class="number">0.033799138</span><span class="string">,</span> <span class="number">-0.035447292</span><span class="string">,</span> <span class="number">0.022693088</span><span class="string">,</span> <span class="number">-0.013528679</span><span class="string">,</span> <span class="number">-0.013003488</span><span class="string">,</span> <span class="number">-0.022620179</span><span class="string">,</span> <span class="number">-0.027964601</span><span class="string">,</span> <span class="number">0.12342365</span><span class="string">,</span> <span class="number">-0.031526618</span><span class="string">,</span> <span class="number">-0.015668027</span><span class="string">,</span> <span class="number">-0.03361883</span><span class="string">,</span> <span class="number">0.03753069</span><span class="string">,</span> <span class="number">0.029121695</span><span class="string">,</span> <span class="number">-0.0074943276</span><span class="string">,</span> <span class="number">-0.02216617</span><span class="string">,</span> <span class="number">-0.010202485</span><span class="string">,</span> <span class="number">0.03770157</span><span class="string">,</span> <span class="number">0.017450918</span><span class="string">,</span> <span class="number">-0.070545085</span><span class="string">,</span> <span class="number">0.041509267</span><span class="string">,</span> <span class="number">-0.03993419</span><span class="string">,</span> <span class="number">-5.662474E-5</span><span class="string">,</span> <span class="number">-0.018616673</span><span class="string">,</span> <span class="number">0.0037204954</span><span class="string">,</span> <span class="number">0.0042463783</span><span class="string">,</span> <span class="number">-0.06394287</span><span class="string">,</span> <span class="number">-0.020681422</span><span class="string">,</span> <span class="number">-0.009565846</span><span class="string">,</span> <span class="number">0.03294697</span><span class="string">,</span> <span class="number">0.0017930836</span><span class="string">,</span> <span class="number">-0.02396136</span><span class="string">,</span> <span class="number">-0.029505575</span><span class="string">,</span> <span class="number">0.019975543</span><span class="string">,</span> <span class="number">-0.006016828</span><span class="string">,</span> <span class="number">-0.05468337</span><span class="string">,</span> <span class="number">0.02398109</span><span class="string">,</span> <span class="number">-0.006946013</span><span class="string">,</span> <span class="number">0.0069326125</span><span class="string">,</span> <span class="number">-0.050539847</span><span class="string">,</span> <span class="number">0.0061268453</span><span class="string">,</span> <span class="number">0.020605352</span><span class="string">,</span> <span class="number">-0.023599977</span><span class="string">,</span> <span class="number">0.027339987</span><span class="string">,</span> <span class="number">0.07509858</span><span class="string">,</span> <span class="number">-0.042036332</span><span class="string">,</span> <span class="number">0.03168564</span><span class="string">,</span> <span class="number">0.023419036</span><span class="string">,</span> <span class="number">0.021137541</span><span class="string">,</span> <span class="number">-0.0035736216</span><span class="string">,</span> <span class="number">-0.015688013</span><span class="string">,</span> <span class="number">-0.017046712</span><span class="string">,</span> <span class="number">0.043178722</span><span class="string">,</span> <span class="number">0.022865435</span><span class="string">,</span> <span class="number">0.0080238525</span><span class="string">,</span> <span class="number">0.092107825</span><span class="string">,</span> <span class="number">0.05981639</span><span class="string">,</span> <span class="number">-0.006804504</span><span class="string">,</span> <span class="number">-0.03161816</span><span class="string">,</span> <span class="number">0.0270866</span><span class="string">,</span> <span class="number">0.006111659</span><span class="string">,</span> <span class="number">0.010318148</span><span class="string">,</span> <span class="number">-0.03923</span><span class="string">,</span> <span class="number">-0.055287804</span><span class="string">,</span> <span class="number">0.0036645613</span><span class="string">,</span> <span class="number">-0.022025242</span><span class="string">,</span> <span class="number">0.02340399</span><span class="string">,</span> <span class="number">0.0033243995</span><span class="string">,</span> <span class="number">-0.0053636613</span><span class="string">,</span> <span class="number">0.030040259</span><span class="string">,</span> <span class="number">-0.011936752</span><span class="string">,</span> <span class="number">0.010141162</span><span class="string">,</span> <span class="number">-0.022458613</span><span class="string">,</span> <span class="number">0.03983138</span><span class="string">,</span> <span class="number">-0.0014371767</span><span class="string">,</span> <span class="number">-0.020213308</span><span class="string">,</span> <span class="number">0.027583351</span><span class="string">,</span> <span class="number">0.0027297717</span><span class="string">,</span> <span class="number">-0.005357834</span><span class="string">,</span> <span class="number">-0.02409058</span><span class="string">,</span> <span class="number">0.010241934</span><span class="string">,</span> <span class="number">0.090006314</span><span class="string">,</span> <span class="number">-0.035087414</span><span class="string">,</span> <span class="number">0.00653623</span><span class="string">,</span> <span class="number">0.0039346516</span><span class="string">,</span> <span class="number">0.010250705</span><span class="string">,</span> <span class="number">0.050382856</span><span class="string">,</span> <span class="number">-0.017161509</span><span class="string">,</span> <span class="number">0.0510087</span><span class="string">,</span> <span class="number">0.042621862</span><span class="string">,</span> <span class="number">0.03852051</span><span class="string">,</span> <span class="number">-0.067141876</span><span class="string">,</span> <span class="number">-0.019240148</span><span class="string">,</span> <span class="number">0.0026372338</span><span class="string">,</span> <span class="number">0.028185826</span><span class="string">,</span> <span class="number">0.05324459</span><span class="string">,</span> <span class="number">0.0022941523</span><span class="string">,</span> <span class="number">-0.035028506</span><span class="string">,</span> <span class="number">-0.015599167</span><span class="string">,</span> <span class="number">-0.028435806</span><span class="string">,</span> <span class="number">-0.0377882</span><span class="string">,</span> <span class="number">0.03562174</span><span class="string">,</span> <span class="number">0.0018862897</span><span class="string">,</span> <span class="number">-0.0039061485</span><span class="string">,</span> <span class="number">-0.06412545</span><span class="string">,</span> <span class="number">0.0010350816</span><span class="string">,</span> <span class="number">-0.0087632425</span><span class="string">,</span> <span class="number">0.008577654</span><span class="string">,</span> <span class="number">0.012741296</span><span class="string">,</span> <span class="number">0.023999304</span><span class="string">,</span> <span class="number">0.025778512</span><span class="string">,</span> <span class="number">-0.10294877</span><span class="string">,</span> <span class="number">-0.027144121</span><span class="string">,</span> <span class="number">-0.0058766077</span><span class="string">,</span> <span class="number">-0.06442985</span><span class="string">,</span> <span class="number">-0.032297857</span><span class="string">,</span> <span class="number">-0.06633747</span><span class="string">,</span> <span class="number">-0.0086341705</span><span class="string">,</span> <span class="number">-0.0066604386</span><span class="string">,</span> <span class="number">0.048547257</span><span class="string">,</span> <span class="number">0.017669922</span><span class="string">,</span> <span class="number">0.0095065</span><span class="string">,</span> <span class="number">0.015545884</span><span class="string">,</span> <span class="number">0.0013499043</span><span class="string">,</span> <span class="number">0.05949494</span><span class="string">,</span> <span class="number">0.055600356</span><span class="string">,</span> <span class="number">-0.042850595</span><span class="string">,</span> <span class="number">0.030414412</span><span class="string">,</span> <span class="number">0.035267334</span><span class="string">,</span> <span class="number">-0.019230738</span><span class="string">,</span> <span class="number">-0.06648767</span><span class="string">,</span> <span class="number">0.005003243</span><span class="string">,</span> <span class="number">-0.03441964</span><span class="string">,</span> <span class="number">-0.019969247</span><span class="string">,</span> <span class="number">-0.019210108</span><span class="string">,</span> <span class="number">0.03602104</span><span class="string">,</span> <span class="number">-0.06424204</span><span class="string">,</span> <span class="number">-0.026293077</span><span class="string">,</span> <span class="number">-0.04298499</span><span class="string">,</span> <span class="number">-0.012769627</span><span class="string">,</span> <span class="number">0.0018947484</span><span class="string">,</span> <span class="number">0.021175286</span><span class="string">,</span> <span class="number">-0.052582107</span><span class="string">,</span> <span class="number">-0.023451183</span><span class="string">,</span> <span class="number">-0.015615097</span><span class="string">,</span> <span class="number">-0.064428896</span><span class="string">,</span> <span class="number">0.02585893</span><span class="string">,</span> <span class="number">0.022697253</span><span class="string">,</span> <span class="number">0.017226717</span><span class="string">,</span> <span class="number">-0.030952323</span><span class="string">,</span> <span class="number">-0.039098963</span><span class="string">,</span> <span class="number">0.04379272</span><span class="string">,</span> <span class="number">-0.013877491</span><span class="string">,</span> <span class="number">-0.049149875</span><span class="string">,</span> <span class="number">0.0774724</span><span class="string">,</span> <span class="number">0.026301159</span><span class="string">,</span> <span class="number">0.050520763</span><span class="string">,</span> <span class="number">0.011468258</span><span class="string">,</span> <span class="number">0.02022638</span><span class="string">,</span> <span class="number">0.06777097</span><span class="string">,</span> <span class="number">0.029125728</span><span class="string">,</span> <span class="number">-0.0023182877</span><span class="string">,</span> <span class="number">0.011963849</span><span class="string">,</span> <span class="number">0.042853955</span><span class="string">,</span> <span class="number">-0.030143002</span><span class="string">,</span> <span class="number">-0.028947085</span><span class="string">,</span> <span class="number">0.053452827</span><span class="string">,</span> <span class="number">0.058101688</span><span class="string">,</span> <span class="number">-0.04697138</span><span class="string">,</span> <span class="number">-0.050331306</span><span class="string">,</span> <span class="number">0.03690062</span><span class="string">,</span> <span class="number">0.062990144</span><span class="string">,</span> <span class="number">-0.010179526</span><span class="string">,</span> <span class="number">0.043333348</span><span class="string">,</span> <span class="number">-0.100340046</span><span class="string">,</span> <span class="number">-0.040861085</span><span class="string">,</span> <span class="number">0.059042346</span><span class="string">,</span> <span class="number">0.015464096</span><span class="string">,</span> <span class="number">0.018711371</span><span class="string">,</span> <span class="number">0.111341216</span><span class="string">,</span> <span class="number">-8.3441264E-4</span><span class="string">,</span> <span class="number">-0.004530031</span><span class="string">,</span> <span class="number">0.006856246</span><span class="string">,</span> <span class="number">-0.015820755</span><span class="string">,</span> <span class="number">0.009357037</span><span class="string">,</span> <span class="number">-0.027195353</span><span class="string">,</span> <span class="number">0.01678015</span><span class="string">,</span> <span class="number">-0.022458278</span><span class="string">,</span> <span class="number">0.02926691</span><span class="string">,</span> <span class="number">0.036279358</span><span class="string">,</span> <span class="number">0.07195243</span><span class="string">,</span> <span class="number">-0.012337138</span><span class="string">,</span> <span class="number">-0.009632895</span><span class="string">,</span> <span class="number">-0.019338757</span><span class="string">,</span> <span class="number">-1.09720595E-5</span><span class="string">,</span> <span class="number">0.012300873</span><span class="string">,</span> <span class="number">0.04435552</span><span class="string">,</span> <span class="number">-0.023237402</span><span class="string">,</span> <span class="number">-0.05616277</span><span class="string">,</span> <span class="number">0.0240922</span><span class="string">,</span> <span class="number">0.036906064</span><span class="string">,</span> <span class="number">-0.017152641</span><span class="string">,</span> <span class="number">-0.026374659</span><span class="string">,</span> <span class="number">-0.040514916</span><span class="string">,</span> <span class="number">-0.0056392485</span><span class="string">,</span> <span class="number">0.05129517</span><span class="string">,</span> <span class="number">0.028157331</span><span class="string">,</span> <span class="number">0.034693655</span><span class="string">,</span> <span class="number">-0.010055021</span><span class="string">,</span> <span class="number">0.037343204</span><span class="string">,</span> <span class="number">-0.015862973</span><span class="string">,</span> <span class="number">-0.023454988</span><span class="string">,</span> <span class="number">-0.004275543</span><span class="string">,</span> <span class="number">-0.048241034</span><span class="string">,</span> <span class="number">-0.020899124</span><span class="string">,</span> <span class="number">-0.027822293</span><span class="string">,</span> <span class="number">0.089256965</span><span class="string">,</span> <span class="number">0.010648741</span><span class="string">,</span> <span class="number">-0.004147703</span><span class="string">,</span> <span class="number">0.027146544</span><span class="string">,</span> <span class="number">-0.0053803716</span><span class="string">,</span> <span class="number">-0.019663313</span><span class="string">,</span> <span class="number">-0.028382884</span><span class="string">,</span> <span class="number">-0.055638853</span><span class="string">,</span> <span class="number">-0.025330327</span><span class="string">,</span> <span class="number">-0.028426137</span><span class="string">,</span> <span class="number">-0.026666772</span><span class="string">,</span> <span class="number">0.071450576</span><span class="string">,</span> <span class="number">-0.051179703</span><span class="string">,</span> <span class="number">0.05322181</span><span class="string">,</span> <span class="number">0.003881786</span><span class="string">,</span> <span class="number">-0.035428137</span><span class="string">,</span> <span class="number">0.006871749</span><span class="string">,</span> <span class="number">0.022797529</span><span class="string">,</span> <span class="number">-0.009136533</span><span class="string">,</span> <span class="number">-0.051556863</span><span class="string">,</span> <span class="number">0.06774118</span><span class="string">,</span> <span class="number">-0.008329566</span><span class="string">,</span> <span class="number">-0.026973749</span><span class="string">,</span> <span class="number">-0.016143592</span><span class="string">,</span> <span class="number">-0.029515121</span><span class="string">,</span> <span class="number">-0.019877851</span><span class="string">,</span> <span class="number">0.008610793</span><span class="string">,</span> <span class="number">0.06042954</span><span class="string">,</span> <span class="number">-0.023035929</span><span class="string">,</span> <span class="number">0.004455642</span><span class="string">,</span> <span class="number">0.0255108</span><span class="string">,</span> <span class="number">0.008197381</span><span class="string">,</span> <span class="number">0.03397594</span><span class="string">,</span> <span class="number">-0.06143347</span><span class="string">,</span> <span class="number">-0.046329204</span><span class="string">,</span> <span class="number">-0.03193</span><span class="string">,</span> <span class="number">-0.06772362</span><span class="string">,</span> <span class="number">0.008335626</span><span class="string">,</span> <span class="number">-0.0062010437</span><span class="string">,</span> <span class="number">0.052905224</span><span class="string">,</span> <span class="number">-0.036074646</span><span class="string">,</span> <span class="number">-0.014172472</span><span class="string">,</span> <span class="number">0.009480537</span><span class="string">,</span> <span class="number">0.010074608</span><span class="string">,</span> <span class="number">0.08615532</span><span class="string">,</span> <span class="number">-0.057823773</span><span class="string">,</span> <span class="number">-0.02569674</span><span class="string">,</span> <span class="number">0.0011091571</span><span class="string">,</span> <span class="number">-0.014469492</span><span class="string">,</span> <span class="number">0.003692755</span><span class="string">,</span> <span class="number">-0.00180485</span><span class="string">,</span> <span class="number">-0.020816932</span><span class="string">,</span> <span class="number">-0.029465076</span><span class="string">,</span> <span class="number">0.019561762</span><span class="string">,</span> <span class="number">-0.035990085</span><span class="string">,</span> <span class="number">0.010145427</span><span class="string">,</span> <span class="number">0.0075150393</span><span class="string">,</span> <span class="number">0.036904298</span><span class="string">,</span> <span class="number">0.016324293</span><span class="string">,</span> <span class="number">0.030511009</span><span class="string">,</span> <span class="number">-0.04671149</span><span class="string">,</span> <span class="number">-0.02251021</span><span class="string">,</span> <span class="number">-0.103131235</span><span class="string">,</span> <span class="number">-0.031056376</span><span class="string">,</span> <span class="number">-0.0151869245</span><span class="string">,</span> <span class="number">-0.020397903</span><span class="string">,</span> <span class="number">0.0013616608</span><span class="string">,</span> <span class="number">-0.06311841</span><span class="string">,</span> <span class="number">0.011365675</span><span class="string">,</span> <span class="number">-0.03667886</span><span class="string">,</span> <span class="number">-0.030479968</span><span class="string">,</span> <span class="number">0.026767144</span><span class="string">,</span> <span class="number">0.008654333</span><span class="string">,</span> <span class="number">0.034051906</span><span class="string">,</span> <span class="number">0.0055492814</span><span class="string">,</span> <span class="number">-0.033325706</span><span class="string">,</span> <span class="number">-0.010394677</span><span class="string">,</span> <span class="number">-0.04182928</span><span class="string">,</span> <span class="number">-0.040240984</span><span class="string">,</span> <span class="number">-0.054245364</span><span class="string">,</span> <span class="number">0.012879458</span><span class="string">,</span> <span class="number">0.06612671</span><span class="string">,</span> <span class="number">0.059664443</span><span class="string">,</span> <span class="number">-0.025509264</span><span class="string">,</span> <span class="number">5.9313833E-4</span><span class="string">,</span> <span class="number">0.029463183</span><span class="string">,</span> <span class="number">0.005490717</span><span class="string">,</span> <span class="number">-0.009813763</span><span class="string">,</span> <span class="number">-0.06596544</span><span class="string">,</span> <span class="number">-0.027723474</span><span class="string">,</span> <span class="number">0.020579752</span><span class="string">,</span> <span class="number">0.033905815</span><span class="string">,</span> <span class="number">0.07558331</span><span class="string">,</span> <span class="number">0.013703343</span><span class="string">,</span> <span class="number">0.011566349</span><span class="string">,</span> <span class="number">0.077872336</span><span class="string">,</span> <span class="number">0.011674445</span><span class="string">,</span> <span class="number">0.066398405</span><span class="string">,</span> <span class="number">-0.024423152</span><span class="string">,</span> <span class="number">-0.01660125</span><span class="string">,</span> <span class="number">-0.06957541</span><span class="string">,</span> <span class="number">-0.088175565</span><span class="string">,</span> <span class="number">-0.013689627</span><span class="string">,</span> <span class="number">0.011793456</span><span class="string">,</span> <span class="number">0.036941543</span><span class="string">,</span> <span class="number">0.015599193</span><span class="string">,</span> <span class="number">0.02968292</span><span class="string">,</span> <span class="number">-0.04144736</span><span class="string">,</span> <span class="number">0.022022178</span><span class="string">,</span> <span class="number">0.063752055</span><span class="string">,</span> <span class="number">0.016542379</span><span class="string">,</span> <span class="number">-0.016617775</span><span class="string">,</span> <span class="number">0.045222204</span><span class="string">,</span> <span class="number">0.016872643</span><span class="string">,</span> <span class="number">-0.05769019</span><span class="string">,</span> <span class="number">-0.010147114</span><span class="string">,</span> <span class="number">0.03114703</span><span class="string">,</span> <span class="number">0.0051837205</span><span class="string">,</span> <span class="number">0.055146314</span><span class="string">,</span> <span class="number">0.02853815</span><span class="string">,</span> <span class="number">0.036281273</span><span class="string">,</span> <span class="number">-0.016086787</span><span class="string">,</span> <span class="number">0.012725542</span><span class="string">,</span> <span class="number">-0.014290429</span><span class="string">,</span> <span class="number">-0.037641004</span><span class="string">,</span> <span class="number">0.044304557</span><span class="string">,</span> <span class="number">3.62814E-4</span><span class="string">,</span> <span class="number">0.029461324</span><span class="string">,</span> <span class="number">-0.06055084</span><span class="string">,</span> <span class="number">-0.05310168</span><span class="string">,</span> <span class="number">-0.020571979</span><span class="string">,</span> <span class="number">0.029543608</span><span class="string">,</span> <span class="number">0.015433996</span><span class="string">,</span> <span class="number">0.0033671295</span><span class="string">,</span> <span class="number">-0.018463276</span><span class="string">,</span> <span class="number">-0.05632213</span><span class="string">,</span> <span class="number">0.041322347</span><span class="string">,</span> <span class="number">0.03857234</span><span class="string">,</span> <span class="number">-0.044536218</span><span class="string">,</span> <span class="number">0.017263962</span><span class="string">,</span> <span class="number">-0.01552795</span><span class="string">,</span> <span class="number">0.09605645</span><span class="string">,</span> <span class="number">0.008688397</span><span class="string">,</span> <span class="number">-0.041638713</span><span class="string">,</span> <span class="number">-7.460972E-5</span><span class="string">,</span> <span class="number">0.01599738</span><span class="string">,</span> <span class="number">0.05843698</span><span class="string">,</span> <span class="number">0.0508531</span><span class="string">,</span> <span class="number">-0.044521865</span><span class="string">,</span> <span class="number">-0.040530432</span><span class="string">,</span> <span class="number">0.039355725</span><span class="string">,</span> <span class="number">-0.031610724</span><span class="string">,</span> <span class="number">0.009913072</span><span class="string">,</span> <span class="number">-0.030967807</span><span class="string">,</span> <span class="number">-0.09124379</span><span class="string">,</span> <span class="number">0.032799624</span><span class="string">,</span> <span class="number">0.05857894</span><span class="string">,</span> <span class="number">-0.011123611</span><span class="string">,</span> <span class="number">-0.03524198</span><span class="string">,</span> <span class="number">-0.02404115</span><span class="string">,</span> <span class="number">-0.03185005</span><span class="string">,</span> <span class="number">0.032866925</span><span class="string">,</span> <span class="number">-0.034415253</span><span class="string">,</span> <span class="number">-0.028242845</span><span class="string">,</span> <span class="number">-0.007635998</span><span class="string">,</span> <span class="number">-0.018282294</span><span class="string">,</span> <span class="number">0.023517247</span><span class="string">,</span> <span class="number">0.025484852</span><span class="string">,</span> <span class="number">-0.051364344</span><span class="string">,</span> <span class="number">-0.0017907086</span><span class="string">,</span> <span class="number">-0.041250806</span><span class="string">,</span> <span class="number">0.016433058</span><span class="string">,</span> <span class="number">-0.07226839</span><span class="string">,</span> <span class="number">0.034877867</span><span class="string">,</span> <span class="number">-0.027846958</span><span class="string">,</span> <span class="number">0.04421044</span><span class="string">,</span> <span class="number">-0.029414197</span><span class="string">,</span> <span class="number">-0.005111358</span><span class="string">,</span> <span class="number">-0.042056244</span><span class="string">,</span> <span class="number">0.047466226</span><span class="string">,</span> <span class="number">-0.01782071</span><span class="string">,</span> <span class="number">0.049537525</span><span class="string">,</span> <span class="number">0.056073792</span><span class="string">,</span> <span class="number">0.018851044</span><span class="string">,</span> <span class="number">0.045955822</span><span class="string">,</span> <span class="number">0.04292147</span><span class="string">,</span> <span class="number">-0.05415365</span><span class="string">,</span> <span class="number">0.01144231</span><span class="string">,</span> <span class="number">-0.054429833</span><span class="string">,</span> <span class="number">-0.03272419</span><span class="string">,</span> <span class="number">-0.015372414</span><span class="string">,</span> <span class="number">-0.02621323</span><span class="string">,</span> <span class="number">0.0214265</span><span class="string">,</span> <span class="number">0.04106312</span><span class="string">,</span> <span class="number">-9.740529E-4</span><span class="string">,</span> <span class="number">-0.05273616</span><span class="string">,</span> <span class="number">-0.044687234</span><span class="string">,</span> <span class="number">-0.061119366</span><span class="string">,</span> <span class="number">0.020349767</span><span class="string">,</span> <span class="number">0.03428493</span><span class="string">,</span> <span class="number">-0.016279843</span><span class="string">,</span> <span class="number">-0.016226638</span><span class="string">,</span> <span class="number">-0.034148663</span><span class="string">,</span> <span class="number">0.015322524</span><span class="string">,</span> <span class="number">0.027373414</span><span class="string">,</span> <span class="number">0.024346756</span><span class="string">,</span> <span class="number">-0.0031301596</span><span class="string">,</span> <span class="number">-0.004702841</span><span class="string">,</span> <span class="number">0.014334275</span><span class="string">,</span> <span class="number">-0.010540824</span><span class="string">,</span> <span class="number">-0.0013895943</span><span class="string">,</span> <span class="number">0.0032654635</span><span class="string">,</span> <span class="number">-0.026203556</span><span class="string">,</span> <span class="number">2.5946766E-4</span><span class="string">,</span> <span class="number">0.046088476</span><span class="string">,</span> <span class="number">-0.02253931</span><span class="string">,</span> <span class="number">-0.049956378</span><span class="string">,</span> <span class="number">0.0016936477</span><span class="string">,</span> <span class="number">-0.016688636</span><span class="string">,</span> <span class="number">0.01257619</span><span class="string">,</span> <span class="number">0.014531191</span><span class="string">,</span> <span class="number">0.07264041</span><span class="string">,</span> <span class="number">-0.0016916422</span><span class="string">,</span> <span class="number">0.011830216</span><span class="string">,</span> <span class="number">-0.05760921</span><span class="string">,</span> <span class="number">-0.027429108</span><span class="string">,</span> <span class="number">0.010079213</span><span class="string">,</span> <span class="number">-0.037514653</span><span class="string">,</span> <span class="number">0.0148782395</span><span class="string">,</span> <span class="number">0.016009051</span><span class="string">,</span> <span class="number">-0.011714079</span><span class="string">,</span> <span class="number">0.023386784</span><span class="string">,</span> <span class="number">-0.08414525</span><span class="string">,</span> <span class="number">0.010772063</span><span class="string">,</span> <span class="number">0.054867916</span><span class="string">,</span> <span class="number">0.03390206</span><span class="string">,</span> <span class="number">-0.067308456</span><span class="string">,</span> <span class="number">0.024955824</span><span class="string">,</span> <span class="number">-0.0065232567</span><span class="string">,</span> <span class="number">0.059096325</span><span class="string">,</span> <span class="number">3.8397656E-4</span><span class="string">,</span> <span class="number">0.0017244497</span><span class="string">,</span> <span class="number">0.05745784</span><span class="string">,</span> <span class="number">0.019498682</span><span class="string">,</span> <span class="number">0.06431358</span><span class="string">,</span> <span class="number">0.008503143</span><span class="string">,</span> <span class="number">-0.029383926</span><span class="string">,</span> <span class="number">-0.05435278</span><span class="string">,</span> <span class="number">0.0029664906</span><span class="string">,</span> <span class="number">-0.012685078</span><span class="string">,</span> <span class="number">-0.0055286386</span><span class="string">,</span> <span class="number">0.08989173</span><span class="string">,</span> <span class="number">-0.0054096836</span><span class="string">,</span> <span class="number">-0.05002699</span><span class="string">,</span> <span class="number">0.10742954</span><span class="string">,</span> <span class="number">-0.015800381</span><span class="string">,</span> <span class="number">-0.016217759</span><span class="string">,</span> <span class="number">-0.0070680636</span><span class="string">,</span> <span class="number">0.018921603</span><span class="string">,</span> <span class="number">-0.06770832</span><span class="string">,</span> <span class="number">-0.01903497</span><span class="string">,</span> <span class="number">0.007963758</span><span class="string">,</span> <span class="number">-0.009616666</span><span class="string">,</span> <span class="number">0.04473252</span><span class="string">,</span> <span class="number">-0.011077201</span><span class="string">,</span> <span class="number">-0.0020928096</span><span class="string">,</span> <span class="number">-0.051992845</span><span class="string">,</span> <span class="number">-0.026985755</span><span class="string">,</span> <span class="number">-0.04610937</span><span class="string">,</span> <span class="number">0.039185517</span><span class="string">,</span> <span class="number">0.05945134</span><span class="string">,</span> <span class="number">-0.027102053</span><span class="string">,</span> <span class="number">0.0061615603</span><span class="string">,</span> <span class="number">-0.0768129</span><span class="string">,</span> <span class="number">-1.7295704E-32</span><span class="string">,</span> <span class="number">0.035317</span><span class="string">,</span> <span class="number">0.0219929</span><span class="string">,</span> <span class="number">-0.01790403</span><span class="string">,</span> <span class="number">-0.027079498</span><span class="string">,</span> <span class="number">-0.026575312</span><span class="string">,</span> <span class="number">-0.055016436</span><span class="string">,</span> <span class="number">0.04162931</span><span class="string">,</span> <span class="number">-0.027480282</span><span class="string">,</span> <span class="number">0.04364564</span><span class="string">,</span> <span class="number">-2.0629673E-4</span><span class="string">,</span> <span class="number">-0.034147326</span><span class="string">,</span> <span class="number">-0.061749768</span><span class="string">,</span> <span class="number">0.0886111</span><span class="string">,</span> <span class="number">0.030985324</span><span class="string">,</span> <span class="number">-0.003071205</span><span class="string">,</span> <span class="number">-0.06550483</span><span class="string">,</span> <span class="number">0.03790275</span><span class="string">,</span> <span class="number">-0.0056091533</span><span class="string">,</span> <span class="number">0.03268208</span><span class="string">,</span> <span class="number">-0.0052961344</span><span class="string">,</span> <span class="number">-0.050385714</span><span class="string">,</span> <span class="number">-0.02493322</span><span class="string">,</span> <span class="number">-0.012485181</span><span class="string">,</span> <span class="number">-0.010890675</span><span class="string">,</span> <span class="number">-0.0193166</span><span class="string">,</span> <span class="number">0.016982986</span><span class="string">,</span> <span class="number">-0.050390452</span><span class="string">,</span> <span class="number">-0.058259174</span><span class="string">,</span> <span class="number">0.039912853</span><span class="string">,</span> <span class="number">-0.0048905304</span><span class="string">,</span> <span class="number">-0.03959887</span><span class="string">,</span> <span class="number">0.032292433</span><span class="string">,</span> <span class="number">0.0086986935</span><span class="string">,</span> <span class="number">0.041798912</span><span class="string">,</span> <span class="number">0.02420321</span><span class="string">,</span> <span class="number">0.0017432563</span><span class="string">,</span> <span class="number">0.043273624</span><span class="string">,</span> <span class="number">-0.011582973</span><span class="string">,</span> <span class="number">0.0026177447</span><span class="string">,</span> <span class="number">-0.028080417</span><span class="string">,</span> <span class="number">-0.08539406</span><span class="string">,</span> <span class="number">0.022111084</span><span class="string">,</span> <span class="number">0.015072255</span><span class="string">,</span> <span class="number">-0.09684252</span><span class="string">,</span> <span class="number">-0.005454781</span><span class="string">,</span> <span class="number">0.01978267</span><span class="string">,</span> <span class="number">0.023920622</span><span class="string">,</span> <span class="number">0.0058161933</span><span class="string">,</span> <span class="number">0.03470632</span><span class="string">,</span> <span class="number">-0.004187661</span><span class="string">,</span> <span class="number">-0.028828895</span><span class="string">,</span> <span class="number">0.015490826</span><span class="string">,</span> <span class="number">-0.017417595</span><span class="string">,</span> <span class="number">0.040624265</span><span class="string">,</span> <span class="number">-0.002125864</span><span class="string">,</span> <span class="number">0.018177766</span><span class="string">,</span> <span class="number">0.004613023</span><span class="string">,</span> <span class="number">0.023367357</span><span class="string">,</span> <span class="number">0.0361941</span><span class="string">,</span> <span class="number">0.0080737</span><span class="string">,</span> <span class="number">0.017960636</span><span class="string">,</span> <span class="number">0.013591572</span><span class="string">,</span> <span class="number">0.059291393</span><span class="string">,</span> <span class="number">0.06145877</span><span class="string">,</span> <span class="number">-0.0019097899</span><span class="string">,</span> <span class="number">0.036604486</span><span class="string">,</span> <span class="number">-0.016236227</span><span class="string">,</span> <span class="number">0.055379704</span><span class="string">,</span> <span class="number">0.025022436</span><span class="string">,</span> <span class="number">-0.013153723</span><span class="string">,</span> <span class="number">-0.031179832</span><span class="string">,</span> <span class="number">0.04997251</span><span class="string">,</span> <span class="number">-0.0028860106</span><span class="string">,</span> <span class="number">-0.024477055</span><span class="string">,</span> <span class="number">-0.01700109</span><span class="string">,</span> <span class="number">-0.05874153</span><span class="string">,</span> <span class="number">-0.024895621</span><span class="string">,</span> <span class="number">0.026405387</span><span class="string">,</span> <span class="number">0.068785004</span><span class="string">,</span> <span class="number">-0.01788662</span><span class="string">,</span> <span class="number">-0.03627912</span><span class="string">,</span> <span class="number">0.045744203</span><span class="string">,</span> <span class="number">0.042671025</span><span class="string">,</span> <span class="number">0.0018450335</span><span class="string">,</span> <span class="number">0.001834208</span><span class="string">,</span> <span class="number">-0.06310543</span><span class="string">,</span> <span class="number">0.001979173</span><span class="string">,</span> <span class="number">-0.023845715</span><span class="string">,</span> <span class="number">-0.0018861454</span><span class="string">,</span> <span class="number">0.04186343</span><span class="string">,</span> <span class="number">-0.05269792</span><span class="string">,</span> <span class="number">0.045228235</span><span class="string">,</span> <span class="number">-0.060798503</span><span class="string">,</span> <span class="number">-0.028638572</span><span class="string">,</span> <span class="number">-0.0228071</span><span class="string">,</span> <span class="number">-0.070954636</span><span class="string">,</span> <span class="number">0.0078078024</span><span class="string">,</span> <span class="number">-0.041703627</span><span class="string">,</span> <span class="number">0.0025806723</span><span class="string">,</span> <span class="number">-0.014570363</span><span class="string">,</span> <span class="number">-0.0039354116</span><span class="string">,</span> <span class="number">-0.034452397</span><span class="string">,</span> <span class="number">0.002529964</span><span class="string">,</span> <span class="number">0.043591492</span><span class="string">,</span> <span class="number">-0.014511649</span><span class="string">,</span> <span class="number">0.013183844</span><span class="string">,</span> <span class="number">0.011353356</span><span class="string">,</span> <span class="number">9.751483E-4</span><span class="string">,</span> <span class="number">-0.015498388</span><span class="string">,</span> <span class="number">-0.0030334396</span><span class="string">,</span> <span class="number">-0.022776796</span><span class="string">,</span> <span class="number">0.00446422</span><span class="string">,</span> <span class="number">0.03147401</span><span class="string">,</span> <span class="number">-0.023508854</span><span class="string">,</span> <span class="number">0.028402278</span><span class="string">,</span> <span class="number">0.012927605</span><span class="string">,</span> <span class="number">0.030423557</span><span class="string">,</span> <span class="number">-0.06872545</span><span class="string">,</span> <span class="number">9.792577E-4</span><span class="string">,</span> <span class="number">0.0056752623</span><span class="string">,</span> <span class="number">0.0958454</span><span class="string">,</span> <span class="number">-0.0020520398</span><span class="string">,</span> <span class="number">0.0075088274</span><span class="string">,</span> <span class="number">0.039462253</span><span class="string">,</span> <span class="number">-0.037520554</span><span class="string">,</span> <span class="number">0.017715598</span><span class="string">,</span> <span class="number">0.0028989988</span><span class="string">,</span> <span class="number">-0.026699575</span><span class="string">,</span> <span class="number">0.011080348</span><span class="string">,</span> <span class="number">-0.07706165</span><span class="string">,</span> <span class="number">0.022399683</span><span class="string">,</span> <span class="number">-0.032965884</span><span class="string">,</span> <span class="number">4.5342185E-7</span><span class="string">,</span> <span class="number">-0.044260148</span><span class="string">,</span> <span class="number">-0.04811291</span><span class="string">,</span> <span class="number">0.018212777</span><span class="string">,</span> <span class="number">-0.0038508293</span><span class="string">,</span> <span class="number">0.028676698</span><span class="string">,</span> <span class="number">0.01431396</span><span class="string">,</span> <span class="number">-0.005058972</span><span class="string">,</span> <span class="number">0.03720743</span><span class="string">,</span> <span class="number">-0.0015348713</span><span class="string">,</span> <span class="number">-0.039004844</span><span class="string">,</span> <span class="number">0.02639723</span><span class="string">,</span> <span class="number">-0.063463606</span><span class="string">,</span> <span class="number">0.024510205</span><span class="string">,</span> <span class="number">-0.0070474367</span><span class="string">,</span> <span class="number">-0.013666664</span><span class="string">,</span> <span class="number">0.031803716</span><span class="string">,</span> <span class="number">-0.024600165</span><span class="string">,</span> <span class="number">-0.032639313</span><span class="string">,</span> <span class="number">-7.961371E-4</span><span class="string">,</span> <span class="number">-0.03440909</span><span class="string">,</span> <span class="number">0.09303336</span><span class="string">,</span> <span class="number">0.022659928</span><span class="string">,</span> <span class="number">0.032243475</span><span class="string">,</span> <span class="number">0.044743482</span><span class="string">,</span> <span class="number">-0.0074496665</span><span class="string">,</span> <span class="number">-0.05655795</span><span class="string">,</span> <span class="number">0.014978297</span><span class="string">,</span> <span class="number">-0.03521938</span><span class="string">,</span> <span class="number">-0.023144424</span><span class="string">,</span> <span class="number">-0.010839281</span><span class="string">,</span> <span class="number">-0.076098755</span><span class="string">,</span> <span class="number">0.028191978</span><span class="string">,</span> <span class="number">-0.045076158</span><span class="string">,</span> <span class="number">-0.033995856</span><span class="string">,</span> <span class="number">-0.014625676</span><span class="string">,</span> <span class="number">0.02008576</span><span class="string">,</span> <span class="number">0.03164706</span><span class="string">,</span> <span class="number">1.3723833E-4</span><span class="string">,</span> <span class="number">0.016604789</span><span class="string">,</span> <span class="number">-0.020803023</span><span class="string">,</span> <span class="number">-0.0733839</span><span class="string">,</span> <span class="number">-0.06853161</span><span class="string">,</span> <span class="number">-0.024279924</span><span class="string">,</span> <span class="number">-0.018286688</span><span class="string">,</span> <span class="number">0.024374323</span><span class="string">,</span> <span class="number">-0.029345883</span><span class="string">,</span> <span class="number">0.0034723277</span><span class="string">,</span> <span class="number">0.0040782033</span><span class="string">,</span> <span class="number">-0.02832936</span><span class="string">,</span> <span class="number">0.013157311</span><span class="string">,</span> <span class="number">-0.021874687</span><span class="string">,</span> <span class="number">0.0053453976</span><span class="string">,</span> <span class="number">-0.005933344</span><span class="string">,</span> <span class="number">0.024842756</span><span class="string">,</span> <span class="number">-0.016247336</span><span class="string">,</span> <span class="number">-0.046917956</span><span class="string">,</span> <span class="number">0.009863487</span><span class="string">,</span> <span class="number">-0.004510552</span><span class="string">,</span> <span class="number">-0.019274969</span><span class="string">,</span> <span class="number">-0.016453179</span><span class="string">,</span> <span class="number">-0.02380178</span><span class="string">,</span> <span class="number">0.029494025</span><span class="string">,</span> <span class="number">-0.031934112</span><span class="string">,</span> <span class="number">0.020972388</span><span class="string">,</span> <span class="number">-0.0029798383</span><span class="string">,</span> <span class="number">-0.045054633</span><span class="string">,</span> <span class="number">-0.017571395</span><span class="string">,</span> <span class="number">-1.2807555E-34</span><span class="string">,</span> <span class="number">0.056822862</span><span class="string">,</span> <span class="number">0.018111244</span><span class="string">,</span> <span class="number">-0.019010654</span><span class="string">,</span> <span class="number">0.004600001</span><span class="string">,</span> <span class="number">-0.036646195</span><span class="string">,</span> <span class="number">-0.02234512</span><span class="string">,</span> <span class="number">0.017520165</span><span class="string">,</span> <span class="number">-0.009043565</span><span class="string">,</span> <span class="number">-0.0019575048</span><span class="string">,</span> <span class="number">-0.050363533</span><span class="string">,</span> <span class="number">-0.019037234</span><span class="string">]</span></span><br><span class="line"></span><br><span class="line"><span class="string">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="3、-脚本分数查询"><a href="#3、-脚本分数查询" class="headerlink" title="3、 脚本分数查询"></a>3、 脚本分数查询</h4><ul>
+<li>相似度查询</li>
+</ul>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 向量使用的是：今天天气不错</span></span><br><span class="line"><span class="comment">//公式1： 1 / (1 + l2norm(params.queryVector, 'text_vector'))</span></span><br><span class="line"><span class="comment">//公式2： 1 / (1 + l1norm(params.queryVector, 'text_vector')) </span></span><br><span class="line"><span class="comment">//公式3： double value = dotProduct(params.queryVector,'text_vector');return sigmoid(1, Math.E, -value);</span></span><br><span class="line"><span class="comment">//公式4： cosineSimilarity(params.queryVector, 'text_vector') + 1.0</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">POST vector_test/_search</span><br><span class="line">&#123;</span><br><span class="line">    <span class="string">"_source"</span>:&#123;</span><br><span class="line">        <span class="string">"includes"</span>:[<span class="string">"text"</span>]</span><br><span class="line">    &#125;,</span><br><span class="line">     <span class="string">"min_score"</span>:<span class="string">"1.45"</span>,</span><br><span class="line">  <span class="string">"query"</span>: &#123;</span><br><span class="line">    <span class="string">"script_score"</span>: &#123;</span><br><span class="line">      <span class="string">"query"</span> : &#123;</span><br><span class="line">        <span class="string">"match_all"</span>: &#123;&#125;</span><br><span class="line">      &#125;,</span><br><span class="line">      <span class="string">"script"</span>: &#123;</span><br><span class="line">        <span class="string">"source"</span>: <span class="string">"double value = dotProduct(params.queryVector, 'text_vector');return sigmoid(1, Math.E, -value);"</span>,</span><br><span class="line">        <span class="string">"params"</span>: &#123;</span><br><span class="line">          <span class="string">"queryVector"</span>: [<span class="number">0.012180052</span>, <span class="number">-0.035749264</span>, <span class="number">0.028726313</span>, <span class="number">0.07741992</span>, <span class="number">0.07618319</span>, <span class="number">0.03632554</span>, <span class="number">-0.032679413</span>, <span class="number">0.008679836</span>, <span class="number">0.010796744</span>, <span class="number">-0.0019097894</span>, <span class="number">-0.038197577</span>, <span class="number">0.08862243</span>, <span class="number">0.00534406</span>, <span class="number">0.018697966</span>, <span class="number">-0.062172916</span>, <span class="number">-0.020433698</span>, <span class="number">-0.020399865</span>, <span class="number">0.07238936</span>, <span class="number">-0.007107044</span>, <span class="number">-0.01198608</span>, <span class="number">-0.010562083</span>, <span class="number">-0.02283883</span>, <span class="number">-0.019021884</span>, <span class="number">0.06342994</span>, <span class="number">0.026685713</span>, <span class="number">-0.025934406</span>, <span class="number">-0.039257795</span>, <span class="number">0.012371695</span>, <span class="number">-0.011688991</span>, <span class="number">-0.026081014</span>, <span class="number">-0.065597735</span>, <span class="number">0.053438343</span>, <span class="number">-0.028596632</span>, <span class="number">-0.15381034</span>, <span class="number">-0.02709136</span>, <span class="number">-0.083783306</span>, <span class="number">-0.021032596</span>, <span class="number">0.014292716</span>, <span class="number">-0.022718986</span>, <span class="number">0.07942374</span>, <span class="number">-0.048416447</span>, <span class="number">0.033912044</span>, <span class="number">0.010580469</span>, <span class="number">-0.004320236</span>, <span class="number">-0.014759818</span>, <span class="number">0.0125834765</span>, <span class="number">0.037446205</span>, <span class="number">0.015093978</span>, <span class="number">0.009011443</span>, <span class="number">0.012786734</span>, <span class="number">-0.03191145</span>, <span class="number">-0.0041232645</span>, <span class="number">-0.022926472</span>, <span class="number">-0.044445902</span>, <span class="number">0.010174482</span>, <span class="number">-0.022331368</span>, <span class="number">-0.013825135</span>, <span class="number">-0.04677142</span>, <span class="number">-0.007983386</span>, <span class="number">-1.1289655E-4</span>, <span class="number">6.232522E-4</span>, <span class="number">-0.0073136776</span>, <span class="number">-0.047892943</span>, <span class="number">-0.016695375</span>, <span class="number">0.004697273</span>, <span class="number">0.02884165</span>, <span class="number">-0.010049979</span>, <span class="number">-0.021391468</span>, <span class="number">-0.015952744</span>, <span class="number">0.015066106</span>, <span class="number">0.038178846</span>, <span class="number">0.017233396</span>, <span class="number">0.034392256</span>, <span class="number">0.0011104626</span>, <span class="number">0.011157879</span>, <span class="number">-0.011426429</span>, <span class="number">-0.02386704</span>, <span class="number">-0.0037315986</span>, <span class="number">-0.023951532</span>, <span class="number">-0.040905442</span>, <span class="number">0.061722003</span>, <span class="number">-0.09844558</span>, <span class="number">-0.023778837</span>, <span class="number">-0.025130626</span>, <span class="number">0.010026219</span>, <span class="number">0.090813845</span>, <span class="number">0.02116601</span>, <span class="number">0.030656965</span>, <span class="number">-0.051983073</span>, <span class="number">-0.046070114</span>, <span class="number">-0.013155748</span>, <span class="number">0.025508625</span>, <span class="number">0.062288605</span>, <span class="number">0.0024993517</span>, <span class="number">-0.029925758</span>, <span class="number">0.08035762</span>, <span class="number">-0.021303015</span>, <span class="number">-0.01593142</span>, <span class="number">-0.08512837</span>, <span class="number">-0.0071579553</span>, <span class="number">0.0067918263</span>, <span class="number">-0.021745214</span>, <span class="number">-0.05515468</span>, <span class="number">-0.070750885</span>, <span class="number">0.034810245</span>, <span class="number">-0.08569365</span>, <span class="number">0.021458823</span>, <span class="number">-0.017061787</span>, <span class="number">0.0026869043</span>, <span class="number">0.030018022</span>, <span class="number">-0.041494858</span>, <span class="number">0.09564145</span>, <span class="number">0.0017981793</span>, <span class="number">0.0158431</span>, <span class="number">0.07715243</span>, <span class="number">-0.023778513</span>, <span class="number">0.0426596</span>, <span class="number">0.04772864</span>, <span class="number">0.17061941</span>, <span class="number">0.037555538</span>, <span class="number">-0.0018540444</span>, <span class="number">0.005351006</span>, <span class="number">0.02371963</span>, <span class="number">0.020617967</span>, <span class="number">-0.06761714</span>, <span class="number">0.048594203</span>, <span class="number">-0.013896715</span>, <span class="number">-0.015313695</span>, <span class="number">0.0053959116</span>, <span class="number">-0.019819288</span>, <span class="number">0.0077850046</span>, <span class="number">-0.00752286</span>, <span class="number">0.03487459</span>, <span class="number">0.05093316</span>, <span class="number">-0.012938046</span>, <span class="number">-0.019690173</span>, <span class="number">-0.0016301284</span>, <span class="number">-0.057390906</span>, <span class="number">-0.024133995</span>, <span class="number">0.025157755</span>, <span class="number">-0.0028830157</span>, <span class="number">-0.018437425</span>, <span class="number">0.024095569</span>, <span class="number">-0.009438414</span>, <span class="number">-0.08874059</span>, <span class="number">-0.005173016</span>, <span class="number">-0.065511614</span>, <span class="number">0.057566475</span>, <span class="number">-0.020237643</span>, <span class="number">-0.0041861776</span>, <span class="number">-0.018955257</span>, <span class="number">-0.039282065</span>, <span class="number">-0.0013770495</span>, <span class="number">-0.043112427</span>, <span class="number">0.05317557</span>, <span class="number">0.060080312</span>, <span class="number">-0.044718403</span>, <span class="number">0.07168413</span>, <span class="number">0.035226155</span>, <span class="number">0.020365102</span>, <span class="number">0.041678067</span>, <span class="number">0.16186184</span>, <span class="number">-0.007941735</span>, <span class="number">0.05319947</span>, <span class="number">-0.016731527</span>, <span class="number">0.02331473</span>, <span class="number">0.011195926</span>, <span class="number">-0.08663159</span>, <span class="number">-0.025290083</span>, <span class="number">-0.0037673104</span>, <span class="number">-0.109234005</span>, <span class="number">0.14701073</span>, <span class="number">-0.09029996</span>, <span class="number">0.035318837</span>, <span class="number">0.0047066077</span>, <span class="number">0.020087335</span>, <span class="number">-0.02241932</span>, <span class="number">-0.029502394</span>, <span class="number">0.024866907</span>, <span class="number">0.013387565</span>, <span class="number">-0.010215959</span>, <span class="number">0.039151758</span>, <span class="number">-0.017890649</span>, <span class="number">0.032414656</span>, <span class="number">-0.0026917201</span>, <span class="number">0.02742293</span>, <span class="number">-0.037203185</span>, <span class="number">0.029606108</span>, <span class="number">0.026543185</span>, <span class="number">-0.038486738</span>, <span class="number">-0.034082644</span>, <span class="number">0.018328678</span>, <span class="number">0.010387662</span>, <span class="number">-0.017738141</span>, <span class="number">-0.02813968</span>, <span class="number">-0.0062098643</span>, <span class="number">-0.021350194</span>, <span class="number">0.009390433</span>, <span class="number">0.019586427</span>, <span class="number">7.196608E-4</span>, <span class="number">-0.002126615</span>, <span class="number">-0.07509526</span>, <span class="number">0.019139549</span>, <span class="number">-0.07706402</span>, <span class="number">0.014352148</span>, <span class="number">-0.007941991</span>, <span class="number">0.001187094</span>, <span class="number">0.023037983</span>, <span class="number">0.039248127</span>, <span class="number">0.0044647</span>, <span class="number">-0.019044168</span>, <span class="number">-0.031702917</span>, <span class="number">0.014304962</span>, <span class="number">-0.043643914</span>, <span class="number">0.028015547</span>, <span class="number">0.014476172</span>, <span class="number">-0.0140340645</span>, <span class="number">0.03881786</span>, <span class="number">0.013956274</span>, <span class="number">-0.0060902843</span>, <span class="number">0.03224034</span>, <span class="number">0.020009317</span>, <span class="number">-0.054327503</span>, <span class="number">3.1390623E-4</span>, <span class="number">-0.007521768</span>, <span class="number">0.07434456</span>, <span class="number">-0.026895037</span>, <span class="number">0.0074033877</span>, <span class="number">-0.017457958</span>, <span class="number">0.035889063</span>, <span class="number">-0.006310429</span>, <span class="number">0.016894849</span>, <span class="number">0.018498972</span>, <span class="number">-0.17547764</span>, <span class="number">0.025896212</span>, <span class="number">0.05847995</span>, <span class="number">0.027605882</span>, <span class="number">0.026951058</span>, <span class="number">0.108890675</span>, <span class="number">0.054185085</span>, <span class="number">0.041628905</span>, <span class="number">-0.08013876</span>, <span class="number">-0.00881632</span>, <span class="number">0.010635092</span>, <span class="number">0.0021265517</span>, <span class="number">0.02421204</span>, <span class="number">-0.008131912</span>, <span class="number">0.017787877</span>, <span class="number">0.0037791964</span>, <span class="number">0.07604542</span>, <span class="number">-0.011710854</span>, <span class="number">-0.05541998</span>, <span class="number">0.037059188</span>, <span class="number">-0.029180674</span>, <span class="number">-0.009971812</span>, <span class="number">-0.05023198</span>, <span class="number">0.03185823</span>, <span class="number">0.0042317584</span>, <span class="number">0.009935685</span>, <span class="number">-9.914517E-4</span>, <span class="number">-0.016759787</span>, <span class="number">-0.01822887</span>, <span class="number">-0.022956256</span>, <span class="number">0.05123107</span>, <span class="number">0.030935027</span>, <span class="number">0.001766718</span>, <span class="number">-0.0017011124</span>, <span class="number">-0.009909989</span>, <span class="number">-0.0069078826</span>, <span class="number">-0.03376478</span>, <span class="number">-0.0053532426</span>, <span class="number">-0.039759737</span>, <span class="number">-0.050867483</span>, <span class="number">0.015165593</span>, <span class="number">-0.011836869</span>, <span class="number">0.026792185</span>, <span class="number">-0.023747869</span>, <span class="number">0.010067161</span>, <span class="number">-0.017702028</span>, <span class="number">-0.004723526</span>, <span class="number">0.00300006</span>, <span class="number">0.0016986935</span>, <span class="number">0.038826488</span>, <span class="number">-0.033063017</span>, <span class="number">-0.01677645</span>, <span class="number">-0.032374114</span>, <span class="number">0.05408412</span>, <span class="number">0.022496011</span>, <span class="number">-0.021329155</span>, <span class="number">0.056598924</span>, <span class="number">0.016690996</span>, <span class="number">0.0068791145</span>, <span class="number">0.09522898</span>, <span class="number">-0.043186683</span>, <span class="number">0.040847424</span>, <span class="number">-0.011698286</span>, <span class="number">0.0135710025</span>, <span class="number">-0.035192512</span>, <span class="number">0.036276057</span>, <span class="number">0.013632161</span>, <span class="number">-0.0073640253</span>, <span class="number">0.034589622</span>, <span class="number">-0.0010686518</span>, <span class="number">-0.052932758</span>, <span class="number">-0.038841534</span>, <span class="number">0.010487382</span>, <span class="number">0.019552423</span>, <span class="number">0.043749604</span>, <span class="number">0.023301532</span>, <span class="number">0.049772337</span>, <span class="number">0.0035389883</span>, <span class="number">0.037149318</span>, <span class="number">-0.02884169</span>, <span class="number">0.10656746</span>, <span class="number">0.010259339</span>, <span class="number">0.010951093</span>, <span class="number">0.00436831</span>, <span class="number">-0.004981387</span>, <span class="number">-0.0036905985</span>, <span class="number">0.025460914</span>, <span class="number">-0.04280052</span>, <span class="number">-0.020674769</span>, <span class="number">0.012859347</span>, <span class="number">-0.036366872</span>, <span class="number">-0.001395519</span>, <span class="number">0.012532833</span>, <span class="number">-0.035698198</span>, <span class="number">0.039046146</span>, <span class="number">0.009063786</span>, <span class="number">-0.061672088</span>, <span class="number">-0.041516546</span>, <span class="number">0.10154377</span>, <span class="number">-0.038796037</span>, <span class="number">-0.06833652</span>, <span class="number">-0.047975738</span>, <span class="number">-0.028164193</span>, <span class="number">-0.032864887</span>, <span class="number">-0.012679307</span>, <span class="number">0.0626986</span>, <span class="number">-0.0012406608</span>, <span class="number">0.020456884</span>, <span class="number">-0.062185243</span>, <span class="number">0.011227085</span>, <span class="number">-0.0037145878</span>, <span class="number">0.02469058</span>, <span class="number">0.014030718</span>, <span class="number">3.1149993E-4</span>, <span class="number">0.046243083</span>, <span class="number">0.005926181</span>, <span class="number">0.0013831255</span>, <span class="number">6.042434E-4</span>, <span class="number">0.03886239</span>, <span class="number">0.014452023</span>, <span class="number">-0.0075967573</span>, <span class="number">-0.060689192</span>, <span class="number">3.739034E-4</span>, <span class="number">-0.01953238</span>, <span class="number">0.004154923</span>, <span class="number">-5.5117934E-4</span>, <span class="number">-3.9158596E-4</span>, <span class="number">-0.0025693835</span>, <span class="number">0.024300324</span>, <span class="number">-0.015288723</span>, <span class="number">0.034946747</span>, <span class="number">0.03161286</span>, <span class="number">0.03977112</span>, <span class="number">0.002458337</span>, <span class="number">0.012037479</span>, <span class="number">-0.0043486874</span>, <span class="number">0.022048473</span>, <span class="number">-0.029447526</span>, <span class="number">0.06267555</span>, <span class="number">0.003721683</span>, <span class="number">-0.009302285</span>, <span class="number">-0.008346288</span>, <span class="number">-0.009577012</span>, <span class="number">-0.056524895</span>, <span class="number">-0.07812324</span>, <span class="number">-0.032444503</span>, <span class="number">0.032762017</span>, <span class="number">-0.04687511</span>, <span class="number">-0.029303363</span>, <span class="number">-0.010462125</span>, <span class="number">0.039505556</span>, <span class="number">0.07359841</span>, <span class="number">0.024376001</span>, <span class="number">-0.0069653434</span>, <span class="number">0.04368373</span>, <span class="number">0.021885287</span>, <span class="number">0.0027853583</span>, <span class="number">0.025914587</span>, <span class="number">0.017866002</span>, <span class="number">-0.045154694</span>, <span class="number">-0.043425806</span>, <span class="number">-0.031375147</span>, <span class="number">-0.0016954301</span>, <span class="number">-0.05397924</span>, <span class="number">-7.3173956E-4</span>, <span class="number">-0.030575963</span>, <span class="number">0.028093044</span>, <span class="number">0.012965086</span>, <span class="number">-0.025183583</span>, <span class="number">0.02098049</span>, <span class="number">0.034593325</span>, <span class="number">0.03932597</span>, <span class="number">0.033634048</span>, <span class="number">0.0066029956</span>, <span class="number">0.014215493</span>, <span class="number">-0.021505551</span>, <span class="number">0.009805857</span>, <span class="number">0.024105322</span>, <span class="number">-0.014140352</span>, <span class="number">-0.044044096</span>, <span class="number">-0.03188026</span>, <span class="number">0.009873442</span>, <span class="number">0.037475552</span>, <span class="number">0.048770875</span>, <span class="number">-0.040513124</span>, <span class="number">-0.019519703</span>, <span class="number">-0.011500647</span>, <span class="number">-0.006415138</span>, <span class="number">0.0053910064</span>, <span class="number">0.060585946</span>, <span class="number">-0.021809272</span>, <span class="number">-0.018201474</span>, <span class="number">-0.010937814</span>, <span class="number">-0.013718217</span>, <span class="number">-0.0098273</span>, <span class="number">0.014209563</span>, <span class="number">0.046512794</span>, <span class="number">0.039359875</span>, <span class="number">0.013178235</span>, <span class="number">0.09829644</span>, <span class="number">-0.017505629</span>, <span class="number">-0.02489381</span>, <span class="number">-2.3858843E-4</span>, <span class="number">-0.020584479</span>, <span class="number">-0.04027231</span>, <span class="number">-0.011223206</span>, <span class="number">-0.05104645</span>, <span class="number">-0.037288275</span>, <span class="number">0.041676395</span>, <span class="number">0.022464395</span>, <span class="number">0.053146843</span>, <span class="number">0.03199663</span>, <span class="number">-0.035019115</span>, <span class="number">0.022478977</span>, <span class="number">0.013013626</span>, <span class="number">-0.008785934</span>, <span class="number">0.019700278</span>, <span class="number">0.008832397</span>, <span class="number">0.050076284</span>, <span class="number">-0.048255526</span>, <span class="number">0.060217008</span>, <span class="number">-0.061237134</span>, <span class="number">0.012971778</span>, <span class="number">0.034852937</span>, <span class="number">-0.013775348</span>, <span class="number">0.0625222</span>, <span class="number">0.014649475</span>, <span class="number">0.02334319</span>, <span class="number">0.094726816</span>, <span class="number">0.10769309</span>, <span class="number">0.013569286</span>, <span class="number">0.027372217</span>, <span class="number">-0.03523267</span>, <span class="number">-4.7623852E-4</span>, <span class="number">0.019275036</span>, <span class="number">-0.0022663868</span>, <span class="number">-0.008160418</span>, <span class="number">0.009928951</span>, <span class="number">-0.005347177</span>, <span class="number">-0.044416487</span>, <span class="number">0.006646296</span>, <span class="number">0.016597273</span>, <span class="number">0.028997697</span>, <span class="number">-0.053415935</span>, <span class="number">-0.020151006</span>, <span class="number">0.03897491</span>, <span class="number">-0.010869943</span>, <span class="number">0.042187016</span>, <span class="number">-0.036412258</span>, <span class="number">0.018086394</span>, <span class="number">-0.014274242</span>, <span class="number">-0.07227256</span>, <span class="number">0.0010064453</span>, <span class="number">-0.024512593</span>, <span class="number">0.052229125</span>, <span class="number">0.009150336</span>, <span class="number">0.028474018</span>, <span class="number">0.030175298</span>, <span class="number">-0.024292236</span>, <span class="number">-0.011538669</span>, <span class="number">0.060554747</span>, <span class="number">-0.052448735</span>, <span class="number">-0.006761913</span>, <span class="number">0.0042523365</span>, <span class="number">-0.07272278</span>, <span class="number">-0.009903328</span>, <span class="number">-0.09878354</span>, <span class="number">0.0026040864</span>, <span class="number">-0.008681447</span>, <span class="number">0.026760314</span>, <span class="number">-0.007293892</span>, <span class="number">-0.0049932534</span>, <span class="number">0.025040645</span>, <span class="number">-0.009999375</span>, <span class="number">0.009470686</span>, <span class="number">-0.0025464199</span>, <span class="number">-0.062322162</span>, <span class="number">0.020844592</span>, <span class="number">-0.048238114</span>]</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+      
+    </div>
+
+    
+
+    
+    
+    
+	
+	    <div>
+	
+	<div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------本文结束 <i class="fa fa-heartbeat"></i> 感谢您的阅读-------------</div>
+    
+</div>
+	
+	</div>
+
+    
+
+    
+      
+    
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div></div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>打赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/blog/images/wechat_pay.jpg" alt="rstyro 微信支付">
+        <p>微信支付</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/blog/images/alipay.jpg" alt="rstyro 支付宝">
+        <p>支付宝</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+	
+	<div>    
+	 
+	 
+	<ul class="post-copyright">
+	  <li class="post-copyright-author">
+		  <strong>本文作者：</strong>rstyro
+	  </li>
+	  <li class="post-copyright-link">
+		<strong>本文链接：</strong>
+		<a href="/blog/2023/09/25/ES向量查询/" title="ES向量查询">https://rstyro.github.io/blog/2023/09/25/ES向量查询/</a>
+	  </li>
+	  <li class="post-copyright-license">
+		<strong>版权： </strong>
+		转载注明出处！
+	  </li>
+	</ul>
+	
+	</div>
+	
+
+      
+        <div class="post-tags">
+          
+            <a href="/blog/tags/ElasticSearch/" rel="tag"><i class="fa fa-tag"></i> ElasticSearch</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2023/09/25/OCR图片识别/" rel="next" title="OCR图片识别">
+                <i class="fa fa-chevron-left"></i> OCR图片识别
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2023/10/24/Sentinel的使用/" rel="prev" title="Sentinel的使用">
+                Sentinel的使用 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+
+
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+      <div id="sidebar-dimmer"></div>
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/blog/images/avatar.jpg" alt="rstyro">
+            
+              <p class="site-author-name" itemprop="name">rstyro</p>
+              <p class="site-description motion-element" itemprop="description">个人博客,瞎写一些技术笔记等。</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/blog/archives/">
+                
+                    <span class="site-state-item-count">203</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/blog/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">13</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/blog/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">81</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+            <div class="feed-link motion-element">
+              <a href="/blog/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://github.com/rstyro" title="GitHub &rarr; https://github.com/rstyro" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://gitee.com/rstyro" title="Gitee &rarr; https://gitee.com/rstyro" rel="noopener" target="_blank"><i class="fa fa-fw fa-codiepie"></i>Gitee</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="/blog/1006059906" title="QQ &rarr; 1006059906"><i class="fa fa-fw fa-qq"></i>QQ</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://www.jianshu.com/u/651c15a1758a" title="简书 &rarr; https://www.jianshu.com/u/651c15a1758a" rel="noopener" target="_blank"><i class="fa fa-fw fa-book"></i>简书</a>
+                </span>
+              
+            </div>
+          
+
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-block">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                友链
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://rstyro.github.io/blog/" title="https://rstyro.github.io/blog/">帅大叔博客</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://www.zhyd.me/" title="https://www.zhyd.me/" rel="noopener" target="_blank">张亚东博客</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://www.devsong.org/" title="http://www.devsong.org/" rel="noopener" target="_blank">DevSONG</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://www.dalaoyang.cn/" title="https://www.dalaoyang.cn/" rel="noopener" target="_blank">dalaoyang</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://www.chenshuangyi.com/" title="https://www.chenshuangyi.com/" rel="noopener" target="_blank">陈双义博客</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+            
+          
+          <div id="days"></div>
+<script>
+function show_date_time(){
+window.setTimeout("show_date_time()", 1000);
+BirthDay=new Date("04/10/2017 15:13:14");
+today=new Date();
+timeold=(today.getTime()-BirthDay.getTime());
+sectimeold=timeold/1000
+secondsold=Math.floor(sectimeold);
+msPerDay=24*60*60*1000
+e_daysold=timeold/msPerDay
+daysold=Math.floor(e_daysold);
+e_hrsold=(e_daysold-daysold)*24;
+hrsold=setzero(Math.floor(e_hrsold));
+e_minsold=(e_hrsold-hrsold)*60;
+minsold=setzero(Math.floor((e_hrsold-hrsold)*60));
+seconds=setzero(Math.floor((e_minsold-minsold)*60));
+document.getElementById('days').innerHTML="已运行 "+daysold+" 天 "+hrsold+" 小时 "+minsold+" 分 "+seconds+" 秒";
+}
+function setzero(i){
+if (i<10)
+{i="0" + i};
+return i;
+}
+show_date_time();
+</script>
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#一、向量检索"><span class="nav-number">1.</span> <span class="nav-text">一、向量检索</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1、向量的定义"><span class="nav-number">1.1.</span> <span class="nav-text">1、向量的定义</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2、常见的向量度量"><span class="nav-number">1.2.</span> <span class="nav-text">2、常见的向量度量</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3、向量检索的方法"><span class="nav-number">1.3.</span> <span class="nav-text">3、向量检索的方法</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#二、向量的生成"><span class="nav-number">2.</span> <span class="nav-text">二、向量的生成</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1、转换并导出模型"><span class="nav-number">2.1.</span> <span class="nav-text">1、转换并导出模型</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2、代码调用"><span class="nav-number">2.2.</span> <span class="nav-text">2、代码调用</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#三、Elasticsearch向量检索"><span class="nav-number">3.</span> <span class="nav-text">三、Elasticsearch向量检索</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1、创建索引"><span class="nav-number">3.1.</span> <span class="nav-text">1、创建索引</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2、添加测试数据"><span class="nav-number">3.2.</span> <span class="nav-text">2、添加测试数据</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3、-脚本分数查询"><span class="nav-number">3.3.</span> <span class="nav-text">3、 脚本分数查询</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">rstyro</span>
+
+  
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+
+  <script src="https://unpkg.com/mermaid@8.11.0/dist/mermaid.min.js"></script>
+  <script>
+    if (window.mermaid) {
+      mermaid.initialize({"startOnload":true});
+    }
+  </script>
+
+
+<div class="theme-info">
+  <div class="powered-by"></div>
+  <span class="post-count">博客全站共372.3k字</span>
+</div>
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-user"></i>
+    </span>
+    <span class="site-uv" title="总访客量">
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+    </span>
+  
+
+  
+    <span class="post-meta-divider">|</span>
+  
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-eye"></i>
+    </span>
+    <span class="site-pv" title="总访问量">
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/blog/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/blog/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/blog/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/blog/js/src/utils.js?v=6.7.0"></script>
+
+  <script src="/blog/js/src/motion.js?v=6.7.0"></script>
+
+
+
+  
+  
+
+  
+  <script src="/blog/js/src/scrollspy.js?v=6.7.0"></script>
+<script src="/blog/js/src/post-details.js?v=6.7.0"></script>
+
+
+
+  
+
+
+  <script src="/blog/js/src/bootstrap.js?v=6.7.0"></script>
+
+
+
+  
+  
+
+
+
+
+  
+
+<script src="//cdn1.lncld.net/static/js/3.11.1/av-min.js"></script>
+
+
+
+  
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/valine/1.3.4/Valine.min.js"></script>
+
+<script>
+  var GUEST = ['nick', 'mail', 'link'];
+  var guest = 'nick,mail,link';
+  guest = guest.split(',').filter(function (item) {
+    return GUEST.indexOf(item) > -1;
+  });
+  new Valine({
+    el: '#comments',
+    verify: false,
+    notify: false,
+    appId: 'LwEPiJFa7YMn2MrJdCwaUbmQ-gzGzoHsz',
+    appKey: 'JqS1y3RxYvDOki9r3NcqqoO5',
+    placeholder: '来都来了，不说几句就走，过分了啊！！！',
+    avatar: 'monsterid',
+    meta: guest,
+    pageSize: '10' || 10,
+    visitor: false
+  });
+</script>
+
+
+
+  
+
+  <script>
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/blog/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url).replace(/\/{2,}/g, '/');
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x"></i></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x"></i></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+  <script>
+    (function(){
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+      }
+      else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+      }
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+    })();
+  </script>
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
