@@ -3,7 +3,7 @@ title: Docker（四）、运行Nginx
 date: 2018-01-13 15:53:00
 updated: 2018-01-13 15:53:00
 tags: [Docker]
-categories: 开发工具
+categories: 网络运维
 ---
 # Docker 运行nginx
 运行了hello world 还不是我们的目标，这章我们要来学习运行一个静态的页面

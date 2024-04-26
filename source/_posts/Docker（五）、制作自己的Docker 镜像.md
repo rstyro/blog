@@ -3,7 +3,7 @@ title: Docker（五）、制作自己的Docker 镜像
 date: 2018-01-18 16:10:37
 updated: 2018-01-18 16:10:37
 tags: [Docker]
-categories: 开发工具
+categories: 网络运维
 ---
 # 制作自己的Docker 镜像
 #### Docker 可以通过 Dockerfile 的内容来自动构建镜像。Dockerfile 是一个包含创建镜像所有命令的文本文件，通过docker build命令可以根据 Dockerfile 的内容构建镜像

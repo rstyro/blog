@@ -3,7 +3,7 @@ title: Docker（三）、运行一个 Hello World
 date: 2018-01-12 15:52:56
 updated: 2018-01-12 15:52:56
 tags: [Docker]
-categories: 开发工具
+categories: 网络运维
 ---
 # Docker 初体验
 ### 前面看了那么多文字，可能还是不知道docker 怎么用。学编程少不了hello world,所以，我们就来试一个helloworld

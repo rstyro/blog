@@ -3,7 +3,7 @@ title: Docker（一）、Docker是什么
 date: 2018-01-11 01:11:48
 updated: 2018-01-11 01:11:48
 tags: [Docker]
-categories: 开发工具
+categories: 网络运维
 ---
 #### [Docker](https://baike.baidu.com/item/Docker/13344470?fr=aladdin) 是一个开源的应用容器引擎，让开发者可以打包他们的应用以及依赖包到一个可移植的容器中，然后发布到任何流行的 Linux 机器上，也可以实现虚拟化。容器是完全使用沙箱机制，相互之间不会有任何接口。Docker 也被称为第三代PasS平台
 

@@ -3,7 +3,7 @@ title: Docker（六）、启动mysql时自动执行脚本
 date: 2018-01-18 17:34:52
 updated: 2018-01-18 17:34:52
 tags: [Docker]
-categories: 开发工具
+categories: 网络运维
 ---
 # docker 启动mysql时自动执行脚本
 ##### 上次已经运行了一个 tomcat 我们还需要一个数据库，docker 运行一个mysql 是很简单的比如
