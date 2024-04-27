@@ -335,3 +335,232 @@ ADD target/hello-docker-SNAPSHOT.jar /home/java/app.jar
 EXPOSE 8080
 ENTRYPOINT ["java","-jar","/home/java/app.jar"]
 ```
+
+#### 3、安装Docker-Compose
+- Docker-Compose是一个用来定义和运行复杂应用的Docker工具
+- Github地址：https://github.com/docker/compose
+- 安装包下载地址：https://github.com/docker/compose/releases
+
+
+```bash
+#!/bin/bash
+
+# 从github下载V2.24版本的，写入到/usr/local/bin/docker-compose
+curl -L https://github.com/docker/compose/releases/download/v2.24.0/docker-compose-$(uname -s)-$(uname -m)  -o /usr/local/bin/docker-compose
+
+# 添加可执行权限
+chmod +x /usr/local/bin/docker-compose
+
+# 创建软链接
+ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
+
+# 测试安装结果
+docker-compose --version
+```
+
+- 使用docker-compose启动nginx服务
+- 新建配置文件：`docker-compose.yml`编辑内容如下：
+
+```yaml
+version: "2"
+services:
+  nginx-demo:
+    image: "nginx"
+    # 如果需要扩容，不能写死容器名称
+   #container_name: "mynginx_compose"
+    restart: "always"
+    networks:
+      - custnet
+    ports:
+    # 如果不涉及 弹性扩容缩容，可以绑定单一端口
+    #  - 80:80
+    # 需要弹性扩容，暴露容器80端口，宿主机端口随机
+      - 80
+    volumes:
+      - /var/www/html:/usr/share/nginx/html
+    environment:
+      app_env: dev
+    dns:
+      - 8.8.8.8
+      - 114.114.114.114
+
+# 自定义网络
+networks:
+  custnet:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 10.168.0.0/16
+          gateway: 10.168.0.1
+```
+
+- 执行：`docker-compose -f docker-compose.yml config`校验配置文件是否有问题
+- 没问题就可以启动服务了，docker-compose默认会找当前目录下的 `docker-compose.yml`
+- 所以我们的命令可以直接使用：`docker-compose config`
+- 然后在配置文件的同级目录执行：
+
+```bash
+# 校验配置文件是否有问题
+docker-compose config
+
+# 启动nginx-demo服务
+docker-compose up -d nginx-demo
+
+# 启动所有服务
+docker-compose up -d
+
+# 停止 nginx-demo服务
+docker-compose stop nginx-demo
+
+# 停止所有服务
+docker-compose stop
+
+# 扩容或者缩容，扩容nginx-demo部署5个容器
+docker-compose scale nginx-demo=5
+```
+
+- yml的配置详情，可参考
+- 官方文档：https://docs.docker.com/compose/compose-file/compose-versioning/
+- https://docs.docker.com/compose/compose-file/compose-file-v3/
+
+## 四、Docker本地仓库
+- 搭建私有仓库有：registry、harbor、neuxs(除了可以作为maven仓库，也可以创建docker仓库)
+- registry是docker官方镜像，命令行版的本地私有仓库
+- harbor是在registry基础上进行封装，有可视化操作界面
+- 下面是harbor的搭建与使用
+
+
+#### 1、Harbor
+
+- Github地址：https://github.com/goharbor/harbor
+- 发行版下载地址：https://github.com/goharbor/harbor/releases
+
+
+```bash
+# 下载
+curl -L https://github.com/goharbor/harbor/releases/download/v2.10.2/harbor-offline-installer-v2.10.2.tgz -o /opt/harbor-offline-installer-v2.10.2.tgz
+
+# 解压
+cd /opt
+tar -zxvf harbor-offline-installer-v2.10.2.tgz
+cd harbor
+
+# 复制模板配置文件
+cp harbor.yml.tmpl harbor.yml
+
+
+# 编辑配置文件
+[root@localhost harbor]# vim harbor.yml
+# 没有域名，就写本机IP地址吧
+hostname: 192.168.32.129
+...
+
+http:
+  # 启动的端口号，默认80，我这边80已被占用，我改用8000端口
+  port: 8000
+
+ 
+# 注释掉https的相关配置，有https证书可以打开配置下
+# https:
+#   # https port for harbor, default is 443
+#   port: 443
+#   # The path of cert and key files for nginx
+#   certificate: /your/certificate/path
+#   private_key: /your/private/key/path
+...
+# 设置管理员(admin)密码
+harbor_admin_password: 123456
+
+# 上面修改之后，wq保持退出
+
+
+# 然后执行 ./prepare 检查环境
+[root@localhost harbor]# ./prepare 
+prepare base dir is set to /opt/harbor
+WARNING:root:WARNING: HTTP protocol is insecure. Harbor will deprecate http protocol in the future. Please make sure to upgrade to https
+Generated configuration file: /config/portal/nginx.conf
+Generated configuration file: /config/log/logrotate.conf
+Generated configuration file: /config/log/rsyslog_docker.conf
+Generated configuration file: /config/nginx/nginx.conf
+Generated configuration file: /config/core/env
+Generated configuration file: /config/core/app.conf
+Generated configuration file: /config/registry/config.yml
+Generated configuration file: /config/registryctl/env
+Generated configuration file: /config/registryctl/config.yml
+Generated configuration file: /config/db/env
+Generated configuration file: /config/jobservice/env
+Generated configuration file: /config/jobservice/config.yml
+Generated and saved secret to file: /data/secret/keys/secretkey
+Successfully called func: create_root_cert
+Generated configuration file: /compose_location/docker-compose.yml
+Clean up the input dir
+
+# 上面出现 successfully ,之后 执行安装命令
+[root@localhost harbor]# ./install.sh 
+
+# docker-compose ps 可以看到harbor启动的情况
+[root@localhost harbor]# docker-compose ps
+
+
+# harbar重启，进入harbor的解压目录下
+docker-compose restart
+# 或者执行
+docker-compose up -d
+```
+
+- 网页访问：http://192.168.32.129:8000/ 输入账号密码，即可进入harbor仓库界面
+- 因为我们不是https启动的，所以修改docker的配置/etc/docker/daemon.json文件
+- `insecure-registories`添加我们的仓库，不需要对应证书校验
+
+```bash
+# 我的内容比较少，我直接执行下面的命令覆盖daemon.json文件
+cat <<EOF | sudo tee /etc/docker/daemon.json
+{
+    "registry-mirrors": ["https://docker.mirrors.ustc.edu.cn"],
+    "insecure-registries": ["192.168.32.129:8000"]
+}
+EOF
+
+# 刷新配置 
+systemctl daemon-reload
+
+# 重启docker
+systemctl restart docker
+
+
+# docker 登录harbor仓库
+docker login -u admin 192.168.32.129:8000
+
+# 查看镜像
+[root@localhost harbor]# docker images
+REPOSITORY                      TAG       IMAGE ID       CREATED       SIZE
+nginx                           latest    7383c266ef25   3 days ago    188MB
+[root@localhost harbor]# 
+
+# 打标签，其中192.168.32.129:8000/test/mynginx中的test是我自己创建的harbor的项目名
+# 如果没创建项目名，可以使用默认的 library
+[root@localhost harbor]# docker tag 7383c266ef25 192.168.32.129:8000/test/mynginx:1.0.0
+[root@localhost harbor]# 
+[root@localhost harbor]# docker images
+REPOSITORY                         TAG       IMAGE ID       CREATED       SIZE
+192.168.32.129:8000/test/mynginx   1.0.0     7383c266ef25   3 days ago    188MB
+nginx                              latest    7383c266ef25   3 days ago    188MB
+[root@localhost harbor]# 
+
+# 推送到harbor本地仓库
+[root@localhost harbor]# docker push 192.168.32.129:8000/test/mynginx:1.0.0
+The push refers to repository [192.168.32.129:8000/test/mynginx]
+9fd54926bcae: Pushed 
+175aa66db4cc: Pushed 
+e6380a7057a5: Pushed 
+1db2242fc1fa: Pushed 
+b09347a1aec6: Pushed 
+bbde741e108b: Pushed 
+52ec5a4316fa: Pushed 
+1.0.0: digest: sha256:810ca58c5f0e8e3bc8b5414028cfd09322757c74b0384e601a98a1e8c8513707 size: 1778
+[root@localhost harbor]# 
+# 从本地仓库拉取
+[root@localhost harbor]# docker pull 192.168.32.129:8000/test/mynginx:1.0.0
+
+```
