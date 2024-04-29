@@ -336,6 +336,15 @@ EXPOSE 8080
 ENTRYPOINT ["java","-jar","/home/java/app.jar"]
 ```
 
+- Dockerfile文件配置好之后，就可以执行build命令构建镜像
+
+```bash
+# . 表示Dockerfile所在的目录,名为Dockerfile 的文件作为 Dockerfile
+docker build -t myimagename:tag .
+
+
+```
+
 #### 3、安装Docker-Compose
 - Docker-Compose是一个用来定义和运行复杂应用的Docker工具
 - Github地址：https://github.com/docker/compose
