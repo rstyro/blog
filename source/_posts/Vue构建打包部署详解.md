@@ -33,7 +33,7 @@ categories: 前端
 
 ### 运行项目
 + 运行命令:`npm run dev`  
-+ 然后访问：http://localhost:8080​，出现如下图片说明成功  
++ 然后访问：`http://localhost:8080`，出现如下图片说明成功  
 
 ![](view.png)
 

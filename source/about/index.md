@@ -1,8 +1,9 @@
 ---
 title: 关于我
 date: 2019-01-10 13:34:20
+type: about
 ---
-![](index/coffee.jpg)
+![](about/coffee.jpg)
 
 ### 欢迎👏👏👏
 + 你们好 🍮
@@ -45,16 +46,16 @@ date: 2019-01-10 13:34:20
 + 加油呀！！！ 奔三青年！！！
 
 ### 订阅号
-![](index/subscrbe_qrcode.jpg)
+![](about/subscrbe_qrcode.jpg)
 
 ### 小程序
 + 世间万物皆苦，你明目张胆的偏爱，是我唯一的救赎
 
 <div style="width: 100%;text-align: center;">
     <span style="width:48%;display: inline-block">
-    <img src="index/image1.jpg">
+    <img src="about/image1.jpg">
     </span>
  <span style="width:48%;display: inline-block">
-    <img src="index/image2.jpg">
+    <img src="about/image2.jpg">
     </span>
 </div>

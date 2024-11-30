@@ -27,7 +27,7 @@ categories: 网络运维
 + 2、`wget `http://mirrors.jenkins.io/war-stable/latest/jenkins.war
 + 3、把jenkins.war包放在tomcat下面的webapps目录下面
 + 4、启动tomcat会自动解压war包，生成一个jenkins文件夹，而且会在root目录下生成一个.jenkins的文件夹
-+ 5、浏览器访问http://ip:端口/jenkins 
++ 5、浏览器访问 `http://ip:端口/jenkins` 
 + 6、输入初始化密码，位置在上面提示的路径(`$user.home/.jenkins/secrets/initialAdminPassword`),比如你是root用户:`/root/.jenkins/secrets/initialAdminPassword`
 + 7、选择插件安装界面，选择第一个，安装社区推荐的即可
 + 8、之后创建一个用户

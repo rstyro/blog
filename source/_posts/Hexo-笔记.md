@@ -1,7 +1,7 @@
 ---
 title: Hexo-笔记
-date: 2019-01-10 18:37:24
-updated: 2019-01-10 18:37:24
+date: 2024-11-30 18:37:24
+updated: 2024-11-30 18:37:24
 tags: [Hexo]
 categories: 其他
 ---
@@ -13,11 +13,32 @@ categories: 其他
 #### 2、安装Node.js
 > 下载地址：http://nodejs.cn/download/
 
+<!--more-->
+
+**配置npm镜像**
+- 如果你网络好可以忽略
+
+```bash
+# 使用 npm 命令来设置淘宝的 npm 镜像
+npm config set registry https://registry.npmmirror.com
+
+# 验证配置,如果输出结果是 https://registry.npmmirror.com/，则表示配置成功
+npm config get registry
+
+# 如果你需要切换回 npm 的官方镜像，可以使用以下命令
+npm config set registry https://registry.npmjs.org/
+# 验证配置,如果输出结果是 https://registry.npmjs.org/，则表示配置成功
+npm config get registry
+
+# 还有一种，使用 cnpm 替代 npm 进行包管理，它会直接使用淘宝的镜像，需要安装 cnpm
+npm install -g cnpm --registry=https://registry.npmmirror.com
+```
+
 
 ## 二、安装Hexo
 ```bash
-# 安装 hexo
-npm install -g hexo
+# 安装 hexo,  -D 是局部安装并添加到package.json ，-g 是全局安装不仅限于当前项目的目录下
+npm install -g hexo-cli
 
 
 # 查看是否安装成功，查看版本号
@@ -44,11 +65,18 @@ hexo clean
 # 可以在https://hexo.io/themes/可以查看你喜欢的主题,然后 clone 到themes文件夹下即可,比如next 主题
 git clone https://github.com/theme-next/hexo-theme-next themes/next
 ```
+编辑文件路径站点根目录 `/`下 `_config.yml`
 
+- 找到 `theme` 字段，并将其值更改为 `next`
 
 ## 四、配置
 
-### 一、基本配置
+- 站点配置文件： `根目录/_config.yml`
+- 主题配置文件：`根目录/themes/主题名称/_config.yml`
+
+### 一、站点配置
+
+####  1、基本配置
 
 编辑文件路径站点根目录 `/`下 `_config.yml`
 
@@ -65,49 +93,521 @@ git clone https://github.com/theme-next/hexo-theme-next themes/next
 > 如果您的网站存放在子目录中，例如 `http://yoursite.com/blog`，则请将您的 :
 > + url 设为 `http://yoursite.com/blog` 并把
 > + root 设为 `/blog/`。
+> 
+
+#### 2、设置语言
+- 编辑 站点配置文件， 将 language 设置成你所需要的语言
+
+```
+language: zh-CN
+```
+
+#### 3、首页只显示部分摘要（不显示全文）
+- 首页显示的文章内容过长，对其进行截断
+
+**方法一：写概述**
+- 在文章的 frontmatter 中添加description，其中description中的内容就会被显示在首页上，其余一律不显示。
+
+```
+---
+title: Hello World
+date: 2024-11-30 12:55:10
+description: 这是这篇文章显示在首页的内容，可以写这篇文章的一个总结。
+---
+
+# todo
+```
+
+**方法二：文章截断**
+- 在文章内容中，需要截断的地方加入 `<!--more-->`
+- 首页就会显示这条以上的所有内容，隐藏接下来的所有内容。
+
+
+#### 4、图片展示配置
+- 旧版的hexo，markdown图片需要安装`npm install hexo-asset-img --save`或者`hexo-asset-image`
+- 但是新版不需要装插件了，`hexo-renderer-marked` 可以正确转换图片
+- 在站点配置文件中修改如下：
+
+```bash
+# 创建文章时会自动创建一个同名的文件夹，用于存放资源文件
+post_asset_folder: true
+# 不要将链接改为与根目录的相对地址。此为默认配置。
+relative_link: false
+# 添加如下内容
+marked:
+  #将文章根路径添加到文章内的链接之前。
+  prependRoot: true
+  # 在根据prependRoot的设置在所有链接开头添加文章根路径之前，先将文章内资源的路径解析为相对于资源目录的路径。
+  postAsset: true
+
+```
+- 然后在文章中引用图片：`![](test.png)` 这个test.png直接放在同名文件夹即可
+
+ 
 
 ### 二、主题基本配置
+- 主题使用next
+
+#### 1、外观设置
+- Scheme 是 NexT 提供的一种特性，借助于 Scheme，NexT 为你提供多种不同的外观。
+
+```
+# Schemes
+# scheme: Muse
+scheme: Mist
+# scheme: Pisces
+# scheme: Gemini
+```
+
+- Muse - 默认 Scheme，这是 NexT 最初的版本，黑白主调，大量留白
+- Mist - Muse 的紧凑版本，整洁有序的单栏外观
+- Pisces - 双栏 Scheme，小家碧玉似的清新
+- Gemini mini版本，好像和Pisces差不多
+- 
+
+#### 2、顶部导航菜单修改
+
 修改主题配置文件，在菜单项添加以下内容(把注释打开即可)
 ```yml
 menu:
-  home: / || home
-  about: /about/ || user
-  tags: /tags/ || tags
-  categories: /categories/ || th
-  archives: /archives/ || archive
-  #schedule: /schedule/ || calendar
-  #sitemap: /sitemap.xml || sitemap
-  #commonweal: /404/ || heartbeat
+  home: / || fa fa-home
+  about: /about/ || fa fa-user
+  tags: /tags/ || fa fa-tags
+  categories: /categories/ || fa fa-th
+  archives: /archives/ || fa fa-archive
+  guestbook: /guestbook/ || fa fa-comments
+  #schedule: /schedule/ || fa fa-calendar
+  #sitemap: /sitemap.xml || fa fa-sitemap
+  #commonweal: /404/ || fa fa-heartbeat
 
-# Enable/Disable menu icons / item badges.
+# Enable / Disable menu icons / item badges.
 menu_settings:
-  icons: false	#是否显示Icon
+  icons: true
   badges: false
 ```
 
-### 三、新建
+- 其中questbook 是新增的，需要修改简体中文对应的翻译文件 `languages/zh-CN.yml`，在 menu 字段下添加一项：
 
-#### 1、新建页面
-```sh
+```
+menu:
+  home: 首页
+  archives: 归档
+  categories: 分类
+  tags: 标签
+  about: 关于
+  search: 搜索
+  schedule: 日程表
+  sitemap: 站点地图
+  commonweal: 公益 404
+  guestbook: 留言板
+```
+
+#### 3、设置头像
+```yml
+# Sidebar Avatar
+avatar:
+  # in theme directory(source/images): /images/avatar.gif
+  # in site  directory(source/uploads): /uploads/avatar.gif
+  # You can also use other linking images.
+  url: #你的头像地址
+  # If true, the avatar would be dispalyed in circle.
+  rounded: false
+  # The value of opacity should be choose from 0 to 1 to set the opacity of the avatar.
+  opacity: 1
+  # If true, the avatar would be rotated with the cursor.
+  rotated: false
+```
+
+#### 4、侧边栏社交链接
+- 侧栏社交链接的修改包含两个部分，第一是链接，第二是链接图标
+
+```
+# Social Links
+# Usage: `Key: permalink || icon`
+# Key is the link label showing to end users.
+# Value before `||` delimiter is the target permalink, value after `||` delimiter is the name of Font Awesome icon.
+social:
+  GitHub: https://github.com/rstyro || fab fa-github
+  Gitee: https://gitee.com/rstyro || fab fa-codiepie
+  简书: https://www.jianshu.com/u/651c15a1758a || fa fa-book
+```
+
+#### 5、开启打赏功能
+-  只需要 主题配置文件 中填入 微信 和 支付宝 收款二维码图片地址 即可开启该功能。
+
+```
+# Reward (Donate)
+# Front-matter variable (unsupport animation).
+reward_settings:
+  # If true, reward will be displayed in every article by default.
+  enable: true
+  animation: false
+  comment: 您的打赏，是我创作的动力！不给钱？那我只能靠想象力充饥了。
+
+reward:
+  wechatpay: /images/wechat_pay.jpg
+  alipay: /images/alipay.jpg
+  #paypal: /images/paypal.png
+  #bitcoin: /images/bitcoin.png
+```
+
+#### 6、友情链接
+- 主题配置文件添加 links
+
+```
+# Blog rolls
+links_settings:
+  icon: fa fa-link
+  title: 友链
+  # Available values: block | inline
+  layout: block
+
+links:
+  胖不了小陆: https://rstyro.github.io/blog/
+```
+
+#### 7、修改网页底部
+
+-  修改主题配置文件的footer字段，如下：
+
+```
+footer:
+  # 网站底部显示网站的开始时间
+  since: 2017-04-10
+
+  # Icon between year and copyright info.
+  icon:
+    # 显示的图标. See: https://fontawesome.com/icons
+    name: fa fa-heart
+    # 图标动画，比如： 心形会跳动
+    animated: true
+    # 图标颜色
+    color: "#ff0000"
+
+  # 版权文案.
+  copyright: 以梦为马，诗酒趁年华
+
+  # 去掉 Hexo & NexT 的powered文案
+  powered: false
+```
+
+- 看情况修改即可
+
+
+
+#### 8、首页文章添加阴影
+- 在next主题文件下找到`themes\next\source\css\_common\components\post`的`post.styl`文件在.post_block位置,更改如下:
+
+```js
+if (hexo-config('motion.transition.post_block')) {
+    .post-block {
+       opacity: 0;
+       margin-top: 60px;
+       margin-bottom: 60px;
+       padding: 25px;
+       -webkit-box-shadow: 0 0 5px rgba(202, 203, 203, .5);
+       -moz-box-shadow: 0 0 5px rgba(202, 203, 204, .5);
+    }
+    .pagination, .comments {
+      opacity: 0;
+    }
+  }
+
+```
+
+#### 9、显示当前浏览进度
+- 搜索关键字 `scrollpercent`，把 false 改为 true
+
+```
+back2top:
+  enable: true
+  # Back to top in sidebar.
+  sidebar: false
+  # Scroll percent label in b2t button.
+  scrollpercent: true
+```
+
+#### 10、文章的标签改为图标
+- 修改主题配置文件把 tag_icon=true
+
+```
+tag_icon: true
+```
+
+#### 11、修改加载特效
+- 由于网页不可能一直都秒进，总会等待一段时间的，所以可以设置顶部加载条
+- 安装 theme-next-pace
+
+```
+# 进入到next主题根目录
+$ cd themes/next
+
+# 下载包 到next目录下的 source/lib/pace
+$ git clone https://github.com/theme-next/theme-next-pace source/lib/pace
+```
+- 然后修改主题配置文件，把pace.enable设置为true即可
+
+```
+# Progress bar in the top during page loading.
+# Dependencies: https://github.com/theme-next/theme-next-pace
+# For more information: https://github.com/HubSpot/pace
+
+pace:
+  enable: true
+  # corner-indicator | fill-left | flat-top | flash |  minimal
+  theme: flash
+```
+- 特效例子可以查看：https://codebyzach.github.io/pace/
+
+#### 12、修改网页logo图标
+- 修改主题配置文件的favicon字段
+
+```
+favicon:
+  small: /images/favicon.jpg
+  medium: /images/favicon.jpg
+  apple_touch_icon: /images/favicon.jpg
+  safari_pinned_tab: /images/favicon.jpg
+  #android_manifest: /images/manifest.json
+  #ms_browserconfig: /images/browserconfig.xml
+```
+
+#### 13、代码块配置
+- 修改主题配置文件如下
+
+```
+codeblock:
+  #高亮的主题色，查看: https://github.com/chriskempson/tomorrow-theme
+  highlight_theme: night
+  # 是否开启复制代码按钮
+  copy_button:
+    enable: true
+    # 复制结果显示
+    show_result: true
+    # 代码边框样式，可选: default | flat | mac
+    style:mac
+```
+
+#### 14、右上角显示Github
+- 把github_banner.enable设置为true
+
+```
+# `Follow me on GitHub` banner in the top-right corner.
+github_banner:
+  enable: true
+  permalink: https://github.com/rstyro
+  title: Follow me on GitHub
+```
+
+
+#### 15、归档页面添加十二生肖图标
+- 首先，点击[这里](https://blog.shipengx.com/download/chinese-zodiac.zip)下载十二生肖字体。下载后将解压的三个字体文件全部放在 hexo/source/fonts/目录下（若无 fonts 文件夹需要自行创建）
+- 编辑 `hexo/themes/next/layout/_macro/post-collapse.swig` 文件
+- 找到`class=collection-header` 然后在后面加入`< <div class="chinese-zodiac">...</div>` 这一段就可以了
+
+```
+{%- if year !== current_year %}
+    {%- set current_year = year %}
+    <div class="collection-year">
+      <span class="collection-header">{{ current_year }}</span>
+      
+      <div class="chinese-zodiac">
+       {%- if current_year % 12 == 0 %}
+         <i class="symbolic-animals icon-monkey"></i>
+       {%- endif %}
+       {%- if current_year % 12 == 1 %}
+         <i class="symbolic-animals icon-rooster"></i>
+       {%- endif %}
+       {%- if current_year % 12 == 2 %}
+         <i class="symbolic-animals icon-dog"></i>
+       {%- endif %}
+       {%- if current_year % 12 == 3 %}
+         <i class="symbolic-animals icon-pig"></i>
+       {%- endif %}
+       {%- if current_year % 12 == 4 %}
+         <i class="symbolic-animals icon-rat"></i>
+       {%- endif %}
+       {%- if current_year % 12 == 5 %}
+         <i class="symbolic-animals icon-ox"></i>
+       {%- endif %}
+       {%- if current_year % 12 == 6 %}
+         <i class="symbolic-animals icon-tiger"></i>
+       {%- endif %}
+       {%- if current_year % 12 == 7 %}
+         <i class="symbolic-animals icon-rabbit"></i>
+       {%- endif %}
+       {%- if current_year % 12 == 8 %}
+         <i class="symbolic-animals icon-dragon"></i>
+       {%- endif %}
+       {%- if current_year % 12 == 9 %}
+         <i class="symbolic-animals icon-snake"></i>
+       {%- endif %}
+       {%- if current_year % 12 == 10 %}
+         <i class="symbolic-animals icon-horse"></i>
+       {%- endif %}
+       {%- if current_year % 12 == 11 %}
+         <i class="symbolic-animals icon-goat"></i>
+       {%- endif %}
+     </div>
+    </div>
+  {%- endif %}
+```
+
+- 编辑上面之后，还需要添加自定义样式，新增文件：`根目录/source/_data/zodiac.styl`
+- 编辑如下内容：
+
+```
+.chinese-zodiac {
+  float: right;
+}
+@font-face {
+  font-family: 'chinese-zodiac';
+  font-display: swap;
+  src: url('/fonts/chinese-zodiac.eot');
+  src: url('/fonts/chinese-zodiac.eot') format('embedded-opentype'),
+       url('/fonts/chinese-zodiac.woff2') format('woff2'),
+       url('/fonts/chinese-zodiac.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+.symbolic-animals {
+  display: inline-block;
+  font: normal normal normal 14px/1 chinese-zodiac;
+  font-size: inherit;
+  text-rendering: auto;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+.icon-dragon:before { content: '\e806'; font-size: 35px;}
+.icon-tiger:before { content: '\e809'; font-size: 35px;}
+.icon-pig:before { content: '\e810'; font-size: 35px;}
+.icon-horse:before { content: '\e813'; font-size: 35px;}
+.icon-rat:before { content: '\e816'; font-size: 35px;}
+.icon-goat:before { content: '\e818'; font-size: 35px;}
+.icon-snake:before { content: '\e820'; font-size: 35px;}
+.icon-ox:before { content: '\e822'; font-size: 35px;}
+.icon-dog:before { content: '\e825'; font-size: 35px;}
+.icon-rabbit:before { content: '\e826'; font-size: 35px;}
+.icon-monkey:before { content: '\e829'; font-size: 35px;}
+.icon-rooster:before { content: '\e82f'; font-size: 35px;}
+```
+
+- 然后在主题配置文件中编辑 `custom_file_path`新增上面添加的样式
+
+```
+# Define custom file paths.
+custom_file_path:
+  style: source/_data/zodiac.styl
+```
+
+
+### 三、插件配置
+- 有些功能配置需要安装插件才能用
+
+#### 1、本地搜索
+- 搜索功能，需要安装插件
+
+```
+npm install hexo-generator-searchdb --save
+```
+
+- 修改主题配置文件，把local_search.enable设置为true
+
+```
+# Local Search
+# Dependencies: https://github.com/theme-next/hexo-generator-searchdb
+local_search:
+  enable: true
+```
+
+#### 2、扩展流程图插件
+- 需要安装流程图插件
+
+```bash
+
+# 安装mermaid插件
+npm install hexo-filter-mermaid-diagrams --save
+
+# 其他类型的流程图
+# flow 类型的流程图
+npm install  hexo-filter-flowchart --save
+# sequence 类型的流程图
+npm install  hexo-filter-sequence --save
+```
+
+- 安装mermaid插件之后，配置**主题配置文件**编辑Mermaid设置为true
+
+```
+# Mermaid tag
+mermaid:
+  enable: true
+  # Available themes: default | dark | forest | neutral
+  theme: default 
+```
+
+
+#### 3、添加评论功能:Gitalk
+
+- 注册  OAuth Apps:[https://github.com/settings/applications/new](https://github.com/settings/applications/new)
+- 注册之后生成 Client secrets，记录这个，如果忘记了就删除重新生成
+- 查看 OAuth Apps：[https://github.com/settings/developers](https://github.com/settings/developers)
+
+![](register.png)
+
+![](client.png)
+
+![](oauth-app.png)
+
+- 然后在主题配置文件中配置：
+
+```
+# Gitalk
+# For more information: https://gitalk.github.io, https://github.com/gitalk/gitalk
+gitalk:
+  enable: true
+  github_id: rstyro # GitHub 仓库拥有者用戶名，用于指定存储评论的仓库
+  repo: blog # 用于存储评论的GitHub仓库名称。评论将以issue的形式存储在这个仓库中
+  client_id: 你的ClientId # GitHub Application Client ID
+  client_secret: 你刚才生成的Secret # GitHub Application Client Secret
+  admin_user: rstyro # 具有初始化GitHub issues权限的用户列表
+  distraction_free_mode: true # 用“专注模式”，在这种模式下，评论框会减少其他干扰，更加简洁。
+  #proxy: https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token # 官方 proxy 地址
+  # 现在的语言，默认即可，可选: en | es-ES | fr | ru | zh-CN | zh-TW
+  language:
+
+```
+
+## 五、新建文章
+- 上面各种主题配置好之后，就可以写文章了
+- CMD控制台使用`hexo new` 生成页面或文章
+
+```bash
 # 生成标签页面
 hexo new page tags
 # 生成关于页面
 hexo new page about
 # 生成分类页面
 hexo new page categories
+
+# 可以简写n ，生成test页面
+hexo n page test
+
+# 生成文章 
+hexo n 文章名
 ```
-#### 2、新建文章
-+ 新建文章命令：`hexo n 文章名`，成功之后在`~/source/_posts/` 下就会看到`.md`的文章
-+ 打开文章会看到在头部有这样的信息
+- 打开文章，会看到在头部有这样的信息
+
 ```
 ---
 title: 文章名
-date: 2019-01-10 18:37:24
-tags: "Hexo"
+date: 2024-11-30 22:39:11
+tags:
 ---
 ```
-+ 这个意思下面有解析，而且也可以按需加其他字段
-+ 文章头部解析：
+
+
+- 文章头部解析：
+
 ```
 /* ！！！！！！！！！！
 ** 每一项的 : 后面均有一个空格
@@ -182,588 +682,21 @@ type:
 ** tags，标签页面
 ** picture，用来生成 group-pictures
 */
-
-```
-
-### 四、设置头像
-```yml
-# Sidebar Avatar
-avatar:
-  # in theme directory(source/images): /images/avatar.gif
-  # in site  directory(source/uploads): /uploads/avatar.gif
-  # You can also use other linking images.
-  url: #你的头像地址
-  # If true, the avatar would be dispalyed in circle.
-  rounded: false
-  # The value of opacity should be choose from 0 to 1 to set the opacity of the avatar.
-  opacity: 1
-  # If true, the avatar would be rotated with the cursor.
-  rotated: false
-```
-### 五、修改底部
-去掉 `由 Hexo 强力驱动 v3.8.0 | 主题 – NexT.Muse v6.7.0`
-打开主题的`_config.yml` 配置文件，找到如下信息，把`enable:true` 改为 `enable:false`
-把powered 与
-```yml
-  # If not defined, `author` from Hexo main config will be used.
-  copyright:
-  # -------------------------------------------------------------
-  powered:
-    # Hexo link (Powered by Hexo).
-    enable: false
-    # Version info of Hexo after Hexo link (vX.X.X).
-    version: true
-
-  theme:
-    # Theme & scheme info link (Theme - NexT.scheme).
-    enable: false
-    # Version info of NexT after scheme info (vX.X.X).
-    version: true
-  # -------------------------------------------------------------
-  # Beian icp information for Chinese users. In China, every legal website should have a beian icp in website footer.
-  # http://www.miitbeian.gov.cn
-  beian:
-    enable: false
-    icp:
-```
-
-### 六、添加顶部加载
-在`\themes\next\layout\_custom head.swig`文件中添加如下代码
-```html
-<script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
-<link href="//cdn.bootcss.com/pace/1.0.2/themes/pink/pace-theme-flash.css" rel="stylesheet">
-<style>
-  .pace .pace-progress {
-	  background: #1E92FB; /*进度条颜色*/
-	  height: 3px;
-  }
-  .pace .pace-progress-inner {
-	   box-shadow: 0 0 10px #1E92FB, 0 0 5px     #1E92FB; /*阴影颜色*/
-  }
-  .pace .pace-activity {
-	  border-top-color: #1E92FB;    /*上边框颜色*/
-	  border-left-color: #1E92FB;    /*左边框颜色*/
-  }
-</style>
-```
-
-### 七、文章添加阴影
-在 `themes\next\source\css\_custom\custom.styl` 添加如下代码
-```css
-// 主页文章添加阴影效果
- .post {
-   margin-top: 60px;
-   margin-bottom: 60px;
-   padding: 25px;
-   -webkit-box-shadow: 0 0 5px rgba(202, 203, 203, .5);
-   -moz-box-shadow: 0 0 5px rgba(202, 203, 204, .5);
-  }
-```
-
-### 八、在文章末尾添加“文章结束”标记
-##### 1、在路径 `\themes\next\layout\_macro` 文件夹中新建 `passage-end-tag.swig` 文件
-添加内容如下
-```html
-<div>
-    {% if not is_index %}
-        <div style="text-align:center;color: #ccc;font-size:14px;">-------------本文结束<i class="fa fa-paw"></i>感谢您的阅读-------------</div>
-    {% endif %}
-</div>
-```
-
-##### 2、打开\themes\next\layout\_macro\post.swig文件，在post-body后，post-footer前，添加下面内容：
-添加内容如下
-```html
-<div>
-  {% if not is_index %}
-    {% include 'passage-end-tag.swig' %}
-  {% endif %}
-</div>
-```
-
-放的位置如下：
-```
-
-    {#####################}
-    {### END POST BODY ###}
-    {#####################}
-	
-	    <div>
-	{% if not is_index %}
-	{% include 'passage-end-tag.swig' %}
-	{% endif %}
-	</div>
-```
-##### 3、打开主题配置文件（_config.yml),在末尾添加：
-```
-# 文章末尾添加“本文结束”标记
-passage_end_tag:
-    enabled: true
-```
-> 如果出现乱码，记得把 `passage-end-tag.swig` 文件 用类似 `Notepad++` 的工具转成UTF-8 
-
-
-
-### 九、底部标签样式
-修改`\themes\next\layout\_macro\post.swig` 中文件，command+f搜索`rel="tag">#`，将#替换成<i class="fa fa-tag"></i>,修改后，片段代码如下：
-```
-<footer class="post-footer">
-      {% if post.tags and post.tags.length and not is_index %}
-        <div class="post-tags">
-          {% for tag in post.tags %}
-            <a href="{{ url_for(tag.path) }}" rel="tag"><i class="fa fa-tag"></i> {{ tag.name }}</a>
-          {% endfor %}
-        </div>
-      {% endif %}
 ```
 
 
-### 十、文章底部加版权
-
-##### 1、手动修改主题目录下的 `\themes\next\layout\_macro\post.swig` 文件，找到 post-footer 所在的标签，添加以下内容：
-```
-<div>    
- {# 此处判断是否在索引列表中 #}
- {% if not is_index %}
-<ul class="post-copyright">
-  <li class="post-copyright-author">
-      <strong>本文作者：</strong>{{ theme.author }}
-  </li>
-  <li class="post-copyright-link">
-    <strong>本文链接：</strong>
-    <a href="{{ url_for(page.path) }}" title="{{ page.title }}">{{ page.path }}</a>
-  </li>
-  <li class="post-copyright-license">
-    <strong>版权： </strong>
-    转载注明出处！
-  </li>
-</ul>
-{% endif %}
-</div>
-```
-
-##### 2、添加样式
-在 `\themes\next\source\css\_custom\custom.styl` 文件,添加如下内容：
-```
-.post-copyright {
-    margin: 1em 0 0;
-    padding: 0.5em 1em;
-    border-left: 3px solid #ff1700;
-    background-color: #f9f9f9;
-    list-style: none;
-}
-```
-
-### 十一、添加评论
-#### 注册Leancloud
-> 官网：https://leancloud.cn/
-
-修改主题配置文件`_config.xml` 查找Valine ,如下：
-```yml
-# You can get your appid and appkey from https://leancloud.cn
-# More info available at https://valine.js.org
-valine:
-  enable: true # When enable is set to be true, leancloud_visitors is recommended to be closed for the re-initialization problem within different leancloud adk version.
-  appid: 你的appid # your leancloud application appid
-  appkey: 你的appkey # your leancloud application appkey
-  notify: false # mail notifier, See: https://github.com/xCss/Valine/wiki
-  verify: false # Verification code
-  placeholder: 来都来了，不说几句就走，过分了啊！！！ # comment box placeholder
-  avatar: mm # gravatar style
-  guest_info: nick,mail,link # custom comment header
-  pageSize: 10 # pagination size
-
-```
-
-### 十二、压缩
-```bash
-# 安装依赖
-npm i gulp gulp-debug gulp-clean-css gulp-uglify gulp-htmlmin gulp-htmlclean gulp-imagemin gulp-changed gulp-if gulp-plumber run-sequence del -s
-```
-在根目录下创建`gulpfile.js`文件。编辑内容如下：
-
-```js
-var gulp        = require('gulp');
-var debug       = require('gulp-debug');
-var cleancss    = require('gulp-clean-css'); //css压缩组件
-var uglify      = require('gulp-uglify');    //js压缩组件
-var htmlmin     = require('gulp-htmlmin');   //html压缩组件
-var htmlclean   = require('gulp-htmlclean'); //html清理组件
-var imagemin    = require('gulp-imagemin');  //图片压缩组件
-var changed     = require('gulp-changed');   //文件更改校验组件
-var gulpif      = require('gulp-if')         //任务 帮助调用组件
-var plumber     = require('gulp-plumber');   //容错组件（发生错误不跳出任务，并报出错误内容）
-var runSequence = require('run-sequence');   //异步执行组件
-var isScriptAll = true;  //是否处理所有文件，(true|处理所有文件)(false|只处理有更改的文件)
-var isDebug     = true;  //是否调试显示 编译通过的文件
-var del         = require('del');
-var Hexo        = require('hexo');
-var hexo        = new Hexo(process.cwd(), {}); // 初始化一个hexo对象
-
-// 清除public文件夹
-gulp.task('clean', function() {
-    return del(['public/**/*']);
-});
-
-// 下面几个跟hexo有关的操作，主要通过hexo.call()去执行，注意return
-
-// 创建静态页面 （等同 hexo generate）
-gulp.task('generate', function() {
-    return hexo.init().then(function() {
-        return hexo.call('generate', {
-            watch: false
-        }).then(function() {
-            return hexo.exit();
-        }).catch(function(err) {
-            return hexo.exit(err);
-        });
-    });
-});
-
-// 启动Hexo服务器
-gulp.task('server',  function() {
-    return hexo.init().then(function() {
-        return hexo.call('server', {});
-    }).catch(function(err) {
-        console.log(err);
-    });
-});
-
-// 部署到服务器
-gulp.task('deploy', function() {
-    return hexo.init().then(function() {
-        return hexo.call('deploy', {
-            watch: false
-        }).then(function() {
-            return hexo.exit();
-        }).catch(function(err) {
-            return hexo.exit(err);
-        });
-    });
-});
-
-// 压缩public目录下的js文件
-gulp.task('compressJs', function () {
-    var option = {
-        // preserveComments: 'all',//保留所有注释
-        mangle: true,           //类型：Boolean 默认：true 是否修改变量名
-        compress: true          //类型：Boolean 默认：true 是否完全压缩
-    }
-    return gulp.src(['./public/**/*.js','!./public/**/*.min.js'])  //排除的js
-        .pipe(gulpif(!isScriptAll, changed('./public')))
-        .pipe(gulpif(isDebug,debug({title: 'Compress JS:'})))
-        .pipe(plumber())
-        .pipe(uglify(option))                //调用压缩组件方法uglify(),对合并的文件进行压缩
-        .pipe(gulp.dest('./public'));         //输出到目标目录
-});
-
-// 压缩public目录下的css文件
-gulp.task('compressCss', function () {
-    var option = {
-        rebase: false,
-        //advanced: true,               //类型：Boolean 默认：true [是否开启高级优化（合并选择器等）]
-        compatibility: 'ie7',         //保留ie7及以下兼容写法 类型：String 默认：''or'*' [启用兼容模式； 'ie7'：IE7兼容模式，'ie8'：IE8兼容模式，'*'：IE9+兼容模式]
-        //keepBreaks: true,             //类型：Boolean 默认：false [是否保留换行]
-        //keepSpecialComments: '*'      //保留所有特殊前缀 当你用autoprefixer生成的浏览器前缀，如果不加这个参数，有可能将会删除你的部分前缀
-    }
-    return gulp.src(['./public/**/*.css','!./public/**/*.min.css'])  //排除的css
-        .pipe(gulpif(!isScriptAll, changed('./public')))
-        .pipe(gulpif(isDebug,debug({title: 'Compress CSS:'})))
-        .pipe(plumber())
-        .pipe(cleancss(option))
-        .pipe(gulp.dest('./public'));
-});
-
-// 压缩public目录下的html文件
-gulp.task('compressHtml', function () {
-    var cleanOptions = {
-        protect: /<\!--%fooTemplate\b.*?%-->/g,             //忽略处理
-        unprotect: /<script [^>]*\btype="text\/x-handlebars-template"[\s\S]+?<\/script>/ig //特殊处理
-    }
-    var minOption = {
-        collapseWhitespace: true,           //压缩HTML
-        collapseBooleanAttributes: true,    //省略布尔属性的值  <input checked="true"/> ==> <input />
-        removeEmptyAttributes: true,        //删除所有空格作属性值    <input id="" /> ==> <input />
-        removeScriptTypeAttributes: true,   //删除<script>的type="text/javascript"
-        removeStyleLinkTypeAttributes: true,//删除<style>和<link>的type="text/css"
-        removeComments: true,               //清除HTML注释
-        minifyJS: true,                     //压缩页面JS
-        minifyCSS: true,                    //压缩页面CSS
-        minifyURLs: true                    //替换页面URL
-    };
-    return gulp.src('./public/**/*.html')
-        .pipe(gulpif(isDebug,debug({title: 'Compress HTML:'})))
-        .pipe(plumber())
-        .pipe(htmlclean(cleanOptions))
-        .pipe(htmlmin(minOption))
-        .pipe(gulp.dest('./public'));
-});
-
-// 压缩 public/uploads 目录内图片
-gulp.task('compressImage', function() {
-    var option = {
-        optimizationLevel: 5, //类型：Number  默认：3  取值范围：0-7（优化等级）
-        progressive: true,    //类型：Boolean 默认：false 无损压缩jpg图片
-        interlaced: false,    //类型：Boolean 默认：false 隔行扫描gif进行渲染
-        multipass: false      //类型：Boolean 默认：false 多次优化svg直到完全优化
-    }
-    return gulp.src('./public/uploads/**/*.*')
-        .pipe(gulpif(!isScriptAll, changed('./public/uploads')))
-        .pipe(gulpif(isDebug,debug({title: 'Compress Images:'})))
-        .pipe(plumber())
-        .pipe(imagemin(option))
-        .pipe(gulp.dest('./public/uploads'));
-});
-
-// 用run-sequence并发执行，同时处理html，css，js，img
-gulp.task('compress', function(cb) {
-    runSequence.options.ignoreUndefinedTasks = true;
-    runSequence(['compressHtml', 'compressCss', 'compressJs'],cb);
-});
-
-// 执行顺序： 清除public目录 -> 产生原始博客内容 -> 执行压缩混淆 -> 部署到服务器
-gulp.task('build', function(cb) {
-    runSequence.options.ignoreUndefinedTasks = true;
-    runSequence('clean', 'generate', 'compress', 'deploy', cb);
-});
-
-// 默认任务
-gulp.task('default', 
-	gulp.series('clean','generate',
-		gulp.parallel('compressHtml','compressCss','compressImage')
-	)
-);
-```
-
-### 十三、Hexo 新建文章插入图片
-##### 安装图片插件
-```
-# npm install -g cnpm --registry=https://registry.npm.taobao.org
-# cnpm install https://github.com/CodeFalling/hexo-asset-image --save
-
-npm install hexo-asset-image --save
-```
-> 如果控制台出现如下信息
-
-```
-found 1 low severity vulnerability
-  run `npm audit fix` to fix them, or `npm audit` for details
-```
-记得修复相关介绍如下
->npm audit ： npm@5.10.0 & npm@6，允许开发人员分析复杂的代码，并查明特定的漏洞和缺陷。
-npm audit fix ：npm@6.1.0,  检测项目依赖中的漏洞并自动安装需要更新的有漏洞的依赖，而不必再自己进行跟踪和修复。
-
-##### 修复
-```
-# 修复命令
-npm audit fix
-```
-##### 插入图片
-当插件安装成功后，你新建文章 
-例：`hexo new "Hexo笔记" `，则在`\source\_posts` 会有一个名为 `Hexo笔记` 的文件夹
-只需把图片放里面即可引用
-1、把主页配置文件 `_config.yml` 里的`post_asset_folder:`这个选项设置为 `true`
-2、然后只需要在 `Hexo笔记.md` 中按照markdown的格式引入图片：`![你想输入的替代文字](/Hexo笔记/你要引用的图片名称.jpg)`
-
-### 十四、添加本地搜索
-##### 1、安装插件
-```
-npm install hexo-generator-searchdb --save
-```
-##### 2、站点配置文件`_config.yml` 
-在最后编辑或添加如下信息：
-```
-search:
-    path: search.xml
-    field: post
-    format: html
-    limit: 5000
-```
-##### 3、打开主题配置文件
-在`\themes\next\_config.yml` 查找`local_search` 修改如下
-```yml
-local_search:
-    enable: true
-```
-
-### 十五、在页面顶部，实现`fork me on GitHub`
-
-代码样式地址：
-+ [https://github.blog/2008-12-19-github-ribbons/](https://github.blog/2008-12-19-github-ribbons/)
-+ [http://tholman.com/github-corners/](http://tholman.com/github-corners/)
-+ 打开如上的任意一个网站，选择自己喜欢的样式
-+ 然后粘贴刚才复制的代码到`themes/next/layout/_layout.swig`文件中(放在`<div class="headband"></div>`的下面)，并把`href`改为你的`Github`地址,例如下
-```
-<a href="https://github.com/yourName" class="github-corner" aria-label="View source on GitHub"><svg width="80" height="80" viewBox="0 0 250 250" style="fill:#151513; color:#fff; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a><style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style>
-```
-
-### 十六、网站底部字数统计
-##### 1、安装插件
-```
-npm install hexo-wordcount --save
-```
-##### 2、然后在`/themes/next/layout/_partials/footer.swig`文件尾部加上：
-```
-<div class="theme-info">
-  <div class="powered-by"></div>
-  <span class="post-count">博客全站共{{ totalcount(site) }}字</span>
-</div>
-```
-
-### 十七、侧栏加入已运行的时间
-+ 在文件`~/themes/next/layout/_custom/sidebar.swig` 中加入如下代码
-```
-<div id="days"></div>
-<script>
-function show_date_time(){
-window.setTimeout("show_date_time()", 1000);
-BirthDay=new Date("04/10/2017 15:13:14");
-today=new Date();
-timeold=(today.getTime()-BirthDay.getTime());
-sectimeold=timeold/1000
-secondsold=Math.floor(sectimeold);
-msPerDay=24*60*60*1000
-e_daysold=timeold/msPerDay
-daysold=Math.floor(e_daysold);
-e_hrsold=(e_daysold-daysold)*24;
-hrsold=setzero(Math.floor(e_hrsold));
-e_minsold=(e_hrsold-hrsold)*60;
-minsold=setzero(Math.floor((e_hrsold-hrsold)*60));
-seconds=setzero(Math.floor((e_minsold-minsold)*60));
-document.getElementById('days').innerHTML="已运行 "+daysold+" 天 "+hrsold+" 小时 "+minsold+" 分 "+seconds+" 秒";
-}
-function setzero(i){
-if (i<10)
-{i="0" + i};
-return i;
-}
-show_date_time();
-</script>
-```
-+ 把`BirthDay` 改成你自己的即可  
-+ 要是不喜欢颜色，感觉不好看在文件：`/themes/next/source/css/_custom/custom.styl` 添加
-```
-// 自定义的侧栏时间样式
-#days {
-    display: block;
-    color: #2cd724;
-    font-size: 13px;
-    margin-top: 15px;
-}
-```
-
-### 十八、让页脚的心跳起来
-+ 修改文件位置：`/themes/next/_config.yml`找到`footer`修改如下
-```
-footer:
-  # Specify the date when the site was setup.
-  # If not defined, current year will be used.
-  #since: 2015
-
-  # Icon between year and copyright info.
-  icon:
-    # Icon name in fontawesome, see: https://fontawesome.com/v4.7.0/icons/
-    # `heart` is recommended with animation in red (#ff0000).
-    name: heart
-    # If you want to animate the icon, set it to true.
-    animated: true
-    # Change the color of icon, using Hex Code.
-    color: "#ff0000"
-```
-
-### 十九、安装Markdown流程图插件
-+ 好像hexo默认是不支持流程图的语法的，需要安装插件
-#### 1、Mermaid
-+ 查看Github:[https://github.com/webappdevelp/hexo-filter-mermaid-diagrams](https://github.com/webappdevelp/hexo-filter-mermaid-diagrams)
-
-**第一步：安装依赖**
-```
-// 安装依赖
-npm install hexo-filter-mermaid-diagrams -D
-```
-
-**第二步：修改hexo配置文件**
-+ 之后在hexo的配置文件：`_config.yml`添加如下内容：
-```
-# mermaid chart
-mermaid: ## mermaid url https://github.com/knsv/mermaid
-  enable: true  # default true
-  version: "8.11.0" # default v7.1.2
-  options:  # find more api options from https://github.com/knsv/mermaid/blob/master/src/mermaidAPI.js
-    startOnload: true  // default true
-```
-
-**第三步：修改主题下面的footer文件**
-+ 路径在：`themes\next\layout\_partials\`(这里以`next`为例)下面footer文件
-+ 因为hexo的主题有很多，有些footer文件的后缀都不一样有：`.swig`、`.ejs`、`.pug`的
-+ `next`主题下面是`footer.swig`后缀,则在文件最后添加如下
-
-*如果是footer.swig*则添加如下：
-```
-{% if theme.mermaid.enable %}
-  <script src='https://unpkg.com/mermaid@{{ theme.mermaid.version }}/dist/mermaid.min.js'></script>
-  <script>
-    if (window.mermaid) {
-      mermaid.initialize({{ JSON.stringify(theme.mermaid.options) }});
-    }
-  </script>
-{% endif %}
-```
-
-*如果是after-footer.ejs*则添加如下：
-```
-<% if (theme.mermaid.enable) { %>
-  <script src='https://unpkg.com/mermaid@<%= theme.mermaid.version %>/dist/mermaid.min.js'></script>
-  <script>
-    if (window.mermaid) {
-      mermaid.initialize({theme: 'forest'});
-    }
-  </script>
-<% } %>
-```
+## 六、部署
+- 可以把代码推送到Github部署到Github Pages 服务
+-  安装Git部署插件
 
 
-*如果是after_footer.pug*则添加如下：
 ```
-if theme.mermaid.enable == true
-  script(type='text/javascript', id='maid-script' mermaidoptioins=theme.mermaid.options src='https://unpkg.com/mermaid@'+ theme.mermaid.version + '/dist/mermaid.min.js' + '?v=' + theme.version)
-  script.
-    if (window.mermaid) {
-      var options = JSON.parse(document.getElementById('maid-script').getAttribute('mermaidoptioins'));
-      mermaid.initialize(options);
-    }
-
+# 安装Git部署插件
+$ npm install hexo-deployer-git --save
 ```
 
-#### 2、flow
-+ flow 类型的流程图
-**安装依赖即可**
+- 修改**站点配置文件**在`deploy` 修改如下：
 ```
-npm install  hexo-filter-flowchart -D
-```
-
-#### 3、sequence
-+ sequence 类型的流程图
-**安装依赖即可**
-```
-npm install  hexo-filter-sequence -D
-```
-
-
-## 五、部署到GitHub
-### 准备工作
-在Github 创建一个仓库为blog,并从master 分支，新建一个dev分支
-dev 分支就是我们的源代码分支，master,就是我们生成的静态文件。
-
-### 一、安装Git部署插件
-```
-# 安装git 部署插件
-npm install hexo-deployer-git --save
-```
-
-### 二、修改站点配置文件
-修改 配置文件 `_config.yml` 在`deploy` 选项,修改如下
-```yml
 # Deployment
 ## Docs: https://hexo.io/docs/deployment.html
 deploy:
@@ -772,20 +705,43 @@ deploy:
   branch: master
 ```
 
-### 三、多台终端部署
-```sh
-# 此时在另一终端更新博客，只需要将Github的dev分支clone下来，进行初次的相关配置
-git clone -b dev https://github.com/rstyro/blog.git  //将Github中hexo分支clone到本地
-cd  blog  //切换到刚刚clone的文件夹内
-npm install    //注意，这里一定要切换到刚刚clone的文件夹内执行，安装必要的所需组件，不用再init
-hexo new post "new blog name"   //新建一个.md文件，并编辑完成自己的博客内容
-git add source  //经测试每次只要更新sorcerer中的文件到Github中即可，因为只是新建了一篇新博客
-git commit -m "XX"
-git push origin hexo  //更新分支
-hexo d -g   //push更新完分支之后将自己写的博客对接到自己搭的博客网站上，同时同步了Github中的master
+- 更多的配置方式：
+
 ```
+# You can use this:
+deploy:
+  type: git
+  repo: <repository url>
+  branch: [branch]
+  token: ''
+  message: [message]
+  name: [git user]
+  email: [git email]
+  extend_dirs: [extend directory]
+  ignore_hidden: false # default is true
+  ignore_pattern: regexp  # whatever file that matches the regexp will be ignored when deploying
 
-> 参考链接：
-> + http://theme-next.iissnan.com
-> + https://io-oi.me/tech/add-chinese-zodiac-to-next.html#main
+# or this:
+deploy:
+  type: git
+  message: [message]
+  repo: <repository url>[,branch]
+  extend_dirs:
+    - [extend directory]
+    - [another extend directory]
+  ignore_hidden:
+    public: false
+    [extend directory]: true
+    [another extend directory]: false
+  ignore_pattern:
+    [folder]: regexp  # or you could specify the ignore_pattern under a certain directory
 
+# Multiple repositories
+deploy:
+  repo:
+    # Either syntax is supported
+    [repo_name]: <repository url>[,branch]
+    [repo_name]:
+      url: <repository url>
+      branch: [branch]
+```
