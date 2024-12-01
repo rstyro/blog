@@ -13,6 +13,7 @@ categories: 前端
 `npm install --global vue-cli`
 + 查看vue是否安装成功，注意参数是大V  
 `vue -V`
+<!--more-->
 
 ### 构建项目
 ![](create.png)

@@ -9,6 +9,9 @@ categories: Java
 AQS(AbstractQueuedSynchronizer):顾名思义是一个抽象队列同步器。在JDK5 之后的 `java.util.concurrent` 下的的很多常用的多线程工具类都依赖这个类。
 面试常考的点，也是学习多线程必掌握的知识点。
 看JDK源码注释说，AQS是基于CLH自旋锁变种的一个虚拟的双向队列，而队列一般都是先进先出(First Input First Output)。
+
+<!--more-->
+
 >CLH是一种基于链表的可扩展、高性能、公平的自旋锁，申请线程只在本地变量上自旋，它不断轮询前驱的状态，如果发现前驱释放了锁就结束自旋。
 > 大概长下面这样子：
 > ```

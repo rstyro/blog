@@ -6,6 +6,9 @@ tags: [ElasticSearch]
 categories: 搜索引擎
 ---
 ## 简单粗暴，代码如下
+
+<!--more-->
+
 ```
 
 {

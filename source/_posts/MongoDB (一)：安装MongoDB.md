@@ -15,6 +15,9 @@ categories: 数据库
 # 下载对应你版本号的包，我这个是红帽的
 wget https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-rhel70-3.4.9.tgz
 ```
+
+<!--more-->
+
 ## 二、解压
 ### 我直接解压到 /usr/local 下
 ```

@@ -24,6 +24,8 @@ categories: Java
 ```
 + 通过pom依赖，我们知道它是基于poi再次封装的。
 
+<!--more-->
+
 #### 2、开始使用
 + `easyexcel`封装了一个工厂类：`EasyExcelFactory`，我们直接调用即可。
 + 一般在项目中会用到：`EasyExcel`它其实就是`EasyExcelFactory`的子类且没有自己的功能。

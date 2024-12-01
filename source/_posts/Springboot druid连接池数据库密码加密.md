@@ -15,6 +15,8 @@ categories: Java
 	<version>1.8</version>
 </dependency>
 ```
+
+<!--more-->
 ## 二、加解密工具类
 ```java
 import org.jasypt.encryption.pbe.StandardPBEStringEncryptor;

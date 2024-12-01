@@ -12,6 +12,8 @@ categories: Java
 + 需要用到 IDEA
 + 能修改的前提是第三方jar没有经过加密混淆
 
+<!--more-->
+
 ## 二、修改步骤
 + 1、新建项目
 	+ 使用IDEA 新建一个`Java Project`.

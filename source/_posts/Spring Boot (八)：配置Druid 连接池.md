@@ -24,6 +24,8 @@ categories: Java
 </dependency>
 ```
 
+<!--more-->
+
 ## 二、配置application.properties
 ```
 spring.datasource.type = com.alibaba.druid.pool.DruidDataSource

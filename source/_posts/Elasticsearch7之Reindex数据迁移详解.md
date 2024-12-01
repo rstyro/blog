@@ -8,6 +8,8 @@ categories: 搜索引擎
 ### 一、前言
 ES在创建好索引后，`mapping`的`properties`属性类型是不能更改的，只能添加。如果说需要修改字段就需要重新建立索引然后把旧数据导到新索引。
 
+<!--more-->
+
 ### 二、Reindex 
 5.X版本后新增`_reindex` API 。Reindex可以直接在Elasticsearch集群里面对数据进行重建。并且支持跨集群间的数据迁移。
 

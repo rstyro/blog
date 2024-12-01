@@ -11,6 +11,8 @@ categories: 搜索引擎
 + Centos7
 + Elasticsearch7.9.0
 
+<!--more-->
+
 准备搭建3个节点
 
 ### 一、下载ES安装包

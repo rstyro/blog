@@ -14,6 +14,9 @@ categories: 开发工具
 + 安装Nginx: `yum install -y nginx`
 + 查看nginx所在文件：`whereis nginx`
 + 配置文件：`/etc/nginx/nginx.conf`
+
+<!--more-->
+
 + 启动命令：
 ```
 systemctl start nginx        #启动

@@ -11,6 +11,7 @@ categories: Java
 #### Thymeleaf也从一开始就设计了Web标准 - 特别是HTML5 - 允许您创建完全验证的模板，如果这是您需要的
 #### springboot 用thymeleaf 还是挺不错的
 
+<!--more-->
 
 ##### (1)、字符串太多，显示...
 ```

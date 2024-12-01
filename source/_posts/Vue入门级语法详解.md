@@ -12,6 +12,9 @@ categories: 前端
 新手学习，只需要以引入`<script>`的方式即可。  
 在`.html` 中的`head`中加上`<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>`即可  
 学编程怎么能少了`hello world`
+
+<!--more-->
+
 ```html
 <html>
     <head>

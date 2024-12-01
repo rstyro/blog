@@ -26,6 +26,9 @@ Condition是一个接口，主要功能就是提供了与 `wait()`、`notify()`�
 + signalAll()
 醒所有等待在condition上的线程
 
+
+<!--more-->
+
 Condition是在JDK1.5中才出现的，它用来替代传统的Object的`wait()`、`notify()`实现线程间的协作，相比使用Object的`wait()`、`notify()`，使用Condition的`await()`、`signal()`这种方式实现线程间协作更加安全和高效。而它的她的实现类就是AQS的ConditionObject。
 
 ### 二、源码分析

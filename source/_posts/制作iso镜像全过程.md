@@ -10,6 +10,8 @@ categories: 网络运维
 + 下载地址：[https://cn.ultraiso.net/xiazai.html](https://cn.ultraiso.net/xiazai.html)
 + 下载安装后打开
 
+<!--more-->
+
 #### 制作iso
 + 在软碟通左下角本地目录选择你要制作镜像的文件
 + 然后在右边会显示你要的文件，全选右键添加

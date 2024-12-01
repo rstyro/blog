@@ -12,6 +12,8 @@ categories: 网络运维
 + 我的是64位系统,点击`download` 然后进入到新的页面
 + 在最下面选择`No thanks, just start my download.`得到下载地址。如下图所示
 
+<!--more-->
+
 ![](download.png)
 
 ![](download2.png)

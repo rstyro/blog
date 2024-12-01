@@ -9,6 +9,8 @@ tags:
 + 概念：Google身份验证器Google Authenticator是谷歌推出的基于时间的一次性密码(Time-based One-time Password，简称TOTP)，只需要在手机上安装该APP，就可以生成一个随着时间变化的一次性密码，用于帐户验证。
 + Google身份验证器是一款基于时间与哈希的一次性密码算法的两步验证软件令牌，此软件用于Google的认证服务。此项服务所使用的算法已列于RFC 6238和RFC 4226中。
 
+<!--more-->
+
 ## 一、流程
 + 用户请求服务器生成密钥
 + 服务器生成一个密钥并与用户信息进行关联，并返回密钥(类似：`XX57HWC7D2FA4X4GLOHOASTGPMVI5EFA`)和一个二维码信息（此步骤还没有绑定）

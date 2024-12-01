@@ -11,6 +11,7 @@ categories: 网络运维
 
 > daemonize no
 
+<!--more-->
 
 #### 2. 当Redis以守护进程方式运行时，Redis默认会把pid写入/var/run/redis.pid文件，可以通过pidfile指定
 > pidfile /var/run/redis.pid

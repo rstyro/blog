@@ -9,6 +9,8 @@ categories: 搜索引擎
 Elasticsearch是一个基于Lucene的搜索服务器。它提供了一个分布式多用户能力的全文搜索引擎，基于RESTful web接口。Elasticsearch是用Java语言开发的，并作为Apache许可条款下的开放源码发布，是一种流行的企业级搜索引擎。
 在全文检索领域， Lucene可谓是独领风骚数十年。倒排索引构成全文检索的根基。
 
+<!--more-->
+
 > 本篇不研究底层，只介绍用法
 
 ### 二、Elasticsearch7与Mysql的对比

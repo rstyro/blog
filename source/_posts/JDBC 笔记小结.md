@@ -11,6 +11,8 @@ categories: Java
 ### 1、什么是JDBC
 **JDBC英文名为：Java Data Base Connectivity(Java数据库连接),是一个独立于特定数据库管理系统、通用的SQL数据库存取和操作的公共接口（一组API）。**
 
+<!--more-->
+
 **JDBC定义了一套标准接口，即访问数据库的通用API，不同的数据库厂商根据各自数据库的特点去实现这些接口。如下图**
 ![](13928.png)
 

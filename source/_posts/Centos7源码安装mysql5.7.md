@@ -15,6 +15,9 @@ wget https://dev.mysql.com/get/Downloads/MySQL-5.7/mysql-5.7.19.tar.gz
 # -C 解压到指定目录： 如下命令，解压到 /opt/
 tar -zxvf mysql-5.7.18.tar.gz -C /opt/
 ```
+
+<!--more-->
+
 ## 三、安装运行环境
 ```
 yum -y install gcc-c++ ncurses-devel cmake make perl  gcc autoconf automake zlib libxml libgcrypt libtool bison

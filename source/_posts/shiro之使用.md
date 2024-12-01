@@ -12,6 +12,8 @@ categories: Java
 + Github地址：[https://github.com/apache/shiro](https://github.com/apache/shiro)
 + shiro官方架构图
 
+<!--more-->
+
 ![](shiro.png)
 
 ## 二、主要名词解析

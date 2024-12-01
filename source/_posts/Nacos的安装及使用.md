@@ -21,6 +21,9 @@ DNS解析服务，可配置路由的权重，实现中间层的负载均衡
 
 可查看官网战略图：
 
+<!--more-->
+
+
 ![](info.png)
 
 **官网地址：[https://nacos.io/zh-cn/index.html](https://nacos.io/zh-cn/index.html)**

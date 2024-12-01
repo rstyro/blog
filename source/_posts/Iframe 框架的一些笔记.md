@@ -31,6 +31,9 @@ window.onload = function() {
 };
 </script>
 ```
+
+<!--more-->
+
 ## 二、刷新页面
 ```html
 //刷新本页：

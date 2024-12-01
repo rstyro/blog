@@ -12,6 +12,9 @@ categories: 网络运维
 
 ## 二、配置文件
 在redis 的所在目录下创建一个 config 文件夹，并复制3份redis 的默认配置文件redis.conf 到里面。
+
+<!--more-->
+
 ```
 mkdir config
 

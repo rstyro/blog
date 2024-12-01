@@ -8,6 +8,7 @@ categories: Java
 # Ribbon
 **学过Nginx的都知道它是一个服务端负载均衡器，而Ribbon 也是一个负载均衡器，只不过它是基于基于HTTP和TCP的客户端负载均衡器。**
 
+<!--more-->
 ## 代码实现
 ### 准备工作
 **1、启动一个eureka服务** 

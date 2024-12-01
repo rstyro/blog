@@ -11,6 +11,8 @@ categories: 开发工具
 - 下载经典版的：[Fiddler Classic](https://www.telerik.com/download/fiddler)
 - 下载之后双击安装即可。
 
+<!--more-->
+
 ### 二、Fiddler配置https证书
 - 选择Tools->Options->https->Decrypt HTTPS traffic 如下图所示
 

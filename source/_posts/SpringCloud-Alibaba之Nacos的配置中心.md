@@ -10,6 +10,7 @@ Nacos 提供用于存储配置和其他元数据的 key/value 存储，为分布
 
 Spring Cloud Alibaba Nacos Config 是 Config Server 和 Client 的替代方案，客户端和服务器上的概念与 Spring Environment 和 PropertySource 有着一致的抽象，在特殊的 bootstrap 阶段，配置被加载到 Spring 环境中。当应用程序通过部署管道从开发到测试再到生产时，您可以管理这些环境之间的配置，并确保应用程序具有迁移时需要运行的所有内容。
 
+<!--more-->
 
 上面是官方的[wiki](https://github.com/alibaba/spring-cloud-alibaba/wiki/Nacos-config) 的介绍，简单点说：nacos不只能用作注册中心还能用作配置中心。
 

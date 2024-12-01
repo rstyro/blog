@@ -18,6 +18,7 @@ categories: Java
 - 毕竟JRebel是收费的嘛，金钱的魅力
 - spring-boot-devtools 的使用方法就不讲，基本上大部分都会，本文重点是 JRebel的使用
 
+<!--more-->
 ### 二、JRebel安装与激活
 - 在IDEA中依次点击 File -》 Settings -》 Plugins -》 Marketplace，然后第一个就是，安装即可
 - 安装之后，重启 IDEA 

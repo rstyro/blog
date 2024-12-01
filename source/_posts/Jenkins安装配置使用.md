@@ -10,6 +10,8 @@ categories: 网络运维
 + 1、持续的软件版本发布/测试项目。
 + 2、监控外部调用执行的工作
 
+<!--more-->
+
 ## 一、环境
 + 1、安装JDK  
 不会的看这个：[Linux 安装jdk](https://rstyro.github.io/blog/2017/05/13/Linux%20%E5%AE%89%E8%A3%85jdk/)

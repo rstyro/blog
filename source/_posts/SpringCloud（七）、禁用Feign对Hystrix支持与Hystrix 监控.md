@@ -9,6 +9,8 @@ categories: Java
 ## 一、配置禁用Feign对Hystrix 的支持
 如果现在有两个Feign服务接口，FeignClientService1、FeignClientService2。我们现在想禁用FeignClientService2 的Hystrix支持，而FeignClientService1不变还是启用
 
+<!--more-->
+
 ### 1、配置FeignClent
 这个和启动Hystrix 的配置差不多，主要看的是configuration 后面这个类的内容
 ```java

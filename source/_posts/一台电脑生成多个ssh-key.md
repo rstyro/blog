@@ -17,6 +17,8 @@ cd ~/.ssh
 ls
 ```
 
+<!--more-->
+
 #### 2、创建一个ssh-key
 ```shell
 /*

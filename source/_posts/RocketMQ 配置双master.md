@@ -12,6 +12,8 @@ categories: MQ
 #### 3、maven 3.5.0
 #### 4、git
 
+<!--more-->
+
 ## 二、下载并编译
 ```
 git clone -b develop https://github.com/apache/incubator-rocketmq.git

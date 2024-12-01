@@ -20,7 +20,7 @@ categories: Java
 	<artifactId>spring-boot-starter-validation</artifactId>
 </dependency>
 ```
-
+<!--more-->
 + 引入上面的依赖，springboot的配置类：`ValidationAutoConfiguration` 会自动帮我们配置。
 
 

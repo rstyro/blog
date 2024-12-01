@@ -17,6 +17,9 @@ tar -zxvf redis-4.0.14.tar.gz -C /opt/
 cd /opt/redis-4.0.14/
 make PREFIX=/usr/local/redis install      //指定安装的路径,
 ```
+
+<!--more-->
+
 #### 可能报错一
 > zmalloc.h:50:31: error: jemalloc/jemalloc.h: No such file or directory
 zmalloc.h:55:2: error: #error "Newer version of jemalloc required"

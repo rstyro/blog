@@ -20,6 +20,9 @@ cd docker-admin && vim Dockerfile
 
 ```
 
+<!--more-->
+
+
 ## 二、编辑Dockerfile 文件
 编辑如下内容,下面中的`COPY admin.war` 的admin.war 就是我们的war文件
 Dockerfile 的一些基本语法结构 后面再介绍

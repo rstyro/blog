@@ -24,6 +24,9 @@ mkdir -p /data/mongodb/conf
 ```
 vim /data/mongodb/conf/mongod.conf
 ```
+
+<!--more-->
+
 #### 添加如下内容：
 ```
 # 启动端口 27017 是默认的端口，可以改

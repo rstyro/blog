@@ -27,6 +27,8 @@ categories: 其他
 + SCM url
 	开源项目的代码仓库地址，比如`https://github.com/rstyro/encryption-tools.git`
 
+<!--more-->
+
 如下示例图：
 ![](sonatype1.png)
 

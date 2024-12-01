@@ -19,6 +19,8 @@ categories: Java
 </dependency>
 ```
 
+<!--more-->
+
 ### 二维码工具类
 ```java
 package top.lrshuai.blog.code;

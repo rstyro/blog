@@ -10,7 +10,9 @@ categories: Java
 - Aspose.PDF是一个Java组件，旨在允许开发人员以编程方式动态创建PDF文档，无论是简单还是复杂。Aspose.PDF for Java允许开发人员将表格，图形，图像，超链接，自定义字体等插入到PDF文档中。此外，还可以压缩PDF文档。Aspose.PDF for Java 提供了出色的安全功能来开发安全的 PDF 文档。Aspose.PDF java最显着的特点是它支持通过API和XML模板创建PDF文档。
 
 > 来自官网的一个介绍，简单的说就是，让开发人员更方便的操作 PDF。
-> 
+>
+
+<!--more-->
 
 ### 二、破解流程
 - 下载Jar包

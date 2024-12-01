@@ -17,6 +17,8 @@ categories: 开发工具
     - 对标准支持优秀（自v5开始）
     - 多语言支持，官网可下载几十种语言
 
+<!--more-->
+
 #### 1、快速开始
 - [中文文档：http://tinymce.ax-z.cn/](http://tinymce.ax-z.cn/)
 - [Github地址:https://github.com/tinymce/tinymce](https://github.com/tinymce/tinymce)

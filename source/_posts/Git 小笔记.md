@@ -27,6 +27,8 @@ $ git commit -m "commit and remove .idea"
 $ git push origin master
 ```
 
+<!--more-->
+
 
 ### 二、git 设置代理
 ```

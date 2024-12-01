@@ -13,6 +13,8 @@ categories: Java
 ## 2、默认配置
 Spring Boot默认提供静态资源目录位置需置于classpath下，目录名需符合如下规则：
 
+<!--more-->
+
 ```
 /static
 /public

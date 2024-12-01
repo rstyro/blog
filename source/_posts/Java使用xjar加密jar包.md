@@ -14,6 +14,9 @@ categories: Java
 + JDK 1.7 +
 
 #### 1、引入依赖
+
+<!--more-->
+
 ```
 <project>
     <!-- 设置 jitpack.io 仓库 -->

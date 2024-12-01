@@ -7,6 +7,8 @@ categories: Java
 ---
 ### 默认情况下，Spring Boot会用Logback来记录日志，并用INFO级别输出到控制台。在运行应用程序和其他例子时，你应该已经看到很多INFO级别的日志了。
 
+<!--more-->
+
 ## 1、添加依赖
 ### maven依赖中添加了spring-boot-starter-logging：
 ```

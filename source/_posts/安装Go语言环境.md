@@ -12,6 +12,7 @@ Go支持的系统有：
 + FreeBSD
 + Mac OS X（也称为 Darwin）
 + Windows
+<!--more-->
 
 **安装包下载地址：**
 + 官网(需要翻墙)：[https://golang.org/dl/](https://golang.org/dl/)

@@ -37,6 +37,9 @@ public class LocaleConfig extends WebMvcConfigurerAdapter{
 }
 ```
 
+<!--more-->
+
+
 ## 二、创建国际化文件
 ```
 messages.properties

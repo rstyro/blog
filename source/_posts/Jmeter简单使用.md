@@ -11,6 +11,8 @@ categories: 开发工具
 + 直接选择`Binaries` 下面的地址下载即可。
 + 目前(2021-06)最新的版本是：[5.4.1](https://mirrors.tuna.tsinghua.edu.cn/apache//jmeter/binaries/apache-jmeter-5.4.1.zip)
 
+<!--more-->
+
 ### 二、启动
 + windows 下载解压后
 + 执行jmeter根目录下的bin文件夹下的`jmeter.bat`即可

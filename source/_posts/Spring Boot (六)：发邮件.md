@@ -8,6 +8,7 @@ categories: Java
 # Springboot  使用 JavaMailSender 发邮件
 #### 发邮件功能，使用还是很普遍的，比如注册，找回密码，留言，推送......................我们来看看springboot 是怎么发邮件的。
 
+<!--more-->
 ## 1、添加依赖
 ```
 <dependency> 

@@ -18,6 +18,8 @@ categories: Java
 4、Servlet 通过调用 destroy() 方法终止（结束）。
 5、最后，Servlet 是由 JVM 的垃圾回收器进行垃圾回收的
 
+<!--more-->
+
 + #### 转发与重定向的区别
 > 转发是服务器行为，重定向是客户端行为
 > 重定向，其实是两次request,请求转发共享相同的request对象和response对象

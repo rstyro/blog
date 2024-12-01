@@ -13,6 +13,8 @@ categories: 开发工具
 ## 2、安装
 ### 傻瓜式安装没啥好说
 
+<!--more-->
+
 ## 3、安装插件 package control
 #### (1)、百度搜索 pageage control 进入官网：[https://packagecontrol.io/installation](https://packagecontrol.io/installation) 下载
 #### (2)、打开sublime->Preferences->Browse packages.

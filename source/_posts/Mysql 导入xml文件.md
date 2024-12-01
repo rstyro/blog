@@ -7,6 +7,9 @@ categories: 数据库
 ---
 #### 栗子：
 ### 1、address.xml
+
+<!--more-->
+
 ```xml
 <select>  
 	<option value="AL">阿尔巴尼亚</option>  

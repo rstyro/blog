@@ -13,6 +13,9 @@ categories: 其他
 yum install python-setuptools && easy_install pip  
 pip install shadowsocks
 ```
+
+<!--more-->
+
 ##### Debian / Ubuntu 安装命令:
 ```
 apt-get install python-pip  

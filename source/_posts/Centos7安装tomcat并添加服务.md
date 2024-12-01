@@ -11,6 +11,9 @@ categories: 网络运维
 ```
 wget http://mirrors.hust.edu.cn/apache/tomcat/tomcat-8/v8.5.14/bin/apache-tomcat-8.5.14.tar.gz
 ```
+
+<!--more-->
+
 ## 二、解压源码包
 ```
 # -C 是解压到指定位置，这里的位置为：/usr/local

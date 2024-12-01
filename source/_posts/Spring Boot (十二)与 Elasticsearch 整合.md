@@ -35,6 +35,8 @@ pom.xml 主要片段
 </dependency>
 
 ```
+<!--more-->
+
 ## 二、application.properties 内容
 ```
 # 你集群的名字

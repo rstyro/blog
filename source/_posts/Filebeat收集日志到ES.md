@@ -11,6 +11,8 @@ categories: 搜索引擎
 + logstash 和filebeat都具有日志收集功能，filebeat更轻量，占用资源更少。
 + logstash 不仅仅是一个日志采集工具，它也是可以作为一个日志搜集工具，有丰富的input|filter|output插件可以使用。资源消耗比较大
 
+<!--more-->
+
 #### 1、下载 Filebeat
 + 下载地址：[https://www.elastic.co/cn/downloads/beats/filebeat](https://www.elastic.co/cn/downloads/beats/filebeat)
 + 下载成功后，解压即可

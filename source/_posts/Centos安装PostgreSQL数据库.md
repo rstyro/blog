@@ -16,10 +16,14 @@ categories: 开发工具
 
 **优点：**
 
+<!--more-->
+
 - 操作系统支持： WINDOWS、Linux、UNIX、MAC OS X、BSD。
 - 支持ACID、关联完整性、数据库事务、Unicode多国语言。
 - 支持R-/R+tree索引、哈希索引、反向索引、部分索引、Expression 索引、GiST、GIN（用来加速全文检索）
 >从8.3版本开始支持位图索引。
+
+
 
 **受欢迎程度**
 - 自从MySQL被Oracle收购以后，PostgreSQL逐渐成为开源关系型数据库的首选。

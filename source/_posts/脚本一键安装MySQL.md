@@ -11,6 +11,8 @@ categories: 网络运维
 ### 二、准备工作
 可提前下载好安装包，如果网速好也可以直接用wget在脚本中进行下载
 
+<!--more-->
+
 #### 1、下载地址
 + 官网下载地址:[https://downloads.mysql.com/archives/community/](https://downloads.mysql.com/archives/community/)
 + 这里选择`5.7.30`版本，选择`Linux-Generic`,选择64位

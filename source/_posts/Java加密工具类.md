@@ -20,6 +20,9 @@ categories: Java
 	<version>1.58</version>
 </dependency>
 ```
+
+<!--more-->
+
 # 代码示例
 ## MD5加密算法 示例
 ```java

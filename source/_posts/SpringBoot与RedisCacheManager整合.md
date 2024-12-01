@@ -11,6 +11,7 @@ categories: Java
 + Cache接口为缓存的组件规范定义，包含缓存的各种操作集合；
 + Cache接口下Spring提供了各种xxxCache的实现；如`RedisCache`，`EhCacheCache` ,`ConcurrentMapCache`等；
 
+<!--more-->
 ## 快速开始
 ### 1、导入Maven
 ```

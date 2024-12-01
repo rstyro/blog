@@ -14,6 +14,9 @@ categories: Java
     <artifactId>spring-boot-starter-web</artifactId>
 </dependency>
 ```
+
+<!--more-->
+
 ## 二、过滤器 的创建
 #### (1)、创建自己的过滤器类实现javax.servlet.Filter接口
 #### (2)、重写doFilter 的方法，在此方法里写过滤操作

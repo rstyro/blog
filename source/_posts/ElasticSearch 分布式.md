@@ -33,6 +33,9 @@ transport.tcp.compress: true
 
 ```
 
+<!--more-->
+
+
 ## 一、Slave 配置
 修改 /usr/local/elasticsearch/config/elasticsearch.yml 文件
 #

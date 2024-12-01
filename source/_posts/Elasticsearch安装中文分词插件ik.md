@@ -12,6 +12,9 @@ categories: 搜索引擎
 ### 然后我就试着使用了一下，发现确实一些基本的查询都搞定了。一个星期的问题，其实装个插件就搞定了。有点小郁闷。
 ## 一、Windows 安装ik插件
 #### 1、下载地址：[https://github.com/medcl/elasticsearch-analysis-ik](https://github.com/medcl/elasticsearch-analysis-ik)
+
+<!--more-->
+
 下载你对应的版本
 ![](89174.png)
 

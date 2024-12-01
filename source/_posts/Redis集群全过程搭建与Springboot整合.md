@@ -14,6 +14,8 @@ Redis 高可用集群，本次使用目前的最新版本：6.2.2 （时间：20
 + CentOS Linux release 7.9.2009
 + 设备有限，使用一台虚拟机，以不同的端口启动redis
 
+<!--more-->
+
 ### 二、下载redis
 + Redis官网：[https://redis.io/download](https://redis.io/download)
 + 下载6.2.2版本：[https://download.redis.io/releases/redis-6.2.2.tar.gz](https://download.redis.io/releases/redis-6.2.2.tar.gz)

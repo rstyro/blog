@@ -21,6 +21,8 @@ categories: 网络运维
 |docker cp|在host和container之间拷贝文件|
 |docker commit|保存改动为新的images|
 
+<!--more-->
+
 ## 二、下载并运行一个hello-world
 #### docker 官方给出了一个hello-world 我们运行它就可以了，可以通过搜索命令进行搜索
 ```

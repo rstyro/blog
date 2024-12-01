@@ -9,6 +9,8 @@ categories: 开发工具
 + 报错信息：`nginx: [emerg] bind() to 0.0.0.0:XXXX failed (13: Permission denied)`其中XXXX就是端口号。
 + 更改nginx启动端口，报错，权限被拒绝
 
+<!--more-->
+
 ![](error.png)
 
 ### 解决方案

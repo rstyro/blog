@@ -23,6 +23,8 @@ sudo yum install -y curl policycoreutils-python openssh-server
 可跳过此步骤并在安装GitLab后配置外部SMTP服务器
 如果关闭注册功能方法不需要发邮件的话这步可以跳过
 
+<!--more-->
+
 ```
 # 安装
 sudo yum install postfix

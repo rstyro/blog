@@ -20,6 +20,9 @@ categories: Java
 + **AfterFilter**	 
 序列化时在最后添加内容
 
+<!--more-->
+
+
 ## 二、导入依赖
 + 导入pom依赖
 ```

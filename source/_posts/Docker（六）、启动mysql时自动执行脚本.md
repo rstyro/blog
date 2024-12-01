@@ -14,6 +14,9 @@ docker run -d --name testmysql -p 3306:3306 -e MYSQL_ROOT_PASSWORD=root -e MYSQL
 + MYSQL_DATABASE=admin 容器运行时创建一个数据库名为 admin
 但是这样只能获得一个空的数据库，我们需要有数据的数据库，so
 
+<!--more-->
+
+
 #### 其实mysql的官方镜像是支持这个能力的，在容器启动的时候自动执行指定的sql脚本或者shell脚本，我们一起来看看[mysql官方镜像的Dockerfile](https://github.com/docker-library/mysql/blob/7a850980c4b0d5fb5553986d280ebfb43230a6bb/8.0/Dockerfile)，如下图：
 ![](75031.png)
 

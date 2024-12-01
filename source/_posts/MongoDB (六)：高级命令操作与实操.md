@@ -25,6 +25,7 @@ categories: 数据库
 |$each|{$each:{key:array}}|db.people.update({_id:3},{$addToSet:{skills:{$each:["MongoDB","JAVA","linux"]}}},true)|循环操作，这样就可以合并两个不同的数组了|
 |$ 数组定位器|array.$.parame|db.people.update({teacher.name:"bb"},{$set:{"teacher.$.sex":"female"}})|如果以有这么一条数据： { "_id" : ObjectId("59f02f593e1b3b89f138d979"), "name" : "rstyro", "age" : 23, "teacher" : [ { "name" : "aa", "teach" : "english" }, { "name" : "bb", "teach" : "math" }, { "name" : "cc", "teach" : "chinese" } ] } 你要对teacher 数组中的name 为bb 添加一个sex 属性。|
 
+<!--more-->
 
 # 实操题练习
 

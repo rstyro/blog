@@ -16,6 +16,8 @@ categories: 数据库
 ### 6、全文索引
 ### 7、地理位置索引
 
+<!--more-->
+
 #### 查看索引的信息
 ```
 db.test.getIndexes()

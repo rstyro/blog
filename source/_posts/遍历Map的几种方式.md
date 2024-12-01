@@ -13,6 +13,8 @@ for (String key : map.keySet()){
 }
 ```
 
+<!--more-->
+
 ## 方法二
 ```java
 Iterator<Map.Entry<String, String>> it = map.entrySet().iterator();

@@ -10,6 +10,8 @@ categories: 其他
 + 目前支持的 HTML 元素有：`<kbd>`、`<b>`、`<i>`、`<em>`、`<sup>`、`<sub>` `<br>`
 + 使用 <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>Del</kbd> 重启电脑
 
+<!--more-->
+
 ### 二、mermaid
 + Mermaid是一种基于Javascript的绘图工具，使用类似于Markdown的语法，
 + 使用户可以方便快捷地通过代码创建图表。

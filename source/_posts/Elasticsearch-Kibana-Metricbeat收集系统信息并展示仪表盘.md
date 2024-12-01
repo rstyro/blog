@@ -8,6 +8,8 @@ categories: 搜索引擎
 ### 一、Metricbeat
 + Metricbeat是轻量型指标采集器
 
+<!--more-->
+
 #### 1、下载Metericbeat
 + 下载地址：[https://www.elastic.co/cn/downloads/beats/metricbeat](https://www.elastic.co/cn/downloads/beats/metricbeat)
 + 下载成功后，解压即可

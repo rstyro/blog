@@ -9,6 +9,9 @@ categories: Java
 Zuul 本身就有断路器的功能
 很简单只需自定义一个`ZuulFallbackProvider`即可，在实现这个ZuulFallbackProvider的`getRoute()`方法中定义你的服务名称。下面是简单的示例
 我这个是`producer`这个微服务的fallback
+
+<!--more-->
+
 ```java
 @Component
 public class MyFallbackProvider implements ZuulFallbackProvider {

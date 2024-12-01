@@ -28,6 +28,9 @@ service iptables stop
 chkconfig iptables off
 
 ```
+
+<!--more-->
+
 #### 可能发生的异常
 ```
 具体的异常现象： 

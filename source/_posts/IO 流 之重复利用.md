@@ -21,6 +21,9 @@ while ((len = in.read(buffer)) > -1 ) {
 baos.flush();                
 InputStream input = new ByteArrayInputStream(baos.toByteArray());
 ```
+
+<!--more-->
+
 ## 2、重复利用
 ##### 如果需要 Inputstream,通过 new ByteArrayInputStream(baos.toByteArray())   就可以重复取了，想取多少就取多少。
 

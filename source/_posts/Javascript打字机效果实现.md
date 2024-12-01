@@ -11,6 +11,8 @@ categories: 前端
 + 不知道还有没有更好的方法，如果各位有更好的方法，欢迎留言。
 + 代码如下，用到了定时器。
 
+<!--more-->
+
 ```html
 <!DOCTYPE html>
 <html lang="en">

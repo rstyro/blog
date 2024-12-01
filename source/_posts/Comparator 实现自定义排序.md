@@ -9,6 +9,8 @@ categories: Java
 ## Comparator 是一个java.util 包下的接口，它提供一个compare() 方法让我们来自己实现排序方式
 #### 废话不多说，看demo,demo就是最好的文档。
 
+<!--more-->
+
 ## 第一种方式：
 #### 实现Comparable 接口，重写compareTo 方法，然后调用Collections.sort(list) 方法即可
 ```java

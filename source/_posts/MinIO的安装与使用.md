@@ -13,6 +13,8 @@ categories: 开发工具
 - MinIO主要采用Golang语言实现，，客户端与存储服务器之间采用http/https通信协议。
 - 它与 Amazon S3 云存储服务 API 兼容
 
+<!--more-->
+
 ### 二、MinIO的相关信息
 - 中文官网: [http://www.minio.org.cn/](http://www.minio.org.cn/)
 - 中文文档: [http://docs.minio.org.cn/docs/](http://docs.minio.org.cn/docs/)

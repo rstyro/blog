@@ -13,6 +13,8 @@ KVM（名称来自英语：Kernel-basedVirtual Machine的缩写，即基于内�
 ### 二、搭建KVM平台
 + 我的环境是Centos7.9最小化安装版本
 
+<!--more-->
+
 
 #### 1、查看硬件是否支持虚拟化
 ```

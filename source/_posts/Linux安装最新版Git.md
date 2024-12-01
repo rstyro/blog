@@ -13,6 +13,8 @@ tags:
 + 或者先更新
 `apt update; apt install git`
 
+<!--more-->
+
 + Fedora 系列
 `yum install git`
 `dnf install git`

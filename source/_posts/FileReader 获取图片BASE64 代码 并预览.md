@@ -15,6 +15,8 @@ categories: 前端
 |readAsDataURL|file（blob）|将文件读取为 DataURL|
 |readAsText|file, （blob）|将文件读取为文本|
 
+<!--more-->
+
 
 ### FileReader 包含了一套完整的事件模型，用于捕获读取文件时的状态
 |事件|描述|

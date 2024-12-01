@@ -10,6 +10,8 @@ categories: 数据库
 ### 官网：[https://dev.mysql.com/downloads/windows/installer/5.7.html](https://dev.mysql.com/downloads/windows/installer/5.7.html)
 ![](1499864910205070825.png)
 
+<!--more-->
+
 ## 二、安装
 #### 1.同意，接受
 ![](1499864956133052358.png)

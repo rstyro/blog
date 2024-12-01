@@ -7,6 +7,9 @@ categories: Java
 ---
 # 这个是spring+springmvc+mybatis框架的方法
 ## 一、编辑配置文件：spring-mybatis.xml
+
+<!--more-->
+
 ```xml
 <beans xmlns="http://www.springframework.org/schema/beans" 
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"

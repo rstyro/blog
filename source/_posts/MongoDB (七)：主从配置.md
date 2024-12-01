@@ -16,6 +16,8 @@ categories: 数据库
 
 ## 二、配置
 
+<!--more-->
+
 ### 准备工作：
 #### (a)、创建mongodb 的数据存储目录
 #### (b)、创建mongodb 的log目录

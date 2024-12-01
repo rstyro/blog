@@ -11,6 +11,9 @@ mv /opt/myproject.jar /data/myproject.jar		# 把/opt 下的 myproject.jar文件 
 mv /opt/myproject.jar /data/newProject.jar		# 把/opt 下的 myproject.jar 剪切到 /data 下,并重命名为 newProject.jar
 mv /folds /data/folds							# 把folds 文件夹 剪切到 /data下，如果要重命名只需要在第二个路径改新的名字即可 
 ```
+
+<!--more-->
+
 ## cp 命令
 ```shell
 cp /opt/myproject.jar /data/					# 把/opt 下的 myproject.jar文件 复制到 /data 下

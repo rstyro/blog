@@ -10,6 +10,8 @@ categories: 搜索引擎
 ## 一、服务器内存不够
 > Java HotSpot(TM) 64-Bit Server VM warning: INFO: os::commit_memory(0x00000000c5330000, 986513408, 0) failed; error='Cannot allocate memory' (errno=12)
 
+<!--more-->
+
 像我就是这种类型，穷人，服务器配置都是最低配的。装不了几个东西
 elasticsearch 的默认是2g内存，不够就改呗。
 

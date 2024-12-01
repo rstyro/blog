@@ -19,6 +19,9 @@ sudo rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io.key
 yum install -y jenkins
 ```
 
+<!--more-->
+
+
 > 如果您以前从Jenkins导入了密钥，那么“rpm --import”将失败，因为您已经有了密钥。请忽略它并继续前进。
 
 #### 安装失败

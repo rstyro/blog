@@ -7,6 +7,8 @@ categories: 数据库
 ---
 ## 一、 mysqldump是mysql用于转存储数据库的实用程序。它主要产生一个SQL脚本，其中包含从头重新创建数据库所必需的命令CREATE TABLE INSERT等。
 
+<!--more-->
+
 #### 1、导出数据库为dbname所有表结构及表数据
 ```
 mysqldump -u root -pdbpasswd  dbname > db.sql //密码为dbpasswd,注意的是-p后面不能加空格,db.sql就是生成的脚本，可以改成你要生成的文件

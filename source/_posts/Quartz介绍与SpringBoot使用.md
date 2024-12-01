@@ -14,6 +14,8 @@ categories: Java
 + `Job`中的任务有可能并发执行，例如任务的执行时间过长，而每次触发的时间间隔太短，则会导致任务会被并发执行。
 + 为了避免出现上面的问题，可以在`Job`实现类上使用`@DisallowConcurrentExecution`,保证上一个任务执行完后，再去执行下一个任务
 
+<!--more-->
+
 
 #### JobDetail
 + `JobDetail`是任务详情。

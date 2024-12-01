@@ -17,6 +17,7 @@ categories: Java
     - 不满足要求 → 基于PaddleOCR在自己数据上微调 → RapidOCR部署。
 - 官方文档地址：[https://rapidai.github.io/RapidOCRDocs/docs/overview/](https://rapidai.github.io/RapidOCRDocs/docs/overview/)
 
+<!--more-->
 
 ### 一、整体框架
 ```mermaid

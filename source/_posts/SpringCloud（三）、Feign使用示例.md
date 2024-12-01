@@ -11,6 +11,8 @@ categories: Java
 
 **Spring Cloud Netflix 的微服务都是以 HTTP 接口的形式暴露的，所以可以用 Apache 的 HttpClient 或 Spring 的 RestTemplate 去调用，而 Feign 是一个使用起来更加方便的 HTTP 客戶端，使用起来就像是调用自身工程的方法，而感觉不到是调用远程方法**
 
+<!--more-->
+
 ## 代码实现
 **结尾有Github地址的代码示例**
 ## 一、使用SpringMVC注解

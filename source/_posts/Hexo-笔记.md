@@ -4,6 +4,7 @@ date: 2024-11-30 18:37:24
 updated: 2024-11-30 18:37:24
 tags: [Hexo]
 categories: 其他
+description: Hexo相关配置笔记，还有一些next主题自定义配置
 ---
 
 ## 一、前置条件
@@ -581,6 +582,7 @@ gitalk:
 - 上面各种主题配置好之后，就可以写文章了
 - CMD控制台使用`hexo new` 生成页面或文章
 
+### 1、生成文章命令
 ```bash
 # 生成标签页面
 hexo new page tags
@@ -606,7 +608,7 @@ tags:
 ```
 
 
-- 文章头部解析：
+### 2、文章头部字段解析
 
 ```
 /* ！！！！！！！！！！
@@ -684,6 +686,22 @@ type:
 */
 ```
 
+### 3、自定义生成的文章模板
+- 默认的文章模板比较简单，我们修改`根目录/scaffolds/post.md`即可
+
+```
+---
+title: {{ title }}
+date: {{ date }}
+updated: {{date}}
+tags: []
+description: 文章描述
+---
+
+```
+
+- 上面是我个人需要加的一些默认字段。
+
 
 ## 六、部署
 - 可以把代码推送到Github部署到Github Pages 服务
@@ -702,7 +720,7 @@ $ npm install hexo-deployer-git --save
 deploy:
   type: git
   repo: https://github.com/rstyro/blog.git	# 你的github 仓库地址
-  branch: master
+  branch: master #部署到哪个分支
 ```
 
 - 更多的配置方式：

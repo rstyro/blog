@@ -29,6 +29,8 @@ neo4j status
 
 ```
 
+<!--more-->
+
 #### 默认的host是bolt://localhost:7687，默认的用户是neo4j，其默认的密码是：neo4j，第一次成功登陆到Neo4j服务器之后，需要重置密码。 访问Graph Database需要输入身份验证，Host是Bolt协议标识的主机。
 
 

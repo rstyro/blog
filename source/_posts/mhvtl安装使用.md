@@ -13,6 +13,8 @@ categories: 其他
 #### 1、依赖环境安装
 + 依赖安装
 
+<!--more-->
+
 ```bash
 # 安装依赖
 yum -y install zlib-devel lzo-devel gcc prel kernel-devel

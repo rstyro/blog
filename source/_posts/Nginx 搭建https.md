@@ -13,6 +13,8 @@ mkdir -p /etc/nginx/ssl
 openssl req -x509 -nodes -days 36500 -newkey rsa:2048 -keyout /etc/nginx/ssl/nginx.key -out /etc/nginx/ssl/nginx.crt
 ```
 
+<!--more-->
+
 ##### 创建了有效期100年，加密强度为RSA2048的SSL密钥key和X509证书文件。
 ||参数说明:|
 |--|--|

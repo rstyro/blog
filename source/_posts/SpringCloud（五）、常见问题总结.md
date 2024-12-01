@@ -14,6 +14,8 @@ eureka.environment: 字符串
 参考文档：
 https://github.com/Netflix/eureka/wiki/Configuring-Eureka
 
+<!--more-->
+
 ### 2.Eureka DataCenter的配置
 ```
 eureka.datacenter: cloud

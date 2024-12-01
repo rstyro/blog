@@ -14,6 +14,8 @@ Ken Thompson 的 sh 是第一种 Unix Shell，Windows Explorer 是一个典型�
 业界所说的 shell 通常都是指 shell 脚本，但读者朋友要知道，shell 和 shell script 是两个不同的概念。
 Shell 脚本（shell script），是一种为 shell 编写的脚本程序，一般文件后缀为 `.sh`。
 
+<!--more-->
+
 ### 二、Shell环境
 Shell 编程跟 JavaScript 编程一样，只要有一个能编写代码的文本编辑器和一个能解释执行的脚本解释器就可以了。
 Linux 的 Shell 种类众多，常见的有：

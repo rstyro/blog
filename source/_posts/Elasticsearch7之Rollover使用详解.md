@@ -9,6 +9,8 @@ categories: 搜索引擎
 Rollover 按字面意思就是：滚动过渡。它可以使你通过配置索引的时间段、文档数量、索引大小满足条件则自动过渡到新索引。
 当rollover 触发时，将通过你目标索引的命名规则生成新的索引。
 
+<!--more-->
+
 **作用：**比如有些索引数据只需要保存前几个月的数据，更之前的可以删除或者压缩做为冷索引，不再更新索引，很少查询。信息仍然需要可搜索。
 在ES的[ILM](https://www.elastic.co/guide/en/elasticsearch/reference/current/index-lifecycle-management.html)中定义索引有4个生命周期：
 

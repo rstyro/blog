@@ -12,6 +12,7 @@ categories: 游戏开发
 + Github地址：[https://github.com/mapeditor/tiled](https://github.com/mapeditor/tiled)
 + 下载地址：[https://github.com/mapeditor/tiled/releases/tag/v1.7.2](https://github.com/mapeditor/tiled/releases/tag/v1.7.2)
 
+<!--more-->
 
 ### 二、TiledMap 简单使用
 

@@ -14,6 +14,8 @@ categories: 前端
 - npm安装crypto-js: `npm install crypto-js -S`
 - 使用示例:
 
+<!--more-->
+
 
 #### 1、引入单个库
 ```js

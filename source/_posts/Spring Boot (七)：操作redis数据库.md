@@ -15,6 +15,8 @@ categories: Java
 </dependency>
 ```
 
+<!--more-->
+
 ## 2、添加 redis 的配置文件
 ##### 在application.properties
 ```

@@ -12,6 +12,8 @@ categories: 开发工具
 # 所有我就把它分为 全局配置、events 、http 吧
 ## 一、全局区配置
 
+<!--more-->
+
 ```
 # 运行用户与用户组，用户组可忽略
 user  nobody;

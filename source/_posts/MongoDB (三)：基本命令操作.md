@@ -21,6 +21,8 @@ use demo
 db.dropDatabase()
 ```
 
+<!--more-->
+
 ## 一、插入数据
 ##### 1、往集合test插入单条数据
 ```

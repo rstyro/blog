@@ -15,6 +15,7 @@ categories: Java
 - 下载之后，解压，修改conf里面的`application.yml`配置启动就可以了
 - 可以参考`application.example.yml` 示例配置
 - 删掉一些不必要的配置，大概的demo如下：
+<!--more-->
 
 ```yml
 #  Copyright 1999-2019 Seata.io Group.

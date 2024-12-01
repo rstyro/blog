@@ -8,6 +8,8 @@ categories: 搜索引擎
 # ElasticSearch 的安装
 #### 这个安装超级简单，下载解压就可以了。前提是你已经安装了 JDK ,关于jdk的安装可参看我的文章：[Linux 安装jdk](http://rstyro.gitee.io/blog/2017/05/13/Linux%20%E5%AE%89%E8%A3%85jdk/)
 
+<!--more-->
+
 ## 一、下载安装包
 ### 1、打开官网下载页:[https://www.elastic.co/downloads/elasticsearch](https://www.elastic.co/downloads/elasticsearch)
 ```

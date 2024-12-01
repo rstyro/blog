@@ -22,6 +22,9 @@ public class TimeTask{
     }  
 }
 ```
+
+<!--more-->
+
 > cron：指定cron表达式。我上面写的是每周一0点执行
 
 ## 2、配置问题

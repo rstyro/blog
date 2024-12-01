@@ -7,6 +7,9 @@ categories: Java
 ---
 # 分享一个Java生成验证码工具类
 ## 直接上代码：
+
+<!--more-->
+
 #### 1、CodeUtil.class
 ```java
 package top.lrshuai.blog.util;

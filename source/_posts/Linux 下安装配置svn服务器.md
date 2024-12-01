@@ -17,6 +17,9 @@ chmod -R 777 svnRepo            #修改目录权限为777
 svnadmin create /usr/local/svnRepo/test  #创建一个svn版本仓库test(test可以随便起名字) 
 cd test/conf               #进入test版本仓库下的配置文件目录
 ```
+
+<!--more-->
+
 ## 3、修改这个目录下的三个配置文件
 #### (1) svnserve.conf //配置版本库信息和用户文件和用户密码文件的路径、版本库路径
 ```

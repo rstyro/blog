@@ -10,6 +10,8 @@ categories: Java
 我们看看官方文档的例子：
 ![](07841.png)
 
+<!--more-->
+
 [文档地址](http://cloud.spring.io/spring-cloud-static/Dalston.SR5/single/spring-cloud.html#_peer_awareness)
 
 **自己动手来吧**

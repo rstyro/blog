@@ -21,6 +21,7 @@ mv elasticsearch-7.12.0 elasticsearch
 cd elasticsearch
 ```
 
+<!--more-->
 
 #### 1、修改Elasticsearch配置
 + 修改：`/usr/local/elasticsearch/config/elasticsearch.yml`

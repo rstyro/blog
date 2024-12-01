@@ -22,6 +22,7 @@ categories: Java
 |Spring Cloud Finchley|2.0.3.RELEASE|2.0.X.RELEASE|
 |Spring Cloud Edgware|1.5.1.RELEASE(停止维护，建议升级)|1.5.X.RELEASE|
 
+<!--more-->
 ### 2、孵化版本依赖关系（不推荐使用）
 
 |SpringCloud Version|SpringCloud-Alibaba version|SpringBoot Version|

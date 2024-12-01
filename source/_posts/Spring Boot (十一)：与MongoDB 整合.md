@@ -13,6 +13,7 @@ categories: Java
 	<artifactId>spring-boot-starter-data-mongodb</artifactId>
 </dependency>
 ```
+<!--more-->
 
 ## 二、配置文件
 ##### application.properties 添加mongo 地址

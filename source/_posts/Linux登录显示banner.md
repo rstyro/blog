@@ -12,6 +12,8 @@ categories: Linux
 + http://www.network-science.de/ascii/
 + https://www.degraeve.com/img2txt.php
 
+<!--more-->
+
 ### 二、设置Banner
 + 想在登录Linux后显示自定义的欢迎界面
 + 修改：`/etc/motd`编辑你想要的即可
