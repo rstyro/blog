@@ -12,6 +12,9 @@ updated: 2024-12-02 16:43:29
 - 文档地址：[https://vitepress.qzxdp.cn/guide/what-is-vitepress.html](https://vitepress.qzxdp.cn/guide/what-is-vitepress.html)
 - Github: [https://github.com/vuejs/vitepress](https://github.com/vuejs/vitepress)
 
+
+<!--more-->
+
 **常见的应用场景**
 - 文档预览
 - 博客
@@ -336,10 +339,11 @@ features:
 
 
 **public目录**
-- 当项目打包之后，会对图片等资源进行hash处理，所以我们在hero与features配置的图片可能跟会找不到
+
+- 当项目打包之后，会对图片等资源进行hash处理，所以我们在hero与features配置的图片可能会找不到
 - VitePress支持一个`public`目录，你可以将不想被哈希处理的静态资源放在这个目录中
 - 这个public目录在根目录下新建即可，如果你根目录配置的是`./docs`那它就是`./docs/public`
--
+
 
 ##### 6、页脚
 - 配置页脚
@@ -426,7 +430,10 @@ npm run docs:preview
 ##### 1、部署到Github Pages
 - 在Github新建仓库
 - 上传代码，然后新建 Actions ,新增工作流，添加文件为 `deploy.yml`
-- 内容如下：
+
+![](actions.png)
+
+- `deploy.yml`内容如下：
 
 ```yaml
 # 部署到Github Pages
@@ -500,11 +507,12 @@ jobs:
 
 ```
 
-- 找到"Pages"菜单项，在"Build and deployment > Source"下选择"GitHub Actions"作为构建和部署的源。
-- 然后就可以了。
+- 然后找到"Pages"菜单项，在"Build and deployment > Source"下选择"GitHub Actions"作为构建和部署的源。
+- 然后就可以了。Pages设置如下图：
 
-![](actions.png)
+![Pages设置](pages.png)
 
-- Pages如下配置
+- 访问浏览器，已经能看到页面显示了
 
-![](pages.png)
+
+![tcm](tcm.png)

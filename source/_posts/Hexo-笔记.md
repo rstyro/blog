@@ -37,6 +37,8 @@ npm install -g cnpm --registry=https://registry.npmmirror.com
 
 
 ## 二、安装Hexo
+
+
 ```bash
 # 安装 hexo,  -D 是局部安装并添加到package.json ，-g 是全局安装不仅限于当前项目的目录下
 npm install -g hexo-cli
@@ -762,4 +764,33 @@ deploy:
     [repo_name]:
       url: <repository url>
       branch: [branch]
+```
+
+- 安装之后就可以部署，推送到远程了，常用命令如下：
+
+
+```bash
+
+# 查看是否安装成功，查看版本号
+hexo -v
+
+# 初始化Hexo，在当前目录下，创建一个文件夹为blog 的博客
+hexo init blog
+
+#生成静态文件
+hexo generate
+# 缩写
+heox g
+
+# 启动,默认访问：http://localhost:4000/
+hexo s
+
+# 清除缓存，和已生成的静态文件
+hexo clean
+
+# 部署
+hexo deploy
+
+# 部署 缩写
+hexo d
 ```
