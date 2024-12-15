@@ -121,8 +121,14 @@ public class PDFJarCrack {
 
     private static void disposeJar(String jarName, String replaceFile) {
         List<String> deletes = new ArrayList<>();
+        // 这个是22.* 版本的
         deletes.add("META-INF/37E3C32D.SF");
         deletes.add("META-INF/37E3C32D.RSA");
+
+        // 这个是24.* 版本 使用这个
+        deletes.add("META-INF/7DD91000.SF");
+        deletes.add("META-INF/7DD91000.RSA");
+        
         File oriFile = new File(jarName);
         if (!oriFile.exists()) {
             System.out.println("######Not Find File:" + jarName);
