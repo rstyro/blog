@@ -487,7 +487,8 @@ jobs:
         run: npm run docs:build # or pnpm docs:build / yarn docs:build
       # 上传文件到pages,后续部署
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v2
+        uses: actions/upload-pages-artifact@v3
+        # uses: actions/upload-artifact@v4
         with:
           path: docs/.vitepress/dist
 
@@ -502,7 +503,7 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v2
+        uses: actions/deploy-pages@v4
 
 
 ```
