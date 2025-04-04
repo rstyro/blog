@@ -202,4 +202,135 @@ mysql> flush privileges;
 mysql> quit
 ```
 
+
+### 四、Centos8一键脚本安装
+- 可以把步骤写到脚本中，直接安装
+
+```bash
+#!/bin/bash
+
+set -e
+
+# 颜色定义
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+NC='\033[0m'
+
+# 预定义配置,密码搞复杂一点，不然修改不成功会报错，报错也问题不大吧，反正也是安装成功了
+ROOT_PASS="rstyro@66DaShun.888"
+MYSQL_CNF="/etc/my.cnf"
+
+# 卸载MariaDB
+echo -e "${GREEN}[1/8] 卸载现有MariaDB...${NC}"
+sudo dnf remove -y mariadb-* > /dev/null 2>&1 || true
+
+sudo dnf remove -y mysql80-community-release 2>/dev/null || true
+
+# 添加MySQL仓库
+echo -e "${GREEN}[2/8] 配置MySQL Yum仓库...${NC}"
+sudo dnf install -y https://repo.mysql.com/mysql80-community-release-el8-7.noarch.rpm
+
+# 清理缓存
+sudo dnf clean all
+sudo rm -rf /var/cache/dnf
+sudo dnf makecache
+
+# 禁用mysql模块，不校验mysql版本
+sudo dnf module disable mysql
+
+# 启用仓库
+sudo dnf config-manager --enable mysql80-community
+
+
+# 安装MySQL服务器
+echo -e "${GREEN}[3/8] 安装MySQL服务器...${NC}"
+sudo dnf install -y mysql-community-server 
+
+# 启动MySQL服务
+echo -e "${GREEN}[4/8] 启动MySQL服务...${NC}"
+sudo systemctl start mysqld
+sudo systemctl enable mysqld 
+
+# 获取临时密码
+echo -e "${GREEN}[5/8] 获取临时root密码...${NC}"
+for i in {1..30}; do
+  if [[ -f /var/log/mysqld.log ]] && sudo grep -q 'temporary password' /var/log/mysqld.log; then
+    break
+  fi
+  sleep 2
+done
+TEMP_PASS=$(sudo grep 'temporary password' /var/log/mysqld.log | awk '{print $NF}')
+if [[ -z "$TEMP_PASS" ]]; then
+  echo -e "${RED}错误: 无法获取临时密码，请检查/var/log/mysqld.log${NC}"
+  exit 1
+fi
+
+# 自动安全配置
+echo -e "${GREEN}[6/8] 执行安全配置...${NC}"
+mysql --connect-expired-password -u root -p"${TEMP_PASS}" <<EOF 2>/dev/null
+ALTER USER 'root'@'localhost' IDENTIFIED BY '${ROOT_PASS}';
+CREATE USER 'root'@'%' IDENTIFIED WITH mysql_native_password BY '${ROOT_PASS}';
+GRANT ALL PRIVILEGES ON *.* TO 'root'@'%';
+FLUSH PRIVILEGES;
+EOF
+
+# 配置优化my.cnf
+echo -e "${GREEN}[7/8] 配置my.cnf...${NC}"
+sudo tee $MYSQL_CNF > /dev/null <<'EOF'
+[mysqld]
+# 网络配置
+port=3306
+bind-address=0.0.0.0
+
+# 字符集设置
+character-set-server=utf8mb4
+collation-server=utf8mb4_unicode_ci
+
+# 连接配置
+max_connections=1000
+wait_timeout=300
+interactive_timeout=300
+
+# 存储引擎
+default-storage-engine=INNODB
+
+# InnoDB配置
+innodb_buffer_pool_size=1G
+innodb_flush_log_at_trx_commit=2
+innodb_log_file_size=256M
+
+# 日志配置
+slow_query_log=1
+slow_query_log_file=/var/log/mysql-slow.log
+long_query_time=2
+
+# 其他优化
+skip-name-resolve
+log_bin_trust_function_creators=1
+sql_mode=STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION
+
+[client]
+default-character-set=utf8mb4
+EOF
+
+# 重启服务生效配置
+sudo systemctl restart mysqld
+
+# 防火墙配置
+echo -e "${GREEN}[8/8] 配置防火墙...${NC}"
+sudo firewall-cmd --permanent --add-port=3306/tcp > /dev/null
+sudo firewall-cmd --reload > /dev/null
+
+# 验证安装
+echo -e "${GREEN}验证安装...${NC}"
+if mysql -u root -p"${ROOT_PASS}" -e "SELECT 1" >/dev/null 2>&1; then
+  echo -e "${GREEN}√ MySQL 8安装成功"
+  echo -e "Root密码: ${ROOT_PASS}"
+  echo -e "连接命令: mysql -u root -p -h [服务器IP]"
+else
+  echo -e "${RED}× 安装验证失败，请检查日志${NC}"
+fi
+
+```
+
 这样就结束了，可以玩了。
