@@ -7,7 +7,7 @@ categories: 网络运维
 ---
 # Centos 安装redis 并配置服务
 
-## 1.下载源码包
+## 一.下载源码包
 
 ```
 # 安装gcc依赖
@@ -43,7 +43,7 @@ make: *** [all] Error 2
 + 进入源码包目录下的`deps`目录中执行:
 + `make lua hiredis linenoise`
 
-## 2、添加服务
+## 二、添加服务
 ### a)、这个是centos6 的service 命令
 #### 1、创建服务脚本
 ```
@@ -138,3 +138,45 @@ systemctl start redis.service
 systemctl enable redis.service
 ```
 ###　结束，配置不成功，评论说明，不出意外　３分钟之内回复
+
+
+## 三、Centos一键脚本安装Redis
+- 使用脚本安装
+
+```bash
+#!/bin/bash
+set -e
+
+REDIS_CONF="/etc/redis.conf"
+SERVICE_NAME="redis"
+
+echo -e "\033[36m[1/5] 安装EPEL仓库\033[0m"
+dnf install -y epel-release
+
+echo -e "\033[36m[2/5] 安装Redis\033[0m"
+dnf install -y redis
+
+echo -e "\033[36m[3/5] 配置Redis\033[0m"
+# 备份原始配置
+cp ${REDIS_CONF} ${REDIS_CONF}.bak
+
+# 基础优化配置
+sed -i 's/^bind 127.0.0.1 -::1/# bind 127.0.0.1 -::1/' ${REDIS_CONF}
+sed -i 's/^protected-mode yes/protected-mode no/' ${REDIS_CONF}
+sed -i 's/^daemonize no/daemonize yes/' ${REDIS_CONF}
+sed -i 's/^# requirepass foobared/requirepass MyRedisPwd!/' ${REDIS_CONF}
+
+echo -e "\033[36m[4/5] 启动服务\033[0m"
+systemctl enable --now ${SERVICE_NAME}
+firewall-cmd --permanent --add-port=6379/tcp
+firewall-cmd --reload
+
+echo -e "\033[36m[5/5] 验证安装\033[0m"
+echo "服务状态:"
+systemctl status ${SERVICE_NAME} --no-pager
+
+echo -e "\n连接测试:"
+redis-cli -a MyRedisPwd! ping
+
+
+```

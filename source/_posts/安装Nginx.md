@@ -9,6 +9,9 @@ categories: 开发工具
 # 安装Nginx 
 
 ## 一、yum安装Nginx
+
+
+### 1、Centos7
 + 更新Nginx源:
 `rpm -Uvh http://nginx.org/packages/centos/7/noarch/RPMS/nginx-release-centos-7-0.el7.ngx.noarch.rpm`
 + 安装Nginx: `yum install -y nginx`
@@ -23,6 +26,66 @@ systemctl start nginx        #启动
 systemctl restart nginx      #重启
 systemctl stop nginx         #关闭
 systemctl status nginx       # 状态
+```
+
+
+
+### 2、Centos8
+- Centos8脚本一键安装Nginx
+
+```bash
+#!/bin/bash
+
+set -e
+
+if [[ $EUID -ne 0 ]]; then
+    echo "错误：此脚本必须以 root 权限运行。请使用 sudo 执行。" >&2
+    exit 1
+fi
+
+# 安装必要工具
+dnf -y install curl
+
+# 添加 Nginx 官方仓库
+cat << 'EOL' > /etc/yum.repos.d/nginx.repo
+[nginx-stable]
+name=nginx stable repo
+baseurl=http://nginx.org/packages/centos/$releasever/$basearch/
+gpgcheck=1
+enabled=1
+gpgkey=https://nginx.org/keys/nginx_signing.key
+module_hotfixes=true
+EOL
+
+# 禁用系统默认的 Nginx 模块
+dnf -y module disable nginx
+
+# 安装 Nginx
+dnf -y install nginx
+
+# 启动并设置开机自启
+systemctl enable --now nginx
+
+# 配置防火墙（如果 firewalld 运行中）
+if firewall-cmd --state &>/dev/null; then
+    firewall-cmd --permanent --add-service=http --add-service=https
+    firewall-cmd --reload
+    echo "防火墙已放行 HTTP/HTTPS 流量"
+else
+    echo "提示：firewalld 未运行，请手动配置防火墙规则"
+fi
+
+# 获取访问信息
+PUBLIC_IP=$(curl -4s ifconfig.me 2>/dev/null || echo "你的服务器公网IP")
+
+echo "--------------------------------------------"
+echo "Nginx 安装完成！"
+echo "快速验证命令: curl -I http://localhost"
+echo "访问地址: http://${PUBLIC_IP}"
+echo "配置文件目录: /etc/nginx/"
+echo "网页默认目录: /usr/share/nginx/html"
+echo "--------------------------------------------"
+
 ```
 
 ## 二、源码安装

@@ -209,6 +209,22 @@ http {
     location / {
       proxy_pass      http://127.0.0.1:8080;
     }
+    
+    
+    location /xuanx {
+        rewrite ^/xuanx/(.*)$ /$1 break;  # 去掉 /xuanx 前缀并转发到 /
+        proxy_pass http://localhost:8800;  # 反向代理
+        proxy_set_header Host $host;  # 设置 Host 头
+        proxy_set_header X-Real-IP $remote_addr;  # 设置真实 IP
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;  # 设置转发的 IP
+        proxy_set_header X-Forwarded-Proto $scheme;  # 设置转发的协议
+    
+        # 优化配置
+        proxy_connect_timeout 60s;
+        proxy_read_timeout 600s;
+        client_max_body_size 20M;
+    }
+    
   }
 
   # 定义负载均衡服务器列表，名字为：big_server_com
