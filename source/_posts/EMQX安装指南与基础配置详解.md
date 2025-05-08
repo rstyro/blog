@@ -2,8 +2,8 @@
 title: EMQX安装指南与基础配置详解
 tags: [EMQX,MQTT]
 categories: 物联网
-date: 2025-05-08 15:15:17
-updated: 2025-05-08 15:15:17
+date: 2025-05-10 18:15:17
+updated: 2025-05-10 18:15:17
 ---
 
 ## 一、什么是EMQX
