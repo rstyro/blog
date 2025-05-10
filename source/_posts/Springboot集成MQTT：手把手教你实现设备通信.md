@@ -20,7 +20,7 @@ updated: 2025-05-11 18:14:45
 - MQTT Broker（例如 EMQX、Mosquitto）
 - Paho-MQTT（Java 客户端库）
 
-
+<!--more-->
 
 ## 三、快速开始
 - IDEA新建一个空的Springboot项目，然后添加或修改如下
