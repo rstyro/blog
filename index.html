@@ -256,95 +256,14 @@
 <li>MQTT Broker（例如 EMQX、Mosquitto）</li>
 <li>Paho-MQTT（Java 客户端库）</li>
 </ul>
-<h2 id="三、快速开始"><a href="#三、快速开始" class="headerlink" title="三、快速开始"></a>三、快速开始</h2><ul>
-<li>IDEA新建一个空的Springboot项目，然后添加或修改如下</li>
-</ul>
-<h4 id="1、添加依赖"><a href="#1、添加依赖" class="headerlink" title="1、添加依赖"></a>1、添加依赖</h4><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">properties</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">java.version</span>&gt;</span>17<span class="tag">&lt;/<span class="name">java.version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">mqttv3.version</span>&gt;</span>1.2.5<span class="tag">&lt;/<span class="name">mqttv3.version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">lombok.version</span>&gt;</span>1.18.30<span class="tag">&lt;/<span class="name">lombok.version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">fastjson.version</span>&gt;</span>2.0.57<span class="tag">&lt;/<span class="name">fastjson.version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">properties</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">    <span class="comment">&lt;!-- web --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-web<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">&lt;!-- mqtt客户端依赖 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.eclipse.paho<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>org.eclipse.paho.client.mqttv3<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">version</span>&gt;</span>$&#123;mqttv3.version&#125;<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">&lt;!-- 方便getter setter方法 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.projectlombok<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>lombok<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">version</span>&gt;</span>$&#123;lombok.version&#125;<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">&lt;!-- 方便序列化对象，可不要 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.alibaba.fastjson2<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>fastjson2<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">version</span>&gt;</span>$&#123;fastjson.version&#125;<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">&lt;!-- 测试 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-test<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">scope</span>&gt;</span>test<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<h4 id="2、application-yml"><a href="#2、application-yml" class="headerlink" title="2、application.yml"></a>2、application.yml</h4><ul>
-<li>为了支持多个MQTT服务地址，使用如下配置：</li>
-</ul>
-<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">spring:</span></span><br><span class="line">  <span class="attr">application:</span></span><br><span class="line">    <span class="attr">name:</span> <span class="string">springboot-mqtt</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># mqtt配置</span></span><br><span class="line"><span class="attr">mqtt:</span></span><br><span class="line">  <span class="attr">max-retries:</span> <span class="number">10</span></span><br><span class="line">  <span class="attr">clients:</span></span><br><span class="line">    <span class="attr">client1:</span></span><br><span class="line">      <span class="attr">brokerUrl:</span> <span class="string">tcp://broker.emqx.io:1883</span></span><br><span class="line">      <span class="attr">clientId:</span> <span class="string">client1Id</span></span><br><span class="line">      <span class="attr">username:</span> <span class="string">test</span></span><br><span class="line">      <span class="attr">password:</span> <span class="string">test</span></span><br><span class="line">      <span class="attr">topics:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">topic:</span> <span class="string">/device/control</span></span><br><span class="line">          <span class="attr">qos:</span> <span class="number">1</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">topic:</span> <span class="string">/test/rstyro</span></span><br><span class="line">          <span class="attr">qos:</span> <span class="number">1</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">topic:</span> <span class="string">/room/502</span></span><br><span class="line">          <span class="attr">qos:</span> <span class="number">1</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">topic:</span> <span class="string">test/topic</span></span><br><span class="line">          <span class="attr">qos:</span> <span class="number">1</span></span><br><span class="line"><span class="comment">#    client2:</span></span><br><span class="line"><span class="comment">#      brokerUrl: tcp://127.0.0.1:1883</span></span><br><span class="line"><span class="comment">#      clientId: client2Id</span></span><br><span class="line"><span class="comment">#      username: admin</span></span><br><span class="line"><span class="comment">#      password: admin</span></span><br><span class="line"><span class="comment">#      topics:</span></span><br><span class="line"><span class="comment">#        - topic: /device/test</span></span><br><span class="line"><span class="comment">#          qos: 1</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<h4 id="3、对应的配置类"><a href="#3、对应的配置类" class="headerlink" title="3、对应的配置类"></a>3、对应的配置类</h4><ul>
-<li>根据yml生成对应的配置类：<code>MqttClientProperties</code></li>
-</ul>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> lombok.Data;</span><br><span class="line"><span class="keyword">import</span> org.springframework.boot.context.properties.ConfigurationProperties;</span><br><span class="line"><span class="keyword">import</span> org.springframework.stereotype.Component;</span><br><span class="line"><span class="keyword">import</span> java.util.List;</span><br><span class="line"><span class="keyword">import</span> java.util.Map;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Data</span></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="meta">@ConfigurationProperties(prefix = &quot;mqtt&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">MqttClientProperties</span> &#123;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 最大重试次数</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="type">int</span> maxRetries=<span class="number">10</span>;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 多个MQTT客户端map</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> Map&lt;String, ClientConfig&gt; clients;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Data</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">class</span> <span class="title class_">ClientConfig</span>  &#123;</span><br><span class="line">        <span class="comment">// MQTT服务地址</span></span><br><span class="line">        <span class="keyword">private</span> String brokerUrl;</span><br><span class="line">        <span class="comment">// 客户端ID</span></span><br><span class="line">        <span class="keyword">private</span> String clientId;</span><br><span class="line">        <span class="comment">// 认证的账号密码</span></span><br><span class="line">        <span class="keyword">private</span> String username;</span><br><span class="line">        <span class="keyword">private</span> String password;</span><br><span class="line">        <span class="comment">// 多个主题</span></span><br><span class="line">        <span class="keyword">private</span> List&lt;TopicConfig&gt; topics;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Data</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">class</span> <span class="title class_">TopicConfig</span> &#123;</span><br><span class="line">        <span class="comment">// 主题</span></span><br><span class="line">        <span class="keyword">private</span> String topic;</span><br><span class="line">        <span class="comment">/**</span></span><br><span class="line"><span class="comment">         * 消息传递的保证程度：</span></span><br><span class="line"><span class="comment">         * 0=最多一次，消息不会被确认。不会有重发机制</span></span><br><span class="line"><span class="comment">         * 1=至少一次，确保消息至少会被送达一次，但也可能多次。这意味着接收者可能会收到重复的消息</span></span><br><span class="line"><span class="comment">         * 2=恰好一次，提供了最高的消息传递保证，确保每条消息仅被接收者准确地接收一次。这是最安全但也是最耗资源的方式</span></span><br><span class="line"><span class="comment">         *      使用两阶段握手协议来确保消息的唯一性和可靠性。</span></span><br><span class="line"><span class="comment">         *      首先发送PUBLISH消息并等待PUBREC响应，然后发送PUBREL消息并等待PUBCOMP响应。</span></span><br><span class="line"><span class="comment">         *      适用于不允许消息丢失或重复的关键性应用</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        <span class="keyword">private</span> <span class="type">int</span> qos;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h4 id="4、管理类"><a href="#4、管理类" class="headerlink" title="4、管理类"></a>4、管理类</h4><ul>
-<li>为了方便管理MQTT客户端，我们新建一个: <code>MqttClientManager</code> 来管理</li>
-</ul>
-<p><strong>构造函数：</strong></p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Slf4j</span></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">MqttClientManager</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 存储所有客户端实例</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> Map&lt;String, MqttClient&gt; clients = <span class="keyword">new</span> <span class="title class_">ConcurrentHashMap</span>&lt;&gt;();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> MqttClientProperties mqttProperties;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> ObjectMapper objectMapper;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">MqttClientManager</span><span class="params">(MqttClientProperties mqttProperties, ObjectMapper objectMapper)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.mqttProperties = mqttProperties;</span><br><span class="line">        <span class="built_in">this</span>.objectMapper = objectMapper;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 应用启动完成后初始化MQTT客户端</span></span><br><span class="line">    <span class="meta">@EventListener(ApplicationReadyEvent.class)</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">init</span><span class="params">()</span> &#123;</span><br><span class="line">        initializeClientsWithRetry(mqttProperties.getMaxRetries());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-<p><strong>initializeClientsWithRetry方法</strong></p>
-<ul>
-<li>这个方法主要是初始化MQTT客户端并当连接失败时进行重试</li>
-</ul>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">initializeClientsWithRetry</span><span class="params">(<span class="type">int</span> maxRetries)</span> &#123;</span><br><span class="line">        mqttProperties.getClients().forEach((name, config) -&gt; &#123;</span><br><span class="line">            <span class="type">int</span> <span class="variable">attempt</span> <span class="operator">=</span> <span class="number">0</span>;</span><br><span class="line">            <span class="keyword">while</span> (attempt &lt; maxRetries) &#123;</span><br><span class="line">                <span class="keyword">try</span> &#123;</span><br><span class="line">                    <span class="type">MqttClient</span> <span class="variable">client</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">MqttClient</span>(</span><br><span class="line">                            config.getBrokerUrl(),</span><br><span class="line">                            config.getClientId(),</span><br><span class="line">                            <span class="keyword">new</span> <span class="title class_">MemoryPersistence</span>()</span><br><span class="line">                    );</span><br><span class="line">                    <span class="comment">// 客户端连接配置</span></span><br><span class="line">                    <span class="type">MqttConnectOptions</span> <span class="variable">options</span> <span class="operator">=</span> getMqttConnectOptions(config);</span><br><span class="line">                    <span class="comment">// 设置客户端回调逻辑</span></span><br><span class="line">                    setupClientCallback(client, name, config.getTopics());</span><br><span class="line">                    client.connect(options);</span><br><span class="line">                    clients.put(name, client);</span><br><span class="line">                    <span class="keyword">break</span>; <span class="comment">// 成功退出循环</span></span><br><span class="line">                &#125; <span class="keyword">catch</span> (MqttException e) &#123;</span><br><span class="line">                    handleInitializationFailure(name, ++attempt, maxRetries, e);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
-<ul>
-<li>代码很简单，主要看 <code>setupClientCallback</code> 客户端回调相关</li>
-</ul>
-<p><strong>setupClientCallback</strong></p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">setupClientCallback</span><span class="params">(MqttClient client, String clientName, List&lt;MqttClientProperties.TopicConfig&gt; topics)</span> &#123;</span><br><span class="line">        client.setCallback(<span class="keyword">new</span> <span class="title class_">MqttCallbackExtended</span>() &#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">connectComplete</span><span class="params">(<span class="type">boolean</span> reconnect, String serverURI)</span> &#123;</span><br><span class="line">                log.info(<span class="string">&quot;MQTT 连接成功: &#123;&#125;&quot;</span>, serverURI);</span><br><span class="line">                <span class="keyword">if</span> (reconnect) &#123;</span><br><span class="line">                    log.info(<span class="string">&quot;MQTT 客户端[&#123;&#125;]断开后重连成功&quot;</span>, clientName);</span><br><span class="line">                    resubscribeTopics(client, clientName, topics);</span><br><span class="line">                &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                    log.info(<span class="string">&quot;首次连接到 Broker: &#123;&#125;&quot;</span>, serverURI);</span><br><span class="line">                    subscribeTopics(client, clientName, topics);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">connectionLost</span><span class="params">(Throwable cause)</span> &#123;</span><br><span class="line">                log.error(<span class="string">&quot;MQTT 连接丢失: &#123;&#125;&quot;</span>, cause.getMessage(), cause);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">messageArrived</span><span class="params">(String topic, MqttMessage message)</span> &#123;</span><br><span class="line">                <span class="type">String</span> <span class="variable">payload</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">String</span>(message.getPayload(),UTF_8);</span><br><span class="line">            	log.info(<span class="string">&quot;收到消息 - 主题: &#123;&#125;, 内容: &#123;&#125;&quot;</span>, topic, payload);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">deliveryComplete</span><span class="params">(IMqttDeliveryToken token)</span> &#123;</span><br><span class="line">                log.debug(<span class="string">&quot;消息发送完成&quot;</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>1、<code>connectComplete</code> 主要是连接完成之后，首次配置主题订阅，和重连后重新配置主题</li>
-<li>2、<code>messageArrived()</code>监听收到消息，对消息进行解析处理，这个根据自己业务处理就行</li>
-<li>订阅主题方法<code>subscribeTopics</code>如下：</li>
-</ul>
-<p><strong>subscribeTopics</strong></p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">subscribeTopics</span><span class="params">(MqttClient client, String name, List&lt;MqttClientProperties.TopicConfig&gt; topics)</span> &#123;</span><br><span class="line">        <span class="keyword">for</span> (MqttClientProperties.TopicConfig topic : topics) &#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                client.subscribe(topic.getTopic(), topic.getQos());</span><br><span class="line">                log.info(<span class="string">&quot;客户端 [&#123;&#125;] 已成功订阅主题: &#123;&#125;&quot;</span>, name, topic.getTopic());</span><br><span class="line">            &#125; <span class="keyword">catch</span> (MqttException e) &#123;</span><br><span class="line">                log.error(<span class="string">&quot;客户端 [&#123;&#125;] 订阅主题 [&#123;&#125;] 失败&quot;</span>, name, topic.getTopic(), e);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>resubscribeTopics和subscribeTopics 逻辑是一样的，抽2个方法是为了重连时可能有其他操作要处理</li>
-<li>如上的这些方法是初始化客户端并监听订阅主题的</li>
-<li>如果要发送消息，我们还需要添加发布消息的方法，如下：</li>
-</ul>
-<p><strong>publish</strong></p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 向指定客户端和主题发布消息</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> clientName 客户端名称（配置中定义）</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> topic      主题名称</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> payload    要发布的对象内容（将自动转换为 JSON）</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> qos        消息质量等级（0, 1, 2）</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> retained 是否保留消息</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">publish</span><span class="params">(String clientName, String topic, Object payload, <span class="type">int</span> qos,<span class="type">boolean</span> retained)</span> &#123;</span><br><span class="line">    <span class="type">MqttClient</span> <span class="variable">client</span> <span class="operator">=</span> clients.get(clientName);</span><br><span class="line">    <span class="keyword">if</span> (client != <span class="literal">null</span> &amp;&amp; client.isConnected()) &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="comment">// 使用 objectMapper 将对象转为 JSON 字符串，并编码为字节数组</span></span><br><span class="line">            <span class="type">String</span> <span class="variable">jsonPayload</span> <span class="operator">=</span> objectMapper.writeValueAsString(payload);</span><br><span class="line">            client.publish(topic, jsonPayload.getBytes(StandardCharsets.UTF_8), qos,retained);</span><br><span class="line">            log.info(<span class="string">&quot;消息已发布到主题: &#123;&#125;, 内容: &#123;&#125;&quot;</span>, topic, jsonPayload);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (JsonProcessingException e) &#123;</span><br><span class="line">            log.error(<span class="string">&quot;MQTT 消息序列化失败&quot;</span>, e);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (MqttException e) &#123;</span><br><span class="line">            log.error(<span class="string">&quot;发布 MQTT 消息失败: &#123;&#125;&quot;</span>, e.getMessage(), e);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        log.warn(<span class="string">&quot;MQTT 客户端 [&#123;&#125;] 不在线，无法发布消息到主题 [&#123;&#125;]&quot;</span>, clientName, topic);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>这样，我们发布和订阅的方法都有了</li>
-<li>为了服务的健壮性，我们再加一个方法<code>checkConnections</code>去检查客户端，断开就重新连接</li>
-</ul>
-<p><strong>checkConnections</strong></p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Scheduled(fixedRate = 60_000)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">checkConnections</span><span class="params">()</span> &#123;</span><br><span class="line">    log.info(<span class="string">&quot;健康检查与自动重连&quot;</span>);</span><br><span class="line">    clients.forEach((name, client) -&gt; &#123;</span><br><span class="line">        <span class="keyword">if</span> (!client.isConnected()) &#123;</span><br><span class="line">            log.warn(<span class="string">&quot;MQTT 客户端 [&#123;&#125;] 当前未连接，尝试重新连接&quot;</span>, name);</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                client.reconnect();</span><br><span class="line">            &#125; <span class="keyword">catch</span> (MqttException e) &#123;</span><br><span class="line">                log.error(<span class="string">&quot;手动重连失败&quot;</span>, e);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>有上面这些方法，我们的这个demo算是齐全了，接下来就是测试了</li>
-</ul>
-<h4 id="5、使用与测试"><a href="#5、使用与测试" class="headerlink" title="5、使用与测试"></a>5、使用与测试</h4><ul>
-<li>如何使用<code>MqttClientManager</code> 呢？我们可以新建一个接口</li>
-</ul>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Slf4j</span></span><br><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="meta">@RequestMapping(&quot;/test&quot;)</span></span><br><span class="line"><span class="meta">@RequiredArgsConstructor</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">TestController</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> MqttClientManager mqttClientManager;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> MqttClientProperties mqttClientProperties;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@PostMapping(&quot;/sendMessage&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> Object <span class="title function_">sendMessage</span><span class="params">(<span class="meta">@RequestBody</span> Map&lt;String, Object&gt; data)</span> &#123;</span><br><span class="line">        <span class="type">String</span> <span class="variable">topic</span> <span class="operator">=</span> (String) data.get(<span class="string">&quot;topic&quot;</span>);</span><br><span class="line">        <span class="keyword">if</span>(Objects.isNull(topic)) &#123;</span><br><span class="line">            topic = <span class="string">&quot;test/topic&quot;</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="type">String</span> <span class="variable">finalTopic</span> <span class="operator">=</span> topic;</span><br><span class="line">        mqttClientProperties.getClients().forEach((clientName, v)-&gt;&#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                mqttClientManager.publish(clientName, finalTopic,data,<span class="number">1</span>);</span><br><span class="line">            &#125;<span class="keyword">catch</span> (Exception e)&#123;</span><br><span class="line">                log.error(e.getMessage(),e);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">        <span class="keyword">return</span> data;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>测试结果如下图：</li>
-</ul>
-<p><strong>请求发送接口</strong></p>
-<p><img src="/blog/2025/05/11/Springboot%E9%9B%86%E6%88%90MQTT%EF%BC%9A%E6%89%8B%E6%8A%8A%E6%89%8B%E6%95%99%E4%BD%A0%E5%AE%9E%E7%8E%B0%E8%AE%BE%E5%A4%87%E9%80%9A%E4%BF%A1/api.png"></p>
-<p><strong>控制台收到消息</strong></p>
-<p><img src="/blog/2025/05/11/Springboot%E9%9B%86%E6%88%90MQTT%EF%BC%9A%E6%89%8B%E6%8A%8A%E6%89%8B%E6%95%99%E4%BD%A0%E5%AE%9E%E7%8E%B0%E8%AE%BE%E5%A4%87%E9%80%9A%E4%BF%A1/msg.png"></p>
-<p><strong>使用mqttx客户端发送消息，也可以收到</strong></p>
-<p><img src="/blog/2025/05/11/Springboot%E9%9B%86%E6%88%90MQTT%EF%BC%9A%E6%89%8B%E6%8A%8A%E6%89%8B%E6%95%99%E4%BD%A0%E5%AE%9E%E7%8E%B0%E8%AE%BE%E5%A4%87%E9%80%9A%E4%BF%A1/mqttx1.png"></p>
-<h2 id="四、总结与展望"><a href="#四、总结与展望" class="headerlink" title="四、总结与展望"></a>四、总结与展望</h2><p><strong>文本总结：</strong></p>
-<ul>
-<li>本文围绕 Spring Boot 如何集成 MQTT 协议进行了详细的讲解，从环境搭建、依赖引入、配置管理到客户端连接、消息订阅与发布，逐步引导读者实现一个完整的 MQTT 客户端通信模块。我们通过 MqttClientManager 类实现了对多个客户端的统一管理，并结合 Spring Boot 的事件监听机制和定时任务，确保了系统的稳定性与健壮性。</li>
-</ul>
-<p><strong>完整的代码</strong></p>
-<ul>
-<li>Github地址：<a target="_blank" rel="noopener" href="https://github.com/rstyro/Springboot/tree/master/springboot-mqtt">https://github.com/rstyro/Springboot/tree/master/springboot-mqtt</a></li>
-</ul>
-<p><strong>写在最后</strong></p>
-<ul>
-<li><p>随着物联网技术的不断发展，设备之间的通信变得越来越复杂，而 MQTT 凭借其轻量、高效、可靠的特点，成为 IoT 场景中的首选协议之一。Spring Boot 作为一个强大的后端开发框架，为快速构建 MQTT 客户端提供了良好的支持。</p>
-</li>
-<li><p>希望本文能够帮助你快速掌握 Spring Boot 集成 MQTT 的核心方法，并为你后续开发更复杂的物联网系统打下坚实基础。如果你喜欢这种风格的技术实践文章，也欢迎继续关注我后续关于 IoT、微服务通信、边缘计算等相关内容的分享！</p>
-</li>
-</ul>
-
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/blog/2025/05/11/Springboot%E9%9B%86%E6%88%90MQTT%EF%BC%9A%E6%89%8B%E6%8A%8A%E6%89%8B%E6%95%99%E4%BD%A0%E5%AE%9E%E7%8E%B0%E8%AE%BE%E5%A4%87%E9%80%9A%E4%BF%A1/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -424,107 +343,14 @@
 <li><p><strong>官网：</strong> <a target="_blank" rel="noopener" href="https://www.emqx.com/zh">https://www.emqx.com/zh</a></p>
 </li>
 </ul>
-<h2 id="二、EMQX有什么用"><a href="#二、EMQX有什么用" class="headerlink" title="二、EMQX有什么用"></a>二、EMQX有什么用</h2><ul>
-<li><p>EMQX 是一个专门设计用于物联网（IoT）通信的开源消息服务器，主要用于处理大规模设备之间的实时消息传输。它基于 MQTT（Message Queuing Telemetry Transport）协议以及其他支持的物联网协议（如 CoAP、LwM2M等），能够高效、可靠地在分布式环境中扩展至数百万的并发连接。以下是 EMQX 的主要用途和特点：</p>
-<h3 id="主要用途"><a href="#主要用途" class="headerlink" title="主要用途"></a>主要用途</h3><ol>
-<li><strong>物联网设备通信</strong>：EMQX 支持通过MQTT协议进行设备与服务器之间的双向通信，适合于智能家居、智慧城市、工业互联网等多种应用场景。</li>
-<li><strong>数据采集与监控</strong>：可以用来收集传感器数据，并将其转发到后端系统进行处理或存储，适用于需要远程监控和管理的场景。</li>
-<li><strong>消息路由和转发</strong>：EMQX 可以作为中间件，将来自不同设备的消息路由到相应的服务或者应用中去，实现复杂的消息分发逻辑。</li>
-<li><strong>高可用性和可扩展性</strong>：针对大规模物联网部署，EMQX 提供了集群功能，确保系统的高可用性以及水平扩展能力。</li>
-</ol>
-<h3 id="特点"><a href="#特点" class="headerlink" title="特点"></a>特点</h3><ul>
-<li><p><strong>高性能</strong>：采用Erlang语言开发，具有优秀的并发处理能力和低延迟特性。</p>
-</li>
-<li><p><strong>多协议支持</strong>：除了MQTT之外，还支持CoAP、LwM2M等物联网协议。</p>
-</li>
-<li><p><strong>丰富的插件生态</strong>：可以通过插件扩展EMQX的功能，比如增强安全性、集成第三方服务等。</p>
-</li>
-<li><p><strong>易用性</strong>：提供直观的管理界面和详细的文档，便于用户快速上手。</p>
-</li>
-<li><p><strong>开放源代码</strong>：遵循Apache License 2.0开源协议，允许自由修改和分发。</p>
-</li>
-<li><p><strong>全新物联网数据集成</strong>:</p>
-<ul>
-<li><p>EMQX 5.x 的规则引擎在原有 SQL 的基础上集成了 <a target="_blank" rel="noopener" href="https://stedolan.github.io/jq/">jq</a>，支持更多复杂格式 JSON 数据的处理。更多信息详见：<a target="_blank" rel="noopener" href="https://docs.emqx.com/zh/emqx/latest/data-integration/rule-sql-jq.html">jq 函数</a>。</p>
-<p>EMQX 默认支持将数据发送到 Webhook，或与外部 MQTT 服务建立双向桥接，同时还支持将物联网数据实时处理并发送到 40 多个云服务和企业系统，或者从其中获取数据，经处理后下发到指定 MQTT 主题中。同时，EMQX 5.0 还提供了数据集成可视化查看能力（Flows）。通过 Dashboard 页面，您可以清晰看到设备与云端之间的物联网数据处理和流转步骤。</p>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-<p>总之，EMQX 是为了解决物联网领域内设备间通信的需求而生，特别适用于需要处理大量并发连接和实时数据传输的应用场景。</p>
-<h2 id="三、安装EMQX"><a href="#三、安装EMQX" class="headerlink" title="三、安装EMQX"></a>三、安装EMQX</h2><ul>
-<li><p>EMQX 支持多种安装方式，比如<a target="_blank" rel="noopener" href="https://docs.emqx.com/zh/emqx/latest/deploy/install-docker.html">容器化部署</a>，通过 <a target="_blank" rel="noopener" href="https://www.emqx.com/zh/emqx-kubernetes-operator">EMQX Kubernetes Operator</a> 安装部署、或通过安装包的形式部署在物理服务器或虚拟机上，针对安装包部署形式，目前支持以下操作系统：</p>
-<ul>
-<li>RedHat</li>
-<li>CentOS</li>
-<li>RockyLinux</li>
-<li>AmazonLinux</li>
-<li>Ubuntu</li>
-<li>Debian</li>
-<li>macOS</li>
-<li>Linux</li>
-</ul>
-</li>
-</ul>
-<h3 id="Docker容器运行"><a href="#Docker容器运行" class="headerlink" title="Docker容器运行"></a>Docker容器运行</h3><ul>
-<li>容器化部署是体验 EMQX 的最快方式。</li>
-<li>1、在命令行工具中输入如下命令，下载并运行最新版 EMQX。<ul>
-<li>运行此命令前，请确保 <a target="_blank" rel="noopener" href="https://www.docker.com/">Docker</a> 已安装且已启动。</li>
-</ul>
-</li>
-</ul>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 启动emqx</span></span><br><span class="line">docker run -d --name emqx -p 1883:1883 -p 8083:8083 -p 8084:8084 -p 8883:8883 -p 18083:18083 emqx/emqx:5.8.6</span><br><span class="line"></span><br><span class="line"><span class="comment"># 从容器复制文件到主机,命令格式：docker cp &lt;container_id&gt;:/opt/emqx/etc C:/emqx/etc</span></span><br><span class="line"><span class="comment"># 下面把etc和data文件夹复制出来</span></span><br><span class="line">docker <span class="built_in">cp</span> d330d:/opt/emqx/etc d:/emqx/etc</span><br><span class="line">docker <span class="built_in">cp</span> d330d:/opt/emqx/data d:/emqx/data</span><br><span class="line"></span><br><span class="line"><span class="comment"># 停止容器并删除容器</span></span><br><span class="line">docker stop d330d</span><br><span class="line">docker <span class="built_in">rm</span> d330d</span><br><span class="line"></span><br><span class="line"><span class="comment"># 重启启动容器，并映射文件，这样文件数据是保留再宿主机的。</span></span><br><span class="line">docker run -d --name emqx -p 1883:1883 -p 8083:8083 -p 8084:8084 -p 8883:8883  -p 18083:18083 -v d:/emqx/etc:/opt/emqx/etc -v d:/emqx/data:/opt/emqx/data emqx/emqx:5.8.6</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看容器启动情况</span></span><br><span class="line">docker ps</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<ul>
-<li><strong>MQTT 协议端口</strong><ul>
-<li><strong>1883</strong>：这是 MQTT 协议的标准端口，用于非加密的 MQTT 连接。</li>
-<li><strong>8883</strong>：这是 MQTT+SSL（MQTTS）的标准端口，用于加密的 MQTT 连接，提供更高的安全性。</li>
-</ul>
-</li>
-<li><strong>WebSocket 端口</strong><ul>
-<li><strong>8083</strong>：通过 WebSocket 进行 MQTT 通信的端口，默认使用非加密连接。通常用于浏览器客户端通过 WebSocket 协议与 EMQX 服务器进行通信。</li>
-<li><strong>8084</strong>：类似于 8083，但是使用了 SSL 加密，即 WSS（WebSocket Secure），为 WebSocket 通信提供了安全层。</li>
-</ul>
-</li>
-<li><strong>Dashboard 和 API 端口</strong><ul>
-<li><strong>18083</strong>：这是 EMQX 的 Dashboard 管理界面以及 HTTP API 的默认端口。你可以通过这个端口访问 EMQX 提供的 Web 管理界面来监控和管理你的 MQTT 服务。此外，EMQX 提供的 RESTful API 也通过这个端口提供服务。</li>
-</ul>
-</li>
-<li>命令运行示例图如下：</li>
-</ul>
-<p><img src="/blog/2025/05/10/EMQX%E5%AE%89%E8%A3%85%E6%8C%87%E5%8D%97%E4%B8%8E%E5%9F%BA%E7%A1%80%E9%85%8D%E7%BD%AE%E8%AF%A6%E8%A7%A3/docker1.png"></p>
-<ul>
-<li>2、通过浏览器访问 <a target="_blank" rel="noopener" href="http://localhost:18083/%EF%BC%88localhost">http://localhost:18083/（localhost</a> 可替换为您的实际 IP 地址）以访问 <a target="_blank" rel="noopener" href="https://docs.emqx.com/zh/emqx/latest/dashboard/introduction.html">EMQX Dashboard</a> 管理控制台，进行设备连接与相关指标监控管理。</li>
-<li>默认用户名及密码：<code>admin</code>与<code>public</code></li>
-</ul>
-<p><img src="/blog/2025/05/10/EMQX%E5%AE%89%E8%A3%85%E6%8C%87%E5%8D%97%E4%B8%8E%E5%9F%BA%E7%A1%80%E9%85%8D%E7%BD%AE%E8%AF%A6%E8%A7%A3/login.png"></p>
-<ul>
-<li>重新设置密码</li>
-</ul>
-<p><img src="/blog/2025/05/10/EMQX%E5%AE%89%E8%A3%85%E6%8C%87%E5%8D%97%E4%B8%8E%E5%9F%BA%E7%A1%80%E9%85%8D%E7%BD%AE%E8%AF%A6%E8%A7%A3/initpwd.png"></p>
-<ul>
-<li>首页面板</li>
-</ul>
-<p><img src="/blog/2025/05/10/EMQX%E5%AE%89%E8%A3%85%E6%8C%87%E5%8D%97%E4%B8%8E%E5%9F%BA%E7%A1%80%E9%85%8D%E7%BD%AE%E8%AF%A6%E8%A7%A3/dashboard.png"></p>
-<h4 id="配置用户"><a href="#配置用户" class="headerlink" title="配置用户"></a>配置用户</h4><ul>
-<li>如上，已经是安装完成了，可以使用了，但是默认是没有添加客户端认证的，不安全所有知道地址的都可以进行访问。</li>
-<li>所以我们可以配置客户端认证</li>
-</ul>
-<p><img src="/blog/2025/05/10/EMQX%E5%AE%89%E8%A3%85%E6%8C%87%E5%8D%97%E4%B8%8E%E5%9F%BA%E7%A1%80%E9%85%8D%E7%BD%AE%E8%AF%A6%E8%A7%A3/auth1.png"></p>
-<p><img src="/blog/2025/05/10/EMQX%E5%AE%89%E8%A3%85%E6%8C%87%E5%8D%97%E4%B8%8E%E5%9F%BA%E7%A1%80%E9%85%8D%E7%BD%AE%E8%AF%A6%E8%A7%A3/auth2.png"></p>
-<p><img src="/blog/2025/05/10/EMQX%E5%AE%89%E8%A3%85%E6%8C%87%E5%8D%97%E4%B8%8E%E5%9F%BA%E7%A1%80%E9%85%8D%E7%BD%AE%E8%AF%A6%E8%A7%A3/auth3.png"></p>
-<p><img src="/blog/2025/05/10/EMQX%E5%AE%89%E8%A3%85%E6%8C%87%E5%8D%97%E4%B8%8E%E5%9F%BA%E7%A1%80%E9%85%8D%E7%BD%AE%E8%AF%A6%E8%A7%A3/auth4.png"></p>
-<ul>
-<li>添加用户之后我们就需要登录用户名密码才能访问了</li>
-<li>可以下载MQTTX客户端，进行消息的发送与接收测试</li>
-</ul>
-<p><img src="/blog/2025/05/10/EMQX%E5%AE%89%E8%A3%85%E6%8C%87%E5%8D%97%E4%B8%8E%E5%9F%BA%E7%A1%80%E9%85%8D%E7%BD%AE%E8%AF%A6%E8%A7%A3/mqttx.png"></p>
-<h2 id="四、总结"><a href="#四、总结" class="headerlink" title="四、总结"></a>四、总结</h2><ul>
-<li>随着物联网技术的发展，EMQX 将在更多场景中发挥重要作用。无论是智能家居、工业自动化还是智慧城市，EMQX 都能提供可靠的消息传输服务和数据集成能力。希望本文能够帮助您顺利入门 EMQX，并在实际项目中加以应用。</li>
-</ul>
-
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/blog/2025/05/10/EMQX%E5%AE%89%E8%A3%85%E6%8C%87%E5%8D%97%E4%B8%8E%E5%9F%BA%E7%A1%80%E9%85%8D%E7%BD%AE%E8%AF%A6%E8%A7%A3/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -600,209 +426,14 @@
 <li>**订阅者(Subscriber)**：接收数据的实体，它可以订阅一个或多个主题，并在相关主题上有新消息时收到通知。</li>
 <li>**代理服务器(MQTT Broker)**：作为消息中转站，接收来自发布者的消息并将它们分发给相应的订阅者。</li>
 </ul>
-<h4 id="2、MQTT通讯流程"><a href="#2、MQTT通讯流程" class="headerlink" title="2、MQTT通讯流程"></a>2、MQTT通讯流程</h4><ul>
-<li><strong>连接</strong>：客户端通过TCP&#x2F;IP连接到Broker，并使用CONNECT报文进行身份认证和会话参数协商。</li>
-<li><strong>订阅</strong>：客户端向服务器发送SUBSCRIBE报文用于创建一个或多个订阅。</li>
-<li><strong>发布消息</strong>：发布者将消息附带上指定的主题名发送给Broker，Broker接收到消息后，根据主题匹配规则将消息转发给所有已订阅该主题的订阅者。</li>
-<li><strong>取消订阅</strong>：客户端发送UNSUBSCRIBE报文给服务器，用于取消订阅主题。</li>
-<li><strong>断开连接</strong>：客户端发送DISCONNECT报文表示正常断开连接。</li>
-</ul>
-<h4 id="3、核心设计特点"><a href="#3、核心设计特点" class="headerlink" title="3、核心设计特点"></a>3、核心设计特点</h4><ul>
-<li><strong>轻量级</strong>：协议头最小仅2字节，二进制编码减少网络流量，适用于NB-IoT等窄带场景。</li>
-<li><strong>发布&#x2F;订阅模式</strong>：通过Broker解耦发布者与订阅者，支持多对多通信和动态扩展。</li>
-<li><strong>QoS分级保障</strong>：提供三种服务质量等级（QoS 0&#x2F;1&#x2F;2），从“最多一次”到“严格一次”递进满足不同场景需求。</li>
-<li><strong>会话持久化</strong>：支持断线重连恢复未接收消息，通过Clean Session标志控制离线消息存储策略</li>
-</ul>
-<h4 id="4、MQTT-控制报文格式"><a href="#4、MQTT-控制报文格式" class="headerlink" title="4、MQTT 控制报文格式"></a>4、MQTT 控制报文格式</h4><p>每个MQTT控制报文都由三部分组成：</p>
-<ol>
-<li>**固定报头(Fixed Header)**：所有控制报文都包含这个部分，它包含了报文类型和一些标志位。</li>
-<li>**可变报头(Variable Header)**：某些类型的控制报文包含这部分，具体内容取决于报文类型。</li>
-<li>**有效载荷(Payload)**：某些类型的控制报文包含这部分，例如PUBLISH报文的有效载荷就是消息内容。</li>
-</ol>
-<h4 id="5、MQTT-控制报文类型"><a href="#5、MQTT-控制报文类型" class="headerlink" title="5、MQTT 控制报文类型"></a>5、MQTT 控制报文类型</h4><p>MQTT定义了以下几种控制报文类型：</p>
-<ul>
-<li><strong>CONNECT</strong> - 客户端到服务器的连接请求。</li>
-<li><strong>CONNACK</strong> - 连接确认响应。</li>
-<li><strong>PUBLISH</strong> - 发布消息。</li>
-<li><strong>PUBACK</strong> - 发布确认（QoS 1消息）。</li>
-<li><strong>PUBREC</strong> - 接收到发布（QoS 2消息的第一步）。</li>
-<li><strong>PUBREL</strong> - 发布释放（QoS 2消息的第二步）。</li>
-<li><strong>PUBCOMP</strong> - 发布完成（QoS 2消息的第三步）。</li>
-<li><strong>SUBSCRIBE</strong> - 订阅请求。</li>
-<li><strong>SUBACK</strong> - 订阅确认。</li>
-<li><strong>UNSUBSCRIBE</strong> - 取消订阅请求。</li>
-<li><strong>UNSUBACK</strong> - 取消订阅确认。</li>
-<li><strong>PINGREQ</strong> - 心跳请求。</li>
-<li><strong>PINGRESP</strong> - 心跳响应。</li>
-<li><strong>DISCONNECT</strong> - 断开连接通知。</li>
-</ul>
-<h4 id="6、协议头"><a href="#6、协议头" class="headerlink" title="6、协议头"></a>6、协议头</h4><ul>
-<li><strong>CONNECT</strong> 报文的协议头包括协议名（如MQTT）、版本号、连接标志（Connect Flags）、保持连接时间（Keep Alive Timer）等信息。</li>
-<li><strong>CONNACK</strong> 报文包含一个连接确认标志和返回码，表明连接尝试的结果。</li>
-</ul>
-<h4 id="7、心跳机制"><a href="#7、心跳机制" class="headerlink" title="7、心跳机制"></a>7、心跳机制</h4><ul>
-<li><strong>PINGREQ 和 PINGRESP</strong> 是用来检测客户端和服务端之间连接状态的心跳机制。客户端会定期发送PINGREQ报文给服务端，如果服务端正常工作，则会回复一个PINGRESP报文。这有助于确保双方的网络连接仍然活跃。</li>
-</ul>
-<h4 id="8、消息服务质量-QoS"><a href="#8、消息服务质量-QoS" class="headerlink" title="8、消息服务质量(QoS)"></a>8、消息服务质量(QoS)</h4><p>MQTT定义了三种服务质量等级，用来保证消息传递的可靠性：</p>
-<ul>
-<li><strong>QoS 0：</strong><ul>
-<li><strong>工作原理</strong>：发布者发送消息给Broker后，不等待任何确认直接认为消息发送成功。</li>
-</ul>
-</li>
-<li><strong>QoS 1：</strong> 至少一次，确保消息至少被传递一次，但可能会重复。<ul>
-<li><strong>工作原理</strong><ul>
-<li>发布者向Broker发送带有PUBLISH报文的消息，并期待收到一个PUBACK响应作为确认。</li>
-<li>如果在一定时间内没有收到PUBACK，发布者会重发消息，这可能导致消息重复。</li>
-</ul>
-</li>
-</ul>
-</li>
-<li><strong>QoS 2：</strong> 仅一次，确保消息只到达一次，是最可靠但也最耗资源的方式。<ul>
-<li><strong>工作原理</strong>：这是最复杂也是最可靠的QoS级别，确保每条消息只被处理一次。它涉及四个步骤：<ul>
-<li>发布者向Broker发送带有唯一标识符（Packet Identifier）的PUBLISH报文。</li>
-<li>Broker接收到消息后，发送PUBREC响应给发布者。</li>
-<li>发布者收到PUBREC后，发送PUBREL报文给Broker。</li>
-<li>Broker确认PUBREL报文后，发送PUBCOMP响应给发布者，完成整个过程。</li>
-</ul>
-</li>
-<li><strong>详细解释</strong>：<ul>
-<li><strong>PUBLISH</strong>：客户端向Broker发送一条消息，并附带一个唯一的Packet Identifier（包标识符）。这条消息将尝试送达Broker。</li>
-<li><strong>PUBREC</strong>：一旦Broker成功接收到该消息，它会回应一个PUBREC（发布收到）消息给客户端。这表示Broker已收到消息并记录下来，但还未完全确认处理完毕。</li>
-<li><strong>PUBREL</strong>：客户端在收到PUBREC后，需要发送一个PUBREL（发布释放）消息作为回应。这一步告诉Broker，“我已经知道你收到了我的消息，现在你可以处理它了”。</li>
-<li><strong>PUBCOMP</strong>：最后，Broker接收到PUBREL消息后，发送一个PUBCOMP（发布完成）消息给客户端。这标志着整个消息传递过程结束，消息已被成功处理且保证不会重复。</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-<h2 id="二、MQTT和TCP有什么区别？"><a href="#二、MQTT和TCP有什么区别？" class="headerlink" title="二、MQTT和TCP有什么区别？"></a>二、MQTT和TCP有什么区别？</h2><p>MQTT（Message Queuing Telemetry Transport）和TCP（Transmission Control Protocol）是两种不同的协议，它们在计算机网络中扮演着不同的角色。</p>
-<ul>
-<li><strong>层级与作用</strong>：<ul>
-<li><strong>TCP</strong> 是传输层协议，负责提供可靠的、面向连接的通信服务。它确保数据能够准确无误地从一个端点传输到另一个端点，并处理诸如数据包重传、流量控制等问题。</li>
-<li><strong>MQTT</strong> 是一种应用层协议，设计用于轻量级的消息发布&#x2F;订阅模式通信。它构建于TCP之上（尽管也可以基于其他提供有序、无数据丢失、双向连接的网络协议），旨在为物联网设备提供高效的数据交换机制。</li>
-</ul>
-</li>
-<li><strong>使用场景</strong>：<ul>
-<li><strong>TCP</strong> 广泛应用于需要可靠数据传输的各种网络通信中，如网页浏览（HTTP&#x2F;HTTPS）、文件传输（FTP）、电子邮件（SMTP、IMAP、POP3）等。</li>
-<li><strong>MQTT</strong> 主要用于资源受限的设备或低带宽、高延迟或不可靠的网络环境中的机器对机器（M2M）通信和物联网（IoT）应用。它特别适用于那些需要最小化网络带宽和设备资源消耗的应用场景，比如智能家居、工业自动化、车联网等。</li>
-</ul>
-</li>
-<li><strong>功能特点</strong>：<ul>
-<li><strong>TCP</strong> 提供了错误检查、排序以及重传机制来保证数据的完整性。</li>
-<li><strong>MQTT</strong> 则提供了发布&#x2F;订阅模型，支持服务质量（QoS）等级、遗嘱消息等功能，使得它非常适合于实时消息传递系统。</li>
-</ul>
-</li>
-</ul>
-<p>总结来说，TCP是一个底层的传输协议，负责数据的可靠传输；而MQTT则是一个高层的应用协议，利用TCP提供的可靠性实现特定应用场景下的消息通信。MQTT依赖于TCP（或其他类似的传输层协议）来保证其消息传输的可靠性。</p>
-<h3 id="对比其他协议的优缺点"><a href="#对比其他协议的优缺点" class="headerlink" title="对比其他协议的优缺点"></a>对比其他协议的优缺点</h3><h4 id="1、MQTT-vs-HTTP"><a href="#1、MQTT-vs-HTTP" class="headerlink" title="1、MQTT vs HTTP"></a>1、MQTT vs HTTP</h4><ul>
-<li><strong>优点</strong>：<ul>
-<li><strong>带宽效率</strong>：MQTT使用发布&#x2F;订阅模式，减少了不必要的数据传输，特别适合于低带宽环境。而HTTP通常为请求-响应模型，可能消耗更多的带宽。</li>
-<li><strong>实时性</strong>：MQTT设计之初就考虑了实时性，通过保持长连接可以实现快速的消息传递。相比之下，HTTP需要每次建立新的TCP连接，增加了延迟。</li>
-<li><strong>资源占用</strong>：MQTT在设备端占用较少的资源，对于资源受限的设备更加友好。</li>
-</ul>
-</li>
-<li><strong>缺点</strong>：<ul>
-<li><strong>通用性</strong>：HTTP作为一种广泛使用的Web协议，在大多数网络环境中都有很好的支持，而MQTT可能需要额外配置Broker服务器。</li>
-<li><strong>开发难度</strong>：对于熟悉Web开发的团队来说，HTTP可能更容易上手，而MQTT则需要一定的学习成本。</li>
-</ul>
-</li>
-</ul>
-<h4 id="2、MQTT-vs-CoAP"><a href="#2、MQTT-vs-CoAP" class="headerlink" title="2、MQTT vs CoAP"></a>2、MQTT vs CoAP</h4><ul>
-<li><strong>优点</strong>：<ul>
-<li><strong>可靠性</strong>：MQTT提供了服务质量(QoS)等级，确保消息的可靠传递，而CoAP默认是尽力而为(best-effort)的服务质量。</li>
-<li><strong>扩展性</strong>：MQTT支持大量的主题订阅者，适用于大规模部署；CoAP更适合点对点或小规模网络应用。</li>
-</ul>
-</li>
-<li><strong>缺点</strong>：<ul>
-<li><strong>复杂度</strong>：MQTT协议相对复杂，尤其是在处理QoS和会话管理方面。而CoAP基于RESTful架构，更简单直观。</li>
-<li><strong>能耗</strong>：由于MQTT需要维持长连接，可能会导致更高的能耗；CoAP采用UDP作为底层传输协议，能效更高。</li>
-</ul>
-</li>
-</ul>
-<h4 id="3、MQTT-vs-AMQP"><a href="#3、MQTT-vs-AMQP" class="headerlink" title="3、MQTT vs AMQP"></a>3、MQTT vs AMQP</h4><ul>
-<li><strong>优点</strong>：<ul>
-<li><strong>轻量级</strong>：MQTT的设计初衷是为了适应资源受限的设备，其报文格式简洁，易于解析。AMQP则更为重量级，适合企业级应用中复杂的队列管理和事务处理需求。</li>
-<li><strong>灵活性</strong>：MQTT的发布&#x2F;订阅模型非常适合动态变化的网络拓扑结构，而AMQP虽然也支持发布&#x2F;订阅，但更侧重于固定的消息路由规则。</li>
-</ul>
-</li>
-<li><strong>缺点</strong>：<ul>
-<li><strong>功能完整性</strong>：AMQP提供了丰富的消息路由机制、事务支持以及更强的安全特性，这些都是MQTT所不具备的。</li>
-<li><strong>社区支持</strong>：尽管MQTT拥有活跃的开源社区和广泛的行业支持，但在某些特定领域（如金融服务业），AMQP可能具有更深的专业积累和技术沉淀。</li>
-</ul>
-</li>
-</ul>
-<p>通过上述对比可以看出，每种协议都有其独特的优势和适用场景。选择合适的协议取决于具体的应用需求、网络条件以及系统约束等因素。MQTT以其高效、灵活的特点成为物联网应用中的首选之一，但在某些情况下，其他协议也可能提供更好的解决方案。</p>
-<h2 id="三、什么是MQTT-Broker"><a href="#三、什么是MQTT-Broker" class="headerlink" title="三、什么是MQTT Broker"></a>三、什么是MQTT Broker</h2><ul>
-<li>MQTT Broker，在MQTT协议架构中扮演着核心角色，可以被视为消息的中介或服务器。它的主要职责是接收来自发布者（Publishers）的消息，并根据订阅（Subscription）关系将这些消息转发给相应的订阅者（Subscribers）。换句话说，Broker就像是一个信息枢纽，它使得发布者和订阅者之间能够解耦，从而实现高效、灵活的消息传递机制。</li>
-</ul>
-<h4 id="1、MQTT-Broker的主要功能包括："><a href="#1、MQTT-Broker的主要功能包括：" class="headerlink" title="1、MQTT Broker的主要功能包括："></a>1、MQTT Broker的主要功能包括：</h4><ul>
-<li><strong>消息传输</strong>：负责在发布者和订阅者之间可靠地传输消息。</li>
-<li><strong>主题管理</strong>：维护一个主题树（Topic Tree），用于组织和过滤消息。客户端可以通过特定的主题来发布或订阅消息。</li>
-<li><strong>连接管理</strong>：处理与客户端之间的连接，包括连接建立、保持和断开等操作。</li>
-<li><strong>安全性</strong>：提供认证和授权机制，确保只有经过验证的客户端才能进行通信，并限制它们只能访问被授权的主题。</li>
-<li><strong>持久化会话</strong>：支持持久化会话，允许客户端在重新连接时恢复之前的订阅状态，即使中间经历了网络中断等情况。</li>
-<li><strong>遗嘱消息</strong>：当客户端异常断开连接时，Broker可以根据该客户端预先设置的遗嘱消息通知其他客户端。</li>
-<li><strong>保留消息</strong>：存储最后一次发布的消息及其对应的主题，以便新订阅该主题的客户端能立即接收到最新的状态信息。</li>
-</ul>
-<h4 id="2、常见的MQTT-Broker"><a href="#2、常见的MQTT-Broker" class="headerlink" title="2、常见的MQTT Broker"></a>2、常见的MQTT Broker</h4><ul>
-<li><strong>EMQX</strong>:<ul>
-<li>EMQX 是一个高度可扩展的MQTT Broker，它支持MQTT 5.0和3.x版本，并且可以将保留消息持久化到磁盘上，以确保在Broker重启后仍然保持这些消息。</li>
-<li>Github地址：<a target="_blank" rel="noopener" href="https://github.com/emqx/emqx">https://github.com/emqx/emqx</a></li>
-</ul>
-</li>
-<li><strong>Mosquitto</strong>:<ul>
-<li>Eclipse Mosquitto也是一款流行的开源MQTT Broker，它支持保留消息的功能，并可以通过配置选项来启用或禁用保留消息的持久化。</li>
-<li>Github地址：<a target="_blank" rel="noopener" href="https://github.com/eclipse-mosquitto/mosquitto">https://github.com/eclipse-mosquitto/mosquitto</a></li>
-</ul>
-</li>
-<li><strong>VerneMQ</strong>:<ul>
-<li>VerneMQ是另一个高性能、分布式的MQTT Broker，它基于Erlang&#x2F;OTP构建，能够提供高可用性和容错能力。VerneMQ同样支持保留消息的持久化存储。</li>
-<li>Github地址：<a target="_blank" rel="noopener" href="https://github.com/vernemq/vernemq">https://github.com/vernemq/vernemq</a></li>
-</ul>
-</li>
-<li><strong>HiveMQ</strong>:<ul>
-<li>HiveMQ是一个企业级的MQTT Broker，它提供了强大的扩展性和灵活性，同时也支持保留消息的持久化功能。</li>
-<li>Github地址：<a target="_blank" rel="noopener" href="https://github.com/hivemq/hivemq-community-edition">社区版：https://github.com/hivemq/hivemq-community-edition</a></li>
-</ul>
-</li>
-<li><strong>NanoMQ</strong>:<ul>
-<li>NanoMQ是一个轻量级的边缘计算MQTT Broker，适用于物联网边缘场景。虽然它主要针对资源受限的环境进行了优化，但它也支持保留消息，并可能根据具体部署情况进行持久化设置。</li>
-<li>Github地址：<a target="_blank" rel="noopener" href="https://github.com/nanomq/nanomq">https://github.com/nanomq/nanomq</a></li>
-</ul>
-</li>
-<li><strong>ActiveMQ</strong>:<ul>
-<li>ActiveMQ不仅支持AMQP等多种协议，也支持MQTT协议。它可以配置为持久化保留消息，以便在服务器重启后仍能保留这些消息。</li>
-<li>Github地址：<a target="_blank" rel="noopener" href="https://github.com/apache/activemq">https://github.com/apache/activemq</a></li>
-</ul>
-</li>
-<li><strong>RabbitMQ</strong>（通过插件）:<ul>
-<li>RabbitMQ本身不直接支持MQTT协议，但通过安装MQTT插件，它可以支持MQTT通信，并允许配置消息持久化策略，包括保留消息。</li>
-<li>Github地址：<a target="_blank" rel="noopener" href="https://github.com/rabbitmq/rabbitmq-server">https://github.com/rabbitmq/rabbitmq-server</a></li>
-<li>启用插件命令：<code>rabbitmq-plugins enable rabbitmq_mqtt</code></li>
-</ul>
-</li>
-</ul>
-<h2 id="四、MQTT协议的技术演进与优化"><a href="#四、MQTT协议的技术演进与优化" class="headerlink" title="四、MQTT协议的技术演进与优化"></a>四、MQTT协议的技术演进与优化</h2><h4 id="1-MQTT-5-0核心增强"><a href="#1-MQTT-5-0核心增强" class="headerlink" title="1 MQTT 5.0核心增强"></a>1 MQTT 5.0核心增强</h4><ul>
-<li><strong>会话恢复</strong>：通过Session Expiry Interval参数支持会话状态保留最长两周，重连时间从8秒缩短至1.2秒。</li>
-<li><strong>原因码机制</strong>：提供53种标准错误码（如<code>0x85</code>表示QoS不支持），提升调试效率。</li>
-<li><strong>用户属性扩展</strong>：允许在报文中添加自定义键值对，支持业务元数据透传。</li>
-</ul>
-<h3 id="2-安全机制设计"><a href="#2-安全机制设计" class="headerlink" title="2 安全机制设计"></a>2 安全机制设计</h3><ul>
-<li><strong>传输层加密</strong>：强制使用TLS 1.3，支持PSK模式降低计算开销。</li>
-<li><strong>认证授权</strong>：基于OAuth 2.0的JWT令牌鉴权，结合ACL限制主题订阅权限。</li>
-<li><strong>设备指纹</strong>：提取MAC地址、固件版本生成唯一标识库，防止非法接入。</li>
-</ul>
-<h2 id="五、结论"><a href="#五、结论" class="headerlink" title="五、结论"></a>五、结论</h2><ul>
-<li><p>MQTT协议作为一种轻量级的消息传输协议，专为资源受限的设备和低带宽、不可靠网络环境设计，已经成为物联网（IoT）应用中不可或缺的一部分。通过其高效的发布&#x2F;订阅模式，MQTT不仅简化了应用程序的设计，还提高了系统的灵活性与可扩展性。在本篇文章中，我们详细探讨了MQTT的基础概念、核心组件、通讯流程及其与其他协议的对比，并介绍了几个流行的MQTT Broker实现。</p>
-</li>
-<li><p>随着物联网技术的不断发展，MQTT协议也在持续演进。例如，MQTT 5.0版本引入了更多的高级特性，如会话恢复机制、原因码机制及用户属性扩展等，进一步提升了协议的功能性和调试效率。同时，为了应对日益增长的安全需求，MQTT支持传输层加密、认证授权等安全措施，确保数据传输的安全可靠。</p>
-</li>
-<li><p>然而，选择适合自身应用场景的通信协议仍然至关重要。尽管MQTT在许多方面表现出色，但根据具体的应用需求、网络条件以及系统约束，其他协议如HTTP、CoAP或AMQP也可能提供更优的解决方案。因此，在实际项目开发过程中，开发者需要全面评估各种因素，以确定最适合的技术栈。</p>
-</li>
-<li><p>总之，MQTT凭借其高效、灵活的特点，在智能家居、工业自动化、车联网等多个领域得到了广泛应用。它不仅解决了传统通信方式中存在的问题，还为未来物联网的发展提供了坚实的基础。随着技术的进步，我们期待看到更多基于MQTT协议的创新应用出现，推动整个物联网生态系统向更加智能、互联的方向发展。</p>
-</li>
-</ul>
-
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/blog/2025/05/09/%E5%85%A8%E9%9D%A2%E8%A7%A3%E6%9E%90MQTT%E5%8D%8F%E8%AE%AE%EF%BC%9A%E4%BB%8E%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E5%88%B0%E6%A0%B8%E5%BF%83%E7%BB%84%E4%BB%B6/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
