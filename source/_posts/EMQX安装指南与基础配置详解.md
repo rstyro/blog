@@ -16,7 +16,7 @@ updated: 2025-05-10 18:15:17
 - **官网：** [https://www.emqx.com/zh](https://www.emqx.com/zh)
 
 
-
+<!--more-->
 
 ## 二、EMQX有什么用
 - EMQX 是一个专门设计用于物联网（IoT）通信的开源消息服务器，主要用于处理大规模设备之间的实时消息传输。它基于 MQTT（Message Queuing Telemetry Transport）协议以及其他支持的物联网协议（如 CoAP、LwM2M等），能够高效、可靠地在分布式环境中扩展至数百万的并发连接。以下是 EMQX 的主要用途和特点：
