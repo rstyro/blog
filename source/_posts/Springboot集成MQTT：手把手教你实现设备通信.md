@@ -1,7 +1,7 @@
 ---
 title: Springboot集成MQTT：手把手教你实现设备通信
 tags: [Spring Boot,MQTT]
-categories: Java
+categories: 物联网
 date: 2025-05-11 18:14:45
 updated: 2025-05-11 18:14:45
 ---
