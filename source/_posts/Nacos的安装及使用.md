@@ -91,6 +91,19 @@ bash startup.sh -m standalone
 
 ![](nacos.png)
 
+
+
+> **补充：nacos2.5** 如果开启鉴权，配置如下：
+> 
+```properties
+# 开启鉴权
+nacos.core.auth.enabled=true
+# JWT的密钥，原始密钥长度不得低于32字符，默认需要转为base64编码
+nacos.core.auth.plugin.nacos.token.secret.key=NTg2NDFlMWFiYzQxNGE2ZmIyYTk3ODhjZGMzNDM3ZGU=
+```
+>  之后访问控制台会初始化nacos管理员密码
+
+
 ### 4、测试
 
 启动之后我们看到nacos的管理界面有：
