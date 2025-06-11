@@ -21,6 +21,9 @@ mvn clean package -Dmaven.test.skip=true
 
 // 按模块打包，使用 -pl 参数，后面加上模块名，-am即同时打包依赖的模块，如下示例：
 clean -Dmaven.test.skip=true package -pl  springboot/springboot-web -am
+
+// 如果使用的是@profiles.active@ 这种的，打包可以加指定环境打包 -P 参数
+clean -Dmaven.test.skip=true package -pl  springboot/springboot-web -am -Ptest
 ```
 
 #### 2.运行
