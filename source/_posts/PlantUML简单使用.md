@@ -380,7 +380,7 @@ stop
 ![](f9.png)
 
 
-- 还有**`while`循环**
+- 还有**while循环**
 
 ```plantuml
 @startuml
@@ -439,7 +439,7 @@ stop
 
 
 
-#### ⑤、泳道
+#### ⑤、注释
 
 ![](f7.png)
 
