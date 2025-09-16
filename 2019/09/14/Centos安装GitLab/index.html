@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/favicon.jpg">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon.jpg">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon.jpg">
+  <link rel="mask-icon" href="/blog/images/favicon.jpg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="/blog/lib/pace/pace-theme-flash.min.css">
+  <script src="/blog/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"rstyro.github.io","root":"/blog/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":true},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.json"};
+  </script>
+
+  <meta name="description" content="安装GitLab官网有挺详细的安装步骤：官网地址: https:&#x2F;&#x2F;about.gitlab.com&#x2F;install&#x2F;#centos-7 一、Centos7 Yum安装Gitlab 需要联网  1、安装依赖1sudo yum install -y curl policycoreutils-python openssh-server  2、安装邮件服务注册发送邮件通知，如果您想使用其他解决方案发送电">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Centos安装GitLab">
+<meta property="og:url" content="https://rstyro.github.io/blog/2019/09/14/Centos%E5%AE%89%E8%A3%85GitLab/index.html">
+<meta property="og:site_name" content="胖不了小陆">
+<meta property="og:description" content="安装GitLab官网有挺详细的安装步骤：官网地址: https:&#x2F;&#x2F;about.gitlab.com&#x2F;install&#x2F;#centos-7 一、Centos7 Yum安装Gitlab 需要联网  1、安装依赖1sudo yum install -y curl policycoreutils-python openssh-server  2、安装邮件服务注册发送邮件通知，如果您想使用其他解决方案发送电">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://rstyro.github.io/blog/2019/09/14/Centos%E5%AE%89%E8%A3%85GitLab/git2.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2019/09/14/Centos%E5%AE%89%E8%A3%85GitLab/register-setting.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2019/09/14/Centos%E5%AE%89%E8%A3%85GitLab/register-save.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2019/09/14/Centos%E5%AE%89%E8%A3%85GitLab/add.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2019/09/14/Centos%E5%AE%89%E8%A3%85GitLab/group-add-del.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2019/09/14/Centos%E5%AE%89%E8%A3%85GitLab/project-add-del.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2019/09/14/Centos%E5%AE%89%E8%A3%85GitLab/protect.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2019/09/14/Centos%E5%AE%89%E8%A3%85GitLab/backup.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2019/09/14/Centos%E5%AE%89%E8%A3%85GitLab/restore.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2019/09/14/Centos%E5%AE%89%E8%A3%85GitLab/package.png">
+<meta property="article:published_time" content="2019-09-14T09:05:17.000Z">
+<meta property="article:modified_time" content="2019-09-14T09:05:17.000Z">
+<meta property="article:author" content="rstyro">
+<meta property="article:tag" content="Linux">
+<meta property="article:tag" content="开发工具">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://rstyro.github.io/blog/2019/09/14/Centos%E5%AE%89%E8%A3%85GitLab/git2.png">
+
+<link rel="canonical" href="https://rstyro.github.io/blog/2019/09/14/Centos%E5%AE%89%E8%A3%85GitLab/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Centos安装GitLab | 胖不了小陆</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">胖不了小陆</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">信你所信，为你所见</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/blog/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/blog/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/blog/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/rstyro" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://rstyro.github.io/blog/2019/09/14/Centos%E5%AE%89%E8%A3%85GitLab/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/avatar.jpg">
+      <meta itemprop="name" content="rstyro">
+      <meta itemprop="description" content="人间的饭，吃一碗少一碗，身边的人，见一面少一面，脚下的路，走一天少一天，其实人生就是一个减法，来日并不方长！">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="胖不了小陆">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Centos安装GitLab
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2019-09-14 17:05:17" itemprop="dateCreated datePublished" datetime="2019-09-14T17:05:17+08:00">2019-09-14</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E7%BD%91%E7%BB%9C%E8%BF%90%E7%BB%B4/" itemprop="url" rel="index"><span itemprop="name">网络运维</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="安装GitLab"><a href="#安装GitLab" class="headerlink" title="安装GitLab"></a>安装GitLab</h1><p>官网有挺详细的安装步骤：<br><a target="_blank" rel="noopener" href="https://about.gitlab.com/install/#centos-7">官网地址: https://about.gitlab.com/install/#centos-7</a></p>
+<h2 id="一、Centos7-Yum安装Gitlab"><a href="#一、Centos7-Yum安装Gitlab" class="headerlink" title="一、Centos7 Yum安装Gitlab"></a>一、Centos7 Yum安装Gitlab</h2><ul>
+<li>需要联网</li>
+</ul>
+<h3 id="1、安装依赖"><a href="#1、安装依赖" class="headerlink" title="1、安装依赖"></a>1、安装依赖</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo yum install -y curl policycoreutils-python openssh-server</span><br></pre></td></tr></table></figure>
+
+<h3 id="2、安装邮件服务"><a href="#2、安装邮件服务" class="headerlink" title="2、安装邮件服务"></a>2、安装邮件服务</h3><p>注册发送邮件通知，如果您想使用其他解决方案发送电子邮件。<br>可跳过此步骤并在安装GitLab后配置外部SMTP服务器<br>如果关闭注册功能方法不需要发邮件的话这步可以跳过</p>
+<span id="more"></span>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"># 安装</span><br><span class="line">sudo yum install postfix</span><br><span class="line"># 开机自启动</span><br><span class="line">sudo systemctl enable postfix</span><br><span class="line"># 启动服务</span><br><span class="line">sudo systemctl start postfix</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="3、更新Yum源"><a href="#3、更新Yum源" class="headerlink" title="3、更新Yum源"></a>3、更新Yum源</h3><p><a target="_blank" rel="noopener" href="https://packages.gitlab.com/gitlab/gitlab-ce/">包路径: https://packages.gitlab.com/gitlab/gitlab-ce/</a></p>
+<blockquote>
+<p>gitlab 分为gitlab-ce和gitlab-ee，我们要安装ce社区版,gitlab-ce是社区版，免费的、gitlab-ee是企业版，收费的</p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">## 企业版、收费</span><br><span class="line"># curl https://packages.gitlab.com/install/repositories/gitlab/gitlab-ee/script.rpm.sh | sudo bash</span><br><span class="line"></span><br><span class="line">## 社区版、免费,添加gitlab的yum源仓库</span><br><span class="line">curl -s https://packages.gitlab.com/install/repositories/gitlab/gitlab-ce/script.rpm.sh | sudo bash</span><br></pre></td></tr></table></figure>
+
+<p><strong>可以配置其他yum源</strong></p>
+<ul>
+<li>可以换源：清华大学开源软件镜像站。</li>
+<li>添加yum源文件：<code>/etc/yum.repos.d/gitlab-ce.repo</code></li>
+<li>编辑如下内容：</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"># vi /etc/yum.repos.d/gitlab-ce.repo</span><br><span class="line">[gitlab-ce]</span><br><span class="line">name=Gitlab CE Repository</span><br><span class="line">baseurl=https://mirrors.tuna.tsinghua.edu.cn/gitlab-ce/yum/el$releasever/</span><br><span class="line">gpgcheck=0</span><br><span class="line">enabled=1</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>然后可以缓存一下，也可以略过</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># yum makecache就是把服务器的包信息下载到本地电脑缓存起来</span></span><br><span class="line">yum makecache</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="4、开始安装"><a href="#4、开始安装" class="headerlink" title="4、开始安装"></a>4、开始安装</h3><ul>
+<li>开始安装。</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"># 自动安装最新版，免提示</span><br><span class="line">yum install -y gitlab-ce</span><br><span class="line"></span><br><span class="line"># 安装最新版</span><br><span class="line"># yum install gitlab-ce</span><br><span class="line"></span><br><span class="line"># 安装指定版本</span><br><span class="line"># yum install gitlab-ce-x.x.x   </span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>其默认安装路径为 <code>/opt/gitlab/</code>、程序数据及配置文件保存路径为<code>/var/opt/gitlab</code>下。</li>
+<li>代码仓库保存位置：<code>/var/opt/gitlab/git-data/repositories/</code></li>
+<li>代码仓库备份位置：<code>/var/opt/gitlab/backups/</code></li>
+<li>postgresql数据及配置目录：<code>/var/opt/gitlab/postgresql/data/</code></li>
+<li>redis默认配置目录：<code>/var/opt/gitlab/redis</code></li>
+<li>gitlab主要配置文件：<code>/etc/gitlab/gitlab.rb</code></li>
+</ul>
+<blockquote>
+<p>可以修改配置：<br><code>vim /etc/gitlab/gitlab.rb</code><br>自己看吧，注释里面有说明</p>
+</blockquote>
+<h4 id="如果出现卡死-解决方案："><a href="#如果出现卡死-解决方案：" class="headerlink" title="如果出现卡死-解决方案："></a>如果出现卡死-解决方案：</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">1、按住CTRL+C强制结束</span><br><span class="line">2、运行：sudo systemctl restart gitlab-runsvdir</span><br><span class="line">3、再次执行：sudo gitlab-ctl reconfigure</span><br></pre></td></tr></table></figure>
+<p><img src="/blog/2019/09/14/Centos%E5%AE%89%E8%A3%85GitLab/git2.png" alt="git2.png"></p>
+<h4 id="安装成功"><a href="#安装成功" class="headerlink" title="安装成功"></a>安装成功</h4><ul>
+<li>访问：http:&#x2F;&#x2F;你的ip地址，即可，看到登陆页面</li>
+<li>首先会让你输入root用户的密码，也就是管理员的密码</li>
+</ul>
+<h3 id="5、GitLab常用命令"><a href="#5、GitLab常用命令" class="headerlink" title="5、GitLab常用命令"></a>5、GitLab常用命令</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">sudo gitlab-ctl start               		# 启动 gitlab 组件</span><br><span class="line">sudo gitlab-ctl stop                		# 停止 gitlab 组件</span><br><span class="line">sudo gitlab-ctl restart             		# 重启 gitlab 组件</span><br><span class="line">sudo gitlab-ctl status              		# 查看服务状态；</span><br><span class="line">sudo gitlab-ctl reconfigure         		# 修改后直接编译启动</span><br><span class="line">sudo gitlab-ctl tail                        # 查看日志；</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="6、完全卸载GitLab"><a href="#6、完全卸载GitLab" class="headerlink" title="6、完全卸载GitLab"></a>6、完全卸载GitLab</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"># 停止gitlab</span><br><span class="line">sudo gitlab-ctl stop</span><br><span class="line"></span><br><span class="line">#卸载gitlab</span><br><span class="line">sudo rpm -e gitlab-ce</span><br><span class="line"></span><br><span class="line">#查看gitlab进程，杀掉进程</span><br><span class="line">ps -ef|grep gitlab</span><br><span class="line"></span><br><span class="line"># 杀掉所有</span><br><span class="line">ps -ef | grep gitlab | xargs kill -s 9</span><br><span class="line"></span><br><span class="line"># 删除gitlab文件</span><br><span class="line">find / -name *gitlab*|xargs rm -rf     </span><br><span class="line"> </span><br><span class="line"># 删除所有包含gitlab的文件及目录</span><br><span class="line">find / -name gitlab |xargs rm -rf </span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="7、取消注册功能"><a href="#7、取消注册功能" class="headerlink" title="7、取消注册功能"></a>7、取消注册功能</h3><p>流程：<code>Admin Area</code>(顶部小扳手) -&gt; <code>Settings</code>  -&gt; <code>Sign-up restrictions</code> -&gt; <code>去掉 Sign-up enabled 的勾选</code>-&gt; 保存更改。<br>如下图：</p>
+<p><img src="/blog/2019/09/14/Centos%E5%AE%89%E8%A3%85GitLab/register-setting.png"></p>
+<p><img src="/blog/2019/09/14/Centos%E5%AE%89%E8%A3%85GitLab/register-save.png"></p>
+<p>重新访问登陆页面，就没有注册的选项了。</p>
+<h3 id="8、添加组与用户与项目"><a href="#8、添加组与用户与项目" class="headerlink" title="8、添加组与用户与项目"></a>8、添加组与用户与项目</h3><p>这些都有可视化界面了，如下图：</p>
+<p><img src="/blog/2019/09/14/Centos%E5%AE%89%E8%A3%85GitLab/add.png"></p>
+<ul>
+<li>很简单点击 NEW 那个按钮即可添加组或用户或项目</li>
+<li>新建用户需要再编辑一次才能设置密码</li>
+</ul>
+<h4 id="8-1、给组添加或移除用户"><a href="#8-1、给组添加或移除用户" class="headerlink" title="8.1、给组添加或移除用户"></a>8.1、给组添加或移除用户</h4><p>进入组的详情，然后选择<code>Members</code> 进行邀请添加或移除即可。<br>如图：</p>
+<p><img src="/blog/2019/09/14/Centos%E5%AE%89%E8%A3%85GitLab/group-add-del.png"></p>
+<h4 id="8-2、给项目添加或移除用户"><a href="#8-2、给项目添加或移除用户" class="headerlink" title="8.2、给项目添加或移除用户"></a>8.2、给项目添加或移除用户</h4><p>这个和上面一样，先进入项目详情，然后也是选择<code>Members</code>，进行邀请添加或移除即可。<br>如图：</p>
+<p><img src="/blog/2019/09/14/Centos%E5%AE%89%E8%A3%85GitLab/project-add-del.png"></p>
+<h4 id="8-3、给项目更新分支保护设置"><a href="#8-3、给项目更新分支保护设置" class="headerlink" title="8.3、给项目更新分支保护设置"></a>8.3、给项目更新分支保护设置</h4><ul>
+<li>项目新建，一般<code>master</code>分支（以后可能改成<code>main</code>分支）会有一个分支保护的功能</li>
+<li>防止其他人推送删除合并等操作，所以需要修改一下</li>
+<li>可能会使 Developer 没法push代码。</li>
+<li>这个和上面一样，先进入项目详情，然后选择<code>Settings</code>之后选择<code>repository</code>之后<code>protected branches</code>。</li>
+<li>如下图：推送的地方选择：<code>Developers + Maintainers</code></li>
+</ul>
+<p><img src="/blog/2019/09/14/Centos%E5%AE%89%E8%A3%85GitLab/protect.png"></p>
+<p>这样之后开发者也就可以有权限了。</p>
+<h3 id="9、权限浅析"><a href="#9、权限浅析" class="headerlink" title="9、权限浅析"></a>9、权限浅析</h3><p>简单解释下权限</p>
+<p><strong>Gitlab用户在组中的权限</strong></p>
+<ul>
+<li>Guest：可以创建issue、发表评论，不能读写版本库</li>
+<li>Reporter：可以克隆代码，不能提交，QA、PM可以赋予这个权限</li>
+<li>Developer：可以克隆代码、开发、提交、push，RD可以赋予这个权限</li>
+<li>Maintainer：可以创建项目、添加tag、保护分支、添加项目成员、编辑项目，核心RD负责人可以赋予这个权限</li>
+<li>Owner：可以设置项目访问权限 - Visibility Level、删除项目、迁移项目、管理组成员，开发组leader可以赋予这个权限</li>
+</ul>
+<p><strong>Gitlab中的组和项目的权限</strong></p>
+<ul>
+<li>Private：只有组成员才能看到</li>
+<li>Internal：只要登录的用户就能看到</li>
+<li>Public：所有人都能看到</li>
+</ul>
+<h3 id="10、数据迁移"><a href="#10、数据迁移" class="headerlink" title="10、数据迁移"></a>10、数据迁移</h3><p>可能会发生服务器迁移，项目代码也需要迁移</p>
+<h4 id="10-1、备份旧数据"><a href="#10-1、备份旧数据" class="headerlink" title="10.1、备份旧数据"></a>10.1、备份旧数据</h4><ul>
+<li>备份时需要保持gitlab处于正常运行状态，直接执行：<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gitlab-rake gitlab:backup:create</span><br></pre></td></tr></table></figure></li>
+<li>使用以上命令会在<code>/var/opt/gitlab/backups</code>目录下创建一个<code>时间戳_日期.tar</code>的压缩包.</li>
+<li>压缩包完整名称：<code>1605253846_2020_11_13_13.5.3_gitlab_backup.tar</code></li>
+</ul>
+<p><img src="/blog/2019/09/14/Centos%E5%AE%89%E8%A3%85GitLab/backup.png"></p>
+<h4 id="10-2、恢复数据"><a href="#10-2、恢复数据" class="headerlink" title="10.2、恢复数据"></a>10.2、恢复数据</h4><ul>
+<li>把这个压缩包放到新服务器的<code>/var/opt/gitlab/backups</code>目录下（这个是默认的备份路径）</li>
+<li>然后执行<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 停止相关数据传输</span></span><br><span class="line"><span class="string">gitlab-ctl</span> <span class="string">stop</span> <span class="string">unicorn</span></span><br><span class="line"><span class="string">gitlab-ctl</span> <span class="string">stop</span> <span class="string">sidekiq</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 恢复备份数据，只需要调前面的日期，后面不需要填，之后输入两次 YES 即可</span></span><br><span class="line"><span class="string">gitlab-rake</span> <span class="string">gitlab:backup:restore</span> <span class="string">BACKUP=1605253846_2020_11_13_13.5.3</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<p><img src="/blog/2019/09/14/Centos%E5%AE%89%E8%A3%85GitLab/restore.png"></p>
+<h4 id="10-3、注意点"><a href="#10-3、注意点" class="headerlink" title="10.3、注意点"></a>10.3、注意点</h4><ul>
+<li>如果新服务器未恢复前有项目了，记得备份好，因为会覆盖项目的。</li>
+<li>还有就是新旧的Gitlab版本要一致，否则恢复可能会失败</li>
+<li>恢复时有个警告的大致意思是：敏感性信息（<code>gitlab.rb,gitlab-secrets.json</code>）不会包含在备份中</li>
+<li>恢复之后，可能需要修改<code>gitlab.rb</code>,比如 <code>external_url</code>参数</li>
+</ul>
+<h2 id="二、离线安装Gitlab"><a href="#二、离线安装Gitlab" class="headerlink" title="二、离线安装Gitlab"></a>二、离线安装Gitlab</h2><ul>
+<li>直接下载gitlab的离线rpm包，然后安装即可</li>
+<li>地址：</li>
+<li>清华大学镜像：<a target="_blank" rel="noopener" href="https://mirror.tuna.tsinghua.edu.cn/gitlab-ce/yum/el7/?C=M&O=A">https://mirror.tuna.tsinghua.edu.cn/gitlab-ce/yum/el7/?C=M&O=A</a></li>
+<li>官网包地址：<a target="_blank" rel="noopener" href="https://packages.gitlab.com/gitlab/gitlab-ce/">https://packages.gitlab.com/gitlab/gitlab-ce/</a></li>
+<li>下载你想安装的版本之后，上传到服务器如下图：</li>
+</ul>
+<p><img src="/blog/2019/09/14/Centos%E5%AE%89%E8%A3%85GitLab/package.png"></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"># 开始安装，我下载的是13.7.6 版本的</span><br><span class="line">yum install gitlab-ce-13.7.6-ce.0.el7.x86_64.rpm</span><br><span class="line"></span><br><span class="line"># 或者</span><br><span class="line"># rpm -ivh gitlab-ce-13.7.6-ce.0.el7.x86_64.rpm</span><br><span class="line"></span><br><span class="line"># 之后如上面一下修改：/etc/gitlab/gitlab.rb 里面的 external_url &#x27;http://yourIp:port&#x27; </span><br><span class="line"># 然后重新配置一下就可以启动了</span><br><span class="line">gitlab-ctl reconfigure</span><br><span class="line"></span><br><span class="line"># 重新启动</span><br><span class="line">gitlab-ctl restart</span><br></pre></td></tr></table></figure>
+
+<p><strong>基本用法到此结束</strong></p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>您的打赏，是我创作的动力！不给钱？那我只能靠想象力充饥了。</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/wechat_pay.jpg" alt="rstyro 微信支付">
+        <p>微信支付</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/alipay.jpg" alt="rstyro 支付宝">
+        <p>支付宝</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/blog/tags/Linux/" rel="tag"><i class="fa fa-tag"></i> Linux</a>
+              <a href="/blog/tags/%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7/" rel="tag"><i class="fa fa-tag"></i> 开发工具</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2019/06/25/SpringBoot%E4%B8%8ERedisson%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%E7%9A%84%E4%BD%BF%E7%94%A8/" rel="prev" title="SpringBoot与Redisson分布式锁的使用">
+      <i class="fa fa-chevron-left"></i> SpringBoot与Redisson分布式锁的使用
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/blog/2019/10/28/Quartz%E4%BB%8B%E7%BB%8D%E4%B8%8ESpringBoot%E4%BD%BF%E7%94%A8/" rel="next" title="Quartz介绍与SpringBoot使用">
+      Quartz介绍与SpringBoot使用 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AE%89%E8%A3%85GitLab"><span class="nav-number">1.</span> <span class="nav-text">安装GitLab</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81Centos7-Yum%E5%AE%89%E8%A3%85Gitlab"><span class="nav-number">1.1.</span> <span class="nav-text">一、Centos7 Yum安装Gitlab</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1%E3%80%81%E5%AE%89%E8%A3%85%E4%BE%9D%E8%B5%96"><span class="nav-number">1.1.1.</span> <span class="nav-text">1、安装依赖</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2%E3%80%81%E5%AE%89%E8%A3%85%E9%82%AE%E4%BB%B6%E6%9C%8D%E5%8A%A1"><span class="nav-number">1.1.2.</span> <span class="nav-text">2、安装邮件服务</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3%E3%80%81%E6%9B%B4%E6%96%B0Yum%E6%BA%90"><span class="nav-number">1.1.3.</span> <span class="nav-text">3、更新Yum源</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4%E3%80%81%E5%BC%80%E5%A7%8B%E5%AE%89%E8%A3%85"><span class="nav-number">1.1.4.</span> <span class="nav-text">4、开始安装</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%A6%82%E6%9E%9C%E5%87%BA%E7%8E%B0%E5%8D%A1%E6%AD%BB-%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88%EF%BC%9A"><span class="nav-number">1.1.4.1.</span> <span class="nav-text">如果出现卡死-解决方案：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AE%89%E8%A3%85%E6%88%90%E5%8A%9F"><span class="nav-number">1.1.4.2.</span> <span class="nav-text">安装成功</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5%E3%80%81GitLab%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4"><span class="nav-number">1.1.5.</span> <span class="nav-text">5、GitLab常用命令</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6%E3%80%81%E5%AE%8C%E5%85%A8%E5%8D%B8%E8%BD%BDGitLab"><span class="nav-number">1.1.6.</span> <span class="nav-text">6、完全卸载GitLab</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7%E3%80%81%E5%8F%96%E6%B6%88%E6%B3%A8%E5%86%8C%E5%8A%9F%E8%83%BD"><span class="nav-number">1.1.7.</span> <span class="nav-text">7、取消注册功能</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#8%E3%80%81%E6%B7%BB%E5%8A%A0%E7%BB%84%E4%B8%8E%E7%94%A8%E6%88%B7%E4%B8%8E%E9%A1%B9%E7%9B%AE"><span class="nav-number">1.1.8.</span> <span class="nav-text">8、添加组与用户与项目</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#8-1%E3%80%81%E7%BB%99%E7%BB%84%E6%B7%BB%E5%8A%A0%E6%88%96%E7%A7%BB%E9%99%A4%E7%94%A8%E6%88%B7"><span class="nav-number">1.1.8.1.</span> <span class="nav-text">8.1、给组添加或移除用户</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#8-2%E3%80%81%E7%BB%99%E9%A1%B9%E7%9B%AE%E6%B7%BB%E5%8A%A0%E6%88%96%E7%A7%BB%E9%99%A4%E7%94%A8%E6%88%B7"><span class="nav-number">1.1.8.2.</span> <span class="nav-text">8.2、给项目添加或移除用户</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#8-3%E3%80%81%E7%BB%99%E9%A1%B9%E7%9B%AE%E6%9B%B4%E6%96%B0%E5%88%86%E6%94%AF%E4%BF%9D%E6%8A%A4%E8%AE%BE%E7%BD%AE"><span class="nav-number">1.1.8.3.</span> <span class="nav-text">8.3、给项目更新分支保护设置</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#9%E3%80%81%E6%9D%83%E9%99%90%E6%B5%85%E6%9E%90"><span class="nav-number">1.1.9.</span> <span class="nav-text">9、权限浅析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#10%E3%80%81%E6%95%B0%E6%8D%AE%E8%BF%81%E7%A7%BB"><span class="nav-number">1.1.10.</span> <span class="nav-text">10、数据迁移</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#10-1%E3%80%81%E5%A4%87%E4%BB%BD%E6%97%A7%E6%95%B0%E6%8D%AE"><span class="nav-number">1.1.10.1.</span> <span class="nav-text">10.1、备份旧数据</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#10-2%E3%80%81%E6%81%A2%E5%A4%8D%E6%95%B0%E6%8D%AE"><span class="nav-number">1.1.10.2.</span> <span class="nav-text">10.2、恢复数据</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#10-3%E3%80%81%E6%B3%A8%E6%84%8F%E7%82%B9"><span class="nav-number">1.1.10.3.</span> <span class="nav-text">10.3、注意点</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E7%A6%BB%E7%BA%BF%E5%AE%89%E8%A3%85Gitlab"><span class="nav-number">1.2.</span> <span class="nav-text">二、离线安装Gitlab</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="rstyro"
+      src="/blog/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">rstyro</p>
+  <div class="site-description" itemprop="description">人间的饭，吃一碗少一碗，身边的人，见一面少一面，脚下的路，走一天少一天，其实人生就是一个减法，来日并不方长！</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives/">
+        
+          <span class="site-state-item-count">216</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/blog/tags/">
+          
+        <span class="site-state-item-count">88</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/rstyro" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;rstyro" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/rstyro" title="Gitee → https:&#x2F;&#x2F;gitee.com&#x2F;rstyro" rel="noopener" target="_blank"><i class="fab fa-codiepie fa-fw"></i>Gitee</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.jianshu.com/u/651c15a1758a" title="简书 → https:&#x2F;&#x2F;www.jianshu.com&#x2F;u&#x2F;651c15a1758a" rel="noopener" target="_blank"><i class="fa fa-book fa-fw"></i>简书</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      友链
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://rstyro.github.io/blog/" title="https:&#x2F;&#x2F;rstyro.github.io&#x2F;blog&#x2F;">胖不了小陆</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; Mon Apr 10 2017 08:00:00 GMT+0800 (中国标准时间) – 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">以梦为马，诗酒趁年华</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/muse.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+  <script>
+    (function(){
+      var canonicalURL, curProtocol;
+      //Get the <link> tag
+      var x=document.getElementsByTagName("link");
+		//Find the last canonical URL
+		if(x.length > 0){
+			for (i=0;i<x.length;i++){
+				if(x[i].rel.toLowerCase() == 'canonical' && x[i].href){
+					canonicalURL=x[i].href;
+				}
+			}
+		}
+    //Get protocol
+	    if (!canonicalURL){
+	    	curProtocol = window.location.protocol.split(':')[0];
+	    }
+	    else{
+	    	curProtocol = canonicalURL.split(':')[0];
+	    }
+      //Get current URL if the canonical URL does not exist
+	    if (!canonicalURL) canonicalURL = window.location.href;
+	    //Assign script content. Replace current URL with the canonical URL
+      !function(){var e=/([http|https]:\/\/[a-zA-Z0-9\_\.]+\.baidu\.com)/gi,r=canonicalURL,t=document.referrer;if(!e.test(r)){var n=(String(curProtocol).toLowerCase() === 'https')?"https://sp0.baidu.com/9_Q4simg2RQJ8t7jm9iCKT-xh_/s.gif":"//api.share.baidu.com/s.gif";t?(n+="?r="+encodeURIComponent(document.referrer),r&&(n+="&l="+r)):r&&(n+="?l="+r);var i=new Image;i.src=n}}(window);})();
+  </script>
+
+
+
+
+  
+<script src="/blog/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+<script>
+if (document.querySelectorAll('pre.mermaid').length) {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mermaid@8/dist/mermaid.min.js', () => {
+    mermaid.initialize({
+      theme    : 'default',
+      logLevel : 3,
+      flowchart: { curve     : 'linear' },
+      gantt    : { axisFormat: '%m/%d/%Y' },
+      sequence : { actorMargin: 50 }
+    });
+  }, window.mermaid);
+}
+</script>
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : 'Ov23litYkWaOGM7kAKPD',
+      clientSecret: '43bd3cf99bfcb9d05d16627c97a9f7a0200df04a',
+      repo        : 'blog',
+      owner       : 'rstyro',
+      admin       : ['rstyro'],
+      id          : '4d83899b9bab55e3e0b6d79b8f632396',
+        language: '',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>

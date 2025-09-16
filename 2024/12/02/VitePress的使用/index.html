@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/favicon.jpg">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon.jpg">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon.jpg">
+  <link rel="mask-icon" href="/blog/images/favicon.jpg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="/blog/lib/pace/pace-theme-flash.min.css">
+  <script src="/blog/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"rstyro.github.io","root":"/blog/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":true},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.json"};
+  </script>
+
+  <meta name="description" content="VitePress的使用 VitePress 是一个静态站点生成器 (SSG)，专为构建快速、以内容为中心的网站而设计。简而言之，VitePress 获取用 Markdown 编写的源内容，为其应用主题，并生成可以轻松部署在任何地方的静态 HTML 页面 文档地址：https:&#x2F;&#x2F;vitepress.qzxdp.cn&#x2F;guide&#x2F;what-is-vitepress.html Github: htt">
+<meta property="og:type" content="article">
+<meta property="og:title" content="VitePress的使用">
+<meta property="og:url" content="https://rstyro.github.io/blog/2024/12/02/VitePress%E7%9A%84%E4%BD%BF%E7%94%A8/index.html">
+<meta property="og:site_name" content="胖不了小陆">
+<meta property="og:description" content="VitePress的使用 VitePress 是一个静态站点生成器 (SSG)，专为构建快速、以内容为中心的网站而设计。简而言之，VitePress 获取用 Markdown 编写的源内容，为其应用主题，并生成可以轻松部署在任何地方的静态 HTML 页面 文档地址：https:&#x2F;&#x2F;vitepress.qzxdp.cn&#x2F;guide&#x2F;what-is-vitepress.html Github: htt">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://rstyro.github.io/blog/2024/12/02/VitePress%E7%9A%84%E4%BD%BF%E7%94%A8/npx-init.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2024/12/02/VitePress%E7%9A%84%E4%BD%BF%E7%94%A8/actions.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2024/12/02/VitePress%E7%9A%84%E4%BD%BF%E7%94%A8/pages.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2024/12/02/VitePress%E7%9A%84%E4%BD%BF%E7%94%A8/tcm.png">
+<meta property="article:published_time" content="2024-12-02T08:43:29.000Z">
+<meta property="article:modified_time" content="2024-12-02T08:43:29.000Z">
+<meta property="article:author" content="rstyro">
+<meta property="article:tag" content="VitePress">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://rstyro.github.io/blog/2024/12/02/VitePress%E7%9A%84%E4%BD%BF%E7%94%A8/npx-init.png">
+
+<link rel="canonical" href="https://rstyro.github.io/blog/2024/12/02/VitePress%E7%9A%84%E4%BD%BF%E7%94%A8/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>VitePress的使用 | 胖不了小陆</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">胖不了小陆</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">信你所信，为你所见</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/blog/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/blog/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/blog/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/rstyro" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://rstyro.github.io/blog/2024/12/02/VitePress%E7%9A%84%E4%BD%BF%E7%94%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/avatar.jpg">
+      <meta itemprop="name" content="rstyro">
+      <meta itemprop="description" content="人间的饭，吃一碗少一碗，身边的人，见一面少一面，脚下的路，走一天少一天，其实人生就是一个减法，来日并不方长！">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="胖不了小陆">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          VitePress的使用
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2024-12-02 16:43:29" itemprop="dateCreated datePublished" datetime="2024-12-02T16:43:29+08:00">2024-12-02</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E5%89%8D%E7%AB%AF/" itemprop="url" rel="index"><span itemprop="name">前端</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="VitePress的使用"><a href="#VitePress的使用" class="headerlink" title="VitePress的使用"></a>VitePress的使用</h2><ul>
+<li>VitePress 是一个静态站点生成器 (SSG)，专为构建快速、以内容为中心的网站而设计。简而言之，VitePress 获取用 Markdown 编写的源内容，为其应用主题，并生成可以轻松部署在任何地方的静态 HTML 页面</li>
+<li>文档地址：<a target="_blank" rel="noopener" href="https://vitepress.qzxdp.cn/guide/what-is-vitepress.html">https://vitepress.qzxdp.cn/guide/what-is-vitepress.html</a></li>
+<li>Github: <a target="_blank" rel="noopener" href="https://github.com/vuejs/vitepress">https://github.com/vuejs/vitepress</a></li>
+</ul>
+<span id="more"></span>
+
+<p><strong>常见的应用场景</strong></p>
+<ul>
+<li>文档预览</li>
+<li>博客</li>
+<li>等等</li>
+</ul>
+<blockquote>
+<p>我喜欢它的就是文档预览，直接通过markdown变成在线文档。</p>
+</blockquote>
+<h4 id="一、快速开始"><a href="#一、快速开始" class="headerlink" title="一、快速开始"></a>一、快速开始</h4><ul>
+<li>至少需要Node.js版本，V18及以上版本。</li>
+</ul>
+<p><strong>安装VitePress</strong></p>
+<ul>
+<li>使用如下命令，安装VitePress</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 安装Vitepress -D是将包安装为开发依赖项</span></span><br><span class="line">npm install -D vitepress</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>执行如上命令之后，会执行如下操作：</li>
+<li><ol>
+<li>下载并安装 vitepress 包及其依赖项到项目的 node_modules 目录中。</li>
+</ol>
+</li>
+<li><ol start="2">
+<li>在 package.json 文件中添加 vitepress 到 devDependencies 字段中。</li>
+</ol>
+</li>
+</ul>
+<p><strong>设置向导</strong></p>
+<ul>
+<li>VitePress 附带一个命令行设置向导，可帮助构建基本项目。</li>
+<li>安装后，通过运行以下命令启动向导：<code>npx vitepress init</code></li>
+</ul>
+<p><img src="/blog/2024/12/02/VitePress%E7%9A%84%E4%BD%BF%E7%94%A8/npx-init.png" alt="设置向导过程图片"></p>
+<ul>
+<li>第1个就是设置Vitepress站点的目录，默认是<code>./</code>就是当前目录，我这里设置的是<code>./docs</code></li>
+<li>后面就是设置标题、描述、主题、等等了，直接默认即可</li>
+<li>之后我们的文档就写到docs目录下配置路由即可</li>
+<li>使用向导结束之后，就会在<code>./docs</code>生成一些默认的markdown文件，如：index.md、</li>
+<li>我们就可以启动预览一下页面</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 本地启动，然后访问控制台打印的地址即可，如：http://localhost:5173/</span></span><br><span class="line">npm run docs:dev</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h4 id="二、配置"><a href="#二、配置" class="headerlink" title="二、配置"></a>二、配置</h4><ul>
+<li>通过向导生成的，肯定是不符合我们的需求的，所以需要自定义配置修改</li>
+<li>VitePress的配置文件在 <code>./docs/.vitepress/config.mts</code></li>
+<li>我们只要修改 config.mts 内容即可</li>
+<li>官方配置文档：<a target="_blank" rel="noopener" href="https://vitepress.qzxdp.cn/reference/site-config.html">https://vitepress.qzxdp.cn/reference/site-config.html</a></li>
+<li></li>
+</ul>
+<h5 id="1、基本配置"><a href="#1、基本配置" class="headerlink" title="1、基本配置"></a>1、基本配置</h5><ul>
+<li>如果设置向导时的名称，命名不满意可以修改</li>
+</ul>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; defineConfig &#125; <span class="keyword">from</span> <span class="string">&#x27;vitepress&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="title function_">defineConfig</span>(&#123;</span><br><span class="line">  <span class="attr">title</span>: <span class="string">&quot;文档名称&quot;</span>,</span><br><span class="line">  <span class="attr">titleTemplate</span>: <span class="string">&#x27;rstyro&#x27;</span>,</span><br><span class="line">  <span class="attr">description</span>: <span class="string">&quot;文档的基本描述&quot;</span></span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<ul>
+<li>title: 项目名称，网站的标题，即浏览器标签页上的文本</li>
+<li>titleTemplate:  网页标题的后缀, 就是会在标题后缀拼接，例如：<code>文档名称 | rstyro</code></li>
+<li>description:  项目的基本描述用来做SEO优化</li>
+</ul>
+<p><strong>社交链接</strong></p>
+<ul>
+<li>可以在顶部导航的右边中显示带有图标的社交帐户链接，比如Github之类的</li>
+</ul>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; defineConfig &#125; <span class="keyword">from</span> <span class="string">&#x27;vitepress&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// https://vitepress.dev/reference/site-config</span></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="title function_">defineConfig</span>(&#123;</span><br><span class="line">  <span class="attr">title</span>: <span class="string">&quot;文档名称&quot;</span>,</span><br><span class="line">  <span class="attr">titleTemplate</span>: <span class="string">&#x27;rstyro&#x27;</span>,</span><br><span class="line">  <span class="attr">description</span>: <span class="string">&quot;文档的基本描述&quot;</span>,</span><br><span class="line">  <span class="attr">themeConfig</span>: &#123;</span><br><span class="line">    <span class="attr">socialLinks</span>: [</span><br><span class="line">      &#123; <span class="attr">icon</span>: <span class="string">&#x27;github&#x27;</span>, <span class="attr">link</span>: <span class="string">&#x27;https://github.com/rstyro&#x27;</span> &#125;</span><br><span class="line">    ]</span><br><span class="line">  &#125;</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>支持的图标：<code>discord</code>、<code>facebook</code>、<code>github</code>、<code>instagram</code>、<code>linkedin</code>、<code>mastodon</code>、<code>slack</code>、<code>twitter</code>、<code>youtube</code></li>
+</ul>
+<p><strong>logo</strong></p>
+<ul>
+<li>显示在导航栏中网站标题之前的logo文件。</li>
+<li>接受路径字符串或对象来为亮&#x2F;暗模式设置不同的logo。</li>
+</ul>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="title function_">defineConfig</span>(&#123;</span><br><span class="line">  <span class="attr">themeConfig</span>: &#123;</span><br><span class="line">     <span class="attr">logo</span>: <span class="string">&#x27;/logo.png&#x27;</span>,</span><br><span class="line">  &#125;</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<p><strong>outline</strong></p>
+<ul>
+<li>文档的标题大纲显示</li>
+</ul>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="title function_">defineConfig</span>(&#123;</span><br><span class="line">  <span class="attr">themeConfig</span>: &#123;</span><br><span class="line">   # 类型：number | [number, number] | <span class="string">&#x27;deep&#x27;</span> | <span class="literal">false</span></span><br><span class="line">     <span class="attr">outline</span>: <span class="string">&#x27;deep&#x27;</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+
+<h5 id="2、head"><a href="#2、head" class="headerlink" title="2、head"></a>2、head</h5><ul>
+<li>在页面 HTML 的<code>&lt;head&gt;</code>标记中添加其他元素。</li>
+<li>比如添加网站的 icon、kewword等等</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">export default defineConfig(&#123;</span><br><span class="line">  head: [[&#x27;link&#x27;, &#123; rel: &#x27;icon&#x27;, href: &#x27;/favicon.ico&#x27; &#125;]],</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+
+
+
+<h5 id="3、导航"><a href="#3、导航" class="headerlink" title="3、导航"></a>3、导航</h5><ul>
+<li>导航是在页面顶部的导航栏。它包含站点标题、全局菜单链接等。</li>
+<li>配置 nav字段</li>
+</ul>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="title function_">defineConfig</span>(&#123;</span><br><span class="line">  <span class="attr">themeConfig</span>: &#123;</span><br><span class="line">    <span class="attr">nav</span>: [</span><br><span class="line">      &#123; <span class="attr">text</span>: <span class="string">&#x27;Home&#x27;</span>, <span class="attr">link</span>: <span class="string">&#x27;/&#x27;</span> &#125;,</span><br><span class="line">       &#123; <span class="attr">text</span>: <span class="string">&#x27;Demo&#x27;</span>, <span class="attr">link</span>: <span class="string">&#x27;/demo&#x27;</span> &#125;,</span><br><span class="line">      &#123; <span class="attr">text</span>: <span class="string">&#x27;Examples&#x27;</span>, <span class="attr">link</span>: <span class="string">&#x27;/markdown-examples&#x27;</span> &#125;</span><br><span class="line">    ]</span><br><span class="line">  &#125;</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>text 就是页面现在的导航文本，link 就是对应的跳转链接，<code>/demo</code>就是对应的demo.md 文件</li>
+</ul>
+<p><strong>二级下拉</strong></p>
+<ul>
+<li>导航支持二级下拉或多级下拉，只需要配置，items 字段即可</li>
+<li>docs下的文件列表如下:</li>
+</ul>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">.</span><br><span class="line">├─ api-examples.<span class="property">md</span></span><br><span class="line">├─ markdown-examples.<span class="property">md</span></span><br><span class="line">├─ index.<span class="property">md</span></span><br><span class="line">├─ logo.<span class="property">png</span></span><br><span class="line">└─ demo/</span><br><span class="line">   ├─ demo1.<span class="property">md</span></span><br><span class="line">   └─ demo2.<span class="property">md</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>上面就是文件的目录结构，配置如下</li>
+</ul>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="title function_">defineConfig</span>(&#123;</span><br><span class="line">  <span class="attr">themeConfig</span>: &#123;</span><br><span class="line">    <span class="attr">nav</span>: [</span><br><span class="line">      &#123; <span class="attr">text</span>: <span class="string">&#x27;Home&#x27;</span>, <span class="attr">link</span>: <span class="string">&#x27;/&#x27;</span> &#125;,</span><br><span class="line">      &#123; </span><br><span class="line">          <span class="attr">text</span>: <span class="string">&#x27;Demo-Dropdown&#x27;</span>,</span><br><span class="line">          <span class="attr">items</span>: [</span><br><span class="line">              &#123; <span class="attr">text</span>: <span class="string">&#x27;demo&#x27;</span>, <span class="attr">link</span>: <span class="string">&#x27;/demo&#x27;</span> &#125;,</span><br><span class="line">              &#123; <span class="attr">text</span>: <span class="string">&#x27;demo1&#x27;</span>, <span class="attr">link</span>: <span class="string">&#x27;/demo/demo1&#x27;</span> &#125;,</span><br><span class="line">              &#123; <span class="attr">text</span>: <span class="string">&#x27;demo2&#x27;</span>, <span class="attr">link</span>: <span class="string">&#x27;/demo/demo2&#x27;</span> &#125;</span><br><span class="line">          ]</span><br><span class="line">      &#125;,</span><br><span class="line">      &#123; <span class="attr">text</span>: <span class="string">&#x27;Examples&#x27;</span>, <span class="attr">link</span>: <span class="string">&#x27;/markdown-examples&#x27;</span> &#125;</span><br><span class="line">    ]</span><br><span class="line">  &#125;</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<ul>
+<li>注意配置了items,就不能配置 link属性</li>
+</ul>
+<h5 id="4、侧边栏"><a href="#4、侧边栏" class="headerlink" title="4、侧边栏"></a>4、侧边栏</h5><ul>
+<li>侧边栏和顶部导航栏的配置差不多，如下：</li>
+</ul>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="title function_">defineConfig</span>(&#123;</span><br><span class="line">  <span class="attr">themeConfig</span>: &#123;</span><br><span class="line">    <span class="attr">sidebar</span>: [</span><br><span class="line">      &#123;</span><br><span class="line">        <span class="attr">text</span>: <span class="string">&#x27;Examples&#x27;</span>,<span class="attr">collapsed</span>: <span class="literal">false</span>,</span><br><span class="line">        <span class="attr">items</span>: [</span><br><span class="line">          &#123; <span class="attr">text</span>: <span class="string">&#x27;Markdown Examples&#x27;</span>, <span class="attr">link</span>: <span class="string">&#x27;/markdown-examples&#x27;</span> &#125;,</span><br><span class="line">          &#123; <span class="attr">text</span>: <span class="string">&#x27;Runtime API Examples&#x27;</span>, <span class="attr">link</span>: <span class="string">&#x27;/api-examples&#x27;</span> &#125;</span><br><span class="line">        ]</span><br><span class="line">      &#125;,</span><br><span class="line">      &#123; <span class="attr">text</span>: <span class="string">&#x27;Demo&#x27;</span>, <span class="attr">link</span>: <span class="string">&#x27;/demo&#x27;</span> &#125;,</span><br><span class="line">      &#123; <span class="attr">text</span>: <span class="string">&#x27;Demo-expend&#x27;</span>, <span class="attr">collapsed</span>: <span class="literal">false</span>,</span><br><span class="line">          <span class="attr">items</span>:[</span><br><span class="line">                 </span><br><span class="line">                  &#123; <span class="attr">text</span>: <span class="string">&#x27;demo1&#x27;</span>, <span class="attr">link</span>: <span class="string">&#x27;/demo1&#x27;</span> &#125;,</span><br><span class="line">                  &#123; <span class="attr">text</span>: <span class="string">&#x27;demo2&#x27;</span>, <span class="attr">link</span>: <span class="string">&#x27;/demo2&#x27;</span> &#125;</span><br><span class="line">                 ]</span><br><span class="line">         &#125;</span><br><span class="line">    ]</span><br><span class="line">  &#125;</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<ul>
+<li>collapsed 可以收缩和展开</li>
+<li>也是可以多层嵌套，但是最高6层嵌套，超过则忽略</li>
+<li>和导航栏不同的是，侧边栏可以按页面分为不同的侧边栏</li>
+</ul>
+<p><strong>多个侧边栏</strong></p>
+<ul>
+<li>可以根据页面路径显示不同的侧边栏</li>
+</ul>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="title function_">defineConfig</span>(&#123;</span><br><span class="line">  <span class="attr">themeConfig</span>: &#123;</span><br><span class="line">    <span class="attr">sidebar</span>: &#123;</span><br><span class="line">      <span class="comment">// This sidebar gets displayed when a user</span></span><br><span class="line">      <span class="comment">// is on `guide` directory.</span></span><br><span class="line">      <span class="string">&#x27;/demo/&#x27;</span>: [</span><br><span class="line">        &#123;</span><br><span class="line">          <span class="attr">text</span>: <span class="string">&#x27;Demo&#x27;</span>,<span class="attr">collapsed</span>: <span class="literal">false</span>,</span><br><span class="line">          <span class="attr">items</span>: [</span><br><span class="line">            &#123; <span class="attr">text</span>: <span class="string">&#x27;demo&#x27;</span>, <span class="attr">link</span>: <span class="string">&#x27;/demo&#x27;</span> &#125;,</span><br><span class="line">            &#123; <span class="attr">text</span>: <span class="string">&#x27;demo1&#x27;</span>, <span class="attr">link</span>: <span class="string">&#x27;/demo/demo1&#x27;</span> &#125;,</span><br><span class="line">            &#123; <span class="attr">text</span>: <span class="string">&#x27;demo2&#x27;</span>, <span class="attr">link</span>: <span class="string">&#x27;/demo/demo2&#x27;</span> &#125;</span><br><span class="line">          ]</span><br><span class="line">        &#125;</span><br><span class="line">      ],</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">  &#125;</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<ul>
+<li>sidebar字段配置的是一个对象而不是数组。</li>
+</ul>
+<h5 id="5、Frontmatter配置"><a href="#5、Frontmatter配置" class="headerlink" title="5、Frontmatter配置"></a>5、Frontmatter配置</h5><ul>
+<li>Frontmatter 支持基于页面的配置。在每个 Markdown 文件中，您可以使用 frontmatter 配置来覆盖站点级或主题级配置选项。</li>
+<li>在一个Markdown页面中，利用<code>---</code> 给出页面的配置信息叫做Frontmatter</li>
+<li>注意：配置 <code>---</code>必须要放在markdown文件的最顶部</li>
+</ul>
+<p><strong>覆盖站点配置</strong></p>
+<ul>
+<li>可以覆盖一些主题配置，比如标题等，如下</li>
+</ul>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">---</span><br><span class="line"><span class="attr">title</span>: 页面标题修改</span><br><span class="line"><span class="attr">titleTemplate</span>: <span class="title class_">Vite</span></span><br><span class="line"><span class="attr">description</span>: <span class="title class_">VitePress</span></span><br><span class="line"><span class="attr">outline</span>: deep</span><br><span class="line">---</span><br><span class="line"></span><br><span class="line"># 文档内容</span><br><span class="line">### 这里可以继续写内容</span><br></pre></td></tr></table></figure>
+
+<p><strong>layout</strong></p>
+<ul>
+<li>确定页面的布局。</li>
+<li>可选：doc | home | page<ul>
+<li><code>doc</code> - VitePress会将默认的文档样式应用于Markdown内容。</li>
+<li><code>home</code> - VitePress为”首页”提供了特殊的布局。您可以添加额外的选项，比如<code>hero</code>和<code>features</code>，以快速创建漂亮的首页。</li>
+<li><code>page</code> - 与<code>doc</code>类似，但不对内容应用任何样式。在您想创建完全自定义页面时非常有用。</li>
+</ul>
+</li>
+</ul>
+<p><strong>hero与features</strong></p>
+<ul>
+<li>定义当layout设置为home时，可以配置，</li>
+</ul>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line">---</span><br><span class="line"><span class="attr">layout</span>: home</span><br><span class="line"></span><br><span class="line"><span class="attr">hero</span>:</span><br><span class="line">  <span class="attr">name</span>: <span class="string">&quot;demo-doc&quot;</span></span><br><span class="line">  <span class="attr">text</span>: <span class="string">&quot;doc site&quot;</span></span><br><span class="line">  <span class="attr">tagline</span>: <span class="title class_">My</span> great project tagline</span><br><span class="line">  <span class="attr">image</span>:</span><br><span class="line">    <span class="attr">src</span>: /logo.<span class="property">png</span></span><br><span class="line">    <span class="attr">alt</span>: <span class="title class_">VitePress</span></span><br><span class="line">  <span class="attr">actions</span>:</span><br><span class="line">    - <span class="attr">theme</span>: brand</span><br><span class="line">      <span class="attr">text</span>: <span class="title class_">Markdown</span> <span class="title class_">Examples</span></span><br><span class="line">      <span class="attr">link</span>: /markdown-examples</span><br><span class="line">    - <span class="attr">theme</span>: alt</span><br><span class="line">      <span class="attr">text</span>: <span class="variable constant_">API</span> <span class="title class_">Examples</span></span><br><span class="line">      <span class="attr">link</span>: /api-examples</span><br><span class="line"></span><br><span class="line"><span class="attr">features</span>:</span><br><span class="line">  - <span class="attr">icon</span>: 🛠️</span><br><span class="line">    <span class="attr">title</span>: <span class="title class_">Simple</span> and minimal, always</span><br><span class="line">    <span class="attr">details</span>: <span class="title class_">Lorem</span> ipsum...</span><br><span class="line">    <span class="attr">link</span>: /demo</span><br><span class="line">    <span class="attr">linkText</span>: 查看详情</span><br><span class="line">  - <span class="attr">icon</span>:</span><br><span class="line">      <span class="attr">src</span>: <span class="regexp">/static/</span>npx-init.<span class="property">png</span></span><br><span class="line">    <span class="attr">title</span>: <span class="title class_">Another</span> cool feature</span><br><span class="line">    <span class="attr">details</span>: <span class="title class_">Lorem</span> ipsum...</span><br><span class="line">  - <span class="attr">icon</span>:</span><br><span class="line">      <span class="attr">dark</span>: /logo.<span class="property">png</span></span><br><span class="line">      <span class="attr">light</span>: <span class="regexp">/static/</span>npx-init.<span class="property">png</span></span><br><span class="line">    <span class="attr">title</span>: <span class="title class_">Another</span> cool feature</span><br><span class="line">    <span class="attr">details</span>: <span class="title class_">Lorem</span> ipsum...</span><br><span class="line">    <span class="attr">linkText</span>: 跳转外部链接</span><br><span class="line">    <span class="attr">link</span>: <span class="attr">https</span>:<span class="comment">//github.com/rstyro</span></span><br><span class="line">---</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>hero.name 一般就是产品名称，带有主题颜色的文本</li>
+<li>hero.text 在 name下面，一般是h1标签的正文内容</li>
+<li>hero.tagline 一般有点像个性签名</li>
+<li>hero.image 主题图片，在产品名称右侧</li>
+<li>features 是配置功能的</li>
+<li>features.icon 可以配置图片</li>
+<li>features.title 标题</li>
+<li>features.details 描述</li>
+<li>features.link 配置链接</li>
+<li>features.linkText 链接的文案</li>
+</ul>
+<p><strong>public目录</strong></p>
+<ul>
+<li>当项目打包之后，会对图片等资源进行hash处理，所以我们在hero与features配置的图片可能会找不到</li>
+<li>VitePress支持一个<code>public</code>目录，你可以将不想被哈希处理的静态资源放在这个目录中</li>
+<li>这个public目录在根目录下新建即可，如果你根目录配置的是<code>./docs</code>那它就是<code>./docs/public</code></li>
+</ul>
+<h5 id="6、页脚"><a href="#6、页脚" class="headerlink" title="6、页脚"></a>6、页脚</h5><ul>
+<li>配置页脚</li>
+</ul>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="title function_">defineConfig</span>(&#123;</span><br><span class="line">  <span class="attr">themeConfig</span>: &#123;</span><br><span class="line">    <span class="attr">footer</span>: &#123;</span><br><span class="line">      <span class="attr">message</span>: <span class="string">&#x27;Released under the MIT License.&#x27;</span>,</span><br><span class="line">      <span class="attr">copyright</span>: <span class="string">&#x27;Copyright © 2024-&lt;a href=&quot;https://github.com/rstyro&quot;&gt;rstyro&lt;/a&gt;&#x27;</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>内容支持html标签</li>
+</ul>
+<h5 id="7、上-下一页"><a href="#7、上-下一页" class="headerlink" title="7、上&#x2F;下一页"></a>7、上&#x2F;下一页</h5><ul>
+<li>自定义上一页和下一页的文本和链接</li>
+<li>在markdown文件顶部配置 <code>prev</code>或<code>next</code>,如下：</li>
+</ul>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">---</span><br><span class="line"><span class="attr">prev</span>:</span><br><span class="line">  <span class="attr">text</span>: <span class="string">&#x27;Markdown&#x27;</span></span><br><span class="line">  <span class="attr">link</span>: <span class="string">&#x27;/guide/markdown&#x27;</span></span><br><span class="line">---</span><br><span class="line"></span><br><span class="line"># 内容</span><br></pre></td></tr></table></figure>
+
+
+<h5 id="7、本地搜索"><a href="#7、本地搜索" class="headerlink" title="7、本地搜索"></a>7、本地搜索</h5><ul>
+<li>VitePress支持使用浏览器内置索引进行模糊全文搜索</li>
+</ul>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="title function_">defineConfig</span>(&#123;</span><br><span class="line">  <span class="attr">themeConfig</span>: &#123;</span><br><span class="line">    <span class="attr">search</span>: &#123;</span><br><span class="line">      <span class="attr">provider</span>: <span class="string">&#x27;local&#x27;</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<h5 id="8、在markdown文件中使用vue指令"><a href="#8、在markdown文件中使用vue指令" class="headerlink" title="8、在markdown文件中使用vue指令"></a>8、在markdown文件中使用vue指令</h5><ul>
+<li>在markdown文件中使用vue指令</li>
+</ul>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">#### <span class="title class_">Demo</span>的其他内容</span><br><span class="line"></span><br><span class="line">&lt;script setup&gt;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">import</span> &#123; ref &#125; <span class="keyword">from</span> <span class="string">&#x27;vue&#x27;</span></span><br><span class="line">    <span class="keyword">import</span> &#123; useData &#125; <span class="keyword">from</span> <span class="string">&#x27;vitepress&#x27;</span></span><br><span class="line"></span><br><span class="line">	<span class="keyword">const</span> &#123; theme &#125; = <span class="title function_">useData</span>()</span><br><span class="line">    <span class="keyword">const</span> msg = <span class="title function_">ref</span>(<span class="string">&#x27;Hello VitePress&#x27;</span>)</span><br><span class="line"></span><br><span class="line">&lt;/script&gt;</span><br><span class="line"></span><br><span class="line"><span class="language-xml"><span class="tag">&lt;<span class="name">h1</span>&gt;</span>&#123;&#123;  msg &#125;&#125;<span class="tag">&lt;/<span class="name">h1</span>&gt;</span></span></span><br><span class="line"><span class="language-xml"><span class="tag">&lt;<span class="name">div</span> <span class="attr">v-for</span>=<span class="string">&quot;item in 8&quot;</span>&gt;</span>测试v-for指令&#123;&#123; item &#125;&#125;<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="language-xml"><span class="tag">&lt;<span class="name">div</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">  <span class="tag">&lt;<span class="name">h1</span>&gt;</span>&#123;&#123; theme.footer.copyright &#125;&#125;<span class="tag">&lt;/<span class="name">h1</span>&gt;</span></span></span><br><span class="line"><span class="language-xml"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span></span><br></pre></td></tr></table></figure>
+
+<h4 id="三、部署"><a href="#三、部署" class="headerlink" title="三、部署"></a>三、部署</h4><ul>
+<li>打包命令如下：</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 本地启动</span></span><br><span class="line">npm run docs:dev</span><br><span class="line"></span><br><span class="line"><span class="comment"># 打包</span></span><br><span class="line">npm run docs:build</span><br><span class="line"></span><br><span class="line"><span class="comment"># 预览打包后展示的结果</span></span><br><span class="line">npm run docs:preview</span><br></pre></td></tr></table></figure>
+
+<h5 id="1、部署到Github-Pages"><a href="#1、部署到Github-Pages" class="headerlink" title="1、部署到Github Pages"></a>1、部署到Github Pages</h5><ul>
+<li>在Github新建仓库</li>
+<li>上传代码，然后新建 Actions ,新增工作流，添加文件为 <code>deploy.yml</code></li>
+</ul>
+<p><img src="/blog/2024/12/02/VitePress%E7%9A%84%E4%BD%BF%E7%94%A8/actions.png"></p>
+<ul>
+<li><code>deploy.yml</code>内容如下：</li>
+</ul>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 部署到Github Pages</span></span><br><span class="line"><span class="attr">name:</span> <span class="string">Deploy</span> <span class="string">VitePress</span> <span class="string">site</span> <span class="string">to</span> <span class="string">Pages</span></span><br><span class="line"></span><br><span class="line"><span class="attr">on:</span></span><br><span class="line">  <span class="comment"># 触发条件，push到main分支时触发</span></span><br><span class="line">  <span class="attr">push:</span></span><br><span class="line">    <span class="attr">branches:</span> [<span class="string">main</span>]</span><br><span class="line"></span><br><span class="line">  <span class="comment"># 支持手动在工作流上触发</span></span><br><span class="line">  <span class="attr">workflow_dispatch:</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 权限设置</span></span><br><span class="line"><span class="attr">permissions:</span></span><br><span class="line">  <span class="comment"># 允许读取仓库内容的权限。</span></span><br><span class="line">  <span class="attr">contents:</span> <span class="string">read</span></span><br><span class="line">  <span class="comment"># 允许写入 GitHub Pages 的权限。</span></span><br><span class="line">  <span class="attr">pages:</span> <span class="string">write</span></span><br><span class="line">  <span class="comment"># 允许写入 id-token 的权限。</span></span><br><span class="line">  <span class="attr">id-token:</span> <span class="string">write</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 只允许一个并发部署，跳过正在进行的运行和最近排队的运行之间的排队运行。</span></span><br><span class="line"><span class="attr">concurrency:</span></span><br><span class="line">  <span class="attr">group:</span> <span class="string">pages</span></span><br><span class="line">  <span class="attr">cancel-in-progress:</span> <span class="literal">false</span></span><br><span class="line"></span><br><span class="line"><span class="attr">jobs:</span></span><br><span class="line">  <span class="comment"># 构建任务</span></span><br><span class="line">  <span class="attr">build:</span></span><br><span class="line">    <span class="attr">runs-on:</span> <span class="string">ubuntu-latest</span></span><br><span class="line">    <span class="attr">steps:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">Checkout</span></span><br><span class="line">        <span class="attr">uses:</span> <span class="string">actions/checkout@v3</span></span><br><span class="line">        <span class="attr">with:</span></span><br><span class="line">          <span class="attr">fetch-depth:</span> <span class="number">0</span> <span class="comment"># Not needed if lastUpdated is not enabled</span></span><br><span class="line">      <span class="comment"># 设置使用 Node.js 版本</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">Setup</span> <span class="string">Node</span></span><br><span class="line">        <span class="attr">uses:</span> <span class="string">actions/setup-node@v3</span></span><br><span class="line">        <span class="attr">with:</span></span><br><span class="line">          <span class="attr">node-version:</span> <span class="number">20</span></span><br><span class="line">          <span class="attr">cache:</span> <span class="string">npm</span> <span class="comment"># or pnpm / yarn</span></span><br><span class="line">      <span class="comment"># page 配置</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">Setup</span> <span class="string">Pages</span></span><br><span class="line">        <span class="attr">uses:</span> <span class="string">actions/configure-pages@v3</span></span><br><span class="line">      <span class="comment"># 安装依赖</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">Install</span> <span class="string">dependencies</span></span><br><span class="line">        <span class="attr">run:</span> <span class="string">npm</span> <span class="string">ci</span> <span class="comment"># or pnpm install / yarn install</span></span><br><span class="line">      <span class="comment"># 打包</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">Build</span> <span class="string">with</span> <span class="string">VitePress</span></span><br><span class="line">        <span class="attr">run:</span> <span class="string">npm</span> <span class="string">run</span> <span class="string">docs:build</span> <span class="comment"># or pnpm docs:build / yarn docs:build</span></span><br><span class="line">      <span class="comment"># 上传文件到pages,后续部署</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">Upload</span> <span class="string">artifact</span></span><br><span class="line">        <span class="attr">uses:</span> <span class="string">actions/upload-pages-artifact@v3</span></span><br><span class="line">        <span class="comment"># uses: actions/upload-artifact@v4</span></span><br><span class="line">        <span class="attr">with:</span></span><br><span class="line">          <span class="attr">path:</span> <span class="string">docs/.vitepress/dist</span></span><br><span class="line"></span><br><span class="line">  <span class="comment"># 部署任务</span></span><br><span class="line">  <span class="attr">deploy:</span></span><br><span class="line">    <span class="attr">environment:</span></span><br><span class="line">      <span class="attr">name:</span> <span class="string">github-pages</span></span><br><span class="line">      <span class="attr">url:</span> <span class="string">$&#123;&#123;</span> <span class="string">steps.deployment.outputs.page_url</span> <span class="string">&#125;&#125;</span></span><br><span class="line">    <span class="attr">needs:</span> <span class="string">build</span></span><br><span class="line">    <span class="attr">runs-on:</span> <span class="string">ubuntu-latest</span></span><br><span class="line">    <span class="attr">name:</span> <span class="string">Deploy</span></span><br><span class="line">    <span class="attr">steps:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">Deploy</span> <span class="string">to</span> <span class="string">GitHub</span> <span class="string">Pages</span></span><br><span class="line">        <span class="attr">id:</span> <span class="string">deployment</span></span><br><span class="line">        <span class="attr">uses:</span> <span class="string">actions/deploy-pages@v4</span></span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>然后找到”Pages”菜单项，在”Build and deployment &gt; Source”下选择”GitHub Actions”作为构建和部署的源。</li>
+<li>然后就可以了。Pages设置如下图：</li>
+</ul>
+<p><img src="/blog/2024/12/02/VitePress%E7%9A%84%E4%BD%BF%E7%94%A8/pages.png" alt="Pages设置"></p>
+<ul>
+<li>访问浏览器，已经能看到页面显示了</li>
+</ul>
+<p><img src="/blog/2024/12/02/VitePress%E7%9A%84%E4%BD%BF%E7%94%A8/tcm.png" alt="tcm"></p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>您的打赏，是我创作的动力！不给钱？那我只能靠想象力充饥了。</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/wechat_pay.jpg" alt="rstyro 微信支付">
+        <p>微信支付</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/alipay.jpg" alt="rstyro 支付宝">
+        <p>支付宝</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/blog/tags/VitePress/" rel="tag"><i class="fa fa-tag"></i> VitePress</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2024/11/30/Hexo-%E7%AC%94%E8%AE%B0/" rel="prev" title="Hexo-笔记">
+      <i class="fa fa-chevron-left"></i> Hexo-笔记
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/blog/2025/05/08/%E7%89%A9%E8%81%94%E7%BD%91%E6%8A%80%E6%9C%AF%E8%A7%A3%E6%9E%90%EF%BC%9A%E4%BB%8E%E6%A6%82%E5%BF%B5%E5%88%B0%E6%A0%B8%E5%BF%83%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE/" rel="next" title="物联网技术解析：从概念到核心通信协议">
+      物联网技术解析：从概念到核心通信协议 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#VitePress%E7%9A%84%E4%BD%BF%E7%94%A8"><span class="nav-number">1.</span> <span class="nav-text">VitePress的使用</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E5%BF%AB%E9%80%9F%E5%BC%80%E5%A7%8B"><span class="nav-number">1.0.1.</span> <span class="nav-text">一、快速开始</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E9%85%8D%E7%BD%AE"><span class="nav-number">1.0.2.</span> <span class="nav-text">二、配置</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1%E3%80%81%E5%9F%BA%E6%9C%AC%E9%85%8D%E7%BD%AE"><span class="nav-number">1.0.2.1.</span> <span class="nav-text">1、基本配置</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2%E3%80%81head"><span class="nav-number">1.0.2.2.</span> <span class="nav-text">2、head</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3%E3%80%81%E5%AF%BC%E8%88%AA"><span class="nav-number">1.0.2.3.</span> <span class="nav-text">3、导航</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#4%E3%80%81%E4%BE%A7%E8%BE%B9%E6%A0%8F"><span class="nav-number">1.0.2.4.</span> <span class="nav-text">4、侧边栏</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#5%E3%80%81Frontmatter%E9%85%8D%E7%BD%AE"><span class="nav-number">1.0.2.5.</span> <span class="nav-text">5、Frontmatter配置</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#6%E3%80%81%E9%A1%B5%E8%84%9A"><span class="nav-number">1.0.2.6.</span> <span class="nav-text">6、页脚</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#7%E3%80%81%E4%B8%8A-%E4%B8%8B%E4%B8%80%E9%A1%B5"><span class="nav-number">1.0.2.7.</span> <span class="nav-text">7、上&#x2F;下一页</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#7%E3%80%81%E6%9C%AC%E5%9C%B0%E6%90%9C%E7%B4%A2"><span class="nav-number">1.0.2.8.</span> <span class="nav-text">7、本地搜索</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#8%E3%80%81%E5%9C%A8markdown%E6%96%87%E4%BB%B6%E4%B8%AD%E4%BD%BF%E7%94%A8vue%E6%8C%87%E4%BB%A4"><span class="nav-number">1.0.2.9.</span> <span class="nav-text">8、在markdown文件中使用vue指令</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E9%83%A8%E7%BD%B2"><span class="nav-number">1.0.3.</span> <span class="nav-text">三、部署</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1%E3%80%81%E9%83%A8%E7%BD%B2%E5%88%B0Github-Pages"><span class="nav-number">1.0.3.1.</span> <span class="nav-text">1、部署到Github Pages</span></a></li></ol></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="rstyro"
+      src="/blog/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">rstyro</p>
+  <div class="site-description" itemprop="description">人间的饭，吃一碗少一碗，身边的人，见一面少一面，脚下的路，走一天少一天，其实人生就是一个减法，来日并不方长！</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives/">
+        
+          <span class="site-state-item-count">216</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/blog/tags/">
+          
+        <span class="site-state-item-count">88</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/rstyro" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;rstyro" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/rstyro" title="Gitee → https:&#x2F;&#x2F;gitee.com&#x2F;rstyro" rel="noopener" target="_blank"><i class="fab fa-codiepie fa-fw"></i>Gitee</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.jianshu.com/u/651c15a1758a" title="简书 → https:&#x2F;&#x2F;www.jianshu.com&#x2F;u&#x2F;651c15a1758a" rel="noopener" target="_blank"><i class="fa fa-book fa-fw"></i>简书</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      友链
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://rstyro.github.io/blog/" title="https:&#x2F;&#x2F;rstyro.github.io&#x2F;blog&#x2F;">胖不了小陆</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; Mon Apr 10 2017 08:00:00 GMT+0800 (中国标准时间) – 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">以梦为马，诗酒趁年华</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/muse.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+  <script>
+    (function(){
+      var canonicalURL, curProtocol;
+      //Get the <link> tag
+      var x=document.getElementsByTagName("link");
+		//Find the last canonical URL
+		if(x.length > 0){
+			for (i=0;i<x.length;i++){
+				if(x[i].rel.toLowerCase() == 'canonical' && x[i].href){
+					canonicalURL=x[i].href;
+				}
+			}
+		}
+    //Get protocol
+	    if (!canonicalURL){
+	    	curProtocol = window.location.protocol.split(':')[0];
+	    }
+	    else{
+	    	curProtocol = canonicalURL.split(':')[0];
+	    }
+      //Get current URL if the canonical URL does not exist
+	    if (!canonicalURL) canonicalURL = window.location.href;
+	    //Assign script content. Replace current URL with the canonical URL
+      !function(){var e=/([http|https]:\/\/[a-zA-Z0-9\_\.]+\.baidu\.com)/gi,r=canonicalURL,t=document.referrer;if(!e.test(r)){var n=(String(curProtocol).toLowerCase() === 'https')?"https://sp0.baidu.com/9_Q4simg2RQJ8t7jm9iCKT-xh_/s.gif":"//api.share.baidu.com/s.gif";t?(n+="?r="+encodeURIComponent(document.referrer),r&&(n+="&l="+r)):r&&(n+="?l="+r);var i=new Image;i.src=n}}(window);})();
+  </script>
+
+
+
+
+  
+<script src="/blog/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+<script>
+if (document.querySelectorAll('pre.mermaid').length) {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mermaid@8/dist/mermaid.min.js', () => {
+    mermaid.initialize({
+      theme    : 'default',
+      logLevel : 3,
+      flowchart: { curve     : 'linear' },
+      gantt    : { axisFormat: '%m/%d/%Y' },
+      sequence : { actorMargin: 50 }
+    });
+  }, window.mermaid);
+}
+</script>
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : 'Ov23litYkWaOGM7kAKPD',
+      clientSecret: '43bd3cf99bfcb9d05d16627c97a9f7a0200df04a',
+      repo        : 'blog',
+      owner       : 'rstyro',
+      admin       : ['rstyro'],
+      id          : '72ad0b750af227c5654bf62c477e4f51',
+        language: '',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>

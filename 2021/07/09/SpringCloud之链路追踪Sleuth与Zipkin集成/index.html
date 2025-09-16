@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/favicon.jpg">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon.jpg">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon.jpg">
+  <link rel="mask-icon" href="/blog/images/favicon.jpg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="/blog/lib/pace/pace-theme-flash.min.css">
+  <script src="/blog/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"rstyro.github.io","root":"/blog/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":true},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.json"};
+  </script>
+
+  <meta name="description" content="一、前言 当一个分布式系统服务多了之后，前端访问接口可能涉及到多个服务调用链路 随着服务的越来越多，对调用链的分析会越来越复杂 当前端访问接口出现问题的时候，我们如何快速定位是哪个服务出现故障比较麻烦 链路追踪的出现正是为了解决这种问题。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SpringCloud之链路追踪Sleuth与Zipkin集成">
+<meta property="og:url" content="https://rstyro.github.io/blog/2021/07/09/SpringCloud%E4%B9%8B%E9%93%BE%E8%B7%AF%E8%BF%BD%E8%B8%AASleuth%E4%B8%8EZipkin%E9%9B%86%E6%88%90/index.html">
+<meta property="og:site_name" content="胖不了小陆">
+<meta property="og:description" content="一、前言 当一个分布式系统服务多了之后，前端访问接口可能涉及到多个服务调用链路 随着服务的越来越多，对调用链的分析会越来越复杂 当前端访问接口出现问题的时候，我们如何快速定位是哪个服务出现故障比较麻烦 链路追踪的出现正是为了解决这种问题。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://rstyro.github.io/blog/2021/07/09/SpringCloud%E4%B9%8B%E9%93%BE%E8%B7%AF%E8%BF%BD%E8%B8%AASleuth%E4%B8%8EZipkin%E9%9B%86%E6%88%90/sleuth.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2021/07/09/SpringCloud%E4%B9%8B%E9%93%BE%E8%B7%AF%E8%BF%BD%E8%B8%AASleuth%E4%B8%8EZipkin%E9%9B%86%E6%88%90/zipkin.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2021/07/09/SpringCloud%E4%B9%8B%E9%93%BE%E8%B7%AF%E8%BF%BD%E8%B8%AASleuth%E4%B8%8EZipkin%E9%9B%86%E6%88%90/sleuth_zipkin.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2021/07/09/SpringCloud%E4%B9%8B%E9%93%BE%E8%B7%AF%E8%BF%BD%E8%B8%AASleuth%E4%B8%8EZipkin%E9%9B%86%E6%88%90/sleuth_zipkin2.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2021/07/09/SpringCloud%E4%B9%8B%E9%93%BE%E8%B7%AF%E8%BF%BD%E8%B8%AASleuth%E4%B8%8EZipkin%E9%9B%86%E6%88%90/es_cluster.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2021/07/09/SpringCloud%E4%B9%8B%E9%93%BE%E8%B7%AF%E8%BF%BD%E8%B8%AASleuth%E4%B8%8EZipkin%E9%9B%86%E6%88%90/zipkin_es.png">
+<meta property="article:published_time" content="2021-07-09T10:10:58.000Z">
+<meta property="article:modified_time" content="2021-07-09T10:10:58.000Z">
+<meta property="article:author" content="rstyro">
+<meta property="article:tag" content="SpringCloud-Alibaba">
+<meta property="article:tag" content="SpringCloud">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://rstyro.github.io/blog/2021/07/09/SpringCloud%E4%B9%8B%E9%93%BE%E8%B7%AF%E8%BF%BD%E8%B8%AASleuth%E4%B8%8EZipkin%E9%9B%86%E6%88%90/sleuth.png">
+
+<link rel="canonical" href="https://rstyro.github.io/blog/2021/07/09/SpringCloud%E4%B9%8B%E9%93%BE%E8%B7%AF%E8%BF%BD%E8%B8%AASleuth%E4%B8%8EZipkin%E9%9B%86%E6%88%90/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>SpringCloud之链路追踪Sleuth与Zipkin集成 | 胖不了小陆</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">胖不了小陆</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">信你所信，为你所见</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/blog/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/blog/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/blog/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/rstyro" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://rstyro.github.io/blog/2021/07/09/SpringCloud%E4%B9%8B%E9%93%BE%E8%B7%AF%E8%BF%BD%E8%B8%AASleuth%E4%B8%8EZipkin%E9%9B%86%E6%88%90/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/avatar.jpg">
+      <meta itemprop="name" content="rstyro">
+      <meta itemprop="description" content="人间的饭，吃一碗少一碗，身边的人，见一面少一面，脚下的路，走一天少一天，其实人生就是一个减法，来日并不方长！">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="胖不了小陆">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          SpringCloud之链路追踪Sleuth与Zipkin集成
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-07-09 18:10:58" itemprop="dateCreated datePublished" datetime="2021-07-09T18:10:58+08:00">2021-07-09</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/Java/" itemprop="url" rel="index"><span itemprop="name">Java</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h3 id="一、前言"><a href="#一、前言" class="headerlink" title="一、前言"></a>一、前言</h3><ul>
+<li>当一个分布式系统服务多了之后，前端访问接口可能涉及到多个服务调用链路</li>
+<li>随着服务的越来越多，对调用链的分析会越来越复杂</li>
+<li>当前端访问接口出现问题的时候，我们如何快速定位是哪个服务出现故障比较麻烦</li>
+<li>链路追踪的出现正是为了解决这种问题。</li>
+</ul>
+<span id="more"></span>
+
+<h3 id="二、Sleuth"><a href="#二、Sleuth" class="headerlink" title="二、Sleuth"></a>二、Sleuth</h3><ul>
+<li>链路追踪”一词是在 2010 年提出的，当时谷歌发布了一篇 Dapper 论文：<a target="_blank" rel="noopener" href="http://bigbully.github.io/Dapper-translation/">Dapper,大规模分布式系统的跟踪系统</a>，介绍了谷歌自研的分布式链路追踪的实现原理，还介绍了他们是怎么低成本实现对应用透明的。</li>
+<li>链路追踪简单理解就是将一次分布式请求还原成调用链路，将一次分布式请求的调用情况集中展示，比如，各个服务节点上的耗时、请求具体到达哪台机器上、每个服务节点的请求状态等等。</li>
+<li>除了谷歌的 Dapper，还有一些其他比较有名的产品，</li>
+<li>比如阿里的鹰眼、大众点评的 CAT、Twitter 的 Zipkin、PinPoint 以及国产开源SkyWalking（已贡献给 Apache） 等。</li>
+<li>而Spring Cloud Sleuth 是Spring Cloud 实现了分布式链路跟踪解决方案。Sleuth 提供了以下功能：<ul>
+<li><strong>链路追踪：</strong>通过 Sleuth 可以很清楚的看出一个请求都经过了那些服务，可以很方便的理清服务间的调用关系等。</li>
+<li><strong>性能分析：</strong>通过 Sleuth 可以很方便的看出每个采样请求的耗时，分析哪些服务调用比较耗时，当服务调用的耗时随着请求量的增大而增大时， 可以对服务的扩容提供一定的提醒。</li>
+<li><strong>数据分析：</strong>对于频繁调用一个服务，或并行调用等，可以针对业务做一些优化措施。</li>
+<li><strong>可视化错误：</strong>对于程序未捕获的异常，可以配合 Zipkin 查看。</li>
+</ul>
+</li>
+</ul>
+<h4 id="1、Sleuth术语"><a href="#1、Sleuth术语" class="headerlink" title="1、Sleuth术语"></a>1、Sleuth术语</h4><p>Spring Cloud Sleuth沿用了Google的开源项目Dapper的专业术语。</p>
+<ul>
+<li><strong>Span：</strong><br>基本工作单位，一次单独的调用链可以称为一个 Span，通过一个64位ID标识它，  span通过还有其他的数据，例如描述信息，时间戳，key-value对的(Annotation)tag信息，parent-id等,其中parent-id  可以表示span调用链路来源，通俗的理解span就是一次请求信息</li>
+<li><strong>Trace：</strong><br>一系列 Span 组成的树状结构，一个 Trace 认为是一次完整的链路，内部包含 n 多个 Span。Trace 和 Span 存在一对多的关系，Span 与 Span 之间存在父子关系。</li>
+<li><strong>Annotation：</strong><br>  注解,用来记录请求特定事件相关信息(例如时间)，通常包含四个注解信息<ul>
+<li><em>cs：</em> Client Start,表示客户端发起请求</li>
+<li><em>sr：</em> Server Receive,表示服务端收到请求。如果sr减去cs时间戳可得网络延迟；</li>
+<li><em>ss：</em> Server Send,表示服务端完成处理（并将结果发送给客户端），如果ss减去sr可得服务端处理请求需要的时间</li>
+<li><em>cr：</em> Client Received,表示客户端获取到服务端返回信息,如果cr减去cs时间戳可得客户端从服务端获取回复的所有所需时间。</li>
+</ul>
+</li>
+</ul>
+<h4 id="2、实现原理"><a href="#2、实现原理" class="headerlink" title="2、实现原理"></a>2、实现原理</h4><pre class="mermaid">sequenceDiagram
+participant web as 前端
+participant api as 接口
+participant serverA as 服务A
+participant serverB as 服务B
+participant serverC as 服务C
+
+autonumber
+web->>api: 请求接口
+api->>serverA: 处理接口业务<br/>TradeId=abc<br/>ParentID=<br/>SpanId=1<br/>带上timestamp
+serverA->>serverB: TradeId=abc<br/>ParentID=1<br/>SpanId=2<br/>带上timestamp
+serverB->>serverC: TradeId=abc<br/>ParentID=2<br/>SpanId=3<br/>带上timestamp
+serverC->>serverB: TradeId=abc<br/>ParentID=2<br/>SpanId=3<br/>返回timestamp
+serverB->>serverA: TradeId=abc<br/>ParentID=1<br/>SpanId=2<br/>返回timestamp
+serverA->>api: 返回信息<br/>TradeId=abc<br/>ParentID=<br/>SpanId=1<br/>返回timestamp
+api->>web: 返回接口数据，前端渲染</pre>
+
+<ul>
+<li>我们可以在代码中看到TradeId与SpanId，如下图</li>
+</ul>
+<p><img src="/blog/2021/07/09/SpringCloud%E4%B9%8B%E9%93%BE%E8%B7%AF%E8%BF%BD%E8%B8%AASleuth%E4%B8%8EZipkin%E9%9B%86%E6%88%90/sleuth.png"></p>
+<ul>
+<li>虽然能看到信息，但是不太直观，显得更懵逼，鬼知道TradeId与SpanId是哪个服务</li>
+<li>所以一般sleup都会配合zipkin一起使用，而且SpringCloud也提供了<code>spring-cloud-sleuth-zipkin</code>来方便集成zipkin实现</li>
+</ul>
+<h3 id="三、Zipkin"><a href="#三、Zipkin" class="headerlink" title="三、Zipkin"></a>三、Zipkin</h3><ul>
+<li>zipkin是一款开源的分布式实时数据追踪系统（Distributed Tracking System），基于 Google Dapper的论文设计而来，由 Twitter 公司开发贡献。</li>
+<li>它有助于收集对服务架构中的延迟问题进行故障排除所需的计时数据。功能包括收集和查找这些数据。</li>
+</ul>
+<h4 id="1、zipkin核心组成"><a href="#1、zipkin核心组成" class="headerlink" title="1、zipkin核心组成"></a>1、zipkin核心组成</h4><ul>
+<li><strong>Collector：收集器组件</strong><br>它主要用于处理从外部系统发送过来的跟踪信息，将这些信息转换为Zipkin内部处理的Span格式，以支持后续的存储、分析、展示等功能。</li>
+<li><strong>Storage：存储组件</strong><br>它主要对处理收集器接收到的跟踪信息，默认会将这些信息存储在内存中，我们也可以修改此存储策略，通过使用其他存储组件将跟踪信息存储到 数据库或es 中。</li>
+<li><strong>RESTful API：API组件</strong><br>它主要用来提供外部访问接口。比如给客户端展示跟踪信息，或是外接系统访问以实现监控等。</li>
+<li><strong>Web UI：UI组件</strong><br>基于API组件实现的上层应用。通过UI组件用户可以方便而有直观地查询和分析跟踪信息。</li>
+</ul>
+<pre class="mermaid">graph LR
+
+server((分布式服务))-->collector{Collector-收集组件}
+subgraph zipkin
+collector-->storage[Storage]
+storage-->api[API]
+storage-->ram[内存]
+api--给ui调用渲染的-->ui[Web UI 渲染]
+end
+
+storage-.->db[(数据库)]
+storage-.->es[(Elasticsearch)]
+storage-.->cassandra[(Cassandra)]
+api-.->mo[/监控\]
+ui-->pc(PC客户端)</pre>
+
+<ul>
+<li>Zipkin 分为两端，一个是 Zipkin 服务端，一个是 Zipkin 客户端</li>
+<li>客户端也就是微服务的应用，客户端会配置服务端的 URL 地址</li>
+<li>一旦发生服务间的调用的时候，会被配置在微服务里面的 Sleuth 的监听器监听，并生成相应的 Trace 和 Span 信息发送给服务端。</li>
+<li>发送的方式有两种：1、消息总线如：（ACTIVEMQ、RABBIT、KAFKA)、2、HTTP的方式</li>
+</ul>
+<h4 id="3、快速开始"><a href="#3、快速开始" class="headerlink" title="3、快速开始"></a>3、快速开始</h4><ul>
+<li>Github源码地址：<a target="_blank" rel="noopener" href="https://github.com/openzipkin/zipkin">https://github.com/openzipkin/zipkin</a></li>
+<li>最快的入门方法是获取最新发布的服务器可执行 jar。<em>请注意，Zipkin 服务器需要最低 JRE 8。</em></li>
+<li>Jar下载地址：<a target="_blank" rel="noopener" href="https://search.maven.org/remote_content?g=io.zipkin&a=zipkin-server&v=LATEST&c=exec">https://search.maven.org/remote_content?g&#x3D;io.zipkin&amp;a&#x3D;zipkin-server&amp;v&#x3D;LATEST&amp;c&#x3D;exec</a></li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment"># wget 下载jar包,并重命名为：zipkin.jar</span></span><br><span class="line">wget -O zipkin.jar <span class="string">&#x27;https://search.maven.org/remote_content?g=io.zipkin&amp;a=zipkin-server&amp;v=LATEST&amp;c=exec&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 上面是下载，下面这个也是，官方的快速执行脚本，其实也是下载和上面差不多。</span></span><br><span class="line"><span class="comment"># curl -sSL https://zipkin.io/quickstart.sh | bash -s</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 启动zipkin</span></span><br><span class="line">java -jar zipkin.jar</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>如上，即可启动一个zipkin服务</li>
+</ul>
+<p><img src="/blog/2021/07/09/SpringCloud%E4%B9%8B%E9%93%BE%E8%B7%AF%E8%BF%BD%E8%B8%AASleuth%E4%B8%8EZipkin%E9%9B%86%E6%88%90/zipkin.png"></p>
+<ul>
+<li>访问<code>http://127.0.0.1:9411/</code> 应该是没问题的，只是现在没啥东西，不慌慢慢来。</li>
+</ul>
+<h4 id="4、sleuth与zipkin的关系"><a href="#4、sleuth与zipkin的关系" class="headerlink" title="4、sleuth与zipkin的关系"></a>4、sleuth与zipkin的关系</h4><ul>
+<li>Sleuth已经将每个请求从开始调用到完成的每一步都进行了记录， 但是这些log信息会很分散，使用起来不太方便，就需要有一个工具可以将这些信息进行收集和汇总，并且显示可视化的结果，便于分析和定位。</li>
+<li>sleuth的作用是在系统中自动埋点并把数据发送给zipkin，zipkin的作用是存储这些数据并展现。</li>
+</ul>
+<h3 id="四、代码实现"><a href="#四、代码实现" class="headerlink" title="四、代码实现"></a>四、代码实现</h3><ul>
+<li>说再多还是不会，实现看看效果</li>
+</ul>
+<h4 id="1、引入依赖"><a href="#1、引入依赖" class="headerlink" title="1、引入依赖"></a>1、引入依赖</h4><ul>
+<li>只需要引入依赖</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&lt;dependency&gt;</span><br><span class="line">    &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;</span><br><span class="line">    &lt;artifactId&gt;spring-cloud-starter-zipkin&lt;/artifactId&gt;</span><br><span class="line">&lt;/dependency&gt;</span><br></pre></td></tr></table></figure>
+
+<p><strong>其实spring-cloud-starter-zipkin里面的依赖包含了：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&lt;dependency&gt;</span><br><span class="line">    &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;</span><br><span class="line">    &lt;artifactId&gt;spring-cloud-starter-sleuth&lt;/artifactId&gt;</span><br><span class="line">&lt;/dependency&gt;</span><br><span class="line">&lt;dependency&gt;</span><br><span class="line">    &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;</span><br><span class="line">    &lt;artifactId&gt;spring-cloud-sleuth-zipkin&lt;/artifactId&gt;</span><br><span class="line">&lt;/dependency&gt;</span><br></pre></td></tr></table></figure>
+
+<h4 id="2、配置sleuth与zipkin"><a href="#2、配置sleuth与zipkin" class="headerlink" title="2、配置sleuth与zipkin"></a>2、配置sleuth与zipkin</h4><ul>
+<li>在application.yml添加如下：</li>
+</ul>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">spring:</span></span><br><span class="line"><span class="comment"># 调用链 Sleuth + ZipKin</span></span><br><span class="line">  <span class="attr">sleuth:</span></span><br><span class="line">    <span class="attr">web:</span></span><br><span class="line">      <span class="attr">client:</span></span><br><span class="line">        <span class="comment"># 是否启用 webClient</span></span><br><span class="line">        <span class="attr">enabled:</span> <span class="literal">true</span></span><br><span class="line">    <span class="attr">sampler:</span></span><br><span class="line">      <span class="attr">probability:</span> <span class="number">1.0</span> <span class="comment"># 采用比例，默认 0.1 全部采样 1.0</span></span><br><span class="line">  <span class="attr">zipkin:</span></span><br><span class="line">    <span class="attr">enabled:</span> <span class="literal">true</span></span><br><span class="line">    <span class="attr">base-url:</span> <span class="string">http://127.0.0.1:9411/</span> <span class="comment"># 指定了Zipkin服务器的地址</span></span><br><span class="line">    <span class="comment"># 不注册成一个服务</span></span><br><span class="line">    <span class="attr">discoveryClientEnabled:</span> <span class="literal">false</span></span><br><span class="line">    <span class="attr">sender:</span></span><br><span class="line">      <span class="comment">#  数据传输方式，web 表示以 HTTP 报文的形式向服务端发送数据，还有kafka 、ACTIVEMQ 等</span></span><br><span class="line">      <span class="attr">type:</span> <span class="string">web</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="3、调用其他服务demo"><a href="#3、调用其他服务demo" class="headerlink" title="3、调用其他服务demo"></a>3、调用其他服务demo</h4><ul>
+<li><code>nacos-provider</code>是其他服务的注册服务名称（随便写了下）</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="meta">@RequestMapping(&quot;/test&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">TestController</span> &#123;</span><br><span class="line"></span><br><span class="line">    RestTemplate loadRestTemplate;</span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setLoadRestTemplate</span><span class="params">(RestTemplate loadRestTemplate)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.loadRestTemplate = loadRestTemplate;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="meta">@GetMapping(&quot;/hello&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">hello</span><span class="params">(String name)</span>&#123;</span><br><span class="line">        <span class="type">Result</span> <span class="variable">result</span> <span class="operator">=</span> loadRestTemplate.getForObject(<span class="string">&quot;http://nacos-provider/test/sayHi?name=&quot;</span>+name, Result.class);</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;访问provider 返回 : &quot;</span> + result;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="4、请求"><a href="#4、请求" class="headerlink" title="4、请求"></a>4、请求</h4><ul>
+<li>随便在网页请求<code>/test/hello</code>,然后查看zipkin</li>
+</ul>
+<p><img src="/blog/2021/07/09/SpringCloud%E4%B9%8B%E9%93%BE%E8%B7%AF%E8%BF%BD%E8%B8%AASleuth%E4%B8%8EZipkin%E9%9B%86%E6%88%90/sleuth_zipkin.png"></p>
+<p><img src="/blog/2021/07/09/SpringCloud%E4%B9%8B%E9%93%BE%E8%B7%AF%E8%BF%BD%E8%B8%AASleuth%E4%B8%8EZipkin%E9%9B%86%E6%88%90/sleuth_zipkin2.png"></p>
+<h4 id="5、完整代码"><a href="#5、完整代码" class="headerlink" title="5、完整代码"></a>5、完整代码</h4><ul>
+<li><strong>Github:</strong> <a target="_blank" rel="noopener" href="https://github.com/rstyro/SpringCloud-Alibaba-learning/tree/main/springcloud-sleuth">https://github.com/rstyro/SpringCloud-Alibaba-learning/tree/main/springcloud-sleuth</a></li>
+<li><strong>Gitee:</strong>  <a target="_blank" rel="noopener" href="https://gitee.com/rstyro/SpringCloud-Alibaba-learning/tree/main/springcloud-sleuth">https://gitee.com/rstyro/SpringCloud-Alibaba-learning/tree/main/springcloud-sleuth</a></li>
+</ul>
+<h3 id="五、zipkin配置数据库"><a href="#五、zipkin配置数据库" class="headerlink" title="五、zipkin配置数据库"></a>五、zipkin配置数据库</h3><ul>
+<li>zipkin数据默认存储在内存中的，如果重启了数据就没有了</li>
+<li>可以把数据存在第三方工具中，如：mysql、elasticsearch、等</li>
+</ul>
+<h4 id="1、存储到MySQL"><a href="#1、存储到MySQL" class="headerlink" title="1、存储到MySQL"></a>1、存储到MySQL</h4><ul>
+<li>创建数据库，并导入初始化sql脚本</li>
+<li>初始化sql脚本在：<a target="_blank" rel="noopener" href="https://github.com/openzipkin/zipkin/blob/master/zipkin-storage/mysql-v1/src/main/resources/mysql.sql">https://github.com/openzipkin/zipkin/blob/master/zipkin-storage/mysql-v1/src/main/resources/mysql.sql</a></li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line">CREATE TABLE IF NOT EXISTS zipkin_spans (</span><br><span class="line">  `trace_id_high` BIGINT NOT NULL DEFAULT 0 COMMENT &#x27;If non zero, this means the trace uses 128 bit traceIds instead of 64 bit&#x27;,</span><br><span class="line">  `trace_id` BIGINT NOT NULL,</span><br><span class="line">  `id` BIGINT NOT NULL,</span><br><span class="line">  `name` VARCHAR(255) NOT NULL,</span><br><span class="line">  `remote_service_name` VARCHAR(255),</span><br><span class="line">  `parent_id` BIGINT,</span><br><span class="line">  `debug` BIT(1),</span><br><span class="line">  `start_ts` BIGINT COMMENT &#x27;Span.timestamp(): epoch micros used for endTs query and to implement TTL&#x27;,</span><br><span class="line">  `duration` BIGINT COMMENT &#x27;Span.duration(): micros used for minDuration and maxDuration query&#x27;,</span><br><span class="line">  PRIMARY KEY (`trace_id_high`, `trace_id`, `id`)</span><br><span class="line">) ENGINE=InnoDB ROW_FORMAT=COMPRESSED CHARACTER SET=utf8 COLLATE utf8_general_ci;</span><br><span class="line"></span><br><span class="line">ALTER TABLE zipkin_spans ADD INDEX(`trace_id_high`, `trace_id`) COMMENT &#x27;for getTracesByIds&#x27;;</span><br><span class="line">ALTER TABLE zipkin_spans ADD INDEX(`name`) COMMENT &#x27;for getTraces and getSpanNames&#x27;;</span><br><span class="line">ALTER TABLE zipkin_spans ADD INDEX(`remote_service_name`) COMMENT &#x27;for getTraces and getRemoteServiceNames&#x27;;</span><br><span class="line">ALTER TABLE zipkin_spans ADD INDEX(`start_ts`) COMMENT &#x27;for getTraces ordering and range&#x27;;</span><br><span class="line"></span><br><span class="line">CREATE TABLE IF NOT EXISTS zipkin_annotations (</span><br><span class="line">  `trace_id_high` BIGINT NOT NULL DEFAULT 0 COMMENT &#x27;If non zero, this means the trace uses 128 bit traceIds instead of 64 bit&#x27;,</span><br><span class="line">  `trace_id` BIGINT NOT NULL COMMENT &#x27;coincides with zipkin_spans.trace_id&#x27;,</span><br><span class="line">  `span_id` BIGINT NOT NULL COMMENT &#x27;coincides with zipkin_spans.id&#x27;,</span><br><span class="line">  `a_key` VARCHAR(255) NOT NULL COMMENT &#x27;BinaryAnnotation.key or Annotation.value if type == -1&#x27;,</span><br><span class="line">  `a_value` BLOB COMMENT &#x27;BinaryAnnotation.value(), which must be smaller than 64KB&#x27;,</span><br><span class="line">  `a_type` INT NOT NULL COMMENT &#x27;BinaryAnnotation.type() or -1 if Annotation&#x27;,</span><br><span class="line">  `a_timestamp` BIGINT COMMENT &#x27;Used to implement TTL; Annotation.timestamp or zipkin_spans.timestamp&#x27;,</span><br><span class="line">  `endpoint_ipv4` INT COMMENT &#x27;Null when Binary/Annotation.endpoint is null&#x27;,</span><br><span class="line">  `endpoint_ipv6` BINARY(16) COMMENT &#x27;Null when Binary/Annotation.endpoint is null, or no IPv6 address&#x27;,</span><br><span class="line">  `endpoint_port` SMALLINT COMMENT &#x27;Null when Binary/Annotation.endpoint is null&#x27;,</span><br><span class="line">  `endpoint_service_name` VARCHAR(255) COMMENT &#x27;Null when Binary/Annotation.endpoint is null&#x27;</span><br><span class="line">) ENGINE=InnoDB ROW_FORMAT=COMPRESSED CHARACTER SET=utf8 COLLATE utf8_general_ci;</span><br><span class="line"></span><br><span class="line">ALTER TABLE zipkin_annotations ADD UNIQUE KEY(`trace_id_high`, `trace_id`, `span_id`, `a_key`, `a_timestamp`) COMMENT &#x27;Ignore insert on duplicate&#x27;;</span><br><span class="line">ALTER TABLE zipkin_annotations ADD INDEX(`trace_id_high`, `trace_id`, `span_id`) COMMENT &#x27;for joining with zipkin_spans&#x27;;</span><br><span class="line">ALTER TABLE zipkin_annotations ADD INDEX(`trace_id_high`, `trace_id`) COMMENT &#x27;for getTraces/ByIds&#x27;;</span><br><span class="line">ALTER TABLE zipkin_annotations ADD INDEX(`endpoint_service_name`) COMMENT &#x27;for getTraces and getServiceNames&#x27;;</span><br><span class="line">ALTER TABLE zipkin_annotations ADD INDEX(`a_type`) COMMENT &#x27;for getTraces and autocomplete values&#x27;;</span><br><span class="line">ALTER TABLE zipkin_annotations ADD INDEX(`a_key`) COMMENT &#x27;for getTraces and autocomplete values&#x27;;</span><br><span class="line">ALTER TABLE zipkin_annotations ADD INDEX(`trace_id`, `span_id`, `a_key`) COMMENT &#x27;for dependencies job&#x27;;</span><br><span class="line"></span><br><span class="line">CREATE TABLE IF NOT EXISTS zipkin_dependencies (</span><br><span class="line">  `day` DATE NOT NULL,</span><br><span class="line">  `parent` VARCHAR(255) NOT NULL,</span><br><span class="line">  `child` VARCHAR(255) NOT NULL,</span><br><span class="line">  `call_count` BIGINT,</span><br><span class="line">  `error_count` BIGINT,</span><br><span class="line">  PRIMARY KEY (`day`, `parent`, `child`)</span><br><span class="line">) ENGINE=InnoDB ROW_FORMAT=COMPRESSED CHARACTER SET=utf8 COLLATE utf8_general_ci;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>启动zipkin的时候添加参数即可。</li>
+<li>如下：</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># STORAGE_TYPE: 存储类型：mysql、elasticsearch等</span></span><br><span class="line">java -jar zipkin-server-2.23.2-exec.jar --STORAGE_TYPE=mysql --MYSQL_HOST=localhost --MYSQL_TCP_PORT=3306 --MYSQL_USER=root --MYSQL_PASS=root --MYSQL_DB=zipkin</span><br></pre></td></tr></table></figure>
+
+
+<h4 id="2、存储到Elasticsearch"><a href="#2、存储到Elasticsearch" class="headerlink" title="2、存储到Elasticsearch"></a>2、存储到Elasticsearch</h4><ul>
+<li>这里我已Elasticsearch集群为例子(单机也是可以的,我也试过)</li>
+<li>首先搭建ES集群：<code>[&quot;127.0.0.1:9400&quot;,&quot;127.0.0.1:9500&quot;,&quot;127.0.0.1:9600&quot;]</code>，过程略</li>
+<li>集群不设置密码,ES 我使用的是目前（时间：2021-07）最新的版本 elasticsearch-7.13.3，</li>
+</ul>
+<p><img src="/blog/2021/07/09/SpringCloud%E4%B9%8B%E9%93%BE%E8%B7%AF%E8%BF%BD%E8%B8%AASleuth%E4%B8%8EZipkin%E9%9B%86%E6%88%90/es_cluster.png"></p>
+<ul>
+<li>之后以ES的方式启动zipkin。</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 我设置ES_INDEX_SHARDS 分片，发现并没有效果，默认是5个主分片，每个分片1个副本分片</span></span><br><span class="line"><span class="comment"># 设置用户与密码：ES_USERNAME、ES_PASSWORD</span></span><br><span class="line"><span class="comment"># 还有其他的选项可以参考Github链接：https://github.com/openzipkin/zipkin/tree/master/zipkin-server#elasticsearch-storage</span></span><br><span class="line"><span class="comment"># java -jar zipkin-server-2.23.2-exec.jar --STORAGE_TYPE=elasticsearch --ES_INDEX_SHARDS=3 --ES_INDEX_REPLICAS=1 --ES_HOSTS=http://127.0.0.1:9400,http://127.0.0.1:9500,http://127.0.0.1:9600 </span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 最终我直接以这样运行了，我就试了ES_INDEX_SHARDS、ES_INDEX_REPLICAS 这两个参数</span></span><br><span class="line"><span class="comment"># 不知道为什么不生效，所以我启动的时候就没加了</span></span><br><span class="line"><span class="comment"># ES_HOSTS 我试了只填一个IP也可以,写集群的所有IP也可以</span></span><br><span class="line">java -jar zipkin-server-2.23.2-exec.jar --STORAGE_TYPE=elasticsearch --ES_HOSTS=http://127.0.0.1:9400</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>最后ES自动生成索引<code>zipkin-span-当天日期</code></li>
+</ul>
+<p><img src="/blog/2021/07/09/SpringCloud%E4%B9%8B%E9%93%BE%E8%B7%AF%E8%BF%BD%E8%B8%AASleuth%E4%B8%8EZipkin%E9%9B%86%E6%88%90/zipkin_es.png"></p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>您的打赏，是我创作的动力！不给钱？那我只能靠想象力充饥了。</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/wechat_pay.jpg" alt="rstyro 微信支付">
+        <p>微信支付</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/alipay.jpg" alt="rstyro 支付宝">
+        <p>支付宝</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/blog/tags/SpringCloud-Alibaba/" rel="tag"><i class="fa fa-tag"></i> SpringCloud-Alibaba</a>
+              <a href="/blog/tags/SpringCloud/" rel="tag"><i class="fa fa-tag"></i> SpringCloud</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2021/06/28/Markdown%E6%B5%81%E7%A8%8B%E5%9B%BE%E8%AF%AD%E6%B3%95%E7%A4%BA%E4%BE%8B/" rel="prev" title="Markdown流程图语法示例">
+      <i class="fa fa-chevron-left"></i> Markdown流程图语法示例
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/blog/2021/07/20/%E5%AE%89%E8%A3%85Go%E8%AF%AD%E8%A8%80%E7%8E%AF%E5%A2%83/" rel="next" title="安装Go语言环境">
+      安装Go语言环境 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">一、前言</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%8C%E3%80%81Sleuth"><span class="nav-number">2.</span> <span class="nav-text">二、Sleuth</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1%E3%80%81Sleuth%E6%9C%AF%E8%AF%AD"><span class="nav-number">2.1.</span> <span class="nav-text">1、Sleuth术语</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2%E3%80%81%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86"><span class="nav-number">2.2.</span> <span class="nav-text">2、实现原理</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%89%E3%80%81Zipkin"><span class="nav-number">3.</span> <span class="nav-text">三、Zipkin</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1%E3%80%81zipkin%E6%A0%B8%E5%BF%83%E7%BB%84%E6%88%90"><span class="nav-number">3.1.</span> <span class="nav-text">1、zipkin核心组成</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3%E3%80%81%E5%BF%AB%E9%80%9F%E5%BC%80%E5%A7%8B"><span class="nav-number">3.2.</span> <span class="nav-text">3、快速开始</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4%E3%80%81sleuth%E4%B8%8Ezipkin%E7%9A%84%E5%85%B3%E7%B3%BB"><span class="nav-number">3.3.</span> <span class="nav-text">4、sleuth与zipkin的关系</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0"><span class="nav-number">4.</span> <span class="nav-text">四、代码实现</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1%E3%80%81%E5%BC%95%E5%85%A5%E4%BE%9D%E8%B5%96"><span class="nav-number">4.1.</span> <span class="nav-text">1、引入依赖</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2%E3%80%81%E9%85%8D%E7%BD%AEsleuth%E4%B8%8Ezipkin"><span class="nav-number">4.2.</span> <span class="nav-text">2、配置sleuth与zipkin</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3%E3%80%81%E8%B0%83%E7%94%A8%E5%85%B6%E4%BB%96%E6%9C%8D%E5%8A%A1demo"><span class="nav-number">4.3.</span> <span class="nav-text">3、调用其他服务demo</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4%E3%80%81%E8%AF%B7%E6%B1%82"><span class="nav-number">4.4.</span> <span class="nav-text">4、请求</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5%E3%80%81%E5%AE%8C%E6%95%B4%E4%BB%A3%E7%A0%81"><span class="nav-number">4.5.</span> <span class="nav-text">5、完整代码</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%94%E3%80%81zipkin%E9%85%8D%E7%BD%AE%E6%95%B0%E6%8D%AE%E5%BA%93"><span class="nav-number">5.</span> <span class="nav-text">五、zipkin配置数据库</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1%E3%80%81%E5%AD%98%E5%82%A8%E5%88%B0MySQL"><span class="nav-number">5.1.</span> <span class="nav-text">1、存储到MySQL</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2%E3%80%81%E5%AD%98%E5%82%A8%E5%88%B0Elasticsearch"><span class="nav-number">5.2.</span> <span class="nav-text">2、存储到Elasticsearch</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="rstyro"
+      src="/blog/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">rstyro</p>
+  <div class="site-description" itemprop="description">人间的饭，吃一碗少一碗，身边的人，见一面少一面，脚下的路，走一天少一天，其实人生就是一个减法，来日并不方长！</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives/">
+        
+          <span class="site-state-item-count">216</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/blog/tags/">
+          
+        <span class="site-state-item-count">88</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/rstyro" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;rstyro" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/rstyro" title="Gitee → https:&#x2F;&#x2F;gitee.com&#x2F;rstyro" rel="noopener" target="_blank"><i class="fab fa-codiepie fa-fw"></i>Gitee</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.jianshu.com/u/651c15a1758a" title="简书 → https:&#x2F;&#x2F;www.jianshu.com&#x2F;u&#x2F;651c15a1758a" rel="noopener" target="_blank"><i class="fa fa-book fa-fw"></i>简书</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      友链
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://rstyro.github.io/blog/" title="https:&#x2F;&#x2F;rstyro.github.io&#x2F;blog&#x2F;">胖不了小陆</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; Mon Apr 10 2017 08:00:00 GMT+0800 (中国标准时间) – 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">以梦为马，诗酒趁年华</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/muse.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+  <script>
+    (function(){
+      var canonicalURL, curProtocol;
+      //Get the <link> tag
+      var x=document.getElementsByTagName("link");
+		//Find the last canonical URL
+		if(x.length > 0){
+			for (i=0;i<x.length;i++){
+				if(x[i].rel.toLowerCase() == 'canonical' && x[i].href){
+					canonicalURL=x[i].href;
+				}
+			}
+		}
+    //Get protocol
+	    if (!canonicalURL){
+	    	curProtocol = window.location.protocol.split(':')[0];
+	    }
+	    else{
+	    	curProtocol = canonicalURL.split(':')[0];
+	    }
+      //Get current URL if the canonical URL does not exist
+	    if (!canonicalURL) canonicalURL = window.location.href;
+	    //Assign script content. Replace current URL with the canonical URL
+      !function(){var e=/([http|https]:\/\/[a-zA-Z0-9\_\.]+\.baidu\.com)/gi,r=canonicalURL,t=document.referrer;if(!e.test(r)){var n=(String(curProtocol).toLowerCase() === 'https')?"https://sp0.baidu.com/9_Q4simg2RQJ8t7jm9iCKT-xh_/s.gif":"//api.share.baidu.com/s.gif";t?(n+="?r="+encodeURIComponent(document.referrer),r&&(n+="&l="+r)):r&&(n+="?l="+r);var i=new Image;i.src=n}}(window);})();
+  </script>
+
+
+
+
+  
+<script src="/blog/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+<script>
+if (document.querySelectorAll('pre.mermaid').length) {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mermaid@8/dist/mermaid.min.js', () => {
+    mermaid.initialize({
+      theme    : 'default',
+      logLevel : 3,
+      flowchart: { curve     : 'linear' },
+      gantt    : { axisFormat: '%m/%d/%Y' },
+      sequence : { actorMargin: 50 }
+    });
+  }, window.mermaid);
+}
+</script>
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : 'Ov23litYkWaOGM7kAKPD',
+      clientSecret: '43bd3cf99bfcb9d05d16627c97a9f7a0200df04a',
+      repo        : 'blog',
+      owner       : 'rstyro',
+      admin       : ['rstyro'],
+      id          : '4cd7d962944974bca74fe2fbea768816',
+        language: '',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>

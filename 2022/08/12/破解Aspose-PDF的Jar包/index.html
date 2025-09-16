@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/favicon.jpg">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon.jpg">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon.jpg">
+  <link rel="mask-icon" href="/blog/images/favicon.jpg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="/blog/lib/pace/pace-theme-flash.min.css">
+  <script src="/blog/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"rstyro.github.io","root":"/blog/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":true},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.json"};
+  </script>
+
+  <meta name="description" content="一、Aspose.PDF简介 Aspose.PDF是一个Java组件，旨在允许开发人员以编程方式动态创建PDF文档，无论是简单还是复杂。Aspose.PDF for Java允许开发人员将表格，图形，图像，超链接，自定义字体等插入到PDF文档中。此外，还可以压缩PDF文档。Aspose.PDF for Java 提供了出色的安全功能来开发安全的 PDF 文档。Aspose.PDF java最显着的">
+<meta property="og:type" content="article">
+<meta property="og:title" content="破解Aspose-PDF的Jar包">
+<meta property="og:url" content="https://rstyro.github.io/blog/2022/08/12/%E7%A0%B4%E8%A7%A3Aspose-PDF%E7%9A%84Jar%E5%8C%85/index.html">
+<meta property="og:site_name" content="胖不了小陆">
+<meta property="og:description" content="一、Aspose.PDF简介 Aspose.PDF是一个Java组件，旨在允许开发人员以编程方式动态创建PDF文档，无论是简单还是复杂。Aspose.PDF for Java允许开发人员将表格，图形，图像，超链接，自定义字体等插入到PDF文档中。此外，还可以压缩PDF文档。Aspose.PDF for Java 提供了出色的安全功能来开发安全的 PDF 文档。Aspose.PDF java最显着的">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://rstyro.github.io/blog/2022/08/12/%E7%A0%B4%E8%A7%A3Aspose-PDF%E7%9A%84Jar%E5%8C%85/download.png">
+<meta property="article:published_time" content="2022-08-12T02:39:47.000Z">
+<meta property="article:modified_time" content="2022-08-12T02:39:47.000Z">
+<meta property="article:author" content="rstyro">
+<meta property="article:tag" content="Java">
+<meta property="article:tag" content="Aspose">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://rstyro.github.io/blog/2022/08/12/%E7%A0%B4%E8%A7%A3Aspose-PDF%E7%9A%84Jar%E5%8C%85/download.png">
+
+<link rel="canonical" href="https://rstyro.github.io/blog/2022/08/12/%E7%A0%B4%E8%A7%A3Aspose-PDF%E7%9A%84Jar%E5%8C%85/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>破解Aspose-PDF的Jar包 | 胖不了小陆</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">胖不了小陆</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">信你所信，为你所见</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/blog/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/blog/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/blog/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/rstyro" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://rstyro.github.io/blog/2022/08/12/%E7%A0%B4%E8%A7%A3Aspose-PDF%E7%9A%84Jar%E5%8C%85/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/avatar.jpg">
+      <meta itemprop="name" content="rstyro">
+      <meta itemprop="description" content="人间的饭，吃一碗少一碗，身边的人，见一面少一面，脚下的路，走一天少一天，其实人生就是一个减法，来日并不方长！">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="胖不了小陆">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          破解Aspose-PDF的Jar包
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-08-12 10:39:47" itemprop="dateCreated datePublished" datetime="2022-08-12T10:39:47+08:00">2022-08-12</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/Java/" itemprop="url" rel="index"><span itemprop="name">Java</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h3 id="一、Aspose-PDF简介"><a href="#一、Aspose-PDF简介" class="headerlink" title="一、Aspose.PDF简介"></a>一、Aspose.PDF简介</h3><ul>
+<li>Aspose.PDF是一个Java组件，旨在允许开发人员以编程方式动态创建PDF文档，无论是简单还是复杂。Aspose.PDF for Java允许开发人员将表格，图形，图像，超链接，自定义字体等插入到PDF文档中。此外，还可以压缩PDF文档。Aspose.PDF for Java 提供了出色的安全功能来开发安全的 PDF 文档。Aspose.PDF java最显着的特点是它支持通过API和XML模板创建PDF文档。</li>
+</ul>
+<blockquote>
+<p>来自官网的一个介绍，简单的说就是，让开发人员更方便的操作 PDF。</p>
+</blockquote>
+<span id="more"></span>
+
+<h3 id="二、破解流程"><a href="#二、破解流程" class="headerlink" title="二、破解流程"></a>二、破解流程</h3><ul>
+<li>下载Jar包</li>
+<li>反编译修改要替换的class文件</li>
+<li>重新打包</li>
+</ul>
+<h3 id="三、开始破解"><a href="#三、开始破解" class="headerlink" title="三、开始破解"></a>三、开始破解</h3><ul>
+<li>下载Jar包，目前最新的版本是：<code>22.7.1</code>   2022年8月5号发布的。</li>
+<li>下载地址：<a target="_blank" rel="noopener" href="https://repository.aspose.com/pdf/22-7-1/">https://repository.aspose.com/pdf/22-7-1/</a></li>
+<li>虽然官方写有Maven地址，但是我下载Jar包没下载下来，也设置了仓库地址：</li>
+</ul>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">repository</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">id</span>&gt;</span>AsposeJavaAPI<span class="tag">&lt;/<span class="name">id</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>Aspose Java API<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">url</span>&gt;</span>https://repository.aspose.com/repo/<span class="tag">&lt;/<span class="name">url</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">repository</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>但是就是没下载下来，估计是网络问题，所以我选择手动下载，如下图：</li>
+</ul>
+<p><img src="/blog/2022/08/12/%E7%A0%B4%E8%A7%A3Aspose-PDF%E7%9A%84Jar%E5%8C%85/download.png"></p>
+<ul>
+<li>然后POM 使用 systemPath引入，因为最终你还是需要systemPath引入</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">&lt;dependency&gt;</span><br><span class="line">            &lt;groupId&gt;com.aspose&lt;/groupId&gt;</span><br><span class="line">            &lt;artifactId&gt;aspose-pdf&lt;/artifactId&gt;</span><br><span class="line">            &lt;version&gt;22.7.1&lt;/version&gt;</span><br><span class="line">            &lt;scope&gt;system&lt;/scope&gt;</span><br><span class="line">           &lt;systemPath&gt;$&#123;project.basedir&#125;/src/main/resources/lib/aspose-pdf-22.7.1.jar&lt;/systemPath&gt;</span><br><span class="line">&lt;/dependency&gt;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&lt;!-- Java字节码的类库,破解需要--&gt;</span><br><span class="line">&lt;dependency&gt;</span><br><span class="line">    &lt;groupId&gt;org.javassist&lt;/groupId&gt;</span><br><span class="line">    &lt;artifactId&gt;javassist&lt;/artifactId&gt;</span><br><span class="line">    &lt;version&gt;3.29.0-GA&lt;/version&gt;</span><br><span class="line">&lt;/dependency&gt;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>包引入之后，就可以执行代码破解了，代码如下：</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> javassist.*;</span><br><span class="line"><span class="keyword">import</span> java.io.*;</span><br><span class="line"><span class="keyword">import</span> java.util.ArrayList;</span><br><span class="line"><span class="keyword">import</span> java.util.Enumeration;</span><br><span class="line"><span class="keyword">import</span> java.util.List;</span><br><span class="line"><span class="keyword">import</span> java.util.jar.JarEntry;</span><br><span class="line"><span class="keyword">import</span> java.util.jar.JarFile;</span><br><span class="line"><span class="keyword">import</span> java.util.jar.JarOutputStream;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">PDFJarCrack</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="type">String</span> <span class="variable">property</span> <span class="operator">=</span> System.getProperty(<span class="string">&quot;user.dir&quot;</span>);</span><br><span class="line"><span class="comment">//        String jarPath =property+ &quot;/src/main/resources/lib/aspose-pdf-22.4.jar&quot;;</span></span><br><span class="line">		<span class="comment">// 这个是jar包的存放路径</span></span><br><span class="line">        <span class="type">String</span> <span class="variable">jarPath</span> <span class="operator">=</span>property+ <span class="string">&quot;/src/main/resources/lib/aspose-pdf-22.7.1.jar&quot;</span>;</span><br><span class="line">        <span class="comment">// 破解方法</span></span><br><span class="line">        crack(jarPath);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">crack</span><span class="params">(String jarName)</span> &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            ClassPool.getDefault().insertClassPath(jarName);</span><br><span class="line">            <span class="type">CtClass</span> <span class="variable">ctClass</span> <span class="operator">=</span> ClassPool.getDefault().getCtClass(<span class="string">&quot;com.aspose.pdf.ADocument&quot;</span>);</span><br><span class="line">            CtMethod[] declaredMethods = ctClass.getDeclaredMethods();</span><br><span class="line">            <span class="type">int</span> <span class="variable">num</span> <span class="operator">=</span> <span class="number">0</span>;</span><br><span class="line">            <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; declaredMethods.length; i++) &#123;</span><br><span class="line">                <span class="keyword">if</span> (num == <span class="number">2</span>) &#123;</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="type">CtMethod</span> <span class="variable">method</span> <span class="operator">=</span> declaredMethods[i];</span><br><span class="line">                CtClass[] ps = method.getParameterTypes();</span><br><span class="line">                <span class="keyword">if</span> (ps.length == <span class="number">2</span></span><br><span class="line">                        &amp;&amp; method.getName().equals(<span class="string">&quot;lI&quot;</span>)</span><br><span class="line">                        &amp;&amp; ps[<span class="number">0</span>].getName().equals(<span class="string">&quot;com.aspose.pdf.ADocument&quot;</span>)</span><br><span class="line">                        &amp;&amp; ps[<span class="number">1</span>].getName().equals(<span class="string">&quot;int&quot;</span>)) &#123;</span><br><span class="line">                    <span class="comment">// 最多只能转换4页 处理</span></span><br><span class="line">                    System.out.println(method.getReturnType());</span><br><span class="line">                    System.out.println(ps[<span class="number">1</span>].getName());</span><br><span class="line">                    method.setBody(<span class="string">&quot;&#123;return false;&#125;&quot;</span>);</span><br><span class="line">                    num = <span class="number">1</span>;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">if</span> (ps.length == <span class="number">0</span> &amp;&amp; method.getName().equals(<span class="string">&quot;lt&quot;</span>)) &#123;</span><br><span class="line">                    <span class="comment">// 水印处理</span></span><br><span class="line">                    method.setBody(<span class="string">&quot;&#123;return true;&#125;&quot;</span>);</span><br><span class="line">                    num = <span class="number">2</span>;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="type">File</span> <span class="variable">file</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">File</span>(jarName);</span><br><span class="line">            ctClass.writeFile(file.getParent());</span><br><span class="line">            disposeJar(jarName, file.getParent() + <span class="string">&quot;/com/aspose/pdf/ADocument.class&quot;</span>);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (NotFoundException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (CannotCompileException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">disposeJar</span><span class="params">(String jarName, String replaceFile)</span> &#123;</span><br><span class="line">        List&lt;String&gt; deletes = <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;();</span><br><span class="line">        <span class="comment">// 这个是22.* 版本的</span></span><br><span class="line">        deletes.add(<span class="string">&quot;META-INF/37E3C32D.SF&quot;</span>);</span><br><span class="line">        deletes.add(<span class="string">&quot;META-INF/37E3C32D.RSA&quot;</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 这个是24.* 版本 使用这个</span></span><br><span class="line">        deletes.add(<span class="string">&quot;META-INF/7DD91000.SF&quot;</span>);</span><br><span class="line">        deletes.add(<span class="string">&quot;META-INF/7DD91000.RSA&quot;</span>);</span><br><span class="line">        </span><br><span class="line">        <span class="type">File</span> <span class="variable">oriFile</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">File</span>(jarName);</span><br><span class="line">        <span class="keyword">if</span> (!oriFile.exists()) &#123;</span><br><span class="line">            System.out.println(<span class="string">&quot;######Not Find File:&quot;</span> + jarName);</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//将文件名命名成备份文件</span></span><br><span class="line">        <span class="type">String</span> <span class="variable">bakJarName</span> <span class="operator">=</span> jarName.substring(<span class="number">0</span>, jarName.length() - <span class="number">3</span>) + <span class="string">&quot;cracked.jar&quot;</span>;</span><br><span class="line">        <span class="comment">//   File bakFile=new File(bakJarName);</span></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="comment">//创建文件（根据备份文件并删除部分）</span></span><br><span class="line">            <span class="type">JarFile</span> <span class="variable">jarFile</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">JarFile</span>(jarName);</span><br><span class="line">            <span class="type">JarOutputStream</span> <span class="variable">jos</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">JarOutputStream</span>(<span class="keyword">new</span> <span class="title class_">FileOutputStream</span>(bakJarName));</span><br><span class="line">            <span class="type">Enumeration</span> <span class="variable">entries</span> <span class="operator">=</span> jarFile.entries();</span><br><span class="line">            <span class="keyword">while</span> (entries.hasMoreElements()) &#123;</span><br><span class="line">                <span class="type">JarEntry</span> <span class="variable">entry</span> <span class="operator">=</span> (JarEntry) entries.nextElement();</span><br><span class="line">                <span class="keyword">if</span> (!deletes.contains(entry.getName())) &#123;</span><br><span class="line">                    <span class="keyword">if</span> (entry.getName().equals(<span class="string">&quot;com/aspose/pdf/ADocument.class&quot;</span>)) &#123;</span><br><span class="line">                        System.out.println(<span class="string">&quot;Replace:-------&quot;</span> + entry.getName());</span><br><span class="line">                        <span class="type">JarEntry</span> <span class="variable">jarEntry</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">JarEntry</span>(entry.getName());</span><br><span class="line">                        jos.putNextEntry(jarEntry);</span><br><span class="line">                        <span class="type">FileInputStream</span> <span class="variable">fin</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">FileInputStream</span>(replaceFile);</span><br><span class="line">                        <span class="type">byte</span>[] bytes = readStream(fin);</span><br><span class="line">                        jos.write(bytes, <span class="number">0</span>, bytes.length);</span><br><span class="line">                    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                        jos.putNextEntry(entry);</span><br><span class="line">                        <span class="type">byte</span>[] bytes = readStream(jarFile.getInputStream(entry));</span><br><span class="line">                        jos.write(bytes, <span class="number">0</span>, bytes.length);</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                    System.out.println(<span class="string">&quot;Delete:-------&quot;</span> + entry.getName());</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            jos.flush();</span><br><span class="line">            jos.close();</span><br><span class="line">            jarFile.close();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (FileNotFoundException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="type">byte</span>[] readStream(InputStream inStream) <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="type">ByteArrayOutputStream</span> <span class="variable">outSteam</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ByteArrayOutputStream</span>();</span><br><span class="line">        <span class="type">byte</span>[] buffer = <span class="keyword">new</span> <span class="title class_">byte</span>[<span class="number">1024</span>];</span><br><span class="line">        <span class="type">int</span> <span class="variable">len</span> <span class="operator">=</span> -<span class="number">1</span>;</span><br><span class="line">        <span class="keyword">while</span> ((len = inStream.read(buffer)) != -<span class="number">1</span>) &#123;</span><br><span class="line">            outSteam.write(buffer, <span class="number">0</span>, len);</span><br><span class="line">        &#125;</span><br><span class="line">        outSteam.close();</span><br><span class="line">        inStream.close();</span><br><span class="line">        <span class="keyword">return</span> outSteam.toByteArray();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>代码执行结束后，没报错的话，会在jar包的同级目录下生成一个带有<code>cracked</code> 的jar</li>
+<li>用这个包替换原来的 jar包即可。</li>
+<li>POM引入：我的jar是放在 <code>resources/lib</code> 下面的。</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&lt;dependency&gt;</span><br><span class="line">            &lt;groupId&gt;com.aspose&lt;/groupId&gt;</span><br><span class="line">            &lt;artifactId&gt;aspose-pdf&lt;/artifactId&gt;</span><br><span class="line">            &lt;version&gt;22.7.1&lt;/version&gt;</span><br><span class="line">            &lt;scope&gt;system&lt;/scope&gt;</span><br><span class="line">            &lt;systemPath&gt;$&#123;project.basedir&#125;/src/main/resources/lib/aspose-pdf-22.7.1.cracked.jar&lt;/systemPath&gt;</span><br><span class="line">        &lt;/dependency&gt;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>破解成功，然后就可以使用它的API了</li>
+<li>文档地址：<a target="_blank" rel="noopener" href="https://docs.aspose.com/pdf/java/">https://docs.aspose.com/pdf/java/</a></li>
+<li>它的文档也算是挺详细的了，慢慢研究吧。</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>您的打赏，是我创作的动力！不给钱？那我只能靠想象力充饥了。</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/wechat_pay.jpg" alt="rstyro 微信支付">
+        <p>微信支付</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/alipay.jpg" alt="rstyro 支付宝">
+        <p>支付宝</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/blog/tags/Java/" rel="tag"><i class="fa fa-tag"></i> Java</a>
+              <a href="/blog/tags/Aspose/" rel="tag"><i class="fa fa-tag"></i> Aspose</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2022/08/10/MinIO%E7%9A%84%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/" rel="prev" title="MinIO的安装与使用">
+      <i class="fa fa-chevron-left"></i> MinIO的安装与使用
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/blog/2022/10/11/Neo4j%E7%9A%84%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/" rel="next" title="Neo4j的安装与使用">
+      Neo4j的安装与使用 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%80%E3%80%81Aspose-PDF%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">一、Aspose.PDF简介</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E7%A0%B4%E8%A7%A3%E6%B5%81%E7%A8%8B"><span class="nav-number">2.</span> <span class="nav-text">二、破解流程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E5%BC%80%E5%A7%8B%E7%A0%B4%E8%A7%A3"><span class="nav-number">3.</span> <span class="nav-text">三、开始破解</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="rstyro"
+      src="/blog/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">rstyro</p>
+  <div class="site-description" itemprop="description">人间的饭，吃一碗少一碗，身边的人，见一面少一面，脚下的路，走一天少一天，其实人生就是一个减法，来日并不方长！</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives/">
+        
+          <span class="site-state-item-count">216</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/blog/tags/">
+          
+        <span class="site-state-item-count">88</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/rstyro" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;rstyro" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/rstyro" title="Gitee → https:&#x2F;&#x2F;gitee.com&#x2F;rstyro" rel="noopener" target="_blank"><i class="fab fa-codiepie fa-fw"></i>Gitee</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.jianshu.com/u/651c15a1758a" title="简书 → https:&#x2F;&#x2F;www.jianshu.com&#x2F;u&#x2F;651c15a1758a" rel="noopener" target="_blank"><i class="fa fa-book fa-fw"></i>简书</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      友链
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://rstyro.github.io/blog/" title="https:&#x2F;&#x2F;rstyro.github.io&#x2F;blog&#x2F;">胖不了小陆</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; Mon Apr 10 2017 08:00:00 GMT+0800 (中国标准时间) – 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">以梦为马，诗酒趁年华</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/muse.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+  <script>
+    (function(){
+      var canonicalURL, curProtocol;
+      //Get the <link> tag
+      var x=document.getElementsByTagName("link");
+		//Find the last canonical URL
+		if(x.length > 0){
+			for (i=0;i<x.length;i++){
+				if(x[i].rel.toLowerCase() == 'canonical' && x[i].href){
+					canonicalURL=x[i].href;
+				}
+			}
+		}
+    //Get protocol
+	    if (!canonicalURL){
+	    	curProtocol = window.location.protocol.split(':')[0];
+	    }
+	    else{
+	    	curProtocol = canonicalURL.split(':')[0];
+	    }
+      //Get current URL if the canonical URL does not exist
+	    if (!canonicalURL) canonicalURL = window.location.href;
+	    //Assign script content. Replace current URL with the canonical URL
+      !function(){var e=/([http|https]:\/\/[a-zA-Z0-9\_\.]+\.baidu\.com)/gi,r=canonicalURL,t=document.referrer;if(!e.test(r)){var n=(String(curProtocol).toLowerCase() === 'https')?"https://sp0.baidu.com/9_Q4simg2RQJ8t7jm9iCKT-xh_/s.gif":"//api.share.baidu.com/s.gif";t?(n+="?r="+encodeURIComponent(document.referrer),r&&(n+="&l="+r)):r&&(n+="?l="+r);var i=new Image;i.src=n}}(window);})();
+  </script>
+
+
+
+
+  
+<script src="/blog/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+<script>
+if (document.querySelectorAll('pre.mermaid').length) {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mermaid@8/dist/mermaid.min.js', () => {
+    mermaid.initialize({
+      theme    : 'default',
+      logLevel : 3,
+      flowchart: { curve     : 'linear' },
+      gantt    : { axisFormat: '%m/%d/%Y' },
+      sequence : { actorMargin: 50 }
+    });
+  }, window.mermaid);
+}
+</script>
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : 'Ov23litYkWaOGM7kAKPD',
+      clientSecret: '43bd3cf99bfcb9d05d16627c97a9f7a0200df04a',
+      repo        : 'blog',
+      owner       : 'rstyro',
+      admin       : ['rstyro'],
+      id          : '5a982fbac1d45e1d397ae5b3242ff2e1',
+        language: '',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>

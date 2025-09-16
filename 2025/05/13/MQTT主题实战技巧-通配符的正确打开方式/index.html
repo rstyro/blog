@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/favicon.jpg">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon.jpg">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon.jpg">
+  <link rel="mask-icon" href="/blog/images/favicon.jpg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="/blog/lib/pace/pace-theme-flash.min.css">
+  <script src="/blog/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"rstyro.github.io","root":"/blog/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":true},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.json"};
+  </script>
+
+  <meta name="description" content="引言随着物联网(IoT)设备的广泛部署，MQTT（Message Queuing Telemetry Transport）作为一种轻量级的消息协议，因其高效、低带宽占用和易于实现等优点，成为了IoT设备间通信的首选。在MQTT中，主题(Topic)是消息传递的关键概念之一，它定义了消息发布者与订阅者之间的通道。今天我们就来深入探讨一下MQTT中的主题以及如何利用通配符来优化消息过滤。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MQTT主题实战技巧-通配符的正确打开方式">
+<meta property="og:url" content="https://rstyro.github.io/blog/2025/05/13/MQTT%E4%B8%BB%E9%A2%98%E5%AE%9E%E6%88%98%E6%8A%80%E5%B7%A7-%E9%80%9A%E9%85%8D%E7%AC%A6%E7%9A%84%E6%AD%A3%E7%A1%AE%E6%89%93%E5%BC%80%E6%96%B9%E5%BC%8F/index.html">
+<meta property="og:site_name" content="胖不了小陆">
+<meta property="og:description" content="引言随着物联网(IoT)设备的广泛部署，MQTT（Message Queuing Telemetry Transport）作为一种轻量级的消息协议，因其高效、低带宽占用和易于实现等优点，成为了IoT设备间通信的首选。在MQTT中，主题(Topic)是消息传递的关键概念之一，它定义了消息发布者与订阅者之间的通道。今天我们就来深入探讨一下MQTT中的主题以及如何利用通配符来优化消息过滤。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-05-13T10:40:36.000Z">
+<meta property="article:modified_time" content="2025-05-13T10:40:36.000Z">
+<meta property="article:author" content="rstyro">
+<meta property="article:tag" content="MQTT">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://rstyro.github.io/blog/2025/05/13/MQTT%E4%B8%BB%E9%A2%98%E5%AE%9E%E6%88%98%E6%8A%80%E5%B7%A7-%E9%80%9A%E9%85%8D%E7%AC%A6%E7%9A%84%E6%AD%A3%E7%A1%AE%E6%89%93%E5%BC%80%E6%96%B9%E5%BC%8F/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>MQTT主题实战技巧-通配符的正确打开方式 | 胖不了小陆</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">胖不了小陆</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">信你所信，为你所见</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/blog/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/blog/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/blog/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/rstyro" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://rstyro.github.io/blog/2025/05/13/MQTT%E4%B8%BB%E9%A2%98%E5%AE%9E%E6%88%98%E6%8A%80%E5%B7%A7-%E9%80%9A%E9%85%8D%E7%AC%A6%E7%9A%84%E6%AD%A3%E7%A1%AE%E6%89%93%E5%BC%80%E6%96%B9%E5%BC%8F/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/avatar.jpg">
+      <meta itemprop="name" content="rstyro">
+      <meta itemprop="description" content="人间的饭，吃一碗少一碗，身边的人，见一面少一面，脚下的路，走一天少一天，其实人生就是一个减法，来日并不方长！">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="胖不了小陆">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          MQTT主题实战技巧-通配符的正确打开方式
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2025-05-13 18:40:36" itemprop="dateCreated datePublished" datetime="2025-05-13T18:40:36+08:00">2025-05-13</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E7%89%A9%E8%81%94%E7%BD%91/" itemprop="url" rel="index"><span itemprop="name">物联网</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h3 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h3><p>随着物联网(IoT)设备的广泛部署，MQTT（Message Queuing Telemetry Transport）作为一种轻量级的消息协议，因其高效、低带宽占用和易于实现等优点，成为了IoT设备间通信的首选。在MQTT中，主题(Topic)是消息传递的关键概念之一，它定义了消息发布者与订阅者之间的通道。今天我们就来深入探讨一下MQTT中的主题以及如何利用通配符来优化消息过滤。</p>
+<span id="more"></span>
+
+<h3 id="一、什么是-MQTT-主题"><a href="#一、什么是-MQTT-主题" class="headerlink" title="一、什么是 MQTT 主题"></a>一、什么是 MQTT 主题</h3><ul>
+<li>在MQTT中，主题是一种层次结构的字符串，用于确定消息的路由路径。每个主题由一个或多个用斜杠(&#x2F;)分隔的主题级别组成，例如home&#x2F;livingroom&#x2F;temperature。发布者将消息发送到特定主题，而订阅者则可以订阅感兴趣的主题以接收消息。主题是区分大小写的，并且不包含空格或其他特殊字符。</li>
+</ul>
+<h4 id="主题设计的最佳实践"><a href="#主题设计的最佳实践" class="headerlink" title="主题设计的最佳实践"></a>主题设计的最佳实践</h4><ul>
+<li><strong>简洁明了</strong>：尽量保持主题简洁，避免过长。</li>
+<li><strong>逻辑清晰</strong>：使用有逻辑意义的主题层级帮助识别信息类型或来源。</li>
+<li><strong>灵活可扩展</strong>：考虑未来可能的扩展性，设计足够通用的主题结构。</li>
+</ul>
+<h4 id="通配符介绍"><a href="#通配符介绍" class="headerlink" title="通配符介绍"></a>通配符介绍</h4><p>为了提高消息订阅的灵活性，MQTT提供了两种类型的通配符：单层通配符(+)和多层通配符(#).</p>
+<ul>
+<li><p><strong>单层通配符(+)</strong>: 可以用来替换主题中的某一级别。例如，订阅<code>home/+/temperature</code>将会匹配<code>home/livingroom/temperature</code>和<code>home/kitchen/temperature</code>，但不会匹配<code>home/livingroom/kitchen/temperature</code>。</p>
+</li>
+<li><p><strong>多层通配符(#)：</strong> 位于主题过滤器的末尾，可以匹配剩余的所有层级。比如，订阅<code>home/#</code>将会匹配<code>home/livingroom/temperature</code>、<code>home/kitchen/temperature</code>甚至<code>home/livingroom/kitchen/temperature</code>。</p>
+</li>
+<li><p><strong>以 $ 开头的主题：</strong> 有些MQTT Broker的系统主题就是以<code>$SYS/</code>开头的</p>
+</li>
+<li><p><strong>注意：通配符只能用于订阅，不能用于发布消息的主题。</strong></p>
+</li>
+</ul>
+<h4 id="使用通配符的实际应用案例"><a href="#使用通配符的实际应用案例" class="headerlink" title="使用通配符的实际应用案例"></a>使用通配符的实际应用案例</h4><h5 id="1、智能家居"><a href="#1、智能家居" class="headerlink" title="1、智能家居"></a>1、智能家居</h5><ul>
+<li><p>假设我们正在构建一个智能家居系统，其中需要监控不同房间的温度、湿度等环境数据。通过合理使用通配符，我们可以轻松地设置一些通用的订阅规则：</p>
+<ul>
+<li>订阅<code>home/+/temperature</code>来获取家中所有房间的温度信息。</li>
+<li>或者使用<code>home/livingroom/#</code>来收集客厅内所有类型的数据。</li>
+</ul>
+</li>
+<li><p>这种方式不仅简化了代码，还提高了系统的灵活性和可维护性。</p>
+</li>
+</ul>
+<h5 id="2、充电桩"><a href="#2、充电桩" class="headerlink" title="2、充电桩"></a>2、充电桩</h5><p>充电桩的上行主题格式为 <code>ocpp/cp/$&#123;cid&#125;/notify/$&#123;action&#125;</code>，下行主题格式为 <code>ocpp/cp/$&#123;cid&#125;/reply/$&#123;action&#125;</code>。</p>
+<ul>
+<li><code>ocpp/cp/cp001/notify/bootNotification</code><br>充电桩上线时向该主题发布上线请求。</li>
+<li><code>ocpp/cp/cp001/notify/startTransaction</code><br>向该主题发布充电请求。</li>
+<li><code>ocpp/cp/cp001/reply/bootNotification</code><br>充电桩上线前需订阅该主题接收上线应答。</li>
+<li><code>ocpp/cp/cp001/reply/startTransaction</code><br>充电桩发起充电请求前需订阅该主题接收充电请求应答。</li>
+</ul>
+<h5 id="3、即时消息"><a href="#3、即时消息" class="headerlink" title="3、即时消息"></a>3、即时消息</h5><ul>
+<li><p><code>chat/user/$&#123;user_id&#125;/inbox</code></p>
+<p><strong>一对一聊天</strong>：用户上线后订阅该收件箱主题 ，将能接收到好友发送给自己的消息。给好友回复消息时，只需要将该主题的 <code>user_id</code> 换为好友的的 id 即可。</p>
+</li>
+<li><p><code>chat/group/$&#123;group_id&#125;/inbox</code></p>
+<p><strong>群聊</strong>：用户加群成功后，可订阅该主题获取对应群组的消息，回复群聊时直接给该主题发布消息即可。</p>
+</li>
+<li><p><code>req/user/$&#123;user_id&#125;/add</code></p>
+<p><strong>添加好友</strong>：可向该主题发布添加好友的申请（<code>user_id</code> 为对方的 id）。<br><strong>接收好友请求</strong>：用户可订阅该主题（<code>user_id</code> 为自己的 id）接收其他用户发起的好友请求。</p>
+</li>
+<li><p><code>resp/user/$&#123;user_id&#125;/add</code></p>
+<p><strong>接收好友请求的回复</strong>：用户添加好友前，需订阅该主题接收请求结果（<code>user_id</code> 为自己的 id）。<br><strong>回复好友申请</strong>：用户向该主题发送消息表明是否同意好友申请（<code>user_id</code> 为对方的 id）。</p>
+</li>
+<li><p><code>user/$&#123;user_id&#125;/state</code><br><strong>用户在线状态</strong>：用户可以订阅该主题获取好友的在线状态。</p>
+</li>
+</ul>
+<h3 id="二、MQTT-主题常见问题及解答"><a href="#二、MQTT-主题常见问题及解答" class="headerlink" title="二、MQTT 主题常见问题及解答"></a>二、MQTT 主题常见问题及解答</h3><h5 id="1、主题的层级及长度有什么限制吗？"><a href="#1、主题的层级及长度有什么限制吗？" class="headerlink" title="1、主题的层级及长度有什么限制吗？"></a>1、主题的层级及长度有什么限制吗？</h5><ul>
+<li>答：对于主题的总长度（包括所有层级和斜杠），不同的MQTT代理可能有不同的限制。一些常见的MQTT代理如Mosquitto默认允许的最大主题长度为65535字节。因此，在使用时最好查阅所使用的MQTT代理的相关文档以了解其具体限制。</li>
+</ul>
+<h5 id="2、MQTT主题是否区分大小写？"><a href="#2、MQTT主题是否区分大小写？" class="headerlink" title="2、MQTT主题是否区分大小写？"></a>2、MQTT主题是否区分大小写？</h5><ul>
+<li>答：是的，MQTT主题是区分大小写的。例如，Home&#x2F;Light和home&#x2F;light被视为两个不同的主题。</li>
+</ul>
+<h5 id="3、MQTT主题的最大长度是多少？"><a href="#3、MQTT主题的最大长度是多少？" class="headerlink" title="3、MQTT主题的最大长度是多少？"></a>3、MQTT主题的最大长度是多少？</h5><ul>
+<li>答：对于主题的总长度（包括所有层级和斜杠），不同的MQTT代理可能有不同的限制。一些常见的MQTT代理如Mosquitto默认允许的最大主题长度为65535字节。因此，在使用时最好查阅所使用的MQTT代理的相关文档以了解其具体限制</li>
+</ul>
+<h5 id="4、通配符可以在发布消息时使用吗？"><a href="#4、通配符可以在发布消息时使用吗？" class="headerlink" title="4、通配符可以在发布消息时使用吗？"></a>4、通配符可以在发布消息时使用吗？</h5><ul>
+<li>答：不可以，通配符只能用于订阅消息，不能用于发布消息的主题。这意味着你不能向一个包含通配符的主题发布消息。</li>
+</ul>
+<h5 id="5、通配符订阅会不会影响性能？"><a href="#5、通配符订阅会不会影响性能？" class="headerlink" title="5、通配符订阅会不会影响性能？"></a>5、通配符订阅会不会影响性能？</h5><ul>
+<li><p><strong>答：</strong> 使用通配符订阅确实会增加代理的匹配复杂度，尤其是在大规模连接或高频率消息发布的环境中。虽然现代MQTT Broker优化较好，但在性能敏感场景下仍需谨慎使用。</p>
+</li>
+<li><p><strong>实际应用案例：</strong> 某智慧城市项目中，10万个路灯节点上报状态至各自独立主题如 <code>city/street/light/00001/status</code>。如果监控中心使用通配符订阅 <code>city/street/light/#</code> 来获取所有灯的状态，可能会造成较大的资源消耗。</p>
+</li>
+<li><p><strong>解决方案：</strong></p>
+<ul>
+<li>对于高频采集的数据，建议使用特定主题分组聚合；</li>
+<li>或使用边缘计算节点先做本地汇总，再统一上传；</li>
+<li>对于低频或非关键数据，才考虑通配符订阅。</li>
+</ul>
+</li>
+</ul>
+<h5 id="6、重叠订阅了普通主题和通配符主题时如何接收消息"><a href="#6、重叠订阅了普通主题和通配符主题时如何接收消息" class="headerlink" title="6、重叠订阅了普通主题和通配符主题时如何接收消息?"></a>6、重叠订阅了普通主题和通配符主题时如何接收消息?</h5><ul>
+<li>答：假如客户端同时订阅了 # 和 test 主题，当向 test 主题发送消息时，是否会收到两条重复消息？这取决于 MQTT broker 的实现，例如 EMQX 会为每个匹配的订阅发送消息。但是用户可以使用 MQTT 5.0 中的订阅标识符来区分消息来源，然后在客户端中根据订阅标识符来处理这类重复的消息。</li>
+</ul>
+<h5 id="7、常见的-MQTT-主题使用建议有哪些？"><a href="#7、常见的-MQTT-主题使用建议有哪些？" class="headerlink" title="7、常见的 MQTT 主题使用建议有哪些？"></a>7、常见的 MQTT 主题使用建议有哪些？</h5><ul>
+<li>不建议使用 <code>#</code> 订阅所有主题；</li>
+<li>不建议主题以 <code>/</code> 开头或结尾，例如 <code>/chat</code> 或 <code>chat/</code>；</li>
+<li>不建议在主题里添加空格及非 ASCII 特殊字符；</li>
+<li>同一主题层级内建议使用下划线 <code>_</code> 或横杆 <code>-</code> 连接单词（或者使用驼峰命名）；</li>
+<li>尽量使用较少的主题层级；</li>
+<li>当使用通配符时，将唯一值的主题层（例如设备号）越靠近第一层越好。例如，<code>device/00000001/command/#</code> 比<code>device/command/00000001/#</code> 更好。</li>
+</ul>
+<h5 id="8、如何有效地使用单层（-）和多层（-）通配符？"><a href="#8、如何有效地使用单层（-）和多层（-）通配符？" class="headerlink" title="8、如何有效地使用单层（+）和多层（#）通配符？"></a>8、如何有效地使用单层（+）和多层（#）通配符？</h5><ul>
+<li>答：单层通配符（+）用来匹配单一层级的主题，而多层通配符（#）则必须位于主题过滤器的末尾，用来匹配多个层级的主题。合理使用这些通配符可以帮助更灵活地订阅感兴趣的消息，比如home&#x2F;+&#x2F;temperature会匹配任何房间的温度信息，而home&#x2F;#则会匹配家中的所有信息。</li>
+</ul>
+<h5 id="9、如果订阅了一个不存在的主题会发生什么？"><a href="#9、如果订阅了一个不存在的主题会发生什么？" class="headerlink" title="9、如果订阅了一个不存在的主题会发生什么？"></a>9、如果订阅了一个不存在的主题会发生什么？</h5><ul>
+<li>答：如果你订阅了一个当前没有任何发布者发送消息的主题，那么你将不会收到任何消息，直到有消息被发布到该主题。MQTT代理不会因为你订阅了未使用的主题而返回错误或警告。</li>
+</ul>
+<h5 id="10、能否通过主题实现远程控制设备？"><a href="#10、能否通过主题实现远程控制设备？" class="headerlink" title="10、能否通过主题实现远程控制设备？"></a>10、能否通过主题实现远程控制设备？</h5><ul>
+<li><p><strong>答：</strong> 当然可以。MQTT支持双向通信，可以通过为主题设计控制指令通道来实现远程控制。</p>
+</li>
+<li><p><strong>实际应用案例：</strong> 智能家居中，灯光控制器订阅如下主题：</p>
+</li>
+</ul>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">home/light/livingroom/control</span><br></pre></td></tr></table></figure>
+
+<p>用户通过APP向该主题发送控制指令（如开&#x2F;关、亮度调整等），设备接收到消息后执行对应操作。<br>示例消息内容：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;command&quot;</span><span class="punctuation">:</span> <span class="string">&quot;on&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;brightness&quot;</span><span class="punctuation">:</span> <span class="number">75</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+<p>类似地，还可以为风扇、窗帘、空调等设备设计类似的控制主题结构。</p>
+<h5 id="11-如何防止主题被误用或滥用"><a href="#11-如何防止主题被误用或滥用" class="headerlink" title="11. 如何防止主题被误用或滥用?"></a>11. 如何防止主题被误用或滥用?</h5><ul>
+<li><strong>答：</strong> 可以通过权限管理（ACL）和命名规范来限制谁可以发布或订阅哪些主题。</li>
+<li><strong>实际应用案例：</strong> 在工业物联网平台中，每个工厂车间有各自的命名空间，如：</li>
+</ul>
+<figure class="highlight tex"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">factory/plantA/line1/data</span><br><span class="line">factory/plantB/line2/data</span><br></pre></td></tr></table></figure>
+
+<p>系统通过MQTT Broker配置访问控制列表（ACL），确保Plant A的操作人员只能访问plantA相关主题，避免越权访问。</p>
+<p>同时，对命令类主题（如 <code>/control</code>）设置更高权限，防止未经授权的设备发起控制操作。</p>
+<h5 id="12、如何用主题实现设备状态反馈？"><a href="#12、如何用主题实现设备状态反馈？" class="headerlink" title="12、如何用主题实现设备状态反馈？"></a>12、如何用主题实现设备状态反馈？</h5><ul>
+<li><strong>答：</strong> 可以为每台设备定义一个“状态”主题，用于反馈其运行状态或错误信息。</li>
+<li><strong>实际应用案例：</strong> 在物流车队管理系统中，每辆车都有一个状态主题，例如：</li>
+</ul>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">vehicle/bus001/status</span><br><span class="line">vehicle/truck002/status</span><br></pre></td></tr></table></figure>
+
+<p>车载终端定时发布位置、速度、油量、故障码等信息，监控中心订阅这些主题以实时掌握车辆状况。<br>如果某辆车出现故障，可通过专用主题如：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vehicle/bus001/alert</span><br></pre></td></tr></table></figure>
+<p>发送警报通知，以便快速响应。</p>
+<h3 id="三、结语"><a href="#三、结语" class="headerlink" title="三、结语"></a>三、结语</h3><ul>
+<li>理解和正确使用MQTT的主题与通配符对于开发高效的物联网应用至关重要。它们使得我们可以更智能地管理和筛选来自大量设备的信息流，从而为用户提供更加个性化的服务体验。希望本文能帮助你更好地掌握这些概念，并在实际项目中加以运用。</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>您的打赏，是我创作的动力！不给钱？那我只能靠想象力充饥了。</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/wechat_pay.jpg" alt="rstyro 微信支付">
+        <p>微信支付</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/alipay.jpg" alt="rstyro 支付宝">
+        <p>支付宝</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/blog/tags/MQTT/" rel="tag"><i class="fa fa-tag"></i> MQTT</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2025/05/12/%E6%8E%8C%E6%8F%A1EMQX%E9%AB%98%E7%BA%A7%E6%8A%80%E5%B7%A7-%E5%88%A9%E7%94%A8Webhook%E6%97%A0%E7%BC%9D%E5%AF%B9%E6%8E%A5%E5%A4%96%E9%83%A8%E6%9C%8D%E5%8A%A1/" rel="prev" title="掌握EMQX高级技巧:利用Webhook无缝对接外部服务">
+      <i class="fa fa-chevron-left"></i> 掌握EMQX高级技巧:利用Webhook无缝对接外部服务
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/blog/2025/07/01/Spring%E5%BC%95%E7%88%86Java-AI%E9%9D%A9%E5%91%BD/" rel="next" title="Spring引爆Java AI革命：阿里百炼+Spring AI Alibaba=企业级智能新范式">
+      Spring引爆Java AI革命：阿里百炼+Spring AI Alibaba=企业级智能新范式 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BC%95%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">引言</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E4%BB%80%E4%B9%88%E6%98%AF-MQTT-%E4%B8%BB%E9%A2%98"><span class="nav-number">2.</span> <span class="nav-text">一、什么是 MQTT 主题</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%BB%E9%A2%98%E8%AE%BE%E8%AE%A1%E7%9A%84%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5"><span class="nav-number">2.1.</span> <span class="nav-text">主题设计的最佳实践</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%80%9A%E9%85%8D%E7%AC%A6%E4%BB%8B%E7%BB%8D"><span class="nav-number">2.2.</span> <span class="nav-text">通配符介绍</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8%E9%80%9A%E9%85%8D%E7%AC%A6%E7%9A%84%E5%AE%9E%E9%99%85%E5%BA%94%E7%94%A8%E6%A1%88%E4%BE%8B"><span class="nav-number">2.3.</span> <span class="nav-text">使用通配符的实际应用案例</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1%E3%80%81%E6%99%BA%E8%83%BD%E5%AE%B6%E5%B1%85"><span class="nav-number">2.3.1.</span> <span class="nav-text">1、智能家居</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2%E3%80%81%E5%85%85%E7%94%B5%E6%A1%A9"><span class="nav-number">2.3.2.</span> <span class="nav-text">2、充电桩</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3%E3%80%81%E5%8D%B3%E6%97%B6%E6%B6%88%E6%81%AF"><span class="nav-number">2.3.3.</span> <span class="nav-text">3、即时消息</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%8C%E3%80%81MQTT-%E4%B8%BB%E9%A2%98%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98%E5%8F%8A%E8%A7%A3%E7%AD%94"><span class="nav-number">3.</span> <span class="nav-text">二、MQTT 主题常见问题及解答</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1%E3%80%81%E4%B8%BB%E9%A2%98%E7%9A%84%E5%B1%82%E7%BA%A7%E5%8F%8A%E9%95%BF%E5%BA%A6%E6%9C%89%E4%BB%80%E4%B9%88%E9%99%90%E5%88%B6%E5%90%97%EF%BC%9F"><span class="nav-number">3.0.1.</span> <span class="nav-text">1、主题的层级及长度有什么限制吗？</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2%E3%80%81MQTT%E4%B8%BB%E9%A2%98%E6%98%AF%E5%90%A6%E5%8C%BA%E5%88%86%E5%A4%A7%E5%B0%8F%E5%86%99%EF%BC%9F"><span class="nav-number">3.0.2.</span> <span class="nav-text">2、MQTT主题是否区分大小写？</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3%E3%80%81MQTT%E4%B8%BB%E9%A2%98%E7%9A%84%E6%9C%80%E5%A4%A7%E9%95%BF%E5%BA%A6%E6%98%AF%E5%A4%9A%E5%B0%91%EF%BC%9F"><span class="nav-number">3.0.3.</span> <span class="nav-text">3、MQTT主题的最大长度是多少？</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#4%E3%80%81%E9%80%9A%E9%85%8D%E7%AC%A6%E5%8F%AF%E4%BB%A5%E5%9C%A8%E5%8F%91%E5%B8%83%E6%B6%88%E6%81%AF%E6%97%B6%E4%BD%BF%E7%94%A8%E5%90%97%EF%BC%9F"><span class="nav-number">3.0.4.</span> <span class="nav-text">4、通配符可以在发布消息时使用吗？</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#5%E3%80%81%E9%80%9A%E9%85%8D%E7%AC%A6%E8%AE%A2%E9%98%85%E4%BC%9A%E4%B8%8D%E4%BC%9A%E5%BD%B1%E5%93%8D%E6%80%A7%E8%83%BD%EF%BC%9F"><span class="nav-number">3.0.5.</span> <span class="nav-text">5、通配符订阅会不会影响性能？</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#6%E3%80%81%E9%87%8D%E5%8F%A0%E8%AE%A2%E9%98%85%E4%BA%86%E6%99%AE%E9%80%9A%E4%B8%BB%E9%A2%98%E5%92%8C%E9%80%9A%E9%85%8D%E7%AC%A6%E4%B8%BB%E9%A2%98%E6%97%B6%E5%A6%82%E4%BD%95%E6%8E%A5%E6%94%B6%E6%B6%88%E6%81%AF"><span class="nav-number">3.0.6.</span> <span class="nav-text">6、重叠订阅了普通主题和通配符主题时如何接收消息?</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#7%E3%80%81%E5%B8%B8%E8%A7%81%E7%9A%84-MQTT-%E4%B8%BB%E9%A2%98%E4%BD%BF%E7%94%A8%E5%BB%BA%E8%AE%AE%E6%9C%89%E5%93%AA%E4%BA%9B%EF%BC%9F"><span class="nav-number">3.0.7.</span> <span class="nav-text">7、常见的 MQTT 主题使用建议有哪些？</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#8%E3%80%81%E5%A6%82%E4%BD%95%E6%9C%89%E6%95%88%E5%9C%B0%E4%BD%BF%E7%94%A8%E5%8D%95%E5%B1%82%EF%BC%88-%EF%BC%89%E5%92%8C%E5%A4%9A%E5%B1%82%EF%BC%88-%EF%BC%89%E9%80%9A%E9%85%8D%E7%AC%A6%EF%BC%9F"><span class="nav-number">3.0.8.</span> <span class="nav-text">8、如何有效地使用单层（+）和多层（#）通配符？</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#9%E3%80%81%E5%A6%82%E6%9E%9C%E8%AE%A2%E9%98%85%E4%BA%86%E4%B8%80%E4%B8%AA%E4%B8%8D%E5%AD%98%E5%9C%A8%E7%9A%84%E4%B8%BB%E9%A2%98%E4%BC%9A%E5%8F%91%E7%94%9F%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="nav-number">3.0.9.</span> <span class="nav-text">9、如果订阅了一个不存在的主题会发生什么？</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#10%E3%80%81%E8%83%BD%E5%90%A6%E9%80%9A%E8%BF%87%E4%B8%BB%E9%A2%98%E5%AE%9E%E7%8E%B0%E8%BF%9C%E7%A8%8B%E6%8E%A7%E5%88%B6%E8%AE%BE%E5%A4%87%EF%BC%9F"><span class="nav-number">3.0.10.</span> <span class="nav-text">10、能否通过主题实现远程控制设备？</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#11-%E5%A6%82%E4%BD%95%E9%98%B2%E6%AD%A2%E4%B8%BB%E9%A2%98%E8%A2%AB%E8%AF%AF%E7%94%A8%E6%88%96%E6%BB%A5%E7%94%A8"><span class="nav-number">3.0.11.</span> <span class="nav-text">11. 如何防止主题被误用或滥用?</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#12%E3%80%81%E5%A6%82%E4%BD%95%E7%94%A8%E4%B8%BB%E9%A2%98%E5%AE%9E%E7%8E%B0%E8%AE%BE%E5%A4%87%E7%8A%B6%E6%80%81%E5%8F%8D%E9%A6%88%EF%BC%9F"><span class="nav-number">3.0.12.</span> <span class="nav-text">12、如何用主题实现设备状态反馈？</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E7%BB%93%E8%AF%AD"><span class="nav-number">4.</span> <span class="nav-text">三、结语</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="rstyro"
+      src="/blog/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">rstyro</p>
+  <div class="site-description" itemprop="description">人间的饭，吃一碗少一碗，身边的人，见一面少一面，脚下的路，走一天少一天，其实人生就是一个减法，来日并不方长！</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives/">
+        
+          <span class="site-state-item-count">216</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/blog/tags/">
+          
+        <span class="site-state-item-count">88</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/rstyro" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;rstyro" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/rstyro" title="Gitee → https:&#x2F;&#x2F;gitee.com&#x2F;rstyro" rel="noopener" target="_blank"><i class="fab fa-codiepie fa-fw"></i>Gitee</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.jianshu.com/u/651c15a1758a" title="简书 → https:&#x2F;&#x2F;www.jianshu.com&#x2F;u&#x2F;651c15a1758a" rel="noopener" target="_blank"><i class="fa fa-book fa-fw"></i>简书</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      友链
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://rstyro.github.io/blog/" title="https:&#x2F;&#x2F;rstyro.github.io&#x2F;blog&#x2F;">胖不了小陆</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; Mon Apr 10 2017 08:00:00 GMT+0800 (中国标准时间) – 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">以梦为马，诗酒趁年华</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/muse.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+  <script>
+    (function(){
+      var canonicalURL, curProtocol;
+      //Get the <link> tag
+      var x=document.getElementsByTagName("link");
+		//Find the last canonical URL
+		if(x.length > 0){
+			for (i=0;i<x.length;i++){
+				if(x[i].rel.toLowerCase() == 'canonical' && x[i].href){
+					canonicalURL=x[i].href;
+				}
+			}
+		}
+    //Get protocol
+	    if (!canonicalURL){
+	    	curProtocol = window.location.protocol.split(':')[0];
+	    }
+	    else{
+	    	curProtocol = canonicalURL.split(':')[0];
+	    }
+      //Get current URL if the canonical URL does not exist
+	    if (!canonicalURL) canonicalURL = window.location.href;
+	    //Assign script content. Replace current URL with the canonical URL
+      !function(){var e=/([http|https]:\/\/[a-zA-Z0-9\_\.]+\.baidu\.com)/gi,r=canonicalURL,t=document.referrer;if(!e.test(r)){var n=(String(curProtocol).toLowerCase() === 'https')?"https://sp0.baidu.com/9_Q4simg2RQJ8t7jm9iCKT-xh_/s.gif":"//api.share.baidu.com/s.gif";t?(n+="?r="+encodeURIComponent(document.referrer),r&&(n+="&l="+r)):r&&(n+="?l="+r);var i=new Image;i.src=n}}(window);})();
+  </script>
+
+
+
+
+  
+<script src="/blog/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+<script>
+if (document.querySelectorAll('pre.mermaid').length) {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mermaid@8/dist/mermaid.min.js', () => {
+    mermaid.initialize({
+      theme    : 'default',
+      logLevel : 3,
+      flowchart: { curve     : 'linear' },
+      gantt    : { axisFormat: '%m/%d/%Y' },
+      sequence : { actorMargin: 50 }
+    });
+  }, window.mermaid);
+}
+</script>
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : 'Ov23litYkWaOGM7kAKPD',
+      clientSecret: '43bd3cf99bfcb9d05d16627c97a9f7a0200df04a',
+      repo        : 'blog',
+      owner       : 'rstyro',
+      admin       : ['rstyro'],
+      id          : '69cc5e217e71f5dbf0db90a1a203d7dd',
+        language: '',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>

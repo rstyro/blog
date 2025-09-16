@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/favicon.jpg">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon.jpg">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon.jpg">
+  <link rel="mask-icon" href="/blog/images/favicon.jpg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="/blog/lib/pace/pace-theme-flash.min.css">
+  <script src="/blog/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"rstyro.github.io","root":"/blog/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":true},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.json"};
+  </script>
+
+  <meta name="description" content="springboot 打包与部署一、jar 包 进入命令行模式 ，不管linux 还是windows 都是一样的">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Spring Boot (十)：打包部署">
+<meta property="og:url" content="https://rstyro.github.io/blog/2017/09/20/Spring%20Boot%20(%E5%8D%81)%EF%BC%9A%E6%89%93%E5%8C%85%E9%83%A8%E7%BD%B2/index.html">
+<meta property="og:site_name" content="胖不了小陆">
+<meta property="og:description" content="springboot 打包与部署一、jar 包 进入命令行模式 ，不管linux 还是windows 都是一样的">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2017-09-20T08:03:10.000Z">
+<meta property="article:modified_time" content="2017-09-20T08:03:10.000Z">
+<meta property="article:author" content="rstyro">
+<meta property="article:tag" content="Spring Boot">
+<meta property="article:tag" content="Java">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://rstyro.github.io/blog/2017/09/20/Spring%20Boot%20(%E5%8D%81)%EF%BC%9A%E6%89%93%E5%8C%85%E9%83%A8%E7%BD%B2/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Spring Boot (十)：打包部署 | 胖不了小陆</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">胖不了小陆</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">信你所信，为你所见</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/blog/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/blog/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/blog/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/rstyro" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://rstyro.github.io/blog/2017/09/20/Spring%20Boot%20(%E5%8D%81)%EF%BC%9A%E6%89%93%E5%8C%85%E9%83%A8%E7%BD%B2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/avatar.jpg">
+      <meta itemprop="name" content="rstyro">
+      <meta itemprop="description" content="人间的饭，吃一碗少一碗，身边的人，见一面少一面，脚下的路，走一天少一天，其实人生就是一个减法，来日并不方长！">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="胖不了小陆">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Spring Boot (十)：打包部署
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2017-09-20 16:03:10" itemprop="dateCreated datePublished" datetime="2017-09-20T16:03:10+08:00">2017-09-20</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/Java/" itemprop="url" rel="index"><span itemprop="name">Java</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="springboot-打包与部署"><a href="#springboot-打包与部署" class="headerlink" title="springboot 打包与部署"></a>springboot 打包与部署</h1><h2 id="一、jar-包"><a href="#一、jar-包" class="headerlink" title="一、jar 包"></a>一、jar 包</h2><blockquote>
+<p>进入命令行模式 ，不管linux 还是windows 都是一样的</p>
+</blockquote>
+<span id="more"></span>
+
+<h4 id="1、编译"><a href="#1、编译" class="headerlink" title="1、编译"></a>1、编译</h4><h5 id="进入项目目录，使用如下命令："><a href="#进入项目目录，使用如下命令：" class="headerlink" title="进入项目目录，使用如下命令："></a>进入项目目录，使用如下命令：</h5><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">//命令打包（-Dmaven.test.skip=true 跳过测试）</span><br><span class="line">mvn clean package -Dmaven.test.skip=true</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">// 按模块打包，使用 -pl 参数，后面加上模块名，-am即同时打包依赖的模块，如下示例：</span><br><span class="line">clean -Dmaven.test.skip=true package -pl  springboot/springboot-web -am</span><br><span class="line"></span><br><span class="line">// 如果使用的是@profiles.active@ 这种的，打包可以加指定环境打包 -P 参数</span><br><span class="line">clean -Dmaven.test.skip=true package -pl  springboot/springboot-web -am -Ptest</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-运行"><a href="#2-运行" class="headerlink" title="2.运行"></a>2.运行</h4><h5 id="当前目录的target-就有一个-jar-文件"><a href="#当前目录的target-就有一个-jar-文件" class="headerlink" title="当前目录的target 就有一个.jar 文件"></a>当前目录的target 就有一个.jar 文件</h5><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">#启动命令</span><br><span class="line">nohub java -jar xxxx.jar &gt;/dev/null 2&gt;&amp;1 &amp;</span><br></pre></td></tr></table></figure>
+
+<h2 id="二、war-包"><a href="#二、war-包" class="headerlink" title="二、war 包"></a>二、war 包</h2><h3 id="1、修改package"><a href="#1、修改package" class="headerlink" title="1、修改package"></a>1、修改package</h3><h4 id="a-、修改包类型"><a href="#a-、修改包类型" class="headerlink" title="(a)、修改包类型"></a>(a)、修改包类型</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&lt;!-- &lt;packaging&gt;jar&lt;/packaging&gt; --&gt;</span><br><span class="line">&lt;packaging&gt;war&lt;/packaging&gt;</span><br></pre></td></tr></table></figure>
+
+<h4 id="b-、移除内置的tomcat插件"><a href="#b-、移除内置的tomcat插件" class="headerlink" title="(b)、移除内置的tomcat插件"></a>(b)、移除内置的tomcat插件</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">&lt;dependency&gt;</span><br><span class="line">    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;</span><br><span class="line">    &lt;artifactId&gt;spring-boot-starter-web&lt;/artifactId&gt;</span><br><span class="line">    &lt;!-- 移除tomcat插件 --&gt;</span><br><span class="line">    &lt;exclusions&gt;</span><br><span class="line">        &lt;exclusion&gt;</span><br><span class="line">            &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;</span><br><span class="line">            &lt;artifactId&gt;spring-boot-starter-tomcat&lt;/artifactId&gt;</span><br><span class="line">        &lt;/exclusion&gt;</span><br><span class="line">    &lt;/exclusions&gt;</span><br><span class="line">&lt;/dependency&gt;</span><br><span class="line"></span><br><span class="line">&lt;!-- 移除之后会报错，加入下面的依赖 --&gt;</span><br><span class="line">&lt;dependency&gt;</span><br><span class="line">    &lt;groupId&gt;javax.servlet&lt;/groupId&gt;</span><br><span class="line">    &lt;artifactId&gt;javax.servlet-api&lt;/artifactId&gt;</span><br><span class="line">    &lt;scope&gt;provided&lt;/scope&gt;</span><br><span class="line">&lt;/dependency&gt;</span><br></pre></td></tr></table></figure>
+<h3 id="2、修改启动类"><a href="#2、修改启动类" class="headerlink" title="2、修改启动类"></a>2、修改启动类</h3><h4 id="继承SpringBootServletInitializer-类，重写configure（）方法"><a href="#继承SpringBootServletInitializer-类，重写configure（）方法" class="headerlink" title="继承SpringBootServletInitializer 类，重写configure（）方法"></a>继承SpringBootServletInitializer 类，重写configure（）方法</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> top.lrshuai.blog;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.mybatis.spring.annotation.MapperScan;</span><br><span class="line"><span class="keyword">import</span> org.springframework.boot.SpringApplication;</span><br><span class="line"><span class="keyword">import</span> org.springframework.boot.autoconfigure.SpringBootApplication;</span><br><span class="line"><span class="keyword">import</span> org.springframework.boot.builder.SpringApplicationBuilder;</span><br><span class="line"><span class="keyword">import</span> org.springframework.boot.context.embedded.ConfigurableEmbeddedServletContainer;</span><br><span class="line"><span class="keyword">import</span> org.springframework.boot.context.embedded.EmbeddedServletContainerCustomizer;</span><br><span class="line"><span class="keyword">import</span> org.springframework.boot.web.servlet.ErrorPage;</span><br><span class="line"><span class="keyword">import</span> org.springframework.boot.web.support.SpringBootServletInitializer;</span><br><span class="line"><span class="keyword">import</span> org.springframework.http.HttpStatus;</span><br><span class="line"></span><br><span class="line"><span class="meta">@SpringBootApplication</span></span><br><span class="line"><span class="meta">@MapperScan(&quot;top.lrshuai.blog.dao&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Application</span> <span class="keyword">extends</span> <span class="title class_">SpringBootServletInitializer</span>&#123;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">		SpringApplication.run(Application.class, args);</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	<span class="meta">@Override</span></span><br><span class="line">	<span class="keyword">protected</span> SpringApplicationBuilder <span class="title function_">configure</span><span class="params">(SpringApplicationBuilder builder)</span> &#123;</span><br><span class="line">		<span class="comment">// TODO Auto-generated method stub</span></span><br><span class="line"><span class="comment">//		return super.configure(builder);</span></span><br><span class="line">		<span class="keyword">return</span> builder.sources(<span class="built_in">this</span>.getClass());</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="3、编译"><a href="#3、编译" class="headerlink" title="3、编译"></a>3、编译</h3><h4 id="a-、和编译jar一样，mvn-clean-package-Dmaven-test-skip-true"><a href="#a-、和编译jar一样，mvn-clean-package-Dmaven-test-skip-true" class="headerlink" title="(a)、和编译jar一样，mvn clean package -Dmaven.test.skip=true"></a>(a)、和编译jar一样，<code>mvn clean package -Dmaven.test.skip=true</code></h4><h4 id="b-、-还有一种，mvn-clean-install-Dmaven-test-skip-true"><a href="#b-、-还有一种，mvn-clean-install-Dmaven-test-skip-true" class="headerlink" title="(b)、(还有一种，mvn clean install -Dmaven.test.skip=true)"></a>(b)、(还有一种，<code>mvn clean install -Dmaven.test.skip=true</code>)</h4><blockquote>
+<p>如果是eclipse 则不用mvn</p>
+</blockquote>
+<h3 id="4、部署"><a href="#4、部署" class="headerlink" title="4、部署"></a>4、部署</h3><h4 id="放入tomcat-的webapps-目录下，启动tomcat-搞定"><a href="#放入tomcat-的webapps-目录下，启动tomcat-搞定" class="headerlink" title="放入tomcat 的webapps 目录下，启动tomcat,搞定"></a>放入tomcat 的webapps 目录下，启动tomcat,搞定</h4><h2 id="三、可能出现的问题"><a href="#三、可能出现的问题" class="headerlink" title="三、可能出现的问题"></a>三、可能出现的问题</h2><h3 id="a-、就是静态文件资源-访问404"><a href="#a-、就是静态文件资源-访问404" class="headerlink" title="(a)、就是静态文件资源 访问404"></a>(a)、就是静态文件资源 访问404</h3><h3 id="解决方案："><a href="#解决方案：" class="headerlink" title="解决方案："></a>解决方案：</h3><h4 id="所有链接都写相对路径，可能以前你这样写-就可以了，打包jar-我记得好像是没问题的，但是war就出问题了"><a href="#所有链接都写相对路径，可能以前你这样写-就可以了，打包jar-我记得好像是没问题的，但是war就出问题了" class="headerlink" title="所有链接都写相对路径，可能以前你这样写&lt;link href=&quot;/css/blog.css&quot; rel=&quot;stylesheet&quot; &gt; 就可以了，打包jar 我记得好像是没问题的，但是war就出问题了"></a>所有链接都写相对路径，可能以前你这样写<code>&lt;link href=&quot;/css/blog.css&quot; rel=&quot;stylesheet&quot; &gt;</code> 就可以了，打包jar 我记得好像是没问题的，但是war就出问题了</h4><h4 id="正解应该是"><a href="#正解应该是" class="headerlink" title="正解应该是 &lt;link href=&quot;../static/css/blog.css&quot; rel=&quot;stylesheet&quot; th:href=&quot;@{/css/blog.css}&quot;&gt;"></a>正解应该是 <code>&lt;link href=&quot;../static/css/blog.css&quot; rel=&quot;stylesheet&quot; th:href=&quot;@&#123;/css/blog.css&#125;&quot;&gt;</code></h4><h3 id="b-、另一种是js-的路径，比如发ajax请求。路径也会有问题"><a href="#b-、另一种是js-的路径，比如发ajax请求。路径也会有问题" class="headerlink" title="(b)、另一种是js 的路径，比如发ajax请求。路径也会有问题"></a>(b)、另一种是js 的路径，比如发ajax请求。路径也会有问题</h3><h3 id="我的方案："><a href="#我的方案：" class="headerlink" title="我的方案："></a>我的方案：</h3><h5 id="1、页面头部添加这行"><a href="#1、页面头部添加这行" class="headerlink" title="1、页面头部添加这行&lt;meta name=&quot;_ctx&quot; th:content=&quot;@{/}&quot; /&gt;"></a>1、页面头部添加这行<code>&lt;meta name=&quot;_ctx&quot; th:content=&quot;@&#123;/&#125;&quot; /&gt;</code></h5><h5 id="2、js-获取它的路径，"><a href="#2、js-获取它的路径，" class="headerlink" title="2、js 获取它的路径，"></a>2、js 获取它的路径，</h5><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&lt;script type=&quot;text/javascript&quot;&gt;</span><br><span class="line">var _ctx = $(&quot;meta[name=&#x27;_ctx&#x27;]&quot;).attr(&quot;content&quot;);</span><br><span class="line">_ctx = _ctx.substr(0, _ctx.length - 1);</span><br><span class="line">&lt;/script&gt;</span><br></pre></td></tr></table></figure>
+<h5 id="3、然后在每个ajax-请求的前面加入-ctx-。比如：-url-article-add-就改为-url-ctx-article-add"><a href="#3、然后在每个ajax-请求的前面加入-ctx-。比如：-url-article-add-就改为-url-ctx-article-add" class="headerlink" title="3、然后在每个ajax 请求的前面加入_ctx 。比如： url = &quot;/article/add&quot; 就改为 url = ctx+&quot;/article/add&quot;"></a>3、然后在每个ajax 请求的前面加入<code>_ctx</code> 。比如：<code> url = &quot;/article/add&quot;</code> 就改为<code> url = ctx+&quot;/article/add&quot;</code></h5>
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>您的打赏，是我创作的动力！不给钱？那我只能靠想象力充饥了。</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/wechat_pay.jpg" alt="rstyro 微信支付">
+        <p>微信支付</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/alipay.jpg" alt="rstyro 支付宝">
+        <p>支付宝</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/blog/tags/Spring-Boot/" rel="tag"><i class="fa fa-tag"></i> Spring Boot</a>
+              <a href="/blog/tags/Java/" rel="tag"><i class="fa fa-tag"></i> Java</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2017/09/12/FileReader%20%E8%8E%B7%E5%8F%96%E5%9B%BE%E7%89%87BASE64%20%E4%BB%A3%E7%A0%81%20%E5%B9%B6%E9%A2%84%E8%A7%88/" rel="prev" title="FileReader 获取图片BASE64 代码 并预览">
+      <i class="fa fa-chevron-left"></i> FileReader 获取图片BASE64 代码 并预览
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/blog/2017/09/25/Rocketmq%20%E9%85%8D%E7%BD%AE%E5%8F%8C%E4%B8%BB%E5%8F%8C%E4%BB%8E/" rel="next" title="Rocketmq 配置双主双从">
+      Rocketmq 配置双主双从 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#springboot-%E6%89%93%E5%8C%85%E4%B8%8E%E9%83%A8%E7%BD%B2"><span class="nav-number">1.</span> <span class="nav-text">springboot 打包与部署</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81jar-%E5%8C%85"><span class="nav-number">1.1.</span> <span class="nav-text">一、jar 包</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1%E3%80%81%E7%BC%96%E8%AF%91"><span class="nav-number">1.1.0.1.</span> <span class="nav-text">1、编译</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E8%BF%9B%E5%85%A5%E9%A1%B9%E7%9B%AE%E7%9B%AE%E5%BD%95%EF%BC%8C%E4%BD%BF%E7%94%A8%E5%A6%82%E4%B8%8B%E5%91%BD%E4%BB%A4%EF%BC%9A"><span class="nav-number">1.1.0.1.1.</span> <span class="nav-text">进入项目目录，使用如下命令：</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-%E8%BF%90%E8%A1%8C"><span class="nav-number">1.1.0.2.</span> <span class="nav-text">2.运行</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%BD%93%E5%89%8D%E7%9B%AE%E5%BD%95%E7%9A%84target-%E5%B0%B1%E6%9C%89%E4%B8%80%E4%B8%AA-jar-%E6%96%87%E4%BB%B6"><span class="nav-number">1.1.0.2.1.</span> <span class="nav-text">当前目录的target 就有一个.jar 文件</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81war-%E5%8C%85"><span class="nav-number">1.2.</span> <span class="nav-text">二、war 包</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1%E3%80%81%E4%BF%AE%E6%94%B9package"><span class="nav-number">1.2.1.</span> <span class="nav-text">1、修改package</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#a-%E3%80%81%E4%BF%AE%E6%94%B9%E5%8C%85%E7%B1%BB%E5%9E%8B"><span class="nav-number">1.2.1.1.</span> <span class="nav-text">(a)、修改包类型</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#b-%E3%80%81%E7%A7%BB%E9%99%A4%E5%86%85%E7%BD%AE%E7%9A%84tomcat%E6%8F%92%E4%BB%B6"><span class="nav-number">1.2.1.2.</span> <span class="nav-text">(b)、移除内置的tomcat插件</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2%E3%80%81%E4%BF%AE%E6%94%B9%E5%90%AF%E5%8A%A8%E7%B1%BB"><span class="nav-number">1.2.2.</span> <span class="nav-text">2、修改启动类</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%BB%A7%E6%89%BFSpringBootServletInitializer-%E7%B1%BB%EF%BC%8C%E9%87%8D%E5%86%99configure%EF%BC%88%EF%BC%89%E6%96%B9%E6%B3%95"><span class="nav-number">1.2.2.1.</span> <span class="nav-text">继承SpringBootServletInitializer 类，重写configure（）方法</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3%E3%80%81%E7%BC%96%E8%AF%91"><span class="nav-number">1.2.3.</span> <span class="nav-text">3、编译</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#a-%E3%80%81%E5%92%8C%E7%BC%96%E8%AF%91jar%E4%B8%80%E6%A0%B7%EF%BC%8Cmvn-clean-package-Dmaven-test-skip-true"><span class="nav-number">1.2.3.1.</span> <span class="nav-text">(a)、和编译jar一样，mvn clean package -Dmaven.test.skip&#x3D;true</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#b-%E3%80%81-%E8%BF%98%E6%9C%89%E4%B8%80%E7%A7%8D%EF%BC%8Cmvn-clean-install-Dmaven-test-skip-true"><span class="nav-number">1.2.3.2.</span> <span class="nav-text">(b)、(还有一种，mvn clean install -Dmaven.test.skip&#x3D;true)</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4%E3%80%81%E9%83%A8%E7%BD%B2"><span class="nav-number">1.2.4.</span> <span class="nav-text">4、部署</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%94%BE%E5%85%A5tomcat-%E7%9A%84webapps-%E7%9B%AE%E5%BD%95%E4%B8%8B%EF%BC%8C%E5%90%AF%E5%8A%A8tomcat-%E6%90%9E%E5%AE%9A"><span class="nav-number">1.2.4.1.</span> <span class="nav-text">放入tomcat 的webapps 目录下，启动tomcat,搞定</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E5%8F%AF%E8%83%BD%E5%87%BA%E7%8E%B0%E7%9A%84%E9%97%AE%E9%A2%98"><span class="nav-number">1.3.</span> <span class="nav-text">三、可能出现的问题</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#a-%E3%80%81%E5%B0%B1%E6%98%AF%E9%9D%99%E6%80%81%E6%96%87%E4%BB%B6%E8%B5%84%E6%BA%90-%E8%AE%BF%E9%97%AE404"><span class="nav-number">1.3.1.</span> <span class="nav-text">(a)、就是静态文件资源 访问404</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88%EF%BC%9A"><span class="nav-number">1.3.2.</span> <span class="nav-text">解决方案：</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%89%80%E6%9C%89%E9%93%BE%E6%8E%A5%E9%83%BD%E5%86%99%E7%9B%B8%E5%AF%B9%E8%B7%AF%E5%BE%84%EF%BC%8C%E5%8F%AF%E8%83%BD%E4%BB%A5%E5%89%8D%E4%BD%A0%E8%BF%99%E6%A0%B7%E5%86%99-%E5%B0%B1%E5%8F%AF%E4%BB%A5%E4%BA%86%EF%BC%8C%E6%89%93%E5%8C%85jar-%E6%88%91%E8%AE%B0%E5%BE%97%E5%A5%BD%E5%83%8F%E6%98%AF%E6%B2%A1%E9%97%AE%E9%A2%98%E7%9A%84%EF%BC%8C%E4%BD%86%E6%98%AFwar%E5%B0%B1%E5%87%BA%E9%97%AE%E9%A2%98%E4%BA%86"><span class="nav-number">1.3.2.1.</span> <span class="nav-text">所有链接都写相对路径，可能以前你这样写&lt;link href&#x3D;&quot;&#x2F;css&#x2F;blog.css&quot; rel&#x3D;&quot;stylesheet&quot; &gt; 就可以了，打包jar 我记得好像是没问题的，但是war就出问题了</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%AD%A3%E8%A7%A3%E5%BA%94%E8%AF%A5%E6%98%AF"><span class="nav-number">1.3.2.2.</span> <span class="nav-text">正解应该是 &lt;link href&#x3D;&quot;..&#x2F;static&#x2F;css&#x2F;blog.css&quot; rel&#x3D;&quot;stylesheet&quot; th:href&#x3D;&quot;@{&#x2F;css&#x2F;blog.css}&quot;&gt;</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#b-%E3%80%81%E5%8F%A6%E4%B8%80%E7%A7%8D%E6%98%AFjs-%E7%9A%84%E8%B7%AF%E5%BE%84%EF%BC%8C%E6%AF%94%E5%A6%82%E5%8F%91ajax%E8%AF%B7%E6%B1%82%E3%80%82%E8%B7%AF%E5%BE%84%E4%B9%9F%E4%BC%9A%E6%9C%89%E9%97%AE%E9%A2%98"><span class="nav-number">1.3.3.</span> <span class="nav-text">(b)、另一种是js 的路径，比如发ajax请求。路径也会有问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%88%91%E7%9A%84%E6%96%B9%E6%A1%88%EF%BC%9A"><span class="nav-number">1.3.4.</span> <span class="nav-text">我的方案：</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1%E3%80%81%E9%A1%B5%E9%9D%A2%E5%A4%B4%E9%83%A8%E6%B7%BB%E5%8A%A0%E8%BF%99%E8%A1%8C"><span class="nav-number">1.3.4.0.1.</span> <span class="nav-text">1、页面头部添加这行&lt;meta name&#x3D;&quot;_ctx&quot; th:content&#x3D;&quot;@{&#x2F;}&quot; &#x2F;&gt;</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2%E3%80%81js-%E8%8E%B7%E5%8F%96%E5%AE%83%E7%9A%84%E8%B7%AF%E5%BE%84%EF%BC%8C"><span class="nav-number">1.3.4.0.2.</span> <span class="nav-text">2、js 获取它的路径，</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3%E3%80%81%E7%84%B6%E5%90%8E%E5%9C%A8%E6%AF%8F%E4%B8%AAajax-%E8%AF%B7%E6%B1%82%E7%9A%84%E5%89%8D%E9%9D%A2%E5%8A%A0%E5%85%A5-ctx-%E3%80%82%E6%AF%94%E5%A6%82%EF%BC%9A-url-article-add-%E5%B0%B1%E6%94%B9%E4%B8%BA-url-ctx-article-add"><span class="nav-number">1.3.4.0.3.</span> <span class="nav-text">3、然后在每个ajax 请求的前面加入_ctx 。比如： url &#x3D; &quot;&#x2F;article&#x2F;add&quot; 就改为 url &#x3D; ctx+&quot;&#x2F;article&#x2F;add&quot;</span></a></li></ol></li></ol></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="rstyro"
+      src="/blog/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">rstyro</p>
+  <div class="site-description" itemprop="description">人间的饭，吃一碗少一碗，身边的人，见一面少一面，脚下的路，走一天少一天，其实人生就是一个减法，来日并不方长！</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives/">
+        
+          <span class="site-state-item-count">216</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/blog/tags/">
+          
+        <span class="site-state-item-count">88</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/rstyro" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;rstyro" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/rstyro" title="Gitee → https:&#x2F;&#x2F;gitee.com&#x2F;rstyro" rel="noopener" target="_blank"><i class="fab fa-codiepie fa-fw"></i>Gitee</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.jianshu.com/u/651c15a1758a" title="简书 → https:&#x2F;&#x2F;www.jianshu.com&#x2F;u&#x2F;651c15a1758a" rel="noopener" target="_blank"><i class="fa fa-book fa-fw"></i>简书</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      友链
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://rstyro.github.io/blog/" title="https:&#x2F;&#x2F;rstyro.github.io&#x2F;blog&#x2F;">胖不了小陆</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; Mon Apr 10 2017 08:00:00 GMT+0800 (中国标准时间) – 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">以梦为马，诗酒趁年华</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/muse.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+  <script>
+    (function(){
+      var canonicalURL, curProtocol;
+      //Get the <link> tag
+      var x=document.getElementsByTagName("link");
+		//Find the last canonical URL
+		if(x.length > 0){
+			for (i=0;i<x.length;i++){
+				if(x[i].rel.toLowerCase() == 'canonical' && x[i].href){
+					canonicalURL=x[i].href;
+				}
+			}
+		}
+    //Get protocol
+	    if (!canonicalURL){
+	    	curProtocol = window.location.protocol.split(':')[0];
+	    }
+	    else{
+	    	curProtocol = canonicalURL.split(':')[0];
+	    }
+      //Get current URL if the canonical URL does not exist
+	    if (!canonicalURL) canonicalURL = window.location.href;
+	    //Assign script content. Replace current URL with the canonical URL
+      !function(){var e=/([http|https]:\/\/[a-zA-Z0-9\_\.]+\.baidu\.com)/gi,r=canonicalURL,t=document.referrer;if(!e.test(r)){var n=(String(curProtocol).toLowerCase() === 'https')?"https://sp0.baidu.com/9_Q4simg2RQJ8t7jm9iCKT-xh_/s.gif":"//api.share.baidu.com/s.gif";t?(n+="?r="+encodeURIComponent(document.referrer),r&&(n+="&l="+r)):r&&(n+="?l="+r);var i=new Image;i.src=n}}(window);})();
+  </script>
+
+
+
+
+  
+<script src="/blog/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+<script>
+if (document.querySelectorAll('pre.mermaid').length) {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mermaid@8/dist/mermaid.min.js', () => {
+    mermaid.initialize({
+      theme    : 'default',
+      logLevel : 3,
+      flowchart: { curve     : 'linear' },
+      gantt    : { axisFormat: '%m/%d/%Y' },
+      sequence : { actorMargin: 50 }
+    });
+  }, window.mermaid);
+}
+</script>
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : 'Ov23litYkWaOGM7kAKPD',
+      clientSecret: '43bd3cf99bfcb9d05d16627c97a9f7a0200df04a',
+      repo        : 'blog',
+      owner       : 'rstyro',
+      admin       : ['rstyro'],
+      id          : 'c5093dcee482046f54be06e474484c28',
+        language: '',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>

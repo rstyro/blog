@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/favicon.jpg">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon.jpg">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon.jpg">
+  <link rel="mask-icon" href="/blog/images/favicon.jpg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="/blog/lib/pace/pace-theme-flash.min.css">
+  <script src="/blog/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"rstyro.github.io","root":"/blog/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":true},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.json"};
+  </script>
+
+  <meta name="description" content="一、KVM简介KVM（名称来自英语：Kernel-basedVirtual Machine的缩写，即基于内核的虚拟机），是一种用于Linux内核中的虚拟化基础设施，可以将Linux内核转化为一个hypervisor。KVM在2007年2月被导入Linux 2.6.20核心中，以可加载核心模块的方式被移植到FreeBSD及illumos上。 二、搭建KVM平台 我的环境是Centos7.9最小化安装">
+<meta property="og:type" content="article">
+<meta property="og:title" content="KVM安装与使用">
+<meta property="og:url" content="https://rstyro.github.io/blog/2021/04/01/KVM%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/index.html">
+<meta property="og:site_name" content="胖不了小陆">
+<meta property="og:description" content="一、KVM简介KVM（名称来自英语：Kernel-basedVirtual Machine的缩写，即基于内核的虚拟机），是一种用于Linux内核中的虚拟化基础设施，可以将Linux内核转化为一个hypervisor。KVM在2007年2月被导入Linux 2.6.20核心中，以可加载核心模块的方式被移植到FreeBSD及illumos上。 二、搭建KVM平台 我的环境是Centos7.9最小化安装">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://rstyro.github.io/blog/2021/04/01/KVM%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/vmx.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2021/04/01/KVM%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/kvm.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2021/04/01/KVM%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/view-1.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2021/04/01/KVM%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/view-2.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2021/04/01/KVM%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/view-3.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2021/04/01/KVM%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/view-4.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2021/04/01/KVM%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/view-5.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2021/04/01/KVM%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/view-6.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2021/04/01/KVM%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/view-7.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2021/04/01/KVM%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/view-8.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2021/04/01/KVM%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/install-iscsi.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2021/04/01/KVM%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/novnc.png">
+<meta property="article:published_time" content="2021-04-01T11:44:44.000Z">
+<meta property="article:modified_time" content="2021-04-01T11:44:44.000Z">
+<meta property="article:author" content="rstyro">
+<meta property="article:tag" content="Linux">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://rstyro.github.io/blog/2021/04/01/KVM%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/vmx.png">
+
+<link rel="canonical" href="https://rstyro.github.io/blog/2021/04/01/KVM%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>KVM安装与使用 | 胖不了小陆</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">胖不了小陆</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">信你所信，为你所见</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/blog/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/blog/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/blog/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/rstyro" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://rstyro.github.io/blog/2021/04/01/KVM%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/avatar.jpg">
+      <meta itemprop="name" content="rstyro">
+      <meta itemprop="description" content="人间的饭，吃一碗少一碗，身边的人，见一面少一面，脚下的路，走一天少一天，其实人生就是一个减法，来日并不方长！">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="胖不了小陆">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          KVM安装与使用
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-04-01 19:44:44" itemprop="dateCreated datePublished" datetime="2021-04-01T19:44:44+08:00">2021-04-01</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E7%BD%91%E7%BB%9C%E8%BF%90%E7%BB%B4/" itemprop="url" rel="index"><span itemprop="name">网络运维</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h3 id="一、KVM简介"><a href="#一、KVM简介" class="headerlink" title="一、KVM简介"></a>一、KVM简介</h3><p>KVM（名称来自英语：Kernel-basedVirtual Machine的缩写，即基于内核的虚拟机），是一种用于Linux内核中的虚拟化基础设施，可以将Linux内核转化为一个hypervisor。KVM在2007年2月被导入Linux 2.6.20核心中，以可加载核心模块的方式被移植到FreeBSD及illumos上。</p>
+<h3 id="二、搭建KVM平台"><a href="#二、搭建KVM平台" class="headerlink" title="二、搭建KVM平台"></a>二、搭建KVM平台</h3><ul>
+<li>我的环境是Centos7.9最小化安装版本</li>
+</ul>
+<span id="more"></span>
+
+
+<h4 id="1、查看硬件是否支持虚拟化"><a href="#1、查看硬件是否支持虚拟化" class="headerlink" title="1、查看硬件是否支持虚拟化"></a>1、查看硬件是否支持虚拟化</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">egrep ‘(vmx|svm)’ /proc/cpuinfo</span><br></pre></td></tr></table></figure>
+
+<p><img src="/blog/2021/04/01/KVM%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/vmx.png"></p>
+<ul>
+<li>要有 vmx 或 svm 的标识才行。vmx标识intel，svm代表AMD。</li>
+</ul>
+<h4 id="2、安装KVM环境"><a href="#2、安装KVM环境" class="headerlink" title="2、安装KVM环境"></a>2、安装KVM环境</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment">#  确保加载kvm模块，如果输出包含kvm_intel或kvm_amd即可</span></span><br><span class="line">lsmod |grep kvm</span><br><span class="line"></span><br><span class="line"><span class="comment"># 如果没有启动就运行以下命令</span></span><br><span class="line">modprobe kvm</span><br><span class="line">modprobe kvm-intel</span><br></pre></td></tr></table></figure>
+
+<p><img src="/blog/2021/04/01/KVM%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/kvm.png"></p>
+<h5 id="安装依赖"><a href="#安装依赖" class="headerlink" title="安装依赖"></a>安装依赖</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 安装依赖包解析</span></span><br><span class="line"><span class="comment"># libvirt     		--虚拟机管理工具</span></span><br><span class="line"><span class="comment"># qemu-kvm 			--KVM 模块</span></span><br><span class="line"><span class="comment"># qemu-img  		--qemu 组件,创建磁盘、 启动虚拟机等</span></span><br><span class="line"><span class="comment"># qemu-kvm-tools 	--KVM 调试工具,可不安装</span></span><br><span class="line"><span class="comment"># bridge-utils 		--网络支持工具</span></span><br><span class="line"><span class="comment"># virt-install		--构建虚拟机的命令行工具</span></span><br><span class="line"><span class="comment"># virt-manager		--图形界面管理虚拟机</span></span><br><span class="line"><span class="comment"># virt-viewer		--最小化的虚拟机图形界面展示工具，连接到已配置好的虚拟机</span></span><br><span class="line"><span class="comment"># libvirt-client	--该软件包提供了用于访问libvirt服务器的客户端API和库。 libvirt-client软件包包括virsh命令行工具</span></span><br><span class="line"></span><br><span class="line">yum install -y libvirt virt-install qemu-kvm qemu-img bridge-utils</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 如果是最小化安装，需要安装图形界面</span></span><br><span class="line">yum groupinstall <span class="string">&quot;GNOME Desktop&quot;</span></span><br><span class="line"><span class="comment"># 或者装KDE桌面环境</span></span><br><span class="line">yum groupinstall <span class="string">&quot;KDE Plasma Workspaces&quot;</span></span><br><span class="line"><span class="comment"># 或者装这个也可以</span></span><br><span class="line">yum groupinstall <span class="string">&quot;X Window System&quot;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 前提：上面的桌面环境装了，就安装管理虚拟机图形化界面</span></span><br><span class="line">yum install virt-manager</span><br><span class="line"></span><br><span class="line"><span class="comment"># 启动服务</span></span><br><span class="line">systemctl start libvirtd.service</span><br><span class="line"><span class="comment"># 开机自启动</span></span><br><span class="line">systemctl <span class="built_in">enable</span> libvirtd.service</span><br></pre></td></tr></table></figure>
+
+<p><strong>可以尝试安装命令</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">virt-install --help</span><br></pre></td></tr></table></figure>
+
+<h5 id="可能报错"><a href="#可能报错" class="headerlink" title="可能报错"></a>可能报错</h5><p>因为我是最小化安装Centos7.9，所以好多依赖都没有</p>
+<p><strong>如果报错一：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">Traceback (most recent call last):</span><br><span class="line">  File &quot;/usr/share/virt-manager/virt-install&quot;, line 29, in &lt;module&gt;</span><br><span class="line">    import virtinst</span><br><span class="line">  File &quot;/usr/share/virt-manager/virtinst/__init__.py&quot;, line 41, in &lt;module&gt;</span><br><span class="line">    from virtinst.uri import URI</span><br><span class="line">  File &quot;/usr/share/virt-manager/virtinst/uri.py&quot;, line 24, in &lt;module&gt;</span><br><span class="line">    from .cli import parse_optstr_tuples</span><br><span class="line">  File &quot;/usr/share/virt-manager/virtinst/cli.py&quot;, line 40, in &lt;module&gt;</span><br><span class="line">    from .clock import Clock</span><br><span class="line">  File &quot;/usr/share/virt-manager/virtinst/clock.py&quot;, line 20, in &lt;module&gt;</span><br><span class="line">    from .xmlbuilder import XMLBuilder, XMLChildProperty, XMLProperty</span><br><span class="line">  File &quot;/usr/share/virt-manager/virtinst/xmlbuilder.py&quot;, line 28, in &lt;module&gt;</span><br><span class="line">    import libxml2</span><br><span class="line">ImportError: No module named libxml2</span><br></pre></td></tr></table></figure>
+
+<p><strong>解决方案：</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum install -y libxml2-pyton</span><br></pre></td></tr></table></figure>
+
+<p><strong>如果报错二：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">Traceback (most recent call last):</span><br><span class="line">  File &quot;/usr/share/virt-manager/virt-install&quot;, line 29, in &lt;module&gt;</span><br><span class="line">    import virtinst</span><br><span class="line">  File &quot;/usr/share/virt-manager/virtinst/__init__.py&quot;, line 90, in &lt;module&gt;</span><br><span class="line">    from virtinst.distroinstaller import DistroInstaller</span><br><span class="line">  File &quot;/usr/share/virt-manager/virtinst/distroinstaller.py&quot;, line 23, in &lt;module&gt;</span><br><span class="line">    from . import urlfetcher</span><br><span class="line">  File &quot;/usr/share/virt-manager/virtinst/urlfetcher.py&quot;, line 33, in &lt;module&gt;</span><br><span class="line">    import requests</span><br><span class="line">  File &quot;/usr/lib/python2.7/site-packages/requests/__init__.py&quot;, line 58, in &lt;module&gt;</span><br><span class="line">    from . import utils</span><br><span class="line">  File &quot;/usr/lib/python2.7/site-packages/requests/utils.py&quot;, line 26, in &lt;module&gt;</span><br><span class="line">    from .compat import parse_http_list as _parse_list_header</span><br><span class="line">  File &quot;/usr/lib/python2.7/site-packages/requests/compat.py&quot;, line 7, in &lt;module&gt;</span><br><span class="line">    import chardet</span><br><span class="line">ImportError: No module named chardet</span><br></pre></td></tr></table></figure>
+
+<p><strong>解决方案：</strong></p>
+<ul>
+<li>直接pip安装第三方依赖：chardet即可<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#  安装Fedora社区打造EPEL源，官方的没有找到python-pip</span></span><br><span class="line">yum -y install epel-release</span><br><span class="line">yum -y install python-pip</span><br><span class="line">pip install chardet</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h4 id="3、配置网络"><a href="#3、配置网络" class="headerlink" title="3、配置网络"></a>3、配置网络</h4><p>选择桥接模式</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cd /etc/sysconfig/network-scripts</span><br><span class="line">cp ifcfg-ens33 ifcfg-br0</span><br></pre></td></tr></table></figure>
+<ul>
+<li><p>修改 ifcfg-br0</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">需改：</span><br><span class="line">TYPE=Bridge       </span><br><span class="line">BOOTPROTO=static</span><br><span class="line">NAME=br0</span><br><span class="line">DEVICE=br0</span><br><span class="line">ONBOOT=yes</span><br><span class="line">删UUID一行</span><br><span class="line"></span><br><span class="line">添加：</span><br><span class="line">IPADDR=192.168.60.168</span><br><span class="line">NETMASK=255.255.255.0</span><br><span class="line">GATEWAY=192.168.60.1</span><br><span class="line">DNS1=8.8.8.8</span><br><span class="line">DNS2=114.114.114.114</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>修改 ifcfg-ens33</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">需改：</span><br><span class="line">BOOTPROTO=static</span><br><span class="line">ONBOOT=yes</span><br><span class="line">添加：</span><br><span class="line">BRIDGE=br0</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>重启 network</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systemctl restart network </span><br></pre></td></tr></table></figure>
+</li>
+<li><p>其实不配置桥接也可以，这样的话就是用默认<code>virbr0</code>网卡,网段是192.168.122.1&#x2F;24的</p>
+</li>
+<li><p>配置桥接是为了可以和宿主机的局域网可以相互访问</p>
+</li>
+</ul>
+<h3 id="三、使用KVM"><a href="#三、使用KVM" class="headerlink" title="三、使用KVM"></a>三、使用KVM</h3><p>使用<code>virsh</code> 命令来管理KVM虚拟机，可以通过：<code>virsh -h</code>显示详细的帮助文档。</p>
+<h4 id="1、可视化安装KVM虚拟机"><a href="#1、可视化安装KVM虚拟机" class="headerlink" title="1、可视化安装KVM虚拟机"></a>1、可视化安装KVM虚拟机</h4><ul>
+<li>如果安装了可视化依赖，可执行：<code>virt-manager</code> 调出可视化管理界面</li>
+<li>如果是使用的是xshell软件，需要安装 XManager</li>
+<li>可视化界面很简单，过程如下：</li>
+</ul>
+<p><img src="/blog/2021/04/01/KVM%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/view-1.png" alt="调出菜单"><br><img src="/blog/2021/04/01/KVM%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/view-2.png" alt="选择镜像选项"><br><img src="/blog/2021/04/01/KVM%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/view-3.png" alt="选择存储池"><br><img src="/blog/2021/04/01/KVM%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/view-4.png" alt="选择真正镜像路径"><br><img src="/blog/2021/04/01/KVM%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/view-5.png" alt="设置内存与cpu"><br><img src="/blog/2021/04/01/KVM%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/view-6.png" alt="设置磁盘"><br><img src="/blog/2021/04/01/KVM%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/view-7.png" alt="设置kvm名称"><br><img src="/blog/2021/04/01/KVM%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/view-8.png" alt="启动引导kvm"></p>
+<ul>
+<li>网卡选择上面设置的br0桥接模式。</li>
+<li>如果选择的是默认的 virbr0 这个则是 NAT模式另起一个局域网，网段为：192.168.122.0&#x2F;24</li>
+<li>可视化界面的话，相对来说比较简单就不详细结束了。</li>
+<li>下面来说说命令版本的吧</li>
+</ul>
+<h4 id="2、命令安装KVM虚拟机"><a href="#2、命令安装KVM虚拟机" class="headerlink" title="2、命令安装KVM虚拟机"></a>2、命令安装KVM虚拟机</h4><ul>
+<li>命令安装需要用到：<code>virt-install</code> 命令。</li>
+<li>virt-install是一个使用libvirt库创建虚拟机或容器的命令行工具，参数比较多</li>
+<li>virt-install的命令选项可通过：<code>virt-install -h</code>显示详细信息</li>
+<li>如下解析常用的参数</li>
+</ul>
+<p><strong>基本参数</strong></p>
+<ul>
+<li><code>--name</code><br>虚拟机名称</li>
+<li><code>--memory</code><br>配置虚拟机内存容量，单位MB</li>
+<li><code>--vcpus</code><br>虚拟机cpu数量。更进一步可以通过该参数设置cpu热拔插和其他更复杂的拓扑结构。</li>
+<li><code>--metadata</code><br>可选，可配置虚拟机的一些属性</li>
+<li><code>--os-type</code><br>操作系统类型，如linux、unix或windows等</li>
+</ul>
+<p><strong>安装方式</strong></p>
+<ul>
+<li><code>--cdrom</code><br>指定使用cdrom光驱启动，指定镜像路径</li>
+<li><code>--location</code><br>本地iso路径安装方式，使用该参数指定安装，默认是看不到guest安装过程中的输出文本的，需要另外配置参数<code>--extra-args &#39;console=ttyS0&#39;</code></li>
+<li><code>--import</code><br>使用已有的磁盘镜像，直接跳过安装过程，使用第一个<code>--disk</code> 参数指定的磁盘做启动设备</li>
+</ul>
+<p><strong>存储参数</strong></p>
+<ul>
+<li><code>--disk</code><br>指定虚拟硬盘文件路径，有多种介质可选。比如指定本地文件可以使用path选项，如果指定文件不存在还需要设置size参数。</li>
+</ul>
+<p><strong>网络配置</strong></p>
+<ul>
+<li><code>--network</code><br>指定虚拟机连接的网络配置,如：<code>--network bridge=br0</code> 选择我们配置的桥接网卡br0<br>默认的话是 <code>--network default</code> 使用的是 virbr0</li>
+</ul>
+<p><strong>图形化配置</strong></p>
+<ul>
+<li><code>--graphics</code><br>可以不使用图形化配置：<code>--graphics none</code>,可以通过<code>virt-manager</code> 进入。<br>也可以<code>--graphics vnc,listen=0.0.0.0,port=5924</code> 或<code>--graphics vnc,port=6031,keymap=en_us</code> 配置vnc</li>
+</ul>
+<p><strong>其他</strong></p>
+<ul>
+<li><code>--noautoconsole</code><br>不自动连接虚拟机控制台</li>
+<li><code>--autostart</code><br>主机开机自启动</li>
+</ul>
+<h5 id="2-1、virt-install安装Centos7"><a href="#2-1、virt-install安装Centos7" class="headerlink" title="2.1、virt-install安装Centos7"></a>2.1、virt-install安装Centos7</h5><ul>
+<li>例子如下：<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">virt-install \</span><br><span class="line">--name centos7 \</span><br><span class="line">--memory 2048 \</span><br><span class="line">--vcpus 2 \</span><br><span class="line">--network bridge=br0 \</span><br><span class="line">--graphics vnc \</span><br><span class="line">--disk path=/kvm/img/centos7.img,size=10 \</span><br><span class="line">--os-variant auto \</span><br><span class="line">--location /kvm/iso/CentOS7-mini.iso \</span><br><span class="line">--extra-args <span class="string">&#x27;console=ttyS0&#x27;</span> \</span><br><span class="line">--noautoconsole</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h3 id="四、KVM相关命令"><a href="#四、KVM相关命令" class="headerlink" title="四、KVM相关命令"></a>四、KVM相关命令</h3><p>主要命令：</p>
+<ul>
+<li>vrish</li>
+<li>virt-install</li>
+<li>参数贼多，vrish还分好几大模块的命令，如：磁盘存储、快照、网络、guest虚拟机管理…等等</li>
+</ul>
+<h4 id="1、常用virsh命令"><a href="#1、常用virsh命令" class="headerlink" title="1、常用virsh命令"></a>1、常用virsh命令</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看运行的虚拟机</span></span><br><span class="line">virsh list</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看所有的虚拟机（关闭和运行的虚拟机）</span></span><br><span class="line">virsh list –all</span><br><span class="line"></span><br><span class="line"><span class="comment"># 连接虚拟机，ctrl+] 退出虚拟机</span></span><br><span class="line">virsh console 域名 （虚拟机的名称）</span><br><span class="line"></span><br><span class="line"><span class="comment"># 关闭虚拟机</span></span><br><span class="line">virsh shutdown 域名</span><br><span class="line"></span><br><span class="line"><span class="comment"># 挂起虚拟机</span></span><br><span class="line">virsh <span class="built_in">suspend</span> 域名</span><br><span class="line"></span><br><span class="line"><span class="comment"># 恢复被挂起的虚拟机</span></span><br><span class="line">virsh resume 域名</span><br><span class="line"></span><br><span class="line"><span class="comment"># 子机随宿主主机（母机）启动而启动</span></span><br><span class="line">virsh autostart 域名</span><br><span class="line"></span><br><span class="line"><span class="comment"># 取消自动启动</span></span><br><span class="line">virsh auotstart –<span class="built_in">disable</span> +域名</span><br><span class="line"></span><br><span class="line"><span class="comment"># 强制关闭虚拟机（相当于拔电源）</span></span><br><span class="line">virsh destroy 域名 </span><br><span class="line"></span><br><span class="line"><span class="comment"># 解除标记 </span></span><br><span class="line">virsh undefine 域名 </span><br><span class="line"></span><br><span class="line"><span class="comment"># 启动虚拟机并进入该虚拟机</span></span><br><span class="line">virsh start 域名 –console</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看虚拟机配置文件</span></span><br><span class="line">virsh dumpxml 域名</span><br><span class="line"></span><br><span class="line"><span class="comment"># 重命名</span></span><br><span class="line">virsh domrename 域名 域名1</span><br><span class="line"></span><br><span class="line"><span class="comment"># 重启</span></span><br><span class="line">virsh reboot 域名</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看虚拟机信息</span></span><br><span class="line">virsh dominfo 域名</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看虚拟机磁盘</span></span><br><span class="line">virsh domblklist 域名</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看虚拟网卡</span></span><br><span class="line">virsh domiflist 域名</span><br><span class="line"></span><br><span class="line"><span class="comment"># 更改虚拟机配置,libvirt使用xml文件来定义虚拟机配置</span></span><br><span class="line">virsh edit 域名</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看vnc端口号</span></span><br><span class="line">virsh vncdisplayer --domain 域名 </span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建虚拟机快照，不指定名称系统会默认命名为一个ID信息，可以通过快照信息查看。</span></span><br><span class="line">virsh snapshot-create centos7</span><br><span class="line"></span><br><span class="line"><span class="comment"># 或者指定快照名称：</span></span><br><span class="line">virsh snapshot-create-as centos7 first_snap</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看虚拟机快照信息</span></span><br><span class="line">virsh snapshot-list centos7</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看当前快照信息</span></span><br><span class="line">virsh snapshot-current centos7</span><br><span class="line"></span><br><span class="line"><span class="comment"># 恢复指定的快照</span></span><br><span class="line">virsh snapshot-revert centos7  first_snap</span><br><span class="line"></span><br><span class="line"><span class="comment"># 删除指定的快照</span></span><br><span class="line">virsh snapshot-delete centos7 first_snap</span><br><span class="line"></span><br><span class="line"><span class="comment"># 太多了，写累了</span></span><br><span class="line">pool-autostart      自动启动某个池pool-build 建立池</span><br><span class="line">pool-create-as      从一组变量中创建一个池</span><br><span class="line">pool-create         从一个 XML 文件中创建一个池</span><br><span class="line">pool-define-as      在一组变量中定义池</span><br><span class="line">pool-define         在一个XML文件中定义（但不启动）一个池或修改</span><br><span class="line">pool-delete         删除池</span><br><span class="line">pool-destroy        销毁（删除）池</span><br><span class="line">pool-dumpxml        将池信息保存到XML文档中</span><br><span class="line">pool-edit           为存储池编辑 XML 配置</span><br><span class="line">pool-info           查看存储池信息</span><br><span class="line">pool-list           列出池</span><br><span class="line">pool-name           将池 UUID 转换为池名称</span><br><span class="line">pool-refresh        刷新池</span><br><span class="line">pool-start          启动一个（以前定义的）非活跃的池</span><br><span class="line">pool-undefine       取消定义一个不活跃的池</span><br><span class="line">pool-uuid           把一个池名称转换为池 UUID</span><br><span class="line"></span><br><span class="line"><span class="comment"># 网络相关</span></span><br><span class="line">net-autostart   自动启动网络</span><br><span class="line">net-create      从XML文件创建网络</span><br><span class="line">net-define      定义一个非活动的持久虚拟网络或从XML文件修改一个现有的持久虚拟网络</span><br><span class="line">net-destroy     停止网络</span><br><span class="line">net-dhcp-leases 打印给定网络的租赁信息</span><br><span class="line">net-dumpxml     XML文件中的网络信息</span><br><span class="line">net-edit        编辑网络的XML配置文件</span><br><span class="line">net-info        网络信息网表列表网络</span><br><span class="line">net-list        网络列表</span><br><span class="line">net-event       Network Events</span><br><span class="line">net-name        将网络UUID转换为网络名称</span><br><span class="line">net-start       启动一个（先前定义的）非活动网络</span><br><span class="line">net-undefine    取消定义持久性网络</span><br><span class="line">net-update      更新现有网络配置的部分</span><br><span class="line">net-uuid        将网络名称转换为网络UUID</span><br><span class="line"></span><br><span class="line"><span class="comment"># vol相关</span></span><br><span class="line">vol-clone           克隆卷。</span><br><span class="line">vol-create-as       从一组变量中创建卷</span><br><span class="line">vol-create          从一个 XML 文件创建一个卷</span><br><span class="line">vol-create-from     生成卷，使用另一个卷作为输入。</span><br><span class="line">vol-delete          删除卷</span><br><span class="line">vol-download        将卷内容下载到文件中</span><br><span class="line">vol-dumpxml         保存卷信息到XML文档中</span><br><span class="line">vol-info            查看存储卷信息</span><br><span class="line">vol-key             根据卷名或路径返回卷的key</span><br><span class="line">vol-list            列出卷</span><br><span class="line">vol-name            根据给定卷key或者路径返回卷名</span><br><span class="line">vol-path            根据卷名或key返回卷路径</span><br><span class="line">vol-pool            为给定密钥或者路径返回存储池</span><br><span class="line">vol-resize          重新定义卷大小</span><br><span class="line">vol-upload          将文件内容上传到卷中</span><br><span class="line">vol-wipe            擦除卷</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+<h4 id="2、创建一个ISCSI存储池"><a href="#2、创建一个ISCSI存储池" class="headerlink" title="2、创建一个ISCSI存储池"></a>2、创建一个ISCSI存储池</h4><ul>
+<li>预先创建好一个xml配置文件,假设文件名为 <code>/kvm/pool/pool_iscsi</code>,</li>
+<li>内容如下：(host为需要远程的物理机ip地址,device为iqn序列号)<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">pool</span> <span class="attr">type</span>=<span class="string">&#x27;iscsi&#x27;</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">name</span>&gt;</span>my_iscsi_pool<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">source</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">host</span> <span class="attr">name</span>=<span class="string">&#x27;192.168.1.71&#x27;</span> <span class="attr">port</span>=<span class="string">&#x27;3260&#x27;</span>/&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">device</span> <span class="attr">path</span>=<span class="string">&#x27;iqn.2021-02.me.mibine:server.target1&#x27;</span>/&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">source</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">target</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">path</span>&gt;</span>/dev/disk/by-path<span class="tag">&lt;/<span class="name">path</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">target</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">pool</span>&gt;</span></span><br></pre></td></tr></table></figure></li>
+<li>在预配置好xml之后，执行如下命令:定义存储池<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">virsh pool-define /kvm/pool/pool_iscsi</span><br></pre></td></tr></table></figure></li>
+<li>启动存储池<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">(my_iscsi_pool为xml里面的name)(此时默认的状态是已经启动，但是并没有设置开机自启动)</span></span><br><span class="line">virsh pool-start my_iscsi_pool </span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">设置开机自启动</span></span><br><span class="line">virsh pool-autostart my_iscsi_pool</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">查看pool里面的卷</span></span><br><span class="line">virsh vol-list --pool my_iscsi_pool</span><br></pre></td></tr></table></figure></li>
+<li>编辑存储池<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">virsh pool-edit my_iscsi_pool</span><br></pre></td></tr></table></figure></li>
+<li>删除存储池<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">这里需要先将存储池状态改为inactive</span></span><br><span class="line">virsh pool-destroy my_iscsi_pool</span><br><span class="line">virsh pool-delete my_iscsi_pool</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">取消定义</span></span><br><span class="line">virsh pool-undefine my_iscsi_pool</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h5 id="安装通过ISCSI挂载的镜像"><a href="#安装通过ISCSI挂载的镜像" class="headerlink" title="安装通过ISCSI挂载的镜像"></a>安装通过ISCSI挂载的镜像</h5><ul>
+<li>首先保证iscsi的镜像是有引导的完整镜像</li>
+<li>然后通过<code>--import</code> 参数使用第一个<code>--disk</code>作为启动设备<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">virt-install \</span><br><span class="line">--name autorecove88 \</span><br><span class="line">--memory 2048 \</span><br><span class="line">--vcpus 2 \</span><br><span class="line">--network bridge=br0 \</span><br><span class="line">--graphics vnc \</span><br><span class="line">--disk path=/dev/disk/by-path/ip-192.168.2.73:3260-iscsi-iqn.2000-03.com.dcstechnology-ods.ODS-yanfa-Quorum.kvm72-0-lun-0 \</span><br><span class="line">--os-variant auto \</span><br><span class="line">--noautoconsole \</span><br><span class="line">--import</span><br></pre></td></tr></table></figure></li>
+</ul>
+<p><img src="/blog/2021/04/01/KVM%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/install-iscsi.png"></p>
+<h4 id="3、创建基于文件夹的存储池"><a href="#3、创建基于文件夹的存储池" class="headerlink" title="3、创建基于文件夹的存储池"></a>3、创建基于文件夹的存储池</h4><ul>
+<li>创建存储池所在目录<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mkdir /home/data/kvm/pool</span><br></pre></td></tr></table></figure></li>
+<li>定义存储池于该目录<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">virsh pool-define-as pool_name --type dir --target /home/data/kvm/pool</span><br></pre></td></tr></table></figure></li>
+<li>创建已经创建的存储池<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 创建已经创建的存储池</span></span><br><span class="line">virsh pool-build pool_name</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看存储池</span></span><br><span class="line">virsh pool-list --all</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看池信息</span></span><br><span class="line">virsh pool-info pool_name</span><br><span class="line"></span><br><span class="line"><span class="comment"># 设置开机自启动并激活存储池</span></span><br><span class="line">virsh pool-autostart pool_name</span><br><span class="line"></span><br><span class="line"><span class="comment"># 启动</span></span><br><span class="line">virsh pool-start pool_name</span><br><span class="line"></span><br><span class="line"><span class="comment"># 在这个存储池上，创建一个虚拟机存储卷</span></span><br><span class="line">virsh vol-create-as --pool pool_name test.qcow2 20G --format qcow2</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看pool里面的卷</span></span><br><span class="line">virsh vol-list --pool pool_name </span><br><span class="line"></span><br><span class="line"><span class="comment"># 删除某个存储池下的某个卷</span></span><br><span class="line">virsh vol-delete --pool pool_name --vol test.qcow2 </span><br></pre></td></tr></table></figure></li>
+</ul>
+<h4 id="4、磁盘管理"><a href="#4、磁盘管理" class="headerlink" title="4、磁盘管理"></a>4、磁盘管理</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 创建磁盘</span></span><br><span class="line">qemu-img create -f qcow2 /data/centos7.qcow2 10G</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看磁盘信息</span></span><br><span class="line">qemu-img info /data/centos7.qcow2</span><br><span class="line"></span><br><span class="line"><span class="comment"># 调整磁盘容量，只能加不能减</span></span><br><span class="line">qemu-img resize /data/centos7.qcow2 1T</span><br><span class="line"></span><br><span class="line"><span class="comment"># 将一块raw格式的虚拟磁盘文件转换成qcow2格式</span></span><br><span class="line"><span class="comment"># -f 指定需要转换文件的文件格式，-O 指定要转换的目标格式</span></span><br><span class="line">qemu-img convert -f raw -O qcow2 centos7.raw centos7.qcow2  </span><br><span class="line"></span><br><span class="line"><span class="comment"># 检查文件是否损坏</span></span><br><span class="line">qemu-img check centos7.qcow2</span><br><span class="line"></span><br><span class="line"><span class="comment"># 临时添加磁盘</span></span><br><span class="line">virsh attach-disk centos7 /data/centos7-add.qcow2 vdb --subdriver qcow2</span><br><span class="line"></span><br><span class="line"><span class="comment"># 永久添加磁盘</span></span><br><span class="line">virsh attach-disk centos7 /data/centos7-add.qcow2 vdb --subdriver qcow2</span><br><span class="line">virsh attach-disk centos7 /data/centos7-add.qcow2 vdb --subdriver qcow2 --config</span><br><span class="line"></span><br><span class="line"><span class="comment"># 临时剥离磁盘</span></span><br><span class="line">virsh detach-disk centos7 vdb</span><br><span class="line"></span><br><span class="line"><span class="comment"># 永久剥离磁盘</span></span><br><span class="line">virsh detach-disk centos7 vdb</span><br><span class="line">virsh detach-disk centos7 vdb --config</span><br></pre></td></tr></table></figure>
+
+<h3 id="五、工具篇"><a href="#五、工具篇" class="headerlink" title="五、工具篇"></a>五、工具篇</h3><h4 id="1、bash-completion"><a href="#1、bash-completion" class="headerlink" title="1、bash-completion"></a>1、bash-completion</h4><p>可以使命令参数自动补全的工具，按 <code>Tab</code> 键自动补全参数命令</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"># 安装命令自动补全</span><br><span class="line">yum -y install bash-completion</span><br><span class="line"># 重启生效</span><br><span class="line">reboot</span><br></pre></td></tr></table></figure>
+
+<h4 id="2、libguestfs-tools"><a href="#2、libguestfs-tools" class="headerlink" title="2、libguestfs-tools"></a>2、libguestfs-tools</h4><p>libguestfs 是一组 Linux 下的 C 语言的 API ，用来访问虚拟机的磁盘映像文件。<br>该工具包内包含的工具有</p>
+<ul>
+<li><p>virt-cat、</p>
+</li>
+<li><p>virt-df、</p>
+</li>
+<li><p>virt-ls、</p>
+</li>
+<li><p>virt-copy-in、</p>
+</li>
+<li><p>virt-copy-out、</p>
+</li>
+<li><p>virt-edit、</p>
+</li>
+<li><p>guestmount、</p>
+</li>
+<li><p>guestunmount、</p>
+</li>
+<li><p>guestfish</p>
+</li>
+<li><p>virt-list-filesystems、</p>
+</li>
+<li><p>virt-list-partitions</p>
+</li>
+<li><p>virt-customize</p>
+</li>
+<li><p>…等等</p>
+</li>
+<li><p>安装使用如下：</p>
+</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># libguestfs-winsupport 使其支持windows系统镜像</span></span><br><span class="line">yum install -y libguestfs-tools libguestfs-winsupport</span><br><span class="line"></span><br><span class="line"><span class="comment"># 类似 linux 的df 命令，domainName 虚拟机名称</span></span><br><span class="line">virt-df -h domainName </span><br><span class="line">virt-df centos7.qcow2</span><br><span class="line"></span><br><span class="line"><span class="comment"># 类似cat 命令，查看文件</span></span><br><span class="line">virt-cat -d domainName /etc/hosts</span><br><span class="line"></span><br><span class="line"><span class="comment"># 类似 vi 命令，需要关闭虚拟机</span></span><br><span class="line">virt-edit -d domainName /etc/hosts</span><br><span class="line"></span><br><span class="line"><span class="comment"># 类似 ls 命令，显示目录的文件</span></span><br><span class="line">virt-ls -d domainName /etc/sysconfig/</span><br><span class="line"></span><br><span class="line"><span class="comment"># 复制虚拟机文件（ifcfg-eth0）到宿主机本地磁盘(/root下)，类似 cp 命令</span></span><br><span class="line">virt-copy-out -d domainName /etc/sysconfig/network-scripts/ifcfg-eth0 /root/</span><br><span class="line"></span><br><span class="line"><span class="comment"># 复制宿主机文件(/root/test.sh) 到 虚拟机（/root下）到，类似 cp 命令，需要关闭虚拟机</span></span><br><span class="line">virt-copy-in -d domainName /root/test.sh /root/</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看虚拟机的分区信息</span></span><br><span class="line">virt-filesystems -d domainName</span><br><span class="line"></span><br><span class="line"><span class="comment"># virt-tar 上传本地的压缩文件到虚拟机并解压</span></span><br><span class="line">virt-tar [--options] -u domname /local/tarball /disk/directory</span><br><span class="line">virt-tar [--options] disk.img [disk.img ...] -u tarball directory</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 上传本地压缩文件到虚拟机并解压</span></span><br><span class="line">virt-tar-in -d domainName /local/tarball  /disk/directory</span><br><span class="line"></span><br><span class="line"><span class="comment"># 打包镜像中文件并且拷贝出来，-z 使用 gzip 进行压缩</span></span><br><span class="line">virt-tar -zx domainName /root/casashell casashell.tar.gz</span><br><span class="line"></span><br><span class="line"><span class="comment"># 压缩文件拷贝出虚拟机并解压</span></span><br><span class="line">virt-tar-out -d domainName /local/dir /disk/path/to/tar-file</span><br><span class="line"></span><br><span class="line"><span class="comment"># 挂载虚拟机到宿主机目录</span></span><br><span class="line"><span class="comment"># -a 指定虚拟磁盘，-d 指定虚拟实例名，即在虚拟机管理器中显示的名称</span></span><br><span class="line"><span class="comment"># -m 指定被挂载的分区，--rw 表示以读写的形式挂载到宿主机中，–ro 以只读的形式挂载</span></span><br><span class="line">guestmount -d domainName -m /dev/sda --rw /mnt/directory</span><br><span class="line"></span><br><span class="line"><span class="comment"># 取消挂载</span></span><br><span class="line">guestunmount /mnt/directory</span><br><span class="line">umount /mnt/directory</span><br><span class="line"></span><br><span class="line"><span class="comment"># 交互式shell</span></span><br><span class="line">guestfish -a centos7.qcow2 --rw</span><br></pre></td></tr></table></figure>
+
+<h4 id="3、vnc-连接"><a href="#3、vnc-连接" class="headerlink" title="3、vnc 连接"></a>3、vnc 连接</h4><ul>
+<li>修改配置文件<code>vim /etc/libvirt/qemu.conf</code>,把<code>vnc_listen</code>注释打开为：<code>vnc_listen = &quot;0.0.0.0&quot;</code></li>
+<li>下载 noVNC，或者 <code>git clone https://github.com/novnc/noVNC.git</code></li>
+<li>命令显示vnc的监听信息：<code>virsh vncdisplay --domain youDomainName</code>,</li>
+<li>如果显示的是<code>127.0.0.1:0</code> vnc就是5900端口，<code>127.0.0.1:1</code> vnc就是5901端口，以此类推…</li>
+<li>执行noVNC下的：<code>./utils/launch.sh --vnc localhost:5900</code>。启动noVNC 前端页面，默认是6080端口</li>
+<li>执行过程中，noVNC 会去 GitHub 下载 websockify，如果觉得下载太慢.</li>
+<li>可先将 websockify 下载下来后，解压到vnc的 utils 文件夹下并命名为：<code>websockify</code></li>
+<li>websockify下载地址： <code>https://github.com/novnc/websockify/releases</code></li>
+<li>启动成功之后，即可访问：<code>http://host:6080/vnc.html?host=host&amp;port=6080</code>,把host修改为你的ip即可。</li>
+<li>防火墙记得开放6080端口。</li>
+</ul>
+<p><img src="/blog/2021/04/01/KVM%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/novnc.png"></p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>您的打赏，是我创作的动力！不给钱？那我只能靠想象力充饥了。</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/wechat_pay.jpg" alt="rstyro 微信支付">
+        <p>微信支付</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/alipay.jpg" alt="rstyro 支付宝">
+        <p>支付宝</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/blog/tags/Linux/" rel="tag"><i class="fa fa-tag"></i> Linux</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2021/03/16/%E4%BF%AE%E6%94%B9Jar%E7%9A%84class%E6%96%87%E4%BB%B6%E5%B9%B6%E9%87%8D%E6%96%B0%E6%89%93%E5%8C%85/" rel="prev" title="修改Jar的class文件并重新打包">
+      <i class="fa fa-chevron-left"></i> 修改Jar的class文件并重新打包
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/blog/2021/04/12/nginx%E8%A7%A3%E5%86%B313-Permission-denied%E9%97%AE%E9%A2%98/" rel="next" title="nginx解决13-Permission-denied问题">
+      nginx解决13-Permission-denied问题 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%80%E3%80%81KVM%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">一、KVM简介</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E6%90%AD%E5%BB%BAKVM%E5%B9%B3%E5%8F%B0"><span class="nav-number">2.</span> <span class="nav-text">二、搭建KVM平台</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1%E3%80%81%E6%9F%A5%E7%9C%8B%E7%A1%AC%E4%BB%B6%E6%98%AF%E5%90%A6%E6%94%AF%E6%8C%81%E8%99%9A%E6%8B%9F%E5%8C%96"><span class="nav-number">2.1.</span> <span class="nav-text">1、查看硬件是否支持虚拟化</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2%E3%80%81%E5%AE%89%E8%A3%85KVM%E7%8E%AF%E5%A2%83"><span class="nav-number">2.2.</span> <span class="nav-text">2、安装KVM环境</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%AE%89%E8%A3%85%E4%BE%9D%E8%B5%96"><span class="nav-number">2.2.1.</span> <span class="nav-text">安装依赖</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%8F%AF%E8%83%BD%E6%8A%A5%E9%94%99"><span class="nav-number">2.2.2.</span> <span class="nav-text">可能报错</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3%E3%80%81%E9%85%8D%E7%BD%AE%E7%BD%91%E7%BB%9C"><span class="nav-number">2.3.</span> <span class="nav-text">3、配置网络</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E4%BD%BF%E7%94%A8KVM"><span class="nav-number">3.</span> <span class="nav-text">三、使用KVM</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1%E3%80%81%E5%8F%AF%E8%A7%86%E5%8C%96%E5%AE%89%E8%A3%85KVM%E8%99%9A%E6%8B%9F%E6%9C%BA"><span class="nav-number">3.1.</span> <span class="nav-text">1、可视化安装KVM虚拟机</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2%E3%80%81%E5%91%BD%E4%BB%A4%E5%AE%89%E8%A3%85KVM%E8%99%9A%E6%8B%9F%E6%9C%BA"><span class="nav-number">3.2.</span> <span class="nav-text">2、命令安装KVM虚拟机</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#2-1%E3%80%81virt-install%E5%AE%89%E8%A3%85Centos7"><span class="nav-number">3.2.1.</span> <span class="nav-text">2.1、virt-install安装Centos7</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9B%9B%E3%80%81KVM%E7%9B%B8%E5%85%B3%E5%91%BD%E4%BB%A4"><span class="nav-number">4.</span> <span class="nav-text">四、KVM相关命令</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1%E3%80%81%E5%B8%B8%E7%94%A8virsh%E5%91%BD%E4%BB%A4"><span class="nav-number">4.1.</span> <span class="nav-text">1、常用virsh命令</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2%E3%80%81%E5%88%9B%E5%BB%BA%E4%B8%80%E4%B8%AAISCSI%E5%AD%98%E5%82%A8%E6%B1%A0"><span class="nav-number">4.2.</span> <span class="nav-text">2、创建一个ISCSI存储池</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%AE%89%E8%A3%85%E9%80%9A%E8%BF%87ISCSI%E6%8C%82%E8%BD%BD%E7%9A%84%E9%95%9C%E5%83%8F"><span class="nav-number">4.2.1.</span> <span class="nav-text">安装通过ISCSI挂载的镜像</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3%E3%80%81%E5%88%9B%E5%BB%BA%E5%9F%BA%E4%BA%8E%E6%96%87%E4%BB%B6%E5%A4%B9%E7%9A%84%E5%AD%98%E5%82%A8%E6%B1%A0"><span class="nav-number">4.3.</span> <span class="nav-text">3、创建基于文件夹的存储池</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4%E3%80%81%E7%A3%81%E7%9B%98%E7%AE%A1%E7%90%86"><span class="nav-number">4.4.</span> <span class="nav-text">4、磁盘管理</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%94%E3%80%81%E5%B7%A5%E5%85%B7%E7%AF%87"><span class="nav-number">5.</span> <span class="nav-text">五、工具篇</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1%E3%80%81bash-completion"><span class="nav-number">5.1.</span> <span class="nav-text">1、bash-completion</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2%E3%80%81libguestfs-tools"><span class="nav-number">5.2.</span> <span class="nav-text">2、libguestfs-tools</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3%E3%80%81vnc-%E8%BF%9E%E6%8E%A5"><span class="nav-number">5.3.</span> <span class="nav-text">3、vnc 连接</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="rstyro"
+      src="/blog/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">rstyro</p>
+  <div class="site-description" itemprop="description">人间的饭，吃一碗少一碗，身边的人，见一面少一面，脚下的路，走一天少一天，其实人生就是一个减法，来日并不方长！</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives/">
+        
+          <span class="site-state-item-count">216</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/blog/tags/">
+          
+        <span class="site-state-item-count">88</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/rstyro" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;rstyro" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/rstyro" title="Gitee → https:&#x2F;&#x2F;gitee.com&#x2F;rstyro" rel="noopener" target="_blank"><i class="fab fa-codiepie fa-fw"></i>Gitee</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.jianshu.com/u/651c15a1758a" title="简书 → https:&#x2F;&#x2F;www.jianshu.com&#x2F;u&#x2F;651c15a1758a" rel="noopener" target="_blank"><i class="fa fa-book fa-fw"></i>简书</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      友链
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://rstyro.github.io/blog/" title="https:&#x2F;&#x2F;rstyro.github.io&#x2F;blog&#x2F;">胖不了小陆</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; Mon Apr 10 2017 08:00:00 GMT+0800 (中国标准时间) – 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">以梦为马，诗酒趁年华</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/muse.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+  <script>
+    (function(){
+      var canonicalURL, curProtocol;
+      //Get the <link> tag
+      var x=document.getElementsByTagName("link");
+		//Find the last canonical URL
+		if(x.length > 0){
+			for (i=0;i<x.length;i++){
+				if(x[i].rel.toLowerCase() == 'canonical' && x[i].href){
+					canonicalURL=x[i].href;
+				}
+			}
+		}
+    //Get protocol
+	    if (!canonicalURL){
+	    	curProtocol = window.location.protocol.split(':')[0];
+	    }
+	    else{
+	    	curProtocol = canonicalURL.split(':')[0];
+	    }
+      //Get current URL if the canonical URL does not exist
+	    if (!canonicalURL) canonicalURL = window.location.href;
+	    //Assign script content. Replace current URL with the canonical URL
+      !function(){var e=/([http|https]:\/\/[a-zA-Z0-9\_\.]+\.baidu\.com)/gi,r=canonicalURL,t=document.referrer;if(!e.test(r)){var n=(String(curProtocol).toLowerCase() === 'https')?"https://sp0.baidu.com/9_Q4simg2RQJ8t7jm9iCKT-xh_/s.gif":"//api.share.baidu.com/s.gif";t?(n+="?r="+encodeURIComponent(document.referrer),r&&(n+="&l="+r)):r&&(n+="?l="+r);var i=new Image;i.src=n}}(window);})();
+  </script>
+
+
+
+
+  
+<script src="/blog/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+<script>
+if (document.querySelectorAll('pre.mermaid').length) {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mermaid@8/dist/mermaid.min.js', () => {
+    mermaid.initialize({
+      theme    : 'default',
+      logLevel : 3,
+      flowchart: { curve     : 'linear' },
+      gantt    : { axisFormat: '%m/%d/%Y' },
+      sequence : { actorMargin: 50 }
+    });
+  }, window.mermaid);
+}
+</script>
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : 'Ov23litYkWaOGM7kAKPD',
+      clientSecret: '43bd3cf99bfcb9d05d16627c97a9f7a0200df04a',
+      repo        : 'blog',
+      owner       : 'rstyro',
+      admin       : ['rstyro'],
+      id          : 'f99d00ab6bea664ceb3d7b2642c4a7bb',
+        language: '',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>

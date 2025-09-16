@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/favicon.jpg">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon.jpg">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon.jpg">
+  <link rel="mask-icon" href="/blog/images/favicon.jpg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="/blog/lib/pace/pace-theme-flash.min.css">
+  <script src="/blog/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"rstyro.github.io","root":"/blog/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":true},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.json"};
+  </script>
+
+  <meta name="description" content="乐观锁重试机制代码实现 有乐观锁，那当然也是有悲观锁的  悲观锁和乐观锁的原理和应用场景悲观锁(Pessimistic Lock)顾名思义，就是很悲观，每次去拿数据的时候都认为别人会修改，所以每次在拿数据的时候都会上锁，这样别人想拿这个数据就会block直到它拿到锁。传统的关系型数据库里边就用到了很多这种锁机制，比如行锁，表锁等，读锁，写锁等，都是在做操作之前先上锁。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="乐观锁重试机制代码实现">
+<meta property="og:url" content="https://rstyro.github.io/blog/2019/03/08/%E4%B9%90%E8%A7%82%E9%94%81%E9%87%8D%E8%AF%95%E6%9C%BA%E5%88%B6%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0/index.html">
+<meta property="og:site_name" content="胖不了小陆">
+<meta property="og:description" content="乐观锁重试机制代码实现 有乐观锁，那当然也是有悲观锁的  悲观锁和乐观锁的原理和应用场景悲观锁(Pessimistic Lock)顾名思义，就是很悲观，每次去拿数据的时候都认为别人会修改，所以每次在拿数据的时候都会上锁，这样别人想拿这个数据就会block直到它拿到锁。传统的关系型数据库里边就用到了很多这种锁机制，比如行锁，表锁等，读锁，写锁等，都是在做操作之前先上锁。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://rstyro.github.io/blog/2019/03/08/%E4%B9%90%E8%A7%82%E9%94%81%E9%87%8D%E8%AF%95%E6%9C%BA%E5%88%B6%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0/data.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2019/03/08/%E4%B9%90%E8%A7%82%E9%94%81%E9%87%8D%E8%AF%95%E6%9C%BA%E5%88%B6%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0/try.png">
+<meta property="article:published_time" content="2019-03-08T10:26:03.000Z">
+<meta property="article:modified_time" content="2019-03-08T10:26:03.000Z">
+<meta property="article:author" content="rstyro">
+<meta property="article:tag" content="干货">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://rstyro.github.io/blog/2019/03/08/%E4%B9%90%E8%A7%82%E9%94%81%E9%87%8D%E8%AF%95%E6%9C%BA%E5%88%B6%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0/data.png">
+
+<link rel="canonical" href="https://rstyro.github.io/blog/2019/03/08/%E4%B9%90%E8%A7%82%E9%94%81%E9%87%8D%E8%AF%95%E6%9C%BA%E5%88%B6%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>乐观锁重试机制代码实现 | 胖不了小陆</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">胖不了小陆</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">信你所信，为你所见</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/blog/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/blog/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/blog/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/rstyro" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://rstyro.github.io/blog/2019/03/08/%E4%B9%90%E8%A7%82%E9%94%81%E9%87%8D%E8%AF%95%E6%9C%BA%E5%88%B6%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/avatar.jpg">
+      <meta itemprop="name" content="rstyro">
+      <meta itemprop="description" content="人间的饭，吃一碗少一碗，身边的人，见一面少一面，脚下的路，走一天少一天，其实人生就是一个减法，来日并不方长！">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="胖不了小陆">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          乐观锁重试机制代码实现
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2019-03-08 18:26:03" itemprop="dateCreated datePublished" datetime="2019-03-08T18:26:03+08:00">2019-03-08</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/Java/" itemprop="url" rel="index"><span itemprop="name">Java</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="乐观锁重试机制代码实现"><a href="#乐观锁重试机制代码实现" class="headerlink" title="乐观锁重试机制代码实现"></a>乐观锁重试机制代码实现</h2><blockquote>
+<p>有乐观锁，那当然也是有悲观锁的</p>
+</blockquote>
+<h3 id="悲观锁和乐观锁的原理和应用场景"><a href="#悲观锁和乐观锁的原理和应用场景" class="headerlink" title="悲观锁和乐观锁的原理和应用场景"></a>悲观锁和乐观锁的原理和应用场景</h3><h4 id="悲观锁-Pessimistic-Lock"><a href="#悲观锁-Pessimistic-Lock" class="headerlink" title="悲观锁(Pessimistic Lock)"></a>悲观锁(Pessimistic Lock)</h4><p><strong>顾名思义，就是很悲观，每次去拿数据的时候都认为别人会修改，所以每次在拿数据的时候都会上锁，这样别人想拿这个数据就会block直到它拿到锁。传统的关系型数据库里边就用到了很多这种锁机制，比如行锁，表锁等，读锁，写锁等，都是在做操作之前先上锁。</strong></p>
+<span id="more"></span>
+
+<h4 id="乐观锁-Optimistic-Lock"><a href="#乐观锁-Optimistic-Lock" class="headerlink" title="乐观锁(Optimistic Lock)"></a>乐观锁(Optimistic Lock)</h4><p><strong>顾名思义，就是很乐观，每次去拿数据的时候都认为别人不会修改，所以不会上锁，但是在更新的时候会判断一下在此期间别人有没有去更新这个数据，可以使用版本号等机制。乐观锁适用于多读的应用类型，这样可以提高吞吐量，像数据库如果提供类似于write_condition机制的其实都是提供的乐观锁</strong></p>
+<h3 id="应用场景"><a href="#应用场景" class="headerlink" title="应用场景"></a>应用场景</h3><h4 id="悲观锁："><a href="#悲观锁：" class="headerlink" title="悲观锁："></a>悲观锁：</h4><p><strong>比较适合写入操作比较频繁的场景，如果出现大量的读取操作，每次读取的时候都会进行加锁，这样会增加大量的锁的开销，降低了系统的吞吐量。</strong></p>
+<h4 id="乐观锁："><a href="#乐观锁：" class="headerlink" title="乐观锁："></a>乐观锁：</h4><p><strong>比较适合读取操作比较频繁的场景，如果出现大量的写入操作，数据发生冲突的可能性就会增大，为了保证数据的一致性，应用层需要不断的重新获取数据，这样会增加大量的查询操作，降低了系统的吞吐量。</strong></p>
+<h2 id="总结：两种所各有优缺点，读取频繁使用乐观锁，写入频繁使用悲观锁。"><a href="#总结：两种所各有优缺点，读取频繁使用乐观锁，写入频繁使用悲观锁。" class="headerlink" title="总结：两种所各有优缺点，读取频繁使用乐观锁，写入频繁使用悲观锁。"></a>总结：两种所各有优缺点，读取频繁使用乐观锁，写入频繁使用悲观锁。</h2><h2 id="代码实现原理"><a href="#代码实现原理" class="headerlink" title="代码实现原理"></a>代码实现原理</h2><p>这里采用版本号的方式</p>
+<h3 id="简单例子表结构"><a href="#简单例子表结构" class="headerlink" title="简单例子表结构"></a>简单例子表结构</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> `usr_user_account` (</span><br><span class="line">  `id` <span class="type">bigint</span>(<span class="number">20</span>) <span class="keyword">NOT</span> <span class="keyword">NULL</span> AUTO_INCREMENT,</span><br><span class="line">  `user_id` <span class="type">bigint</span>(<span class="number">20</span>) <span class="keyword">NOT</span> <span class="keyword">NULL</span> COMMENT <span class="string">&#x27;用户ID&#x27;</span>,</span><br><span class="line">  `balance` <span class="type">decimal</span>(<span class="number">50</span>,<span class="number">10</span>) <span class="keyword">DEFAULT</span> <span class="string">&#x27;0.0000000000&#x27;</span> COMMENT <span class="string">&#x27;余额&#x27;</span>,</span><br><span class="line">  `version` <span class="type">bigint</span>(<span class="number">20</span>) <span class="keyword">DEFAULT</span> <span class="string">&#x27;0&#x27;</span> COMMENT <span class="string">&#x27;乐观锁版本号&#x27;</span>,</span><br><span class="line">  `create_by` <span class="type">bigint</span>(<span class="number">20</span>) <span class="keyword">DEFAULT</span> <span class="keyword">NULL</span> COMMENT <span class="string">&#x27; 创建人&#x27;</span>,</span><br><span class="line">  `create_time` datetime <span class="keyword">NOT</span> <span class="keyword">NULL</span> COMMENT <span class="string">&#x27; 创建时间&#x27;</span>,</span><br><span class="line">  `modify_by` <span class="type">bigint</span>(<span class="number">20</span>) <span class="keyword">DEFAULT</span> <span class="keyword">NULL</span>,</span><br><span class="line">  `modify_time` datetime <span class="keyword">DEFAULT</span> <span class="keyword">NULL</span>,</span><br><span class="line">  <span class="keyword">PRIMARY</span> KEY (`id`)</span><br><span class="line">) ENGINE<span class="operator">=</span>InnoDB AUTO_INCREMENT<span class="operator">=</span><span class="number">3</span> <span class="keyword">DEFAULT</span> CHARSET<span class="operator">=</span>utf8 COMMENT<span class="operator">=</span><span class="string">&#x27;用户账户表&#x27;</span>;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>比如现在表中有两条数据<br><img src="/blog/2019/03/08/%E4%B9%90%E8%A7%82%E9%94%81%E9%87%8D%E8%AF%95%E6%9C%BA%E5%88%B6%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0/data.png" alt="数据图"></p>
+<p>现在 <code>user_id = 1001</code> 给 <code>user_id=1002</code> 转账 <code>50</code> 元<br> 转账，无非就是<code>一加一减</code>，我就不啰嗦了，先看完整代码实现 如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="meta">@Transactional</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">UserAccountService</span> <span class="keyword">implements</span> <span class="title class_">IUserAccountService</span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> UserAccountMapper userAccountMapper;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 转账</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> dto</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> Exception</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Transactional</span></span><br><span class="line">    <span class="meta">@IsTryAgain</span></span><br><span class="line">    <span class="keyword">public</span> Result <span class="title function_">transfter</span><span class="params">(TransferDTO dto)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        updateAccount(dto.getFromUserId(),dto.getAmount(), Consts.ACCOUNT_OUT);</span><br><span class="line">        updateAccount(dto.getToUserId(),dto.getAmount(), Consts.ACCOUNT_IN);</span><br><span class="line">        <span class="keyword">return</span> Result.ok();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 更新账户余额</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> userId 账户用户ID</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> amount    操作金额数量</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> state     转入--1 ，转出 -- 0</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> Exception</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">updateAccount</span><span class="params">( Long userId, BigDecimal amount,<span class="type">int</span> state)</span> <span class="keyword">throws</span> Exception&#123;</span><br><span class="line">        <span class="type">UserAccount</span> <span class="variable">userAccount</span> <span class="operator">=</span> userAccountMapper.getUserAccountByUserId(userId);</span><br><span class="line">        <span class="keyword">if</span>(userAccount == <span class="literal">null</span>)&#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">ApiException</span>(ApiResultEnum.ACCOUNT_NOT_FOUND);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="type">BigDecimal</span> <span class="variable">afterBalance</span> <span class="operator">=</span> BigDecimal.ZERO;</span><br><span class="line">        <span class="keyword">if</span>(state == Consts.ACCOUNT_OUT)&#123;</span><br><span class="line">            <span class="keyword">if</span>(userAccount.getBalance().compareTo(amount)&lt;<span class="number">0</span>)&#123;</span><br><span class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">ApiException</span>(ApiResultEnum.ACCOUNT_NOT_SUFFICIENT);</span><br><span class="line">            &#125;</span><br><span class="line">            afterBalance = userAccount.getBalance().subtract(amount);</span><br><span class="line">        &#125;<span class="keyword">else</span> <span class="keyword">if</span>(state == Consts.ACCOUNT_IN)&#123;</span><br><span class="line">            afterBalance = userAccount.getBalance().add(amount);</span><br><span class="line">        &#125;</span><br><span class="line">        userAccount.setBalance(afterBalance);</span><br><span class="line">        userAccount.setModifyBy(userId);</span><br><span class="line">        userAccount.setModifyTime(LocalDateTime.now());</span><br><span class="line">        <span class="keyword">if</span>(!userAccountMapper.updateAccount(userAccount))&#123;</span><br><span class="line">            <span class="comment">//如果更新失败就抛出去，重试</span></span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">TryAgainException</span>(ApiResultEnum.ERROR_TRY_AGAIN);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h5 id="代码不算多"><a href="#代码不算多" class="headerlink" title="代码不算多"></a>代码不算多</h5><p>只需要看 <code>updateAccount</code> 方法中的 <code>userAccountMapper.updateAccount</code> 这个方法，这个方法也就是 乐观锁 实现的原理, mapper 如下：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="operator">&lt;</span><span class="keyword">update</span> id<span class="operator">=</span>&quot;updateAccount&quot; parameterType<span class="operator">=</span>&quot;top.lrshuai.optimisticlock.usr.entity.UserAccount&quot;<span class="operator">&gt;</span></span><br><span class="line">        <span class="keyword">update</span> usr_user_account <span class="keyword">set</span></span><br><span class="line">        version <span class="operator">=</span> version<span class="operator">+</span><span class="number">1</span></span><br><span class="line">        <span class="operator">&lt;</span>if test<span class="operator">=</span>&quot;userId != null&quot;<span class="operator">&gt;</span></span><br><span class="line">            ,user_id <span class="operator">=</span> #&#123;userId&#125;</span><br><span class="line">        <span class="operator">&lt;</span><span class="operator">/</span>if<span class="operator">&gt;</span></span><br><span class="line">        <span class="operator">&lt;</span>if test<span class="operator">=</span>&quot;balance != null&quot;<span class="operator">&gt;</span></span><br><span class="line">            ,balance <span class="operator">=</span> #&#123;balance&#125;</span><br><span class="line">        <span class="operator">&lt;</span><span class="operator">/</span>if<span class="operator">&gt;</span></span><br><span class="line">        <span class="operator">&lt;</span>if test<span class="operator">=</span>&quot;createBy != null&quot;<span class="operator">&gt;</span></span><br><span class="line">            ,create_by <span class="operator">=</span> #&#123;createBy&#125;</span><br><span class="line">        <span class="operator">&lt;</span><span class="operator">/</span>if<span class="operator">&gt;</span></span><br><span class="line">        <span class="operator">&lt;</span>if test<span class="operator">=</span>&quot;createTime != null&quot;<span class="operator">&gt;</span></span><br><span class="line">            ,create_time <span class="operator">=</span> #&#123;createTime&#125;</span><br><span class="line">        <span class="operator">&lt;</span><span class="operator">/</span>if<span class="operator">&gt;</span></span><br><span class="line">        <span class="operator">&lt;</span>if test<span class="operator">=</span>&quot;modifyBy != null&quot;<span class="operator">&gt;</span></span><br><span class="line">            ,modify_by <span class="operator">=</span> #&#123;modifyBy&#125;</span><br><span class="line">        <span class="operator">&lt;</span><span class="operator">/</span>if<span class="operator">&gt;</span></span><br><span class="line">        <span class="operator">&lt;</span>if test<span class="operator">=</span>&quot;modifyTime != null&quot;<span class="operator">&gt;</span></span><br><span class="line">           ,modify_time <span class="operator">=</span> #&#123;modifyTime&#125;</span><br><span class="line">        <span class="operator">&lt;</span><span class="operator">/</span>if<span class="operator">&gt;</span></span><br><span class="line">        <span class="keyword">where</span></span><br><span class="line">         version<span class="operator">=</span>#&#123;version&#125;</span><br><span class="line">        <span class="operator">&lt;</span>if test<span class="operator">=</span>&quot;id != null&quot;<span class="operator">&gt;</span></span><br><span class="line">           <span class="keyword">and</span>  id<span class="operator">=</span>#&#123;id&#125;</span><br><span class="line">        <span class="operator">&lt;</span><span class="operator">/</span>if<span class="operator">&gt;</span></span><br><span class="line">        <span class="operator">&lt;</span>if test<span class="operator">=</span>&quot;userId != null&quot;<span class="operator">&gt;</span></span><br><span class="line">          <span class="keyword">and</span> user_id<span class="operator">=</span>#&#123;userId&#125;</span><br><span class="line">        <span class="operator">&lt;</span><span class="operator">/</span>if<span class="operator">&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="operator">&lt;</span><span class="operator">/</span><span class="keyword">update</span><span class="operator">&gt;</span></span><br></pre></td></tr></table></figure>
+<h3 id="重点看-version-的变化"><a href="#重点看-version-的变化" class="headerlink" title="重点看 version 的变化"></a>重点看 version 的变化</h3><blockquote>
+<p> 第一点： 更新条件 要匹配 version&#x3D;上一次数据的version<br> 第二点： 就是 更新成功的时候，把 version + 1<br>注意：当数据表有一个写锁时，其它进程的读写操作都需等待读锁释放后才会执行。所以保证了<code>version</code> 的正确性</p>
+</blockquote>
+<h3 id="乐观锁实现就是这么简单"><a href="#乐观锁实现就是这么简单" class="headerlink" title="乐观锁实现就是这么简单"></a>乐观锁实现就是这么简单</h3><h4 id="如果说-更新失败了，那我们就抛异常，这样用户体验不是非常好，所以就有了重试机制"><a href="#如果说-更新失败了，那我们就抛异常，这样用户体验不是非常好，所以就有了重试机制" class="headerlink" title="如果说 更新失败了，那我们就抛异常，这样用户体验不是非常好，所以就有了重试机制"></a>如果说 更新失败了，那我们就抛异常，这样用户体验不是非常好，所以就有了重试机制</h4><h3 id="1、重试原理，利用到AOP-切片，然后通过-Around-进行方法增强。"><a href="#1、重试原理，利用到AOP-切片，然后通过-Around-进行方法增强。" class="headerlink" title="1、重试原理，利用到AOP 切片，然后通过 @Around 进行方法增强。"></a>1、重试原理，利用到AOP 切片，然后通过 @Around 进行方法增强。</h3><p>为了方便，创建一个自定义注解，在需要重试的方法上添加 注解即可</p>
+<h5 id="IsTryAgain"><a href="#IsTryAgain" class="headerlink" title="@IsTryAgain"></a><code>@IsTryAgain</code></h5><p>重试注解</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 重试注解</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@Retention(RetentionPolicy.RUNTIME)</span></span><br><span class="line"><span class="keyword">public</span> <span class="meta">@interface</span> IsTryAgain &#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="TryAgainException"><a href="#TryAgainException" class="headerlink" title="TryAgainException"></a>TryAgainException</h5><p>重试异常</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">TryAgainException</span> <span class="keyword">extends</span> <span class="title class_">ApiException</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">TryAgainException</span><span class="params">(ApiResultEnum apiResultEnum)</span> &#123;</span><br><span class="line">        <span class="built_in">super</span>(apiResultEnum);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="TryAgainAspect"><a href="#TryAgainAspect" class="headerlink" title="TryAgainAspect"></a>TryAgainAspect</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Aspect</span></span><br><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">TryAgainAspect</span> <span class="keyword">implements</span> <span class="title class_">Ordered</span> &#123;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/**</span></span><br><span class="line"><span class="comment">	 * 默认重试几次</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">int</span>    <span class="variable">DEFAULT_MAX_RETRIES</span> <span class="operator">=</span> <span class="number">3</span>;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">private</span> <span class="type">int</span>                 <span class="variable">maxRetries</span>          <span class="operator">=</span> DEFAULT_MAX_RETRIES;</span><br><span class="line">	<span class="keyword">private</span> <span class="type">int</span>                 <span class="variable">order</span>               <span class="operator">=</span> <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setMaxRetries</span><span class="params">(<span class="type">int</span> maxRetries)</span> &#123;</span><br><span class="line">		<span class="built_in">this</span>.maxRetries = maxRetries;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">public</span> <span class="type">int</span> <span class="title function_">getOrder</span><span class="params">()</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="built_in">this</span>.order;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="meta">@Pointcut(&quot;@annotation(IsTryAgain)&quot;)</span></span><br><span class="line">	<span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">retryOnOptFailure</span><span class="params">()</span> &#123;</span><br><span class="line">		<span class="comment">// pointcut mark</span></span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="meta">@Around(&quot;retryOnOptFailure()&quot;)</span></span><br><span class="line">	<span class="meta">@Transactional(rollbackFor = Exception.class)</span></span><br><span class="line">	<span class="keyword">public</span> Object <span class="title function_">doConcurrentOperation</span><span class="params">(ProceedingJoinPoint pjp)</span> <span class="keyword">throws</span> Throwable &#123;</span><br><span class="line">		<span class="type">int</span> <span class="variable">numAttempts</span> <span class="operator">=</span> <span class="number">0</span>;</span><br><span class="line">		<span class="keyword">do</span> &#123;</span><br><span class="line">			numAttempts++;</span><br><span class="line">			<span class="keyword">try</span> &#123;</span><br><span class="line">				<span class="comment">//再次执行业务代码</span></span><br><span class="line">				<span class="keyword">return</span> pjp.proceed();</span><br><span class="line">			&#125; <span class="keyword">catch</span> (TryAgainException ex) &#123;</span><br><span class="line">				<span class="keyword">if</span> (numAttempts &gt; maxRetries) &#123;</span><br><span class="line">					<span class="comment">//log failure information, and throw exception</span></span><br><span class="line"><span class="comment">//					如果大于 默认的重试机制 次数，我们这回就真正的抛出去了</span></span><br><span class="line">					<span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">ApiException</span>(ApiResultEnum.ERROR_TRY_AGAIN_FAILED);</span><br><span class="line">				&#125;<span class="keyword">else</span>&#123;</span><br><span class="line">					<span class="comment">//如果 没达到最大的重试次数，将再次执行</span></span><br><span class="line">					System.out.println(<span class="string">&quot;=====正在重试=====&quot;</span>+numAttempts+<span class="string">&quot;次&quot;</span>);</span><br><span class="line">				&#125;</span><br><span class="line">			&#125;</span><br><span class="line">		&#125; <span class="keyword">while</span> (numAttempts &lt;= <span class="built_in">this</span>.maxRetries);</span><br><span class="line"></span><br><span class="line">		<span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h4 id="现在，反回去看上面的UserAccountService-或许就是知道什么意思了，和平常写的业务代码一样，唯一多的只是一个-IsTryAgain-注解而已"><a href="#现在，反回去看上面的UserAccountService-或许就是知道什么意思了，和平常写的业务代码一样，唯一多的只是一个-IsTryAgain-注解而已" class="headerlink" title="现在，反回去看上面的UserAccountService  或许就是知道什么意思了，和平常写的业务代码一样，唯一多的只是一个 @IsTryAgain 注解而已"></a>现在，反回去看上面的<code>UserAccountService</code>  或许就是知道什么意思了，和平常写的业务代码一样，唯一多的只是一个 <code>@IsTryAgain</code> 注解而已</h4><h5 id="重试可以，但是不能无限重试吧，所以也是会有重试失败的时候，如果你给它重试次数越多，失败就越少，我这里为了演示只有3次机会。"><a href="#重试可以，但是不能无限重试吧，所以也是会有重试失败的时候，如果你给它重试次数越多，失败就越少，我这里为了演示只有3次机会。" class="headerlink" title="重试可以，但是不能无限重试吧，所以也是会有重试失败的时候，如果你给它重试次数越多，失败就越少，我这里为了演示只有3次机会。"></a>重试可以，但是不能无限重试吧，所以也是会有重试失败的时候，如果你给它重试次数越多，失败就越少，我这里为了演示只有3次机会。</h5><h4 id="测试类，测试"><a href="#测试类，测试" class="headerlink" title="测试类，测试"></a>测试类，测试</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RunWith(SpringRunner.class)</span></span><br><span class="line"><span class="meta">@SpringBootTest</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ThreadTest</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> IUserAccountService userAccountService;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 并发测试重试机制</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> Exception</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Test</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">test</span><span class="params">()</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line"></span><br><span class="line">        <span class="type">TransferDTO</span> <span class="variable">dto</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">TransferDTO</span>();</span><br><span class="line">        dto.setFromUserId(<span class="number">1001l</span>);</span><br><span class="line">        dto.setToUserId(<span class="number">1002l</span>);</span><br><span class="line">        dto.setAmount(BigDecimal.ONE);</span><br><span class="line"></span><br><span class="line">        <span class="type">int</span> <span class="variable">clientTotal</span> <span class="operator">=</span> <span class="number">100</span>;</span><br><span class="line">        <span class="comment">// 同时并发执行的线程数</span></span><br><span class="line">        <span class="type">int</span> <span class="variable">threadTotal</span> <span class="operator">=</span> <span class="number">20</span>;</span><br><span class="line">        <span class="type">int</span> <span class="variable">count</span> <span class="operator">=</span> <span class="number">0</span>;</span><br><span class="line">        <span class="type">ExecutorService</span> <span class="variable">executorService</span> <span class="operator">=</span> Executors.newCachedThreadPool();</span><br><span class="line">        <span class="comment">//信号量，此处用于控制并发的线程数</span></span><br><span class="line">        <span class="keyword">final</span> <span class="type">Semaphore</span> <span class="variable">semaphore</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Semaphore</span>(threadTotal);</span><br><span class="line">        <span class="comment">//闭锁，可实现计数器递减</span></span><br><span class="line">        <span class="keyword">final</span> <span class="type">CountDownLatch</span> <span class="variable">countDownLatch</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">CountDownLatch</span>(clientTotal);</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; clientTotal ; i++) &#123;</span><br><span class="line">            executorService.execute(() -&gt; &#123;</span><br><span class="line">                <span class="keyword">try</span> &#123;</span><br><span class="line">                    <span class="comment">//执行此方法用于获取执行许可，当总计未释放的许可数不超过200时，</span></span><br><span class="line">                    <span class="comment">//允许通行，否则线程阻塞等待，直到获取到许可。</span></span><br><span class="line">                    semaphore.acquire();</span><br><span class="line">                    userAccountService.transfter(dto);</span><br><span class="line">                    <span class="comment">//释放许可</span></span><br><span class="line">                    semaphore.release();</span><br><span class="line">                &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">                    <span class="comment">//log.error(&quot;exception&quot;, e);</span></span><br><span class="line">                    e.printStackTrace();</span><br><span class="line"></span><br><span class="line">                &#125;</span><br><span class="line">                <span class="comment">//闭锁减一</span></span><br><span class="line">                countDownLatch.countDown();</span><br><span class="line">            &#125;);</span><br><span class="line">        &#125;</span><br><span class="line">        countDownLatch.await();<span class="comment">//线程阻塞，直到闭锁值为0时，阻塞才释放，继续往下执行</span></span><br><span class="line">        executorService.shutdown();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>结果如下：<br><img src="/blog/2019/03/08/%E4%B9%90%E8%A7%82%E9%94%81%E9%87%8D%E8%AF%95%E6%9C%BA%E5%88%B6%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0/try.png" alt="控制台输出"></p>
+<h5 id="100-个请求，20-个并发，好多个都是重试成功了，少部分失败了。"><a href="#100-个请求，20-个并发，好多个都是重试成功了，少部分失败了。" class="headerlink" title="100 个请求，20 个并发，好多个都是重试成功了，少部分失败了。"></a>100 个请求，20 个并发，好多个都是重试成功了，少部分失败了。</h5><h3 id="完整源代码：Github地址-https-github-com-rstyro-optimistic-lock"><a href="#完整源代码：Github地址-https-github-com-rstyro-optimistic-lock" class="headerlink" title="完整源代码：Github地址:https://github.com/rstyro/optimistic-lock"></a>完整源代码：<a target="_blank" rel="noopener" href="https://github.com/rstyro/optimistic-lock">Github地址:https://github.com/rstyro/optimistic-lock</a></h3><h3 id="完整源代码：Gitee地址-https-gitee-com-rstyro-optimistic-lock"><a href="#完整源代码：Gitee地址-https-gitee-com-rstyro-optimistic-lock" class="headerlink" title="完整源代码：Gitee地址:https://gitee.com/rstyro/optimistic-lock"></a>完整源代码：<a target="_blank" rel="noopener" href="https://gitee.com/rstyro/optimistic-lock">Gitee地址:https://gitee.com/rstyro/optimistic-lock</a></h3>
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>您的打赏，是我创作的动力！不给钱？那我只能靠想象力充饥了。</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/wechat_pay.jpg" alt="rstyro 微信支付">
+        <p>微信支付</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/alipay.jpg" alt="rstyro 支付宝">
+        <p>支付宝</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/blog/tags/%E5%B9%B2%E8%B4%A7/" rel="tag"><i class="fa fa-tag"></i> 干货</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2019/02/28/Springboot2%E4%B8%8EQuartz%E7%9A%84%E4%BA%B2%E5%AF%86%E6%8E%A5%E8%A7%A6/" rel="prev" title="Springboot2与Quartz的亲密接触">
+      <i class="fa fa-chevron-left"></i> Springboot2与Quartz的亲密接触
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/blog/2019/03/14/%E5%A6%82%E4%BD%95%E5%BC%80%E5%8F%91%E4%B8%80%E4%B8%AA%E6%B2%B9%E7%8C%B4%E8%84%9A%E6%9C%AC/" rel="next" title="如何开发一个油猴脚本">
+      如何开发一个油猴脚本 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B9%90%E8%A7%82%E9%94%81%E9%87%8D%E8%AF%95%E6%9C%BA%E5%88%B6%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0"><span class="nav-number">1.</span> <span class="nav-text">乐观锁重试机制代码实现</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%82%B2%E8%A7%82%E9%94%81%E5%92%8C%E4%B9%90%E8%A7%82%E9%94%81%E7%9A%84%E5%8E%9F%E7%90%86%E5%92%8C%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-number">1.1.</span> <span class="nav-text">悲观锁和乐观锁的原理和应用场景</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%82%B2%E8%A7%82%E9%94%81-Pessimistic-Lock"><span class="nav-number">1.1.1.</span> <span class="nav-text">悲观锁(Pessimistic Lock)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B9%90%E8%A7%82%E9%94%81-Optimistic-Lock"><span class="nav-number">1.1.2.</span> <span class="nav-text">乐观锁(Optimistic Lock)</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-number">1.2.</span> <span class="nav-text">应用场景</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%82%B2%E8%A7%82%E9%94%81%EF%BC%9A"><span class="nav-number">1.2.1.</span> <span class="nav-text">悲观锁：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B9%90%E8%A7%82%E9%94%81%EF%BC%9A"><span class="nav-number">1.2.2.</span> <span class="nav-text">乐观锁：</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93%EF%BC%9A%E4%B8%A4%E7%A7%8D%E6%89%80%E5%90%84%E6%9C%89%E4%BC%98%E7%BC%BA%E7%82%B9%EF%BC%8C%E8%AF%BB%E5%8F%96%E9%A2%91%E7%B9%81%E4%BD%BF%E7%94%A8%E4%B9%90%E8%A7%82%E9%94%81%EF%BC%8C%E5%86%99%E5%85%A5%E9%A2%91%E7%B9%81%E4%BD%BF%E7%94%A8%E6%82%B2%E8%A7%82%E9%94%81%E3%80%82"><span class="nav-number">2.</span> <span class="nav-text">总结：两种所各有优缺点，读取频繁使用乐观锁，写入频繁使用悲观锁。</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86"><span class="nav-number">3.</span> <span class="nav-text">代码实现原理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AE%80%E5%8D%95%E4%BE%8B%E5%AD%90%E8%A1%A8%E7%BB%93%E6%9E%84"><span class="nav-number">3.1.</span> <span class="nav-text">简单例子表结构</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81%E4%B8%8D%E7%AE%97%E5%A4%9A"><span class="nav-number">3.1.0.1.</span> <span class="nav-text">代码不算多</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%87%8D%E7%82%B9%E7%9C%8B-version-%E7%9A%84%E5%8F%98%E5%8C%96"><span class="nav-number">3.2.</span> <span class="nav-text">重点看 version 的变化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B9%90%E8%A7%82%E9%94%81%E5%AE%9E%E7%8E%B0%E5%B0%B1%E6%98%AF%E8%BF%99%E4%B9%88%E7%AE%80%E5%8D%95"><span class="nav-number">3.3.</span> <span class="nav-text">乐观锁实现就是这么简单</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%A6%82%E6%9E%9C%E8%AF%B4-%E6%9B%B4%E6%96%B0%E5%A4%B1%E8%B4%A5%E4%BA%86%EF%BC%8C%E9%82%A3%E6%88%91%E4%BB%AC%E5%B0%B1%E6%8A%9B%E5%BC%82%E5%B8%B8%EF%BC%8C%E8%BF%99%E6%A0%B7%E7%94%A8%E6%88%B7%E4%BD%93%E9%AA%8C%E4%B8%8D%E6%98%AF%E9%9D%9E%E5%B8%B8%E5%A5%BD%EF%BC%8C%E6%89%80%E4%BB%A5%E5%B0%B1%E6%9C%89%E4%BA%86%E9%87%8D%E8%AF%95%E6%9C%BA%E5%88%B6"><span class="nav-number">3.3.1.</span> <span class="nav-text">如果说 更新失败了，那我们就抛异常，这样用户体验不是非常好，所以就有了重试机制</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1%E3%80%81%E9%87%8D%E8%AF%95%E5%8E%9F%E7%90%86%EF%BC%8C%E5%88%A9%E7%94%A8%E5%88%B0AOP-%E5%88%87%E7%89%87%EF%BC%8C%E7%84%B6%E5%90%8E%E9%80%9A%E8%BF%87-Around-%E8%BF%9B%E8%A1%8C%E6%96%B9%E6%B3%95%E5%A2%9E%E5%BC%BA%E3%80%82"><span class="nav-number">3.4.</span> <span class="nav-text">1、重试原理，利用到AOP 切片，然后通过 @Around 进行方法增强。</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#IsTryAgain"><span class="nav-number">3.4.0.1.</span> <span class="nav-text">@IsTryAgain</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#TryAgainException"><span class="nav-number">3.4.0.2.</span> <span class="nav-text">TryAgainException</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#TryAgainAspect"><span class="nav-number">3.4.0.3.</span> <span class="nav-text">TryAgainAspect</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%8E%B0%E5%9C%A8%EF%BC%8C%E5%8F%8D%E5%9B%9E%E5%8E%BB%E7%9C%8B%E4%B8%8A%E9%9D%A2%E7%9A%84UserAccountService-%E6%88%96%E8%AE%B8%E5%B0%B1%E6%98%AF%E7%9F%A5%E9%81%93%E4%BB%80%E4%B9%88%E6%84%8F%E6%80%9D%E4%BA%86%EF%BC%8C%E5%92%8C%E5%B9%B3%E5%B8%B8%E5%86%99%E7%9A%84%E4%B8%9A%E5%8A%A1%E4%BB%A3%E7%A0%81%E4%B8%80%E6%A0%B7%EF%BC%8C%E5%94%AF%E4%B8%80%E5%A4%9A%E7%9A%84%E5%8F%AA%E6%98%AF%E4%B8%80%E4%B8%AA-IsTryAgain-%E6%B3%A8%E8%A7%A3%E8%80%8C%E5%B7%B2"><span class="nav-number">3.4.1.</span> <span class="nav-text">现在，反回去看上面的UserAccountService  或许就是知道什么意思了，和平常写的业务代码一样，唯一多的只是一个 @IsTryAgain 注解而已</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E9%87%8D%E8%AF%95%E5%8F%AF%E4%BB%A5%EF%BC%8C%E4%BD%86%E6%98%AF%E4%B8%8D%E8%83%BD%E6%97%A0%E9%99%90%E9%87%8D%E8%AF%95%E5%90%A7%EF%BC%8C%E6%89%80%E4%BB%A5%E4%B9%9F%E6%98%AF%E4%BC%9A%E6%9C%89%E9%87%8D%E8%AF%95%E5%A4%B1%E8%B4%A5%E7%9A%84%E6%97%B6%E5%80%99%EF%BC%8C%E5%A6%82%E6%9E%9C%E4%BD%A0%E7%BB%99%E5%AE%83%E9%87%8D%E8%AF%95%E6%AC%A1%E6%95%B0%E8%B6%8A%E5%A4%9A%EF%BC%8C%E5%A4%B1%E8%B4%A5%E5%B0%B1%E8%B6%8A%E5%B0%91%EF%BC%8C%E6%88%91%E8%BF%99%E9%87%8C%E4%B8%BA%E4%BA%86%E6%BC%94%E7%A4%BA%E5%8F%AA%E6%9C%893%E6%AC%A1%E6%9C%BA%E4%BC%9A%E3%80%82"><span class="nav-number">3.4.1.1.</span> <span class="nav-text">重试可以，但是不能无限重试吧，所以也是会有重试失败的时候，如果你给它重试次数越多，失败就越少，我这里为了演示只有3次机会。</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%B5%8B%E8%AF%95%E7%B1%BB%EF%BC%8C%E6%B5%8B%E8%AF%95"><span class="nav-number">3.4.2.</span> <span class="nav-text">测试类，测试</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#100-%E4%B8%AA%E8%AF%B7%E6%B1%82%EF%BC%8C20-%E4%B8%AA%E5%B9%B6%E5%8F%91%EF%BC%8C%E5%A5%BD%E5%A4%9A%E4%B8%AA%E9%83%BD%E6%98%AF%E9%87%8D%E8%AF%95%E6%88%90%E5%8A%9F%E4%BA%86%EF%BC%8C%E5%B0%91%E9%83%A8%E5%88%86%E5%A4%B1%E8%B4%A5%E4%BA%86%E3%80%82"><span class="nav-number">3.4.2.1.</span> <span class="nav-text">100 个请求，20 个并发，好多个都是重试成功了，少部分失败了。</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%8C%E6%95%B4%E6%BA%90%E4%BB%A3%E7%A0%81%EF%BC%9AGithub%E5%9C%B0%E5%9D%80-https-github-com-rstyro-optimistic-lock"><span class="nav-number">3.5.</span> <span class="nav-text">完整源代码：Github地址:https:&#x2F;&#x2F;github.com&#x2F;rstyro&#x2F;optimistic-lock</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%8C%E6%95%B4%E6%BA%90%E4%BB%A3%E7%A0%81%EF%BC%9AGitee%E5%9C%B0%E5%9D%80-https-gitee-com-rstyro-optimistic-lock"><span class="nav-number">3.6.</span> <span class="nav-text">完整源代码：Gitee地址:https:&#x2F;&#x2F;gitee.com&#x2F;rstyro&#x2F;optimistic-lock</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="rstyro"
+      src="/blog/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">rstyro</p>
+  <div class="site-description" itemprop="description">人间的饭，吃一碗少一碗，身边的人，见一面少一面，脚下的路，走一天少一天，其实人生就是一个减法，来日并不方长！</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives/">
+        
+          <span class="site-state-item-count">216</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/blog/tags/">
+          
+        <span class="site-state-item-count">88</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/rstyro" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;rstyro" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/rstyro" title="Gitee → https:&#x2F;&#x2F;gitee.com&#x2F;rstyro" rel="noopener" target="_blank"><i class="fab fa-codiepie fa-fw"></i>Gitee</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.jianshu.com/u/651c15a1758a" title="简书 → https:&#x2F;&#x2F;www.jianshu.com&#x2F;u&#x2F;651c15a1758a" rel="noopener" target="_blank"><i class="fa fa-book fa-fw"></i>简书</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      友链
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://rstyro.github.io/blog/" title="https:&#x2F;&#x2F;rstyro.github.io&#x2F;blog&#x2F;">胖不了小陆</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; Mon Apr 10 2017 08:00:00 GMT+0800 (中国标准时间) – 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">以梦为马，诗酒趁年华</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/muse.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+  <script>
+    (function(){
+      var canonicalURL, curProtocol;
+      //Get the <link> tag
+      var x=document.getElementsByTagName("link");
+		//Find the last canonical URL
+		if(x.length > 0){
+			for (i=0;i<x.length;i++){
+				if(x[i].rel.toLowerCase() == 'canonical' && x[i].href){
+					canonicalURL=x[i].href;
+				}
+			}
+		}
+    //Get protocol
+	    if (!canonicalURL){
+	    	curProtocol = window.location.protocol.split(':')[0];
+	    }
+	    else{
+	    	curProtocol = canonicalURL.split(':')[0];
+	    }
+      //Get current URL if the canonical URL does not exist
+	    if (!canonicalURL) canonicalURL = window.location.href;
+	    //Assign script content. Replace current URL with the canonical URL
+      !function(){var e=/([http|https]:\/\/[a-zA-Z0-9\_\.]+\.baidu\.com)/gi,r=canonicalURL,t=document.referrer;if(!e.test(r)){var n=(String(curProtocol).toLowerCase() === 'https')?"https://sp0.baidu.com/9_Q4simg2RQJ8t7jm9iCKT-xh_/s.gif":"//api.share.baidu.com/s.gif";t?(n+="?r="+encodeURIComponent(document.referrer),r&&(n+="&l="+r)):r&&(n+="?l="+r);var i=new Image;i.src=n}}(window);})();
+  </script>
+
+
+
+
+  
+<script src="/blog/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+<script>
+if (document.querySelectorAll('pre.mermaid').length) {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mermaid@8/dist/mermaid.min.js', () => {
+    mermaid.initialize({
+      theme    : 'default',
+      logLevel : 3,
+      flowchart: { curve     : 'linear' },
+      gantt    : { axisFormat: '%m/%d/%Y' },
+      sequence : { actorMargin: 50 }
+    });
+  }, window.mermaid);
+}
+</script>
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : 'Ov23litYkWaOGM7kAKPD',
+      clientSecret: '43bd3cf99bfcb9d05d16627c97a9f7a0200df04a',
+      repo        : 'blog',
+      owner       : 'rstyro',
+      admin       : ['rstyro'],
+      id          : 'a8acb101e2c88f78f00fa97da7ff7aeb',
+        language: '',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/favicon.jpg">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon.jpg">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon.jpg">
+  <link rel="mask-icon" href="/blog/images/favicon.jpg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="/blog/lib/pace/pace-theme-flash.min.css">
+  <script src="/blog/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"rstyro.github.io","root":"/blog/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":true},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.json"};
+  </script>
+
+  <meta name="description" content="物联网（IoT，Internet of Things）是指通过互联网将各种物理设备、车辆、建筑物以及其他嵌入传感器、软件和网络连接的物品相互连接起来，使它们能够收集和交换数据的技术概念。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="物联网技术解析：从概念到核心通信协议">
+<meta property="og:url" content="https://rstyro.github.io/blog/2025/05/08/%E7%89%A9%E8%81%94%E7%BD%91%E6%8A%80%E6%9C%AF%E8%A7%A3%E6%9E%90%EF%BC%9A%E4%BB%8E%E6%A6%82%E5%BF%B5%E5%88%B0%E6%A0%B8%E5%BF%83%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE/index.html">
+<meta property="og:site_name" content="胖不了小陆">
+<meta property="og:description" content="物联网（IoT，Internet of Things）是指通过互联网将各种物理设备、车辆、建筑物以及其他嵌入传感器、软件和网络连接的物品相互连接起来，使它们能够收集和交换数据的技术概念。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-05-08T01:00:45.000Z">
+<meta property="article:modified_time" content="2025-05-08T01:47:45.000Z">
+<meta property="article:author" content="rstyro">
+<meta property="article:tag" content="MQTT">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://rstyro.github.io/blog/2025/05/08/%E7%89%A9%E8%81%94%E7%BD%91%E6%8A%80%E6%9C%AF%E8%A7%A3%E6%9E%90%EF%BC%9A%E4%BB%8E%E6%A6%82%E5%BF%B5%E5%88%B0%E6%A0%B8%E5%BF%83%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>物联网技术解析：从概念到核心通信协议 | 胖不了小陆</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">胖不了小陆</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">信你所信，为你所见</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/blog/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/blog/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/blog/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/rstyro" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://rstyro.github.io/blog/2025/05/08/%E7%89%A9%E8%81%94%E7%BD%91%E6%8A%80%E6%9C%AF%E8%A7%A3%E6%9E%90%EF%BC%9A%E4%BB%8E%E6%A6%82%E5%BF%B5%E5%88%B0%E6%A0%B8%E5%BF%83%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/avatar.jpg">
+      <meta itemprop="name" content="rstyro">
+      <meta itemprop="description" content="人间的饭，吃一碗少一碗，身边的人，见一面少一面，脚下的路，走一天少一天，其实人生就是一个减法，来日并不方长！">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="胖不了小陆">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          物联网技术解析：从概念到核心通信协议
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2025-05-08 09:00:45 / 修改时间：09:47:45" itemprop="dateCreated datePublished" datetime="2025-05-08T09:00:45+08:00">2025-05-08</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E7%89%A9%E8%81%94%E7%BD%91/" itemprop="url" rel="index"><span itemprop="name">物联网</span></a>
+                </span>
+            </span>
+
+          
+            <div class="post-description">物联网（IoT，Internet of Things）是指通过互联网将各种物理设备、车辆、建筑物以及其他嵌入传感器、软件和网络连接的物品相互连接起来，使它们能够收集和交换数据的技术概念。</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="一、什么是物联网"><a href="#一、什么是物联网" class="headerlink" title="一、什么是物联网"></a>一、什么是物联网</h2><ul>
+<li>物联网（IoT，Internet of Things）是指通过互联网将各种物理设备、车辆、建筑物以及其他嵌入传感器、软件和网络连接的物品相互连接起来，使它们能够收集和交换数据的技术概念。这些互联的“智能”对象能够在不需要人类直接干预的情况下，与其他设备或系统进行通信，并执行自动化任务。</li>
+<li>物联网的应用范围非常广泛，包括但不限于智能家居、智慧城市、工业自动化、医疗保健、农业监控、环境监测等领域。例如，在智能家居环境中，冰箱、空调、灯光等设备可以通过物联网技术实现互联互通，用户可以远程控制这些设备，或者这些设备可以根据用户的习惯自动调整工作模式以提高便利性和能源效率。</li>
+</ul>
+<span id="more"></span>
+
+<h4 id="物联网发展历史"><a href="#物联网发展历史" class="headerlink" title="物联网发展历史"></a>物联网发展历史</h4><h4 id="1、起源与发展"><a href="#1、起源与发展" class="headerlink" title="1、起源与发展"></a>1、起源与发展</h4><ul>
+<li><strong>1982年</strong>：卡内基梅隆大学的一台可乐贩卖机被认为是第一个连接到互联网的电器设备。它能够报告库存状态以及新装入的饮料是否已经冷却。</li>
+<li><strong>1日讯 1990年代初</strong>：麻省理工学院（MIT）Auto-ID中心的研究人员Kevin Ashton首次提出了“物联网”这一概念。他设想了一个通过射频识别（RFID）技术将物品与网络相连的世界。</li>
+<li><strong>1995年</strong>：比尔·盖茨在他的著作《未来之路》中讨论了物物互联的概念，虽然当时并未使用“物联网”这个术语。</li>
+<li><strong>1999年</strong>：在物品编码技术的基础上，Auto-ID公司正式提出了物联网的概念，强调利用RFID标签来追踪供应链中的商品。</li>
+<li><strong>2005年</strong>：国际电信联盟（ITU）发布了《ITU互联网报告2005：物联网》，标志着物联网作为一个独立的技术领域得到了国际社会的认可。</li>
+</ul>
+<h4 id="2、关键发展阶段"><a href="#2、关键发展阶段" class="headerlink" title="2、关键发展阶段"></a>2、关键发展阶段</h4><ul>
+<li><strong>2008年至2009年间</strong>：物联网进入了快速增长阶段，越来越多的设备开始接入互联网，形成了所谓的“物联网元年”。</li>
+<li><strong>2010年后</strong>：随着智能手机和平板电脑的普及，物联网的应用场景进一步扩展到了家庭自动化、健康监测等领域。</li>
+<li><strong>近年来</strong>：物联网技术不断成熟，应用场景从简单的设备监控扩展到了智慧城市、工业4.0等复杂系统。同时，伴随着5G网络的发展，物联网迎来了新的发展机遇，支持更高密度的设备连接和更低延迟的数据传输。</li>
+</ul>
+<h4 id="物联网的基本组成"><a href="#物联网的基本组成" class="headerlink" title="物联网的基本组成"></a>物联网的基本组成</h4><h5 id="1-硬件层"><a href="#1-硬件层" class="headerlink" title="1. 硬件层"></a>1. 硬件层</h5><ul>
+<li><strong>传感器</strong>：用于检测环境中的变化，如温度、湿度、光强度等。</li>
+<li><strong>控制器</strong>：控制其他硬件组件的行为，比如开关灯、调节空调温度。</li>
+<li><strong>网关</strong>：充当不同协议之间的桥梁，帮助设备连接到互联网。</li>
+</ul>
+<h5 id="2-网络层"><a href="#2-网络层" class="headerlink" title="2. 网络层"></a>2. 网络层</h5><ul>
+<li><strong>无线通信技术</strong>：包括Wi-Fi、蓝牙、Zigbee、LoRaWAN等，用于设备间的数据传输。</li>
+<li><strong>5G网络</strong>：提供更快速度、更低延迟和更大容量，支持大规模物联网设备连接。</li>
+</ul>
+<h5 id="3-软件和服务层"><a href="#3-软件和服务层" class="headerlink" title="3. 软件和服务层"></a>3. 软件和服务层</h5><ul>
+<li><strong>中间件</strong>：位于操作系统与应用程序之间，负责处理设备管理、数据转换等功能。</li>
+<li><strong>云平台</strong>：为物联网应用提供存储、计算资源以及数据分析能力。</li>
+<li><strong>应用程序</strong>：最终用户使用的界面，展示数据并允许用户与物联网系统互动。</li>
+</ul>
+<h4 id="物联网的工作原理"><a href="#物联网的工作原理" class="headerlink" title="物联网的工作原理"></a>物联网的工作原理</h4><p>物联网系统通常遵循一个简单的模式：</p>
+<ol>
+<li><strong>数据采集</strong>：传感器从环境中收集信息。</li>
+<li><strong>数据传输</strong>：通过网络将数据发送给云端或其他处理中心。</li>
+<li><strong>数据分析</strong>：利用大数据分析工具对收集的数据进行处理，提取有价值的信息。</li>
+<li><strong>决策与行动</strong>：根据分析结果做出决策，并通过控制系统执行相应的操作。</li>
+</ol>
+<h4 id="物联网的应用实例"><a href="#物联网的应用实例" class="headerlink" title="物联网的应用实例"></a>物联网的应用实例</h4><h5 id="1、智能家居"><a href="#1、智能家居" class="headerlink" title="1、智能家居"></a>1、智能家居</h5><p>智能家居系统让家庭生活更加便捷和安全。例如，智能门锁可以通过手机远程开锁；智能照明系统可以根据时间自动调整亮度。</p>
+<h5 id="2、工业物联网"><a href="#2、工业物联网" class="headerlink" title="2、工业物联网"></a>2、工业物联网</h5><p>工业物联网（IIoT）帮助企业提高生产效率，减少停机时间。机器可以实时监控自身状态，并在故障发生前预警维护需求。</p>
+<h5 id="3、智慧城市"><a href="#3、智慧城市" class="headerlink" title="3、智慧城市"></a>3、智慧城市</h5><p>智慧城市利用物联网技术改善交通流量、优化能源使用、提升公共安全等。例如，智能垃圾桶可以在满载时通知清洁人员。</p>
+<h4 id="面临的挑战"><a href="#面临的挑战" class="headerlink" title="面临的挑战"></a>面临的挑战</h4><p>尽管物联网带来了许多好处，但同时也面临着一些挑战：</p>
+<ul>
+<li><strong>安全性</strong>：随着更多设备接入互联网，网络安全风险也随之增加。</li>
+<li><strong>隐私保护</strong>：如何确保个人数据不被滥用是一个重要议题。</li>
+<li><strong>互操作性</strong>：不同厂商生产的设备可能采用不同的标准，影响了系统的兼容性和扩展性。</li>
+</ul>
+<h2 id="二、什么是MQTT"><a href="#二、什么是MQTT" class="headerlink" title="二、什么是MQTT"></a>二、什么是MQTT</h2><ul>
+<li>MQTT（Message Queuing Telemetry Transport，消息队列遥测传输协议）是一种轻量级的发布&#x2F;订阅模式的消息传输协议，特别适用于低带宽、不可靠网络环境下的设备通信。它被设计用于物联网（IoT）中的机器对机器（M2M）通信，可以在远程位置的小型传感器和移动设备之间实现高效的数据传输。</li>
+<li>MQTT协议的第一版由Andy Stanford-Clark（IBM）和Arlen Nipper（Cirrus Link）于1999年建立的。该协议最早应用于监控穿越沙漠的石油管道。因为设备是通过卫星链路连接的，所以当时MQTT所运行的网络带宽很小，且十分不稳定。而MQTT协议的设计目标也正是为了适用于这类传输距离远，带宽小，不稳定的网络环境。</li>
+</ul>
+<h5 id="协议演进史"><a href="#协议演进史" class="headerlink" title="协议演进史"></a>协议演进史</h5><ul>
+<li><strong>1999年</strong>：为石油管道监控设计的卫星通信协议</li>
+<li><strong>2014年</strong>：成为OASIS标准，发布MQTT 3.1.1</li>
+<li><strong>2019年</strong>：MQTT 5.0支持用户属性、原因码等企业级特性</li>
+</ul>
+<h5 id="核心设计理念"><a href="#核心设计理念" class="headerlink" title="核心设计理念"></a>核心设计理念</h5><p><em>轻如鸿毛，稳如泰山”的设计哲学：</em></p>
+<ul>
+<li>最小化协议头（2字节固定头）</li>
+<li>基于TCP的持久连接（心跳机制保活）</li>
+<li>消息传输与业务逻辑解耦</li>
+</ul>
+<h5 id="高级特性对比"><a href="#高级特性对比" class="headerlink" title="高级特性对比"></a>高级特性对比</h5><table>
+<thead>
+<tr>
+<th align="left">特性</th>
+<th align="left">MQTT 5.0</th>
+<th align="left">MQTT 3.1.1</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">消息过期</td>
+<td align="left">✅ 支持TTL设置</td>
+<td align="left">❌ 无</td>
+</tr>
+<tr>
+<td align="left">原因码</td>
+<td align="left">✅ 58种详细连接状态码</td>
+<td align="left">❌ 基础状态码</td>
+</tr>
+<tr>
+<td align="left">流量控制</td>
+<td align="left">✅ 接收窗口配额机制</td>
+<td align="left">❌ 无</td>
+</tr>
+<tr>
+<td align="left">用户属性</td>
+<td align="left">✅ 支持自定义Key-Value元数据</td>
+<td align="left">❌ 无</td>
+</tr>
+</tbody></table>
+<h4 id="1、MQTT的主要特性包括："><a href="#1、MQTT的主要特性包括：" class="headerlink" title="1、MQTT的主要特性包括："></a>1、MQTT的主要特性包括：</h4><ul>
+<li><strong>轻量级</strong>：MQTT具有非常小的代码占用空间和网络带宽要求，这使得它非常适合在资源受限的环境中使用，比如嵌入式系统。</li>
+<li><strong>发布&#x2F;订阅模型</strong>：这种模型允许消息通过主题（topics）进行广播，发布者将消息发送到特定的主题上，而订阅者则接收该主题上的消息。这种方式解耦了消息生产者和消费者，增加了灵活性。</li>
+<li><strong>QoS（Quality of Service，服务质量）级别</strong>：MQTT支持三种不同的服务质量等级，确保消息根据需要可靠地传递。QoS 0表示“最多一次”，即消息传送零次或一次；QoS 1保证消息至少送达一次；QoS 2确保消息仅送达一次。</li>
+<li><strong>保留消息</strong>：如果某个主题有保留消息，则任何订阅该主题的客户端都会立即收到这条消息。</li>
+<li><strong>遗嘱消息</strong>：当客户端异常断开连接时，可以发送一条预定义的遗嘱消息给其他客户端。</li>
+</ul>
+<h4 id="2、使用场景"><a href="#2、使用场景" class="headerlink" title="2、使用场景"></a>2、使用场景</h4><ul>
+<li><p>MQTT因其效率高、开销小的特点，在物联网领域得到广泛应用，如智能家居、工业自动化、车联网等。它也常用于云端服务中，以便于设备与云之间的数据交换。</p>
+</li>
+<li><p>总之，MQTT提供了一种有效的方法来处理远程设备之间的通信，特别是在那些需要最小化网络流量和降低功耗的情况下。</p>
+</li>
+</ul>
+<h4 id="3、MQTT运行机制"><a href="#3、MQTT运行机制" class="headerlink" title="3、MQTT运行机制"></a>3、MQTT运行机制</h4><ul>
+<li>MQTT（Message Queuing Telemetry Transport）的运行机制主要围绕发布&#x2F;订阅模式展开，通过这种方式实现设备之间的高效通信。以下是MQTT的一些核心概念和运行机制：</li>
+</ul>
+<h5 id="3-1、核心组件"><a href="#3-1、核心组件" class="headerlink" title="3.1、核心组件"></a>3.1、核心组件</h5><ol>
+<li>**客户端(Client)**：可以是发布者或订阅者。发布者负责发送消息到指定的主题(Topic)，而订阅者则监听特定主题的消息。</li>
+<li>**代理(Broker)**：MQTT网络的核心，它负责接收所有来自客户端的消息，并根据消息的主题将这些消息转发给相应的订阅者。常见的Broker包括Mosquitto、EMQX等。</li>
+</ol>
+<h5 id="3-2、发布-订阅模型"><a href="#3-2、发布-订阅模型" class="headerlink" title="3.2、发布&#x2F;订阅模型"></a>3.2、发布&#x2F;订阅模型</h5><ul>
+<li><p>**主题(Topic)**：在MQTT中，消息不是直接从发布者发送到订阅者，而是通过主题进行传输。主题是一种层级结构，用斜杠(&#x2F;)分隔，如<code>home/livingroom/temperature</code>。发布者向一个主题发布消息，而订阅者则订阅感兴趣的主题。</p>
+</li>
+<li><p>通配符</p>
+<p>：MQTT支持两种类型的通配符用于订阅多个相关主题：</p>
+<ul>
+<li><code>+</code>（单层通配符）：匹配一个层级，例如<code>home/+/temperature</code>可以匹配<code>home/livingroom/temperature</code>和<code>home/kitchen/temperature</code>。</li>
+<li><code>#</code>（多层通配符）：匹配多个层级，必须位于主题过滤器的末尾，如<code>home/#</code>可以匹配<code>home/livingroom/temperature</code>、<code>home/kitchen/light</code>等。</li>
+</ul>
+</li>
+</ul>
+<h5 id="3-3、连接与会话"><a href="#3-3、连接与会话" class="headerlink" title="3.3、连接与会话"></a>3.3、连接与会话</h5><ul>
+<li>**连接(Connection)**：客户端使用CONNECT报文与Broker建立连接，可以指定遗嘱消息、用户名密码等信息。</li>
+<li>**会话(Session)**：当客户端与Broker断开连接后，可以选择保持会话状态，这样当客户端重新连接时，它可以继续接收断开期间未处理的消息。</li>
+</ul>
+<h5 id="3-4、消息服务质量-QoS"><a href="#3-4、消息服务质量-QoS" class="headerlink" title="3.4、消息服务质量(QoS)"></a>3.4、消息服务质量(QoS)</h5><p>  MQTT定义了三种服务质量等级，用来保证消息传递的可靠性：</p>
+<ul>
+<li>QoS 0：最多一次，消息发送一次，不保证送达。<ul>
+<li><strong>工作原理</strong>：发布者发送消息给Broker后，不等待任何确认直接认为消息发送成功。</li>
+</ul>
+</li>
+<li>QoS 1：至少一次，确保消息至少被传递一次，但可能会重复。<ul>
+<li><strong>工作原理</strong><ul>
+<li>发布者向Broker发送带有PUBLISH报文的消息，并期待收到一个PUBACK响应作为确认。</li>
+<li>如果在一定时间内没有收到PUBACK，发布者会重发消息，这可能导致消息重复。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>QoS 2：仅一次，确保消息只到达一次，是最可靠但也最耗资源的方式。<ul>
+<li><strong>工作原理</strong>：这是最复杂也是最可靠的QoS级别，确保每条消息只被处理一次。它涉及四个步骤：<ul>
+<li>发布者向Broker发送带有唯一标识符（Packet Identifier）的PUBLISH报文。</li>
+<li>Broker接收到消息后，发送PUBREC响应给发布者。</li>
+<li>发布者收到PUBREC后，发送PUBREL报文给Broker。</li>
+<li>Broker确认PUBREL报文后，发送PUBCOMP响应给发布者，完成整个过程。</li>
+</ul>
+</li>
+<li><strong>详细解释</strong>：<ul>
+<li><strong>PUBLISH</strong>：客户端向Broker发送一条消息，并附带一个唯一的Packet Identifier（包标识符）。这条消息将尝试送达Broker。</li>
+<li><strong>PUBREC</strong>：一旦Broker成功接收到该消息，它会回应一个PUBREC（发布收到）消息给客户端。这表示Broker已收到消息并记录下来，但还未完全确认处理完毕。</li>
+<li><strong>PUBREL</strong>：客户端在收到PUBREC后，需要发送一个PUBREL（发布释放）消息作为回应。这一步告诉Broker，“我已经知道你收到了我的消息，现在你可以处理它了”。</li>
+<li><strong>PUBCOMP</strong>：最后，Broker接收到PUBREL消息后，发送一个PUBCOMP（发布完成）消息给客户端。这标志着整个消息传递过程结束，消息已被成功处理且保证不会重复。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="三、物联网安全体系构建"><a href="#三、物联网安全体系构建" class="headerlink" title="三、物联网安全体系构建"></a>三、物联网安全体系构建</h2><h4 id="1-安全挑战矩阵"><a href="#1-安全挑战矩阵" class="headerlink" title="1. 安全挑战矩阵"></a>1. 安全挑战矩阵</h4><table>
+<thead>
+<tr>
+<th align="left">威胁类型</th>
+<th align="left">典型案例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">设备劫持</td>
+<td align="left">Mirai僵尸网络DDoS攻击</td>
+</tr>
+<tr>
+<td align="left">数据篡改</td>
+<td align="left">工业传感器数据欺骗</td>
+</tr>
+<tr>
+<td align="left">隐私泄露</td>
+<td align="left">智能家居数据非法倒卖</td>
+</tr>
+<tr>
+<td align="left">供应链攻击</td>
+<td align="left">恶意固件植入</td>
+</tr>
+</tbody></table>
+<h4 id="2-防御技术栈"><a href="#2-防御技术栈" class="headerlink" title="2. 防御技术栈"></a>2. 防御技术栈</h4><ul>
+<li>🔒 <strong>硬件层</strong>：Secure Element芯片级加密</li>
+<li>📡 <strong>通信层</strong>：MQTT over TLS 1.3 + 双向证书认证</li>
+<li>☁️ <strong>平台层</strong>：基于OPC UA的工业安全模型</li>
+<li>🤖 <strong>应用层</strong>：区块链审计溯源+联邦学习隐私保护</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>您的打赏，是我创作的动力！不给钱？那我只能靠想象力充饥了。</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/wechat_pay.jpg" alt="rstyro 微信支付">
+        <p>微信支付</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/alipay.jpg" alt="rstyro 支付宝">
+        <p>支付宝</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/blog/tags/MQTT/" rel="tag"><i class="fa fa-tag"></i> MQTT</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2024/12/02/VitePress%E7%9A%84%E4%BD%BF%E7%94%A8/" rel="prev" title="VitePress的使用">
+      <i class="fa fa-chevron-left"></i> VitePress的使用
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/blog/2025/05/09/%E5%85%A8%E9%9D%A2%E8%A7%A3%E6%9E%90MQTT%E5%8D%8F%E8%AE%AE%EF%BC%9A%E4%BB%8E%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E5%88%B0%E6%A0%B8%E5%BF%83%E7%BB%84%E4%BB%B6/" rel="next" title="全面解析MQTT协议：从基础概念到核心组件">
+      全面解析MQTT协议：从基础概念到核心组件 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E4%BB%80%E4%B9%88%E6%98%AF%E7%89%A9%E8%81%94%E7%BD%91"><span class="nav-number">1.</span> <span class="nav-text">一、什么是物联网</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%89%A9%E8%81%94%E7%BD%91%E5%8F%91%E5%B1%95%E5%8E%86%E5%8F%B2"><span class="nav-number">1.0.1.</span> <span class="nav-text">物联网发展历史</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1%E3%80%81%E8%B5%B7%E6%BA%90%E4%B8%8E%E5%8F%91%E5%B1%95"><span class="nav-number">1.0.2.</span> <span class="nav-text">1、起源与发展</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2%E3%80%81%E5%85%B3%E9%94%AE%E5%8F%91%E5%B1%95%E9%98%B6%E6%AE%B5"><span class="nav-number">1.0.3.</span> <span class="nav-text">2、关键发展阶段</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%89%A9%E8%81%94%E7%BD%91%E7%9A%84%E5%9F%BA%E6%9C%AC%E7%BB%84%E6%88%90"><span class="nav-number">1.0.4.</span> <span class="nav-text">物联网的基本组成</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1-%E7%A1%AC%E4%BB%B6%E5%B1%82"><span class="nav-number">1.0.4.1.</span> <span class="nav-text">1. 硬件层</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2-%E7%BD%91%E7%BB%9C%E5%B1%82"><span class="nav-number">1.0.4.2.</span> <span class="nav-text">2. 网络层</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3-%E8%BD%AF%E4%BB%B6%E5%92%8C%E6%9C%8D%E5%8A%A1%E5%B1%82"><span class="nav-number">1.0.4.3.</span> <span class="nav-text">3. 软件和服务层</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%89%A9%E8%81%94%E7%BD%91%E7%9A%84%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86"><span class="nav-number">1.0.5.</span> <span class="nav-text">物联网的工作原理</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%89%A9%E8%81%94%E7%BD%91%E7%9A%84%E5%BA%94%E7%94%A8%E5%AE%9E%E4%BE%8B"><span class="nav-number">1.0.6.</span> <span class="nav-text">物联网的应用实例</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1%E3%80%81%E6%99%BA%E8%83%BD%E5%AE%B6%E5%B1%85"><span class="nav-number">1.0.6.1.</span> <span class="nav-text">1、智能家居</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2%E3%80%81%E5%B7%A5%E4%B8%9A%E7%89%A9%E8%81%94%E7%BD%91"><span class="nav-number">1.0.6.2.</span> <span class="nav-text">2、工业物联网</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3%E3%80%81%E6%99%BA%E6%85%A7%E5%9F%8E%E5%B8%82"><span class="nav-number">1.0.6.3.</span> <span class="nav-text">3、智慧城市</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%9D%A2%E4%B8%B4%E7%9A%84%E6%8C%91%E6%88%98"><span class="nav-number">1.0.7.</span> <span class="nav-text">面临的挑战</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E4%BB%80%E4%B9%88%E6%98%AFMQTT"><span class="nav-number">2.</span> <span class="nav-text">二、什么是MQTT</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%8D%8F%E8%AE%AE%E6%BC%94%E8%BF%9B%E5%8F%B2"><span class="nav-number">2.0.0.1.</span> <span class="nav-text">协议演进史</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%A0%B8%E5%BF%83%E8%AE%BE%E8%AE%A1%E7%90%86%E5%BF%B5"><span class="nav-number">2.0.0.2.</span> <span class="nav-text">核心设计理念</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E9%AB%98%E7%BA%A7%E7%89%B9%E6%80%A7%E5%AF%B9%E6%AF%94"><span class="nav-number">2.0.0.3.</span> <span class="nav-text">高级特性对比</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1%E3%80%81MQTT%E7%9A%84%E4%B8%BB%E8%A6%81%E7%89%B9%E6%80%A7%E5%8C%85%E6%8B%AC%EF%BC%9A"><span class="nav-number">2.0.1.</span> <span class="nav-text">1、MQTT的主要特性包括：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2%E3%80%81%E4%BD%BF%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-number">2.0.2.</span> <span class="nav-text">2、使用场景</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3%E3%80%81MQTT%E8%BF%90%E8%A1%8C%E6%9C%BA%E5%88%B6"><span class="nav-number">2.0.3.</span> <span class="nav-text">3、MQTT运行机制</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#3-1%E3%80%81%E6%A0%B8%E5%BF%83%E7%BB%84%E4%BB%B6"><span class="nav-number">2.0.3.1.</span> <span class="nav-text">3.1、核心组件</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3-2%E3%80%81%E5%8F%91%E5%B8%83-%E8%AE%A2%E9%98%85%E6%A8%A1%E5%9E%8B"><span class="nav-number">2.0.3.2.</span> <span class="nav-text">3.2、发布&#x2F;订阅模型</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3-3%E3%80%81%E8%BF%9E%E6%8E%A5%E4%B8%8E%E4%BC%9A%E8%AF%9D"><span class="nav-number">2.0.3.3.</span> <span class="nav-text">3.3、连接与会话</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3-4%E3%80%81%E6%B6%88%E6%81%AF%E6%9C%8D%E5%8A%A1%E8%B4%A8%E9%87%8F-QoS"><span class="nav-number">2.0.3.4.</span> <span class="nav-text">3.4、消息服务质量(QoS)</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E7%89%A9%E8%81%94%E7%BD%91%E5%AE%89%E5%85%A8%E4%BD%93%E7%B3%BB%E6%9E%84%E5%BB%BA"><span class="nav-number">3.</span> <span class="nav-text">三、物联网安全体系构建</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-%E5%AE%89%E5%85%A8%E6%8C%91%E6%88%98%E7%9F%A9%E9%98%B5"><span class="nav-number">3.0.1.</span> <span class="nav-text">1. 安全挑战矩阵</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-%E9%98%B2%E5%BE%A1%E6%8A%80%E6%9C%AF%E6%A0%88"><span class="nav-number">3.0.2.</span> <span class="nav-text">2. 防御技术栈</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="rstyro"
+      src="/blog/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">rstyro</p>
+  <div class="site-description" itemprop="description">人间的饭，吃一碗少一碗，身边的人，见一面少一面，脚下的路，走一天少一天，其实人生就是一个减法，来日并不方长！</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives/">
+        
+          <span class="site-state-item-count">216</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/blog/tags/">
+          
+        <span class="site-state-item-count">88</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/rstyro" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;rstyro" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/rstyro" title="Gitee → https:&#x2F;&#x2F;gitee.com&#x2F;rstyro" rel="noopener" target="_blank"><i class="fab fa-codiepie fa-fw"></i>Gitee</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.jianshu.com/u/651c15a1758a" title="简书 → https:&#x2F;&#x2F;www.jianshu.com&#x2F;u&#x2F;651c15a1758a" rel="noopener" target="_blank"><i class="fa fa-book fa-fw"></i>简书</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      友链
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://rstyro.github.io/blog/" title="https:&#x2F;&#x2F;rstyro.github.io&#x2F;blog&#x2F;">胖不了小陆</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; Mon Apr 10 2017 08:00:00 GMT+0800 (中国标准时间) – 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">以梦为马，诗酒趁年华</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/muse.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+  <script>
+    (function(){
+      var canonicalURL, curProtocol;
+      //Get the <link> tag
+      var x=document.getElementsByTagName("link");
+		//Find the last canonical URL
+		if(x.length > 0){
+			for (i=0;i<x.length;i++){
+				if(x[i].rel.toLowerCase() == 'canonical' && x[i].href){
+					canonicalURL=x[i].href;
+				}
+			}
+		}
+    //Get protocol
+	    if (!canonicalURL){
+	    	curProtocol = window.location.protocol.split(':')[0];
+	    }
+	    else{
+	    	curProtocol = canonicalURL.split(':')[0];
+	    }
+      //Get current URL if the canonical URL does not exist
+	    if (!canonicalURL) canonicalURL = window.location.href;
+	    //Assign script content. Replace current URL with the canonical URL
+      !function(){var e=/([http|https]:\/\/[a-zA-Z0-9\_\.]+\.baidu\.com)/gi,r=canonicalURL,t=document.referrer;if(!e.test(r)){var n=(String(curProtocol).toLowerCase() === 'https')?"https://sp0.baidu.com/9_Q4simg2RQJ8t7jm9iCKT-xh_/s.gif":"//api.share.baidu.com/s.gif";t?(n+="?r="+encodeURIComponent(document.referrer),r&&(n+="&l="+r)):r&&(n+="?l="+r);var i=new Image;i.src=n}}(window);})();
+  </script>
+
+
+
+
+  
+<script src="/blog/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+<script>
+if (document.querySelectorAll('pre.mermaid').length) {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mermaid@8/dist/mermaid.min.js', () => {
+    mermaid.initialize({
+      theme    : 'default',
+      logLevel : 3,
+      flowchart: { curve     : 'linear' },
+      gantt    : { axisFormat: '%m/%d/%Y' },
+      sequence : { actorMargin: 50 }
+    });
+  }, window.mermaid);
+}
+</script>
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : 'Ov23litYkWaOGM7kAKPD',
+      clientSecret: '43bd3cf99bfcb9d05d16627c97a9f7a0200df04a',
+      repo        : 'blog',
+      owner       : 'rstyro',
+      admin       : ['rstyro'],
+      id          : '0aa90ec9cdd1a49737c0c74a23877928',
+        language: '',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>

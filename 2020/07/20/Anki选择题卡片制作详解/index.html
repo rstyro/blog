@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/favicon.jpg">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon.jpg">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon.jpg">
+  <link rel="mask-icon" href="/blog/images/favicon.jpg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="/blog/lib/pace/pace-theme-flash.min.css">
+  <script src="/blog/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"rstyro.github.io","root":"/blog/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":true},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.json"};
+  </script>
+
+  <meta name="description" content="Anki是一个辅助记忆软件，它非常利于复习记忆，它可以按照艾宾浩斯遗忘曲线，给你安排合理的复习频率，就像你使用背单词软件时的操作一样。 一次记忆一个卡片上的一个小知识点，记得牢，而且能够充分利用碎片时间。容易忘记、重复复习过于熟悉的，这些小问题都可以解决。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Anki选择题卡片制作详解">
+<meta property="og:url" content="https://rstyro.github.io/blog/2020/07/20/Anki%E9%80%89%E6%8B%A9%E9%A2%98%E5%8D%A1%E7%89%87%E5%88%B6%E4%BD%9C%E8%AF%A6%E8%A7%A3/index.html">
+<meta property="og:site_name" content="胖不了小陆">
+<meta property="og:description" content="Anki是一个辅助记忆软件，它非常利于复习记忆，它可以按照艾宾浩斯遗忘曲线，给你安排合理的复习频率，就像你使用背单词软件时的操作一样。 一次记忆一个卡片上的一个小知识点，记得牢，而且能够充分利用碎片时间。容易忘记、重复复习过于熟悉的，这些小问题都可以解决。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://rstyro.github.io/blog/2020/07/20/Anki%E9%80%89%E6%8B%A9%E9%A2%98%E5%8D%A1%E7%89%87%E5%88%B6%E4%BD%9C%E8%AF%A6%E8%A7%A3/show1.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2020/07/20/Anki%E9%80%89%E6%8B%A9%E9%A2%98%E5%8D%A1%E7%89%87%E5%88%B6%E4%BD%9C%E8%AF%A6%E8%A7%A3/show2.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2020/07/20/Anki%E9%80%89%E6%8B%A9%E9%A2%98%E5%8D%A1%E7%89%87%E5%88%B6%E4%BD%9C%E8%AF%A6%E8%A7%A3/show3.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2020/07/20/Anki%E9%80%89%E6%8B%A9%E9%A2%98%E5%8D%A1%E7%89%87%E5%88%B6%E4%BD%9C%E8%AF%A6%E8%A7%A3/1.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2020/07/20/Anki%E9%80%89%E6%8B%A9%E9%A2%98%E5%8D%A1%E7%89%87%E5%88%B6%E4%BD%9C%E8%AF%A6%E8%A7%A3/2.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2020/07/20/Anki%E9%80%89%E6%8B%A9%E9%A2%98%E5%8D%A1%E7%89%87%E5%88%B6%E4%BD%9C%E8%AF%A6%E8%A7%A3/3.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2020/07/20/Anki%E9%80%89%E6%8B%A9%E9%A2%98%E5%8D%A1%E7%89%87%E5%88%B6%E4%BD%9C%E8%AF%A6%E8%A7%A3/4.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2020/07/20/Anki%E9%80%89%E6%8B%A9%E9%A2%98%E5%8D%A1%E7%89%87%E5%88%B6%E4%BD%9C%E8%AF%A6%E8%A7%A3/5.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2020/07/20/Anki%E9%80%89%E6%8B%A9%E9%A2%98%E5%8D%A1%E7%89%87%E5%88%B6%E4%BD%9C%E8%AF%A6%E8%A7%A3/6.png">
+<meta property="article:published_time" content="2020-07-20T06:46:08.000Z">
+<meta property="article:modified_time" content="2020-07-20T06:46:08.000Z">
+<meta property="article:author" content="rstyro">
+<meta property="article:tag" content="Anki">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://rstyro.github.io/blog/2020/07/20/Anki%E9%80%89%E6%8B%A9%E9%A2%98%E5%8D%A1%E7%89%87%E5%88%B6%E4%BD%9C%E8%AF%A6%E8%A7%A3/show1.png">
+
+<link rel="canonical" href="https://rstyro.github.io/blog/2020/07/20/Anki%E9%80%89%E6%8B%A9%E9%A2%98%E5%8D%A1%E7%89%87%E5%88%B6%E4%BD%9C%E8%AF%A6%E8%A7%A3/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Anki选择题卡片制作详解 | 胖不了小陆</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">胖不了小陆</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">信你所信，为你所见</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/blog/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/blog/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/blog/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/rstyro" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://rstyro.github.io/blog/2020/07/20/Anki%E9%80%89%E6%8B%A9%E9%A2%98%E5%8D%A1%E7%89%87%E5%88%B6%E4%BD%9C%E8%AF%A6%E8%A7%A3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/avatar.jpg">
+      <meta itemprop="name" content="rstyro">
+      <meta itemprop="description" content="人间的饭，吃一碗少一碗，身边的人，见一面少一面，脚下的路，走一天少一天，其实人生就是一个减法，来日并不方长！">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="胖不了小陆">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Anki选择题卡片制作详解
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-07-20 14:46:08" itemprop="dateCreated datePublished" datetime="2020-07-20T14:46:08+08:00">2020-07-20</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E5%85%B6%E4%BB%96/" itemprop="url" rel="index"><span itemprop="name">其他</span></a>
+                </span>
+            </span>
+
+          
+            <div class="post-description">Anki是一个辅助记忆软件，它非常利于复习记忆，它可以按照艾宾浩斯遗忘曲线，给你安排合理的复习频率，就像你使用背单词软件时的操作一样。 一次记忆一个卡片上的一个小知识点，记得牢，而且能够充分利用碎片时间。容易忘记、重复复习过于熟悉的，这些小问题都可以解决。</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h3 id="一、Anki是什么？"><a href="#一、Anki是什么？" class="headerlink" title="一、Anki是什么？"></a>一、Anki是什么？</h3><p>Anki是一个辅助记忆软件，它非常利于复习记忆，它可以按照艾宾浩斯遗忘曲线，给你安排合理的复习频率，就像你使用背单词软件时的操作一样。<br>一次记忆一个卡片上的一个小知识点，记得牢，而且能够充分利用碎片时间。容易忘记、重复复习过于熟悉的，这些小问题都可以解决。</p>
+<h3 id="二、Anki如何下载与安装？"><a href="#二、Anki如何下载与安装？" class="headerlink" title="二、Anki如何下载与安装？"></a>二、Anki如何下载与安装？</h3><p>下载与安装很简单，傻瓜式安装，就是一直点下一步即可。<br>Anki中国地址：<a target="_blank" rel="noopener" href="http://www.ankichina.net/">http://www.ankichina.net/</a> 或者这个网址：<a target="_blank" rel="noopener" href="https://apps.ankiweb.net/">https://apps.ankiweb.net/</a><br>往下看有各个端的下载链接。</p>
+<h3 id="三、Anki怎么用？"><a href="#三、Anki怎么用？" class="headerlink" title="三、Anki怎么用？"></a>三、Anki怎么用？</h3><p>这个我还真不想说（-_-因为我也是刚刚用的，而且还是被逼着使用一下。）。步骤如下：</p>
+<ul>
+<li>1、创建一个记忆库<br>记忆库就相当与我们的一本笔记，笔记里面可以写很多内容。可以创建多个记忆库，记忆库就相当于笔记分类.</li>
+<li>2、添加卡片<br>卡片就相对与我们的笔记(记忆库)内容，一个卡片相当于一个知识点，可以把卡片当成一本笔记本的一页笔记内容</li>
+<li>3、卡片内容<br>卡片默认有正反面，正面就是问题，反面是隐藏的存放答案。当我们学习的时候可以显示答案看我们是否作对题目</li>
+<li>4、开始学习<br>卡片制成(也就是把卡片添加进记忆库)之后就可以开始学习了。</li>
+<li>5、卡片的级别<br>1、生疏&#x2F;错误：你一看到就知道自己没见过或者见过也忘了。<br>2、困难&#x2F;模糊：你用力想能记起来一点，但不完全。<br>3、犹豫&#x2F;想起：你仔细想，还是能够回忆出来。<br>4、顺利&#x2F;正确：没什么难度，基本熟悉了。</li>
+</ul>
+<blockquote>
+<p>这样就算是入门Anki使用方法了</p>
+</blockquote>
+<h3 id="四、Anki怎么制作选择题卡片"><a href="#四、Anki怎么制作选择题卡片" class="headerlink" title="四、Anki怎么制作选择题卡片"></a>四、Anki怎么制作选择题卡片</h3><p>本文重点，要想弄好看的模板得需要写点HTML代码，如果你不会写代码也没关系，可以用我写好的代码。<br>而你只需要自己改皮肤即可，改皮肤只需要改几行代码这样子。先看看成品<br><img src="/blog/2020/07/20/Anki%E9%80%89%E6%8B%A9%E9%A2%98%E5%8D%A1%E7%89%87%E5%88%B6%E4%BD%9C%E8%AF%A6%E8%A7%A3/show1.png" alt="正面展示"><br>正确时显示如下<br><img src="/blog/2020/07/20/Anki%E9%80%89%E6%8B%A9%E9%A2%98%E5%8D%A1%E7%89%87%E5%88%B6%E4%BD%9C%E8%AF%A6%E8%A7%A3/show2.png" alt="正确显示"><br>错误时显示如下<br><img src="/blog/2020/07/20/Anki%E9%80%89%E6%8B%A9%E9%A2%98%E5%8D%A1%E7%89%87%E5%88%B6%E4%BD%9C%E8%AF%A6%E8%A7%A3/show3.png" alt="错误显示"></p>
+<ul>
+<li>1、修改基础卡片类型的字段<br>操作步骤如下图<br><img src="/blog/2020/07/20/Anki%E9%80%89%E6%8B%A9%E9%A2%98%E5%8D%A1%E7%89%87%E5%88%B6%E4%BD%9C%E8%AF%A6%E8%A7%A3/1.png"><br><img src="/blog/2020/07/20/Anki%E9%80%89%E6%8B%A9%E9%A2%98%E5%8D%A1%E7%89%87%E5%88%B6%E4%BD%9C%E8%AF%A6%E8%A7%A3/2.png"><br><img src="/blog/2020/07/20/Anki%E9%80%89%E6%8B%A9%E9%A2%98%E5%8D%A1%E7%89%87%E5%88%B6%E4%BD%9C%E8%AF%A6%E8%A7%A3/3.png"></li>
+<li>2、添加问题与答案解析<br>如下图，我随便网上找的题目<br><img src="/blog/2020/07/20/Anki%E9%80%89%E6%8B%A9%E9%A2%98%E5%8D%A1%E7%89%87%E5%88%B6%E4%BD%9C%E8%AF%A6%E8%A7%A3/4.png"></li>
+<li>3、编辑卡片<br><img src="/blog/2020/07/20/Anki%E9%80%89%E6%8B%A9%E9%A2%98%E5%8D%A1%E7%89%87%E5%88%B6%E4%BD%9C%E8%AF%A6%E8%A7%A3/5.png"><br>都是空白的，下面开始写代码</li>
+<li>4、修改卡片的正反面模板<br><img src="/blog/2020/07/20/Anki%E9%80%89%E6%8B%A9%E9%A2%98%E5%8D%A1%E7%89%87%E5%88%B6%E4%BD%9C%E8%AF%A6%E8%A7%A3/6.png"><br>写完代码之后就显示如上图所示。下面给出完整的代码：</li>
+<li>5、正面模板的代码<br>把它全部复制到正面模板的位置。<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">&quot;classify&quot;</span> <span class="attr">class</span>=<span class="string">&quot;classify&quot;</span>&gt;</span>单选题：<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;text&quot;</span>&gt;</span>&#123;&#123;Question&#125;&#125;<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">&#123;&#123;#Options&#125;&#125;</span><br><span class="line"><span class="tag">&lt;<span class="name">ol</span> <span class="attr">id</span>=<span class="string">&quot;optionList&quot;</span> <span class="attr">class</span>=<span class="string">&quot;options&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">ol</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">&quot;options&quot;</span> <span class="attr">style</span>=<span class="string">&quot;display:none&quot;</span>&gt;</span>&#123;&#123;Options&#125;&#125;<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">&quot;answer&quot;</span> <span class="attr">style</span>=<span class="string">&quot;display:none&quot;</span>&gt;</span>&#123;&#123;text:Answer&#125;&#125;<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">&quot;checkAns&quot;</span> &gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">&quot;countDown&quot;</span> &gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">&#123;&#123;/Options&#125;&#125;</span><br><span class="line"><span class="tag">&lt;<span class="name">style</span>&gt;</span><span class="language-css"></span></span><br><span class="line"><span class="language-css">    <span class="selector-id">#countDown</span>&#123;</span></span><br><span class="line"><span class="language-css">        <span class="attribute">position</span>: absolute;</span></span><br><span class="line"><span class="language-css">        <span class="attribute">top</span>:<span class="number">50%</span>;</span></span><br><span class="line"><span class="language-css">        <span class="attribute">left</span>: <span class="number">30%</span>;</span></span><br><span class="line"><span class="language-css">        <span class="attribute">font-size</span>: <span class="number">25px</span>;</span></span><br><span class="line"><span class="language-css">    &#125;</span></span><br><span class="line"><span class="language-css"></span><span class="tag">&lt;/<span class="name">style</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span>&gt;</span><span class="language-javascript"></span></span><br><span class="line"><span class="language-javascript">    <span class="title function_">initOptions</span>();</span></span><br><span class="line"><span class="language-javascript">	<span class="comment">// 倒计时的结束时间，改成你自己的</span></span></span><br><span class="line"><span class="language-javascript">    <span class="keyword">var</span> endTime=<span class="string">&quot;2020/08/29 00:00:00&quot;</span>;</span></span><br><span class="line"><span class="language-javascript">    <span class="title function_">countDown</span>(endTime);</span></span><br><span class="line"><span class="language-javascript">    <span class="keyword">function</span> <span class="title function_">countDown</span>(<span class="params">endTime</span>) &#123;</span></span><br><span class="line"><span class="language-javascript">        <span class="keyword">var</span> nowtime = <span class="keyword">new</span> <span class="title class_">Date</span>();</span></span><br><span class="line"><span class="language-javascript">        <span class="keyword">var</span> endtime = <span class="keyword">new</span> <span class="title class_">Date</span>(endTime);</span></span><br><span class="line"><span class="language-javascript">        <span class="keyword">var</span> lefttime = <span class="built_in">parseInt</span>((endtime.<span class="title function_">getTime</span>() - nowtime.<span class="title function_">getTime</span>()) / <span class="number">1000</span>);</span></span><br><span class="line"><span class="language-javascript">        <span class="keyword">var</span> d = <span class="built_in">parseInt</span>(lefttime / (<span class="number">24</span>*<span class="number">60</span>*<span class="number">60</span>))</span></span><br><span class="line"><span class="language-javascript">        <span class="keyword">var</span> h = <span class="built_in">parseInt</span>(lefttime / (<span class="number">60</span> * <span class="number">60</span>) % <span class="number">24</span>);</span></span><br><span class="line"><span class="language-javascript">        <span class="keyword">var</span> m = <span class="built_in">parseInt</span>(lefttime / <span class="number">60</span> % <span class="number">60</span>);</span></span><br><span class="line"><span class="language-javascript">        <span class="keyword">var</span> s = <span class="built_in">parseInt</span>(lefttime % <span class="number">60</span>);</span></span><br><span class="line"><span class="language-javascript">        d = <span class="title function_">addZero</span>(d)</span></span><br><span class="line"><span class="language-javascript">        h = <span class="title function_">addZero</span>(h);</span></span><br><span class="line"><span class="language-javascript">        m = <span class="title function_">addZero</span>(m);</span></span><br><span class="line"><span class="language-javascript">        s = <span class="title function_">addZero</span>(s);</span></span><br><span class="line"><span class="language-javascript">        <span class="variable language_">document</span>.<span class="title function_">getElementById</span>(<span class="string">&quot;countDown&quot;</span>).<span class="property">innerHTML</span> = <span class="string">`考试倒计时  <span class="subst">$&#123;d&#125;</span>天 <span class="subst">$&#123;h&#125;</span> 时 <span class="subst">$&#123;m&#125;</span> 分 <span class="subst">$&#123;s&#125;</span> 秒`</span>;</span></span><br><span class="line"><span class="language-javascript">        <span class="comment">//document.getElementById(&quot;countDown&quot;).innerHTML = `考试倒计时  $&#123;d&#125;天 `;</span></span></span><br><span class="line"><span class="language-javascript">        <span class="keyword">if</span> (lefttime &lt;= <span class="number">0</span>) &#123;</span></span><br><span class="line"><span class="language-javascript">            <span class="variable language_">document</span>.<span class="title function_">getElementById</span>(<span class="string">&quot;countDown&quot;</span>).<span class="property">innerHTML</span> = <span class="string">&quot;考试已结束&quot;</span>;</span></span><br><span class="line"><span class="language-javascript">            <span class="keyword">return</span>;</span></span><br><span class="line"><span class="language-javascript">        &#125;</span></span><br><span class="line"><span class="language-javascript">        <span class="built_in">setTimeout</span>(<span class="keyword">function</span>(<span class="params"></span>)&#123;<span class="title function_">countDown</span>(endTime)&#125;, <span class="number">1000</span>);</span></span><br><span class="line"><span class="language-javascript">    &#125;</span></span><br><span class="line"><span class="language-javascript">    <span class="keyword">function</span> <span class="title function_">addZero</span>(<span class="params">i</span>) &#123;</span></span><br><span class="line"><span class="language-javascript">        <span class="keyword">return</span> i &lt; <span class="number">10</span> ? <span class="string">&quot;0&quot;</span> + <span class="attr">i</span>: i + <span class="string">&quot;&quot;</span>;</span></span><br><span class="line"><span class="language-javascript">    &#125;</span></span><br><span class="line"><span class="language-javascript"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br></pre></td></tr></table></figure>
+可能刚放进去的时候会报错不用理会，因为我们还没有填写中间的分享格式刷代码</li>
+<li>6、中间部分，格式刷-卡片格式共享 代码<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br></pre></td><td class="code"><pre><span class="line">.card&#123;</span><br><span class="line">    font-family:Arial;</span><br><span class="line">    font-size:22px;</span><br><span class="line">    text-align:left;</span><br><span class="line">    color:#fff;</span><br><span class="line">    background-color:#222;</span><br><span class="line">&#125;</span><br><span class="line"><span class="tag">&lt;<span class="name">style</span>&gt;</span><span class="language-css"></span></span><br><span class="line"><span class="language-css">    *&#123;</span></span><br><span class="line"><span class="language-css">        <span class="attribute">text-align</span><span class="selector-pseudo">:left</span>;</span></span><br><span class="line"><span class="language-css">    &#125;</span></span><br><span class="line"><span class="language-css">    <span class="selector-tag">div</span>&#123;</span></span><br><span class="line"><span class="language-css">        <span class="attribute">margin</span>:<span class="number">5px</span> auto;</span></span><br><span class="line"><span class="language-css">    &#125;</span></span><br><span class="line"><span class="language-css">    <span class="selector-class">.classify</span>&#123;</span></span><br><span class="line"><span class="language-css">    &#125;</span></span><br><span class="line"><span class="language-css">    <span class="selector-class">.text</span>&#123;</span></span><br><span class="line"><span class="language-css">        <span class="attribute">text-align</span><span class="selector-pseudo">:left</span>;</span></span><br><span class="line"><span class="language-css">    &#125;</span></span><br><span class="line"><span class="language-css">    <span class="selector-class">.cloze</span> &#123;</span></span><br><span class="line"><span class="language-css">        <span class="attribute">font-weight</span>:bold;</span></span><br><span class="line"><span class="language-css">        <span class="attribute">color</span>:<span class="number">#a6e22e</span>;</span></span><br><span class="line"><span class="language-css"></span></span><br><span class="line"><span class="language-css">    &#125;</span></span><br><span class="line"><span class="language-css">    <span class="selector-class">.cloze_line</span>&#123;</span></span><br><span class="line"><span class="language-css">        <span class="attribute">font-weight</span>:bold;</span></span><br><span class="line"><span class="language-css">        <span class="attribute">color</span>:<span class="number">#a6e22e</span>;</span></span><br><span class="line"><span class="language-css">        <span class="attribute">text-decoration</span>: underline;</span></span><br><span class="line"><span class="language-css">    &#125;</span></span><br><span class="line"><span class="language-css">    <span class="selector-class">.wrong</span> &#123;</span></span><br><span class="line"><span class="language-css">        <span class="attribute">font-weight</span>:bold;</span></span><br><span class="line"><span class="language-css">        <span class="attribute">color</span>:<span class="number">#f92672</span>;</span></span><br><span class="line"><span class="language-css">        <span class="attribute">text-decoration</span>:line-through;</span></span><br><span class="line"><span class="language-css">    &#125;</span></span><br><span class="line"><span class="language-css">    <span class="selector-class">.options</span> &#123;</span></span><br><span class="line"><span class="language-css">        <span class="attribute">list-style</span>:upper-latin;</span></span><br><span class="line"><span class="language-css">    &#125;</span></span><br><span class="line"><span class="language-css">    <span class="selector-class">.options</span> * &#123;</span></span><br><span class="line"><span class="language-css">        <span class="attribute">cursor</span>:pointer;</span></span><br><span class="line"><span class="language-css">    &#125;</span></span><br><span class="line"><span class="language-css">    <span class="selector-class">.options</span> *<span class="selector-pseudo">:hover</span> &#123;</span></span><br><span class="line"><span class="language-css">        <span class="attribute">font-weight</span>:bold;</span></span><br><span class="line"><span class="language-css">        <span class="attribute">color</span>: <span class="number">#a6e22e</span>;</span></span><br><span class="line"><span class="language-css">    &#125;</span></span><br><span class="line"><span class="language-css"></span></span><br><span class="line"><span class="language-css">    <span class="selector-class">.options</span> <span class="selector-tag">input</span><span class="selector-attr">[name=<span class="string">&quot;options&quot;</span>]</span> &#123;</span></span><br><span class="line"><span class="language-css">        <span class="attribute">display</span>:inline;</span></span><br><span class="line"><span class="language-css">    &#125;</span></span><br><span class="line"><span class="language-css">    <span class="selector-class">.sformat</span>&#123;</span></span><br><span class="line"><span class="language-css">        <span class="attribute">display</span>: inline-block;</span></span><br><span class="line"><span class="language-css">        <span class="attribute">margin-left</span>: <span class="number">100px</span>;</span></span><br><span class="line"><span class="language-css">    &#125;</span></span><br><span class="line"><span class="language-css">    <span class="selector-id">#performance</span> &#123;</span></span><br><span class="line"><span class="language-css">        <span class="attribute">text-align</span>:center;</span></span><br><span class="line"><span class="language-css">        <span class="attribute">margin-top</span>:<span class="number">10px</span>;</span></span><br><span class="line"><span class="language-css">    &#125;</span></span><br><span class="line"><span class="language-css">    <span class="selector-class">.analyze</span>&#123;</span></span><br><span class="line"><span class="language-css">        <span class="attribute">margin-top</span>:<span class="number">15px</span>;</span></span><br><span class="line"><span class="language-css">        <span class="attribute">font-size</span>:<span class="number">20px</span>;</span></span><br><span class="line"><span class="language-css">        <span class="attribute">text-align</span><span class="selector-pseudo">:left</span>;</span></span><br><span class="line"><span class="language-css">    &#125;</span></span><br><span class="line"><span class="language-css"></span><span class="tag">&lt;/<span class="name">style</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span>&gt;</span><span class="language-javascript"></span></span><br><span class="line"><span class="language-javascript">    <span class="keyword">if</span> (!<span class="variable language_">window</span>.<span class="property">gData</span>) &#123;</span></span><br><span class="line"><span class="language-javascript">        <span class="variable language_">window</span>.<span class="property">gData</span> = &#123;</span></span><br><span class="line"><span class="language-javascript">            <span class="attr">clickedValues</span>: [],</span></span><br><span class="line"><span class="language-javascript">            <span class="attr">total</span>: <span class="number">0</span>,</span></span><br><span class="line"><span class="language-javascript">            <span class="attr">correct</span>: <span class="number">0</span>,</span></span><br><span class="line"><span class="language-javascript">            <span class="attr">score</span>: <span class="number">0</span>,</span></span><br><span class="line"><span class="language-javascript">            <span class="attr">sum</span>: <span class="number">0</span>,</span></span><br><span class="line"><span class="language-javascript">            <span class="attr">list</span>: <span class="string">&#x27;&#x27;</span>,</span></span><br><span class="line"><span class="language-javascript">            <span class="attr">correctanswer</span>: [],</span></span><br><span class="line"><span class="language-javascript">            <span class="attr">rsltanswer</span>: []</span></span><br><span class="line"><span class="language-javascript">        &#125;</span></span><br><span class="line"><span class="language-javascript">    &#125;</span></span><br><span class="line"><span class="language-javascript">    <span class="keyword">var</span> gData = <span class="variable language_">window</span>.<span class="property">gData</span>;</span></span><br><span class="line"><span class="language-javascript">    <span class="comment">// 显示选项</span></span></span><br><span class="line"><span class="language-javascript">    <span class="keyword">function</span> <span class="title function_">initOptions</span>(<span class="params"></span>) &#123;</span></span><br><span class="line"><span class="language-javascript">        <span class="keyword">var</span> optionList = <span class="variable language_">document</span>.<span class="title function_">getElementById</span>(<span class="string">&quot;optionList&quot;</span>),</span></span><br><span class="line"><span class="language-javascript">            classify = <span class="variable language_">document</span>.<span class="title function_">getElementById</span>(<span class="string">&quot;classify&quot;</span>),</span></span><br><span class="line"><span class="language-javascript">            options = <span class="variable language_">document</span>.<span class="title function_">getElementById</span>(<span class="string">&quot;options&quot;</span>),</span></span><br><span class="line"><span class="language-javascript">            answer = <span class="variable language_">document</span>.<span class="title function_">getElementById</span>(<span class="string">&quot;answer&quot;</span>);</span></span><br><span class="line"><span class="language-javascript">        <span class="keyword">var</span> correctanswer = answer.<span class="property">innerText</span>.<span class="title function_">toUpperCase</span>().<span class="title function_">match</span>(<span class="regexp">/[A-Fa-f]/g</span>);</span></span><br><span class="line"><span class="language-javascript">        correctanswer.<span class="property">length</span> &gt; <span class="number">1</span> &amp;&amp; (classify.<span class="property">innerText</span> = <span class="string">&quot;多选题：&quot;</span>);</span></span><br><span class="line"><span class="language-javascript">        gData.<span class="property">correctanswer</span>=correctanswer;</span></span><br><span class="line"><span class="language-javascript">        options = options.<span class="property">innerHTML</span>,</span></span><br><span class="line"><span class="language-javascript">            options = options.<span class="title function_">replace</span>(<span class="regexp">/&lt;\/?div&gt;/g</span>, <span class="string">&quot;\n&quot;</span>),</span></span><br><span class="line"><span class="language-javascript">            options = options.<span class="title function_">replace</span>(<span class="regexp">/\n+/g</span>, <span class="string">&quot;\n&quot;</span>),</span></span><br><span class="line"><span class="language-javascript">            options = options.<span class="title function_">replace</span>(<span class="regexp">/&lt;br.*?&gt;/g</span>, <span class="string">&quot;\n&quot;</span>),</span></span><br><span class="line"><span class="language-javascript">            options = options.<span class="title function_">replace</span>(<span class="regexp">/^\n/</span>, <span class="string">&quot;&quot;</span>),</span></span><br><span class="line"><span class="language-javascript">            options = options.<span class="title function_">replace</span>(<span class="regexp">/\n$/</span>, <span class="string">&quot;&quot;</span>),</span></span><br><span class="line"><span class="language-javascript">            options = options.<span class="title function_">split</span>(<span class="regexp">/(\n|\r\n)/g</span>).<span class="title function_">filter</span>(<span class="keyword">function</span>(<span class="params">e</span>) &#123;</span></span><br><span class="line"><span class="language-javascript">                <span class="keyword">return</span> <span class="string">&quot;\n&quot;</span> !== e &amp;&amp; <span class="string">&quot;\r\n&quot;</span> !== e &amp;&amp; <span class="string">&quot;&quot;</span> !== e</span></span><br><span class="line"><span class="language-javascript">            &#125;) || [];</span></span><br><span class="line"><span class="language-javascript">        <span class="keyword">var</span> indexs = [];<span class="comment">// 存随机数的</span></span></span><br><span class="line"><span class="language-javascript">        gData.<span class="property">rsltanswer</span>=[];<span class="comment">//重置，此参数为乱序后的正确答案</span></span></span><br><span class="line"><span class="language-javascript">        gData.<span class="property">clickedValues</span>=[];</span></span><br><span class="line"><span class="language-javascript">        <span class="keyword">for</span>(<span class="keyword">var</span> key=<span class="number">0</span>;key&lt;options.<span class="property">length</span>;key++)&#123;</span></span><br><span class="line"><span class="language-javascript">            <span class="keyword">var</span> randomNum=<span class="title function_">getRandomNum</span>(indexs,options.<span class="property">length</span>); <span class="comment">//随机</span></span></span><br><span class="line"><span class="language-javascript">            <span class="comment">// var randomNum=key; //不要随机了</span></span></span><br><span class="line"><span class="language-javascript">            <span class="keyword">var</span> li =<span class="string">&#x27;&#x27;</span>;</span></span><br><span class="line"><span class="language-javascript">            <span class="keyword">if</span>(correctanswer.<span class="title function_">indexOf</span>(<span class="title class_">String</span>.<span class="title function_">fromCharCode</span>(randomNum + <span class="number">65</span>)) != -<span class="number">1</span>)&#123;</span></span><br><span class="line"><span class="language-javascript">                gData.<span class="property">rsltanswer</span>.<span class="title function_">push</span>(<span class="title class_">String</span>.<span class="title function_">fromCharCode</span>(key + <span class="number">65</span>));</span></span><br><span class="line"><span class="language-javascript">                li=<span class="title function_">getLiElement</span>(options[randomNum],<span class="title class_">String</span>.<span class="title function_">fromCharCode</span>(key + <span class="number">65</span>),<span class="string">&quot;optionTrue&quot;</span>)</span></span><br><span class="line"><span class="language-javascript">            &#125;<span class="keyword">else</span>&#123;</span></span><br><span class="line"><span class="language-javascript">                li=<span class="title function_">getLiElement</span>(options[randomNum],<span class="title class_">String</span>.<span class="title function_">fromCharCode</span>(key + <span class="number">65</span>),<span class="string">&quot;optionFalse&quot;</span>)</span></span><br><span class="line"><span class="language-javascript">            &#125;</span></span><br><span class="line"><span class="language-javascript">            optionList.<span class="title function_">appendChild</span>(li);</span></span><br><span class="line"><span class="language-javascript">        &#125;</span></span><br><span class="line"><span class="language-javascript">        gData.<span class="property">list</span>=optionList.<span class="property">innerHTML</span>;</span></span><br><span class="line"><span class="language-javascript">        gData.<span class="property">total</span>++;</span></span><br><span class="line"><span class="language-javascript">    &#125;</span></span><br><span class="line"><span class="language-javascript"></span></span><br><span class="line"><span class="language-javascript">    <span class="comment">// 获取随机数，乱序答案时需要</span></span></span><br><span class="line"><span class="language-javascript">    <span class="keyword">function</span> <span class="title function_">getRandomNum</span>(<span class="params">indexs,number</span>) &#123;</span></span><br><span class="line"><span class="language-javascript">        <span class="keyword">var</span> num;</span></span><br><span class="line"><span class="language-javascript">        <span class="keyword">do</span> &#123;</span></span><br><span class="line"><span class="language-javascript">            num = <span class="title class_">Math</span>.<span class="title function_">random</span>() * number;</span></span><br><span class="line"><span class="language-javascript">            num = <span class="title class_">Math</span>.<span class="title function_">floor</span>(num);</span></span><br><span class="line"><span class="language-javascript">            <span class="keyword">if</span> (indexs.<span class="title function_">join</span>().<span class="title function_">indexOf</span>(num.<span class="title function_">toString</span>()) == -<span class="number">1</span>) &#123;</span></span><br><span class="line"><span class="language-javascript">                indexs.<span class="title function_">push</span>(num);</span></span><br><span class="line"><span class="language-javascript">                <span class="keyword">break</span>;</span></span><br><span class="line"><span class="language-javascript">            &#125;</span></span><br><span class="line"><span class="language-javascript">        &#125; <span class="keyword">while</span> (<span class="literal">true</span>)</span></span><br><span class="line"><span class="language-javascript">        <span class="keyword">return</span> num;</span></span><br><span class="line"><span class="language-javascript">    &#125;</span></span><br><span class="line"><span class="language-javascript"></span></span><br><span class="line"><span class="language-javascript">    <span class="comment">// 点击选项事件</span></span></span><br><span class="line"><span class="language-javascript">    <span class="keyword">function</span> <span class="title function_">choice</span>(<span class="params">li</span>)&#123;</span></span><br><span class="line"><span class="language-javascript">        <span class="keyword">var</span> key = li.<span class="title function_">getAttribute</span>(<span class="string">&quot;id&quot;</span>);</span></span><br><span class="line"><span class="language-javascript">        <span class="keyword">var</span> input = <span class="variable language_">document</span>.<span class="title function_">getElementById</span>(<span class="string">&quot;input&quot;</span>+key);</span></span><br><span class="line"><span class="language-javascript">        <span class="keyword">var</span> inputType = input.<span class="title function_">getAttribute</span>(<span class="string">&quot;type&quot;</span>);</span></span><br><span class="line"><span class="language-javascript">        input.<span class="property">checked</span>=!input.<span class="property">checked</span>;</span></span><br><span class="line"><span class="language-javascript">        <span class="keyword">if</span>(<span class="string">&quot;checkbox&quot;</span> == inputType)&#123;</span></span><br><span class="line"><span class="language-javascript">            <span class="keyword">let</span> delIndex =gData.<span class="property">clickedValues</span>.<span class="title function_">indexOf</span>(key);</span></span><br><span class="line"><span class="language-javascript">            <span class="keyword">if</span>(delIndex != -<span class="number">1</span>)&#123;</span></span><br><span class="line"><span class="language-javascript">                gData.<span class="property">clickedValues</span>.<span class="title function_">splice</span>(delIndex,<span class="number">1</span>);</span></span><br><span class="line"><span class="language-javascript">            &#125;<span class="keyword">else</span>&#123;</span></span><br><span class="line"><span class="language-javascript">                gData.<span class="property">clickedValues</span>.<span class="title function_">push</span>(key);</span></span><br><span class="line"><span class="language-javascript">            &#125;</span></span><br><span class="line"><span class="language-javascript">        &#125;<span class="keyword">else</span>&#123;</span></span><br><span class="line"><span class="language-javascript">            gData.<span class="property">clickedValues</span>=[];</span></span><br><span class="line"><span class="language-javascript">            gData.<span class="property">clickedValues</span>.<span class="title function_">push</span>(key);</span></span><br><span class="line"><span class="language-javascript">        &#125;</span></span><br><span class="line"><span class="language-javascript">    &#125;</span></span><br><span class="line"><span class="language-javascript"></span></span><br><span class="line"><span class="language-javascript">    <span class="comment">// 创建li选项，key=第几个答案选项</span></span></span><br><span class="line"><span class="language-javascript">    <span class="keyword">function</span> <span class="title function_">getLiElement</span>(<span class="params">value,key,liClass</span>) &#123;</span></span><br><span class="line"><span class="language-javascript">        <span class="keyword">var</span> liElement = <span class="variable language_">document</span>.<span class="title function_">createElement</span>(<span class="string">&quot;li&quot;</span>),</span></span><br><span class="line"><span class="language-javascript">            inputElement = <span class="variable language_">document</span>.<span class="title function_">createElement</span>(<span class="string">&quot;input&quot;</span>),</span></span><br><span class="line"><span class="language-javascript">            labelElement = <span class="variable language_">document</span>.<span class="title function_">createElement</span>(<span class="string">&quot;label&quot;</span>);</span></span><br><span class="line"><span class="language-javascript">        inputElement.<span class="title function_">setAttribute</span>(<span class="string">&quot;type&quot;</span>, <span class="number">1</span> === gData.<span class="property">correctanswer</span>.<span class="property">length</span> ? <span class="string">&quot;radio&quot;</span>: <span class="string">&quot;checkbox&quot;</span>);</span></span><br><span class="line"><span class="language-javascript">        inputElement.<span class="title function_">setAttribute</span>(<span class="string">&quot;name&quot;</span>, <span class="string">&quot;options&quot;</span>);</span></span><br><span class="line"><span class="language-javascript">        inputElement.<span class="title function_">setAttribute</span>(<span class="string">&quot;id&quot;</span>, <span class="string">&quot;input&quot;</span>+key);</span></span><br><span class="line"><span class="language-javascript">        labelElement.<span class="property">innerHTML</span>=value;</span></span><br><span class="line"><span class="language-javascript">        liElement.<span class="title function_">appendChild</span>(inputElement);</span></span><br><span class="line"><span class="language-javascript">        liElement.<span class="title function_">appendChild</span>(labelElement);</span></span><br><span class="line"><span class="language-javascript">        liElement.<span class="title function_">setAttribute</span>(<span class="string">&quot;class&quot;</span>, liClass);</span></span><br><span class="line"><span class="language-javascript">        liElement.<span class="title function_">setAttribute</span>(<span class="string">&quot;id&quot;</span>, key);</span></span><br><span class="line"><span class="language-javascript">        liElement.<span class="title function_">setAttribute</span>(<span class="string">&quot;onclick&quot;</span>, <span class="string">&quot;choice(this)&quot;</span>);</span></span><br><span class="line"><span class="language-javascript">        <span class="keyword">return</span> liElement;</span></span><br><span class="line"><span class="language-javascript">    &#125;</span></span><br><span class="line"><span class="language-javascript">    <span class="keyword">function</span> <span class="title function_">checkAnswer</span>(<span class="params">arr1,arr2</span>) &#123;</span></span><br><span class="line"><span class="language-javascript">        <span class="keyword">if</span>(arr1.<span class="property">length</span> != arr2.<span class="property">length</span>)<span class="keyword">return</span> <span class="literal">false</span>;</span></span><br><span class="line"><span class="language-javascript">        <span class="keyword">if</span>(arr2.<span class="title function_">sort</span>().<span class="title function_">toString</span>() != arr1.<span class="title function_">sort</span>().<span class="title function_">toString</span>()) <span class="keyword">return</span> <span class="literal">false</span>;</span></span><br><span class="line"><span class="language-javascript">        <span class="keyword">return</span> <span class="literal">true</span>;</span></span><br><span class="line"><span class="language-javascript">    &#125;</span></span><br><span class="line"><span class="language-javascript"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br></pre></td></tr></table></figure>
+讲道理，填完这个正面模板那边应该是不报错了。</li>
+<li>7、反面模板的代码<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">&quot;classify&quot;</span> <span class="attr">class</span>=<span class="string">&quot;classify&quot;</span>&gt;</span>单选题：<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;text&quot;</span>&gt;</span>&#123;&#123;Question&#125;&#125;<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">&#123;&#123;#Options&#125;&#125;</span><br><span class="line"><span class="tag">&lt;<span class="name">ol</span> <span class="attr">class</span>=<span class="string">&quot;options&quot;</span> <span class="attr">id</span>=<span class="string">&quot;optionList&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">ol</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">&quot;options&quot;</span> <span class="attr">style</span>=<span class="string">&quot;display:none&quot;</span>&gt;</span>&#123;&#123;Options&#125;&#125;<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">&quot;answer&quot;</span> <span class="attr">style</span>=<span class="string">&quot;display:none&quot;</span>&gt;</span>&#123;&#123;text:Answer&#125;&#125;<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">div</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">span</span> <span class="attr">id</span>=<span class="string">&quot;result&quot;</span> <span class="attr">class</span>=<span class="string">&quot;cloze sformat&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">span</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">span</span>  <span class="attr">class</span>=<span class="string">&quot;cloze sformat&quot;</span>&gt;</span>正确答案：<span class="tag">&lt;<span class="name">b</span> <span class="attr">id</span>=<span class="string">&quot;key&quot;</span> &gt;</span><span class="tag">&lt;/<span class="name">b</span>&gt;</span><span class="tag">&lt;/<span class="name">span</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">span</span> <span class="attr">class</span>=<span class="string">&quot;cloze sformat&quot;</span>&gt;</span>你的答案：<span class="tag">&lt;<span class="name">b</span> <span class="attr">id</span>=<span class="string">&quot;yourkey&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">b</span>&gt;</span><span class="tag">&lt;/<span class="name">span</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">&#123;&#123;/Options&#125;&#125;</span><br><span class="line">&#123;&#123;#Analyze&#125;&#125;</span><br><span class="line"><span class="tag">&lt;<span class="name">hr</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">&quot;performance&quot;</span>&gt;</span> 正确率：100%<span class="tag">&lt;/<span class="name">div</span>&gt;</span><span class="tag">&lt;<span class="name">br</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;analyze&quot;</span>&gt;</span>解析:&#123;&#123;Analyze&#125;&#125;<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">&quot;listText&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">&#123;&#123;/Analyze&#125;&#125;</span><br><span class="line"><span class="tag">&lt;<span class="name">script</span>&gt;</span><span class="language-javascript"></span></span><br><span class="line"><span class="language-javascript">    <span class="keyword">var</span> classify = <span class="variable language_">document</span>.<span class="title function_">getElementById</span>(<span class="string">&quot;classify&quot;</span>),</span></span><br><span class="line"><span class="language-javascript">        performance = <span class="variable language_">document</span>.<span class="title function_">getElementById</span>(<span class="string">&quot;performance&quot;</span>),</span></span><br><span class="line"><span class="language-javascript">        result = <span class="variable language_">document</span>.<span class="title function_">getElementById</span>(<span class="string">&quot;result&quot;</span>),</span></span><br><span class="line"><span class="language-javascript">        key = <span class="variable language_">document</span>.<span class="title function_">getElementById</span>(<span class="string">&quot;key&quot;</span>),</span></span><br><span class="line"><span class="language-javascript">        yourkey = <span class="variable language_">document</span>.<span class="title function_">getElementById</span>(<span class="string">&quot;yourkey&quot;</span>),</span></span><br><span class="line"><span class="language-javascript">        optionOl = <span class="variable language_">document</span>.<span class="title function_">getElementById</span>(<span class="string">&quot;optionList&quot;</span>);</span></span><br><span class="line"><span class="language-javascript">    gData.<span class="property">correctanswer</span>.<span class="property">length</span> &gt; <span class="number">1</span> &amp;&amp; (classify.<span class="property">innerText</span> = <span class="string">&quot;多选题：&quot;</span>);</span></span><br><span class="line"><span class="language-javascript">    optionOl.<span class="property">innerHTML</span> = gData.<span class="property">list</span>;</span></span><br><span class="line"><span class="language-javascript">    <span class="keyword">if</span>(<span class="title function_">checkAnswer</span>(gData.<span class="property">clickedValues</span>,gData.<span class="property">rsltanswer</span>))&#123;</span></span><br><span class="line"><span class="language-javascript">        gData.<span class="property">correct</span>++;</span></span><br><span class="line"><span class="language-javascript">        result.<span class="property">innerHTML</span>=<span class="string">&quot;回答正确！！！&quot;</span>;</span></span><br><span class="line"><span class="language-javascript">    &#125;<span class="keyword">else</span>&#123;</span></span><br><span class="line"><span class="language-javascript">        yourkey.<span class="property">classList</span>.<span class="title function_">add</span>(<span class="string">&quot;wrong&quot;</span>);</span></span><br><span class="line"><span class="language-javascript">        result.<span class="property">classList</span>.<span class="title function_">add</span>(<span class="string">&quot;wrong&quot;</span>);</span></span><br><span class="line"><span class="language-javascript">        result.<span class="property">innerHTML</span>=<span class="string">&quot;很遗憾，回答错误&quot;</span>;</span></span><br><span class="line"><span class="language-javascript">    &#125;</span></span><br><span class="line"><span class="language-javascript">    key.<span class="property">innerHTML</span> = gData.<span class="property">rsltanswer</span>.<span class="title function_">sort</span>().<span class="title function_">toString</span>();</span></span><br><span class="line"><span class="language-javascript">    yourkey.<span class="property">innerHTML</span> = gData.<span class="property">clickedValues</span>.<span class="title function_">sort</span>().<span class="title function_">toString</span>();</span></span><br><span class="line"><span class="language-javascript">    performance.<span class="property">innerHTML</span>=<span class="string">&#x27;本次做题数：&#x27;</span>+gData.<span class="property">total</span>+<span class="string">&quot;&amp;nbsp;正确数：&quot;</span>+gData.<span class="property">correct</span>+<span class="string">&quot;&amp;nbsp;正确率：&quot;</span>+<span class="title function_">getCorrectRate</span>()+<span class="string">&quot;%&quot;</span>;</span></span><br><span class="line"><span class="language-javascript">    <span class="title function_">setHighlight</span>();</span></span><br><span class="line"><span class="language-javascript">    <span class="title function_">setCheckboxStatus</span>();</span></span><br><span class="line"><span class="language-javascript"></span></span><br><span class="line"><span class="language-javascript"></span></span><br><span class="line"><span class="language-javascript"></span></span><br><span class="line"><span class="language-javascript">    <span class="comment">// 得到正确率</span></span></span><br><span class="line"><span class="language-javascript">    <span class="keyword">function</span> <span class="title function_">getCorrectRate</span>(<span class="params"></span>) &#123;</span></span><br><span class="line"><span class="language-javascript">        <span class="keyword">return</span> ((gData.<span class="property">correct</span>/gData.<span class="property">total</span>)*<span class="number">100</span>).<span class="title function_">toFixed</span>(<span class="number">2</span>);</span></span><br><span class="line"><span class="language-javascript">    &#125;</span></span><br><span class="line"><span class="language-javascript"></span></span><br><span class="line"><span class="language-javascript">    <span class="comment">// 设置选中状态</span></span></span><br><span class="line"><span class="language-javascript">    <span class="keyword">function</span> <span class="title function_">setCheckboxStatus</span>(<span class="params"></span>) &#123;</span></span><br><span class="line"><span class="language-javascript">        <span class="keyword">const</span> inputTags =<span class="variable language_">document</span>.<span class="title function_">getElementsByTagName</span>(<span class="string">&quot;input&quot;</span>);</span></span><br><span class="line"><span class="language-javascript">        <span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>; i &lt; inputTags.<span class="property">length</span>; i++) &#123;</span></span><br><span class="line"><span class="language-javascript">            <span class="keyword">if</span> (inputTags[i].<span class="property">nodeType</span>) &#123;</span></span><br><span class="line"><span class="language-javascript">                <span class="keyword">var</span> inputId = inputTags[i].<span class="title function_">getAttribute</span>(<span class="string">&quot;id&quot;</span>);</span></span><br><span class="line"><span class="language-javascript">                inputId=inputId.<span class="title function_">replace</span>(<span class="string">&quot;input&quot;</span>,<span class="string">&quot;&quot;</span>);</span></span><br><span class="line"><span class="language-javascript">                <span class="keyword">if</span> (gData.<span class="property">clickedValues</span>.<span class="title function_">indexOf</span>(inputId) &gt; -<span class="number">1</span>) &#123;</span></span><br><span class="line"><span class="language-javascript">                    inputTags[i].<span class="property">checked</span> = <span class="literal">true</span>;</span></span><br><span class="line"><span class="language-javascript">                &#125;</span></span><br><span class="line"><span class="language-javascript">            &#125;</span></span><br><span class="line"><span class="language-javascript">        &#125;</span></span><br><span class="line"><span class="language-javascript">    &#125;</span></span><br><span class="line"><span class="language-javascript"></span></span><br><span class="line"><span class="language-javascript">    <span class="comment">// 设置正确答案语错误答案 高亮</span></span></span><br><span class="line"><span class="language-javascript">    <span class="keyword">function</span> <span class="title function_">setHighlight</span>(<span class="params"></span>)&#123;</span></span><br><span class="line"><span class="language-javascript">        <span class="keyword">var</span> liTags =<span class="variable language_">document</span>.<span class="title function_">getElementsByTagName</span>(<span class="string">&quot;li&quot;</span>);</span></span><br><span class="line"><span class="language-javascript">        <span class="keyword">for</span>(<span class="keyword">var</span> i <span class="keyword">in</span> liTags)&#123;</span></span><br><span class="line"><span class="language-javascript">            <span class="keyword">if</span>(liTags[i].<span class="property">nodeType</span> == <span class="number">1</span>)&#123;</span></span><br><span class="line"><span class="language-javascript">                <span class="keyword">var</span> liKey = liTags[i].<span class="title function_">getAttribute</span>(<span class="string">&quot;id&quot;</span>);</span></span><br><span class="line"><span class="language-javascript">                <span class="comment">// 正确答案高亮显示</span></span></span><br><span class="line"><span class="language-javascript">                <span class="keyword">if</span>(liTags[i].<span class="title function_">getAttribute</span>(<span class="string">&quot;class&quot;</span>) == <span class="string">&quot;optionTrue&quot;</span>)&#123;</span></span><br><span class="line"><span class="language-javascript">                    <span class="keyword">if</span>(gData.<span class="property">clickedValues</span>.<span class="title function_">indexOf</span>(liKey) == -<span class="number">1</span>)&#123;</span></span><br><span class="line"><span class="language-javascript">                        liTags[i].<span class="property">classList</span>.<span class="title function_">add</span>(<span class="string">&quot;cloze_line&quot;</span>);</span></span><br><span class="line"><span class="language-javascript">                    &#125;<span class="keyword">else</span>&#123;</span></span><br><span class="line"><span class="language-javascript">                        liTags[i].<span class="property">classList</span>.<span class="title function_">add</span>(<span class="string">&quot;cloze&quot;</span>);</span></span><br><span class="line"><span class="language-javascript">                    &#125;</span></span><br><span class="line"><span class="language-javascript">                &#125;<span class="keyword">else</span>&#123;</span></span><br><span class="line"><span class="language-javascript">                    <span class="comment">// 选错的加删除线</span></span></span><br><span class="line"><span class="language-javascript">                    <span class="keyword">if</span>(gData.<span class="property">clickedValues</span>.<span class="title function_">indexOf</span>(liKey) != -<span class="number">1</span>)&#123;</span></span><br><span class="line"><span class="language-javascript">                        liTags[i].<span class="property">classList</span>.<span class="title function_">add</span>(<span class="string">&quot;wrong&quot;</span>);</span></span><br><span class="line"><span class="language-javascript">                    &#125;</span></span><br><span class="line"><span class="language-javascript">                &#125;</span></span><br><span class="line"><span class="language-javascript">            &#125;</span></span><br><span class="line"><span class="language-javascript">        &#125;</span></span><br><span class="line"><span class="language-javascript">    &#125;</span></span><br><span class="line"><span class="language-javascript"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br></pre></td></tr></table></figure>
+把3个模板代码都放进去之后，选择题的模板就制作完成了。</li>
+</ul>
+<h3 id="五、怎么修改成自己喜欢的模板？"><a href="#五、怎么修改成自己喜欢的模板？" class="headerlink" title="五、怎么修改成自己喜欢的模板？"></a>五、怎么修改成自己喜欢的模板？</h3><p>要修改大体分为两种：</p>
+<ul>
+<li>1、会点前端代码的开发者大佬<br>这个不用说，注释写得明明白白，随便改，觉得我写得Low，还可以自己手撸一个出来，都不算难。这个就不具体说了</li>
+<li>2、不会写代码的大佬<br>感觉大多数都是这类型的人，像考研什么的特别多。如果一点编程经验都没有的话，要改还是稍微有点点难度。<br>但是可以改皮肤，也就是更改背景和字体大小颜色成自己的颜色，什么护眼色呀，炫酷黑呀等等。<br>Anki 默认有一个卡片的<code>CSS样式</code> 我们只需要改那个属性即可,位置在中间的代码第一个<code>.card</code>。<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-class">.card</span>&#123;</span><br><span class="line">    <span class="attribute">font-family</span>:Arial;</span><br><span class="line">    <span class="attribute">font-size</span>:<span class="number">22px</span>;</span><br><span class="line">    <span class="attribute">text-align</span><span class="selector-pseudo">:left</span>;</span><br><span class="line">    <span class="attribute">color</span>:<span class="number">#fff</span>;</span><br><span class="line">    <span class="attribute">background-color</span>:<span class="number">#222</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+先解释一下上面代码的意思</li>
+<li>font-family<br>这个是整个卡片是什么字体，这个不需要改，可选值：”times”、”courier”、”arial”</li>
+<li>font-size<br>这个是显示的字体大小，单位是像素(<code>px</code>)，如果你觉得字体显示大了你就把它调小，怎么调小就是把当前的<code>font-size:22px;</code> 改成 <code>font-size:20px;</code>。<br>如果感觉还大就改成<code>font-size:19px;</code>，由此我们知道。只需要把<code>22px</code>中的数字变大或变小就可以调节字体。</li>
+<li>text-align<br>卡片文本的水平对齐方式，我不建议改，可选值：<code>left</code>、<code>right</code>、<code>center</code> 、<code>justify</code>、<code>inherit</code>。<br>默认是左边对齐，看单词知道后面是右边对齐，居中对齐，两端对齐，继承父类对齐</li>
+<li>color<br>看单词就知道是字体颜色，这个值可以填的方式很多，最简单的可以写颜色名称如红色：<code>color:red;</code>、蓝色：<code>color:blue;</code>等其他颜色<br>还有一种是填十六进制的颜色，如<code>color:#fff;</code> 这个是白色，对应为<code>color:rgb(255,255,255)</code>，如果你对十六进制不熟，也可以使用RGB格式的颜色<br>如：白色：<code>color:rgb(255,255,255)</code>、黑色：<code>color:rgb(0,0,0)</code>,可以去搜索引擎搜索你想要的颜色进行替换即可。</li>
+<li>background-color<br>看单词大概知道是背景颜色，这个的值和上面的<code>color</code> 值一样，可以使用单词颜色如：<code>red</code>、<code>blud</code>、<code>green</code> 、<code>yellow</code>等，<br>十六进制或RGB都可以。</li>
+</ul>
+<h4 id="倒计时的功能"><a href="#倒计时的功能" class="headerlink" title="倒计时的功能"></a>倒计时的功能</h4><p>再说一下这个吧，有些人不需要，有些人需要</p>
+<ul>
+<li>1、去掉倒计时功能<br>这个简单在正面模板找到如下代码片段进行修改<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">   <span class="title function_">initOptions</span>();</span><br><span class="line">   <span class="keyword">var</span> endTime=<span class="string">&quot;2020/08/29 00:00:00&quot;</span>;</span><br><span class="line">   <span class="title function_">countDown</span>(endTime);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 只需要改一行代码，就是在“ countDown(endTime);” 这行代码前面加两个斜杆，如下这样的</span></span><br><span class="line"><span class="title function_">initOptions</span>();</span><br><span class="line">   <span class="keyword">var</span> endTime=<span class="string">&quot;2020/08/29 00:00:00&quot;</span>;</span><br><span class="line">   <span class="comment">//countDown(endTime);</span></span><br></pre></td></tr></table></figure></li>
+<li>2、修改倒计时的结束时间<br>还是上面的代码<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">initOptions</span>();</span><br><span class="line">   <span class="keyword">var</span> endTime=<span class="string">&quot;2020/08/29 00:00:00&quot;</span>;</span><br><span class="line">   <span class="title function_">countDown</span>(endTime);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 如果你想把时间改成2022年的12月1号，12点12分12秒，那代码就改成如下这个样子</span></span><br><span class="line"><span class="title function_">initOptions</span>();</span><br><span class="line">   <span class="keyword">var</span> endTime=<span class="string">&quot;2022/12/01 12:12:12&quot;</span>;</span><br><span class="line">   <span class="title function_">countDown</span>(endTime);</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h3 id="最终"><a href="#最终" class="headerlink" title="最终"></a>最终</h3><ul>
+<li>因文化水平有限，写了那么多不知道效果怎样，各位看官有没有看明白。</li>
+<li>我知道很多人懒得复制代码，或者没看明白，没关系我都想到了。导出一个<code>apkg</code>文件模板给你们</li>
+<li>Github下载地址：<a target="_blank" rel="noopener" href="https://github.com/rstyro/anki-model/tree/master/choose">https://github.com/rstyro/anki-model/tree/master/choose</a></li>
+<li>源码或者模板都在上面，感觉好用，给个好评，在Github上点个Star(⭐)</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>您的打赏，是我创作的动力！不给钱？那我只能靠想象力充饥了。</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/wechat_pay.jpg" alt="rstyro 微信支付">
+        <p>微信支付</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/alipay.jpg" alt="rstyro 支付宝">
+        <p>支付宝</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/blog/tags/Anki/" rel="tag"><i class="fa fa-tag"></i> Anki</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2020/04/20/Java%E9%9B%86%E5%90%88%E6%BA%90%E7%A0%81%E6%B5%85%E6%9E%90/" rel="prev" title="Java集合源码浅析">
+      <i class="fa fa-chevron-left"></i> Java集合源码浅析
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/blog/2020/08/07/JVM%E7%9A%84%E5%89%8D%E4%B8%96%E4%BB%8A%E7%94%9F/" rel="next" title="JVM的前世今生">
+      JVM的前世今生 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%80%E3%80%81Anki%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="nav-number">1.</span> <span class="nav-text">一、Anki是什么？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%8C%E3%80%81Anki%E5%A6%82%E4%BD%95%E4%B8%8B%E8%BD%BD%E4%B8%8E%E5%AE%89%E8%A3%85%EF%BC%9F"><span class="nav-number">2.</span> <span class="nav-text">二、Anki如何下载与安装？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%89%E3%80%81Anki%E6%80%8E%E4%B9%88%E7%94%A8%EF%BC%9F"><span class="nav-number">3.</span> <span class="nav-text">三、Anki怎么用？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9B%9B%E3%80%81Anki%E6%80%8E%E4%B9%88%E5%88%B6%E4%BD%9C%E9%80%89%E6%8B%A9%E9%A2%98%E5%8D%A1%E7%89%87"><span class="nav-number">4.</span> <span class="nav-text">四、Anki怎么制作选择题卡片</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%94%E3%80%81%E6%80%8E%E4%B9%88%E4%BF%AE%E6%94%B9%E6%88%90%E8%87%AA%E5%B7%B1%E5%96%9C%E6%AC%A2%E7%9A%84%E6%A8%A1%E6%9D%BF%EF%BC%9F"><span class="nav-number">5.</span> <span class="nav-text">五、怎么修改成自己喜欢的模板？</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%80%92%E8%AE%A1%E6%97%B6%E7%9A%84%E5%8A%9F%E8%83%BD"><span class="nav-number">5.1.</span> <span class="nav-text">倒计时的功能</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%80%E7%BB%88"><span class="nav-number">6.</span> <span class="nav-text">最终</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="rstyro"
+      src="/blog/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">rstyro</p>
+  <div class="site-description" itemprop="description">人间的饭，吃一碗少一碗，身边的人，见一面少一面，脚下的路，走一天少一天，其实人生就是一个减法，来日并不方长！</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives/">
+        
+          <span class="site-state-item-count">216</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/blog/tags/">
+          
+        <span class="site-state-item-count">88</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/rstyro" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;rstyro" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/rstyro" title="Gitee → https:&#x2F;&#x2F;gitee.com&#x2F;rstyro" rel="noopener" target="_blank"><i class="fab fa-codiepie fa-fw"></i>Gitee</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.jianshu.com/u/651c15a1758a" title="简书 → https:&#x2F;&#x2F;www.jianshu.com&#x2F;u&#x2F;651c15a1758a" rel="noopener" target="_blank"><i class="fa fa-book fa-fw"></i>简书</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      友链
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://rstyro.github.io/blog/" title="https:&#x2F;&#x2F;rstyro.github.io&#x2F;blog&#x2F;">胖不了小陆</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; Mon Apr 10 2017 08:00:00 GMT+0800 (中国标准时间) – 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">以梦为马，诗酒趁年华</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/muse.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+  <script>
+    (function(){
+      var canonicalURL, curProtocol;
+      //Get the <link> tag
+      var x=document.getElementsByTagName("link");
+		//Find the last canonical URL
+		if(x.length > 0){
+			for (i=0;i<x.length;i++){
+				if(x[i].rel.toLowerCase() == 'canonical' && x[i].href){
+					canonicalURL=x[i].href;
+				}
+			}
+		}
+    //Get protocol
+	    if (!canonicalURL){
+	    	curProtocol = window.location.protocol.split(':')[0];
+	    }
+	    else{
+	    	curProtocol = canonicalURL.split(':')[0];
+	    }
+      //Get current URL if the canonical URL does not exist
+	    if (!canonicalURL) canonicalURL = window.location.href;
+	    //Assign script content. Replace current URL with the canonical URL
+      !function(){var e=/([http|https]:\/\/[a-zA-Z0-9\_\.]+\.baidu\.com)/gi,r=canonicalURL,t=document.referrer;if(!e.test(r)){var n=(String(curProtocol).toLowerCase() === 'https')?"https://sp0.baidu.com/9_Q4simg2RQJ8t7jm9iCKT-xh_/s.gif":"//api.share.baidu.com/s.gif";t?(n+="?r="+encodeURIComponent(document.referrer),r&&(n+="&l="+r)):r&&(n+="?l="+r);var i=new Image;i.src=n}}(window);})();
+  </script>
+
+
+
+
+  
+<script src="/blog/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+<script>
+if (document.querySelectorAll('pre.mermaid').length) {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mermaid@8/dist/mermaid.min.js', () => {
+    mermaid.initialize({
+      theme    : 'default',
+      logLevel : 3,
+      flowchart: { curve     : 'linear' },
+      gantt    : { axisFormat: '%m/%d/%Y' },
+      sequence : { actorMargin: 50 }
+    });
+  }, window.mermaid);
+}
+</script>
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : 'Ov23litYkWaOGM7kAKPD',
+      clientSecret: '43bd3cf99bfcb9d05d16627c97a9f7a0200df04a',
+      repo        : 'blog',
+      owner       : 'rstyro',
+      admin       : ['rstyro'],
+      id          : '536f29c197a56b1c1cf670cb5b1b4124',
+        language: '',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>

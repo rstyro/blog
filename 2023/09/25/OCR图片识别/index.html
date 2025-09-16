@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/favicon.jpg">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon.jpg">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon.jpg">
+  <link rel="mask-icon" href="/blog/images/favicon.jpg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="/blog/lib/pace/pace-theme-flash.min.css">
+  <script src="/blog/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"rstyro.github.io","root":"/blog/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":true},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.json"};
+  </script>
+
+  <meta name="description" content="RapidOCRRapidOCR概述 💖目前已知运行速度最快、支持最广，完全开源免费并支持离线快速部署的多平台多语言OCR。 支持的语言: 默认是中英文，其他语言识别需要自助转换。具体参考这里 缘起：PaddleOCR工程化不是太好，为了方便大家在各种端上进行OCR推理，我们将PaddleOCR中的模型转换为ONNX格式，使用Python&#x2F;C++&#x2F;Java&#x2F;Swift&#x2F;C# 将它移植到各个平台。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="OCR图片识别">
+<meta property="og:url" content="https://rstyro.github.io/blog/2023/09/25/OCR%E5%9B%BE%E7%89%87%E8%AF%86%E5%88%AB/index.html">
+<meta property="og:site_name" content="胖不了小陆">
+<meta property="og:description" content="RapidOCRRapidOCR概述 💖目前已知运行速度最快、支持最广，完全开源免费并支持离线快速部署的多平台多语言OCR。 支持的语言: 默认是中英文，其他语言识别需要自助转换。具体参考这里 缘起：PaddleOCR工程化不是太好，为了方便大家在各种端上进行OCR推理，我们将PaddleOCR中的模型转换为ONNX格式，使用Python&#x2F;C++&#x2F;Java&#x2F;Swift&#x2F;C# 将它移植到各个平台。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://rstyro.github.io/blog/2023/09/25/OCR%E5%9B%BE%E7%89%87%E8%AF%86%E5%88%AB/txt.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2023/09/25/OCR%E5%9B%BE%E7%89%87%E8%AF%86%E5%88%AB/convert.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2023/09/25/OCR%E5%9B%BE%E7%89%87%E8%AF%86%E5%88%AB/package-no-example.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2023/09/25/OCR%E5%9B%BE%E7%89%87%E8%AF%86%E5%88%AB/compare.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2023/09/25/OCR%E5%9B%BE%E7%89%87%E8%AF%86%E5%88%AB/help.png">
+<meta property="article:published_time" content="2023-09-25T08:44:07.000Z">
+<meta property="article:modified_time" content="2023-09-25T08:44:07.000Z">
+<meta property="article:author" content="rstyro">
+<meta property="article:tag" content="OCR">
+<meta property="article:tag" content="图片识别">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://rstyro.github.io/blog/2023/09/25/OCR%E5%9B%BE%E7%89%87%E8%AF%86%E5%88%AB/txt.png">
+
+<link rel="canonical" href="https://rstyro.github.io/blog/2023/09/25/OCR%E5%9B%BE%E7%89%87%E8%AF%86%E5%88%AB/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>OCR图片识别 | 胖不了小陆</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">胖不了小陆</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">信你所信，为你所见</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/blog/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/blog/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/blog/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/rstyro" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://rstyro.github.io/blog/2023/09/25/OCR%E5%9B%BE%E7%89%87%E8%AF%86%E5%88%AB/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/avatar.jpg">
+      <meta itemprop="name" content="rstyro">
+      <meta itemprop="description" content="人间的饭，吃一碗少一碗，身边的人，见一面少一面，脚下的路，走一天少一天，其实人生就是一个减法，来日并不方长！">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="胖不了小陆">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          OCR图片识别
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2023-09-25 16:44:07" itemprop="dateCreated datePublished" datetime="2023-09-25T16:44:07+08:00">2023-09-25</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/Java/" itemprop="url" rel="index"><span itemprop="name">Java</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="RapidOCR"><a href="#RapidOCR" class="headerlink" title="RapidOCR"></a>RapidOCR</h2><h3 id="RapidOCR概述"><a href="#RapidOCR概述" class="headerlink" title="RapidOCR概述"></a>RapidOCR概述</h3><ul>
+<li>💖目前已知<strong>运行速度最快、支持最广</strong>，完全开源免费并支持离线快速部署的多平台多语言OCR。</li>
+<li><strong>支持的语言</strong>: 默认是中英文，其他语言识别需要自助转换。具体参考<a target="_blank" rel="noopener" href="https://rapidai.github.io/RapidOCRDocs/docs/about_model/support_language/">这里</a></li>
+<li><strong>缘起</strong>：<a target="_blank" rel="noopener" href="https://github.com/PaddlePaddle/PaddleOCR">PaddleOCR</a>工程化不是太好，为了方便大家在各种端上进行OCR推理，我们将PaddleOCR中的模型转换为ONNX格式，使用<code>Python/C++/Java/Swift/C#</code> 将它移植到各个平台。</li>
+<li><strong>名称来源</strong>： 轻快好省并智能。基于深度学习的OCR技术，主打人工智能优势及小模型，以速度为使命，效果为主导。</li>
+<li>使用：<ul>
+<li>如果仓库下已有模型满足要求 → RapidOCR部署使用即可。</li>
+<li>不满足要求 → 基于PaddleOCR在自己数据上微调 → RapidOCR部署。</li>
+</ul>
+</li>
+<li>官方文档地址：<a target="_blank" rel="noopener" href="https://rapidai.github.io/RapidOCRDocs/docs/overview/">https://rapidai.github.io/RapidOCRDocs/docs/overview/</a></li>
+</ul>
+<span id="more"></span>
+
+<h3 id="一、整体框架"><a href="#一、整体框架" class="headerlink" title="一、整体框架"></a>一、整体框架</h3><pre class="mermaid">flowchart LR
+    subgraph Step
+    direction TB
+    C(Text Det) --> D(Text Cls) --> E(Text Rec)
+    end
+
+    A[/OurSelf Dataset/] --> B(PaddleOCR) --Train--> Step --> F(PaddleOCRModelConverter)
+    F --ONNX--> G{RapidOCR Deploy\n<b>Python/C++/Java/C#</b>}
+    G --> H(Windows x86/x64) & I(Linux) & J(Android) & K(Web) & L(Raspberry Pi)
+
+    click B "https://github.com/PaddlePaddle/PaddleOCR" _blank
+    click F "https://github.com/RapidAI/PaddleOCRModelConverter" _blank</pre>
+
+
+
+<h3 id="二、在线Demo"><a href="#二、在线Demo" class="headerlink" title="二、在线Demo"></a>二、在线Demo</h3><ul>
+<li>Hugging Face上的Demo和魔搭Demo是同一套代码，都是基于<a target="_blank" rel="noopener" href="https://streamlit.io/">streamlit</a>搭建而来的。</li>
+<li>两者区别在于，魔搭是国内平台，不需要科学上网即可访问使用；Hugging Face则需要科学上网。</li>
+<li>搭建demo的目的在于：<ul>
+<li>快速查看指定图像的识别效果和识别时长</li>
+<li>快速比较不同版本的检测和识别模型效果差异</li>
+</ul>
+</li>
+</ul>
+<h4 id="1、Demo源码-link"><a href="#1、Demo源码-link" class="headerlink" title="1、Demo源码 link"></a>1、Demo源码 <a target="_blank" rel="noopener" href="https://rapidai.github.io/RapidOCRDocs/docs/online_demo/#demo%E6%BA%90%E7%A0%81"><em>link</em></a></h4><ul>
+<li>Hugging Face Demo: <a target="_blank" rel="noopener" href="https://huggingface.co/spaces/SWHL/RapidOCRDemo/tree/main">https://huggingface.co/spaces/SWHL/RapidOCRDemo/tree/main</a></li>
+<li>魔搭社区: <a target="_blank" rel="noopener" href="https://www.modelscope.cn/studios/liekkas/RapidOCRDemo/files">https://www.modelscope.cn/studios/liekkas/RapidOCRDemo/files</a></li>
+</ul>
+<h4 id="2、在线Demo"><a href="#2、在线Demo" class="headerlink" title="2、在线Demo"></a>2、在线Demo</h4><ul>
+<li>Hugging Face Demo: <a target="_blank" rel="noopener" href="https://huggingface.co/spaces/SWHL/RapidOCRDemo">https://huggingface.co/spaces/SWHL/RapidOCRDemo</a></li>
+<li>魔搭社区: <a target="_blank" rel="noopener" href="https://www.modelscope.cn/studios/liekkas/RapidOCRDemo/summary">https://www.modelscope.cn/studios/liekkas/RapidOCRDemo/summary</a></li>
+</ul>
+<h3 id="三、Java语言支持"><a href="#三、Java语言支持" class="headerlink" title="三、Java语言支持"></a>三、Java语言支持</h3><ul>
+<li>Github地址: <a target="_blank" rel="noopener" href="https://github.com/MyMonsterCat/RapidOcr-Java">https://github.com/MyMonsterCat/RapidOcr-Java</a></li>
+</ul>
+<h4 id="1、快速开始"><a href="#1、快速开始" class="headerlink" title="1、快速开始"></a>1、快速开始</h4><p><strong>方式一：本地直接运行</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># 项目含有库文件，导致下载可能较慢</span></span></span><br><span class="line">git clone https://github.com/MyMonsterCat/RapidOcr-Java.git</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># 下载之后，直接可以运行：com.github.monster.ocr.OcrUtilTest</span></span></span><br></pre></td></tr></table></figure>
+
+
+
+<p><strong>方式二：引入其他项目</strong></p>
+<ul>
+<li><p>在<em><strong>方式一</strong></em>中下载之后进行打包(<code>mv clean compile install</code>)，然后引入pom依赖，</p>
+</li>
+<li><p>不会打包可参考文档：(需要自己下载项目打包，过程参考<a target="_blank" rel="noopener" href="https://github.com/MyMonsterCat/RapidOcr-Java/blob/main/docs/COMPILE_JAR.md">如何自行打包jar包？</a>)</p>
+</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;dependency&gt;</span><br><span class="line">    &lt;groupId&gt;com.github.monster&lt;/groupId&gt;</span><br><span class="line">    &lt;artifactId&gt;RapidOcr-Java&lt;/artifactId&gt;</span><br><span class="line">    &lt;version&gt;$&#123;latest.version&#125;&lt;/version&gt;</span><br><span class="line">&lt;/dependency&gt;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>注意：如果是采用方式二打包，务必将src&#x2F;resources下的ncnn或者onnx的库文件引入到自己的项目resources中</p>
+</blockquote>
+<p><strong>调用测试：</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">OcrUtilTest</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Test</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">NcnnTest</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="comment">// 使用NCNN引擎进行识别</span></span><br><span class="line">        <span class="type">OcrResult</span> <span class="variable">NCNNResult</span> <span class="operator">=</span> OcrUtil.runOcr(getResourcePath(<span class="string">&quot;/images/40.png&quot;</span>), LibConfig.getNcnnConfig(), ParamConfig.getDefaultConfig(), HardwareConfig.getNcnnConfig());</span><br><span class="line">        Assert.assertEquals(<span class="string">&quot;40&quot;</span>, NCNNResult.getStrRes().trim().toString());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Test</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">OnnxTest</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="type">String</span> <span class="variable">imgPath</span> <span class="operator">=</span> getResourcePath(<span class="string">&quot;/images/40.png&quot;</span>);</span><br><span class="line">        <span class="type">OcrResult</span> <span class="variable">ONNXResult</span> <span class="operator">=</span> OcrUtil.runOcr(imgPath);</span><br><span class="line">        Assert.assertEquals(<span class="string">&quot;40&quot;</span>, ONNXResult.getStrRes().trim().toString());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Test</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">OnnxDrawTest</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="type">String</span> <span class="variable">imgPath</span> <span class="operator">=</span> getResourcePath(<span class="string">&quot;/images/test.png&quot;</span>);</span><br><span class="line">        <span class="type">String</span> <span class="variable">drawPath</span> <span class="operator">=</span> imgPath.replace(<span class="string">&quot;test&quot;</span>, <span class="string">&quot;40-draw&quot;</span>);</span><br><span class="line">        <span class="type">File</span> <span class="variable">drawFile</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">File</span>(drawPath);</span><br><span class="line">        <span class="comment">// 使用ONNX推理引擎进行识别</span></span><br><span class="line">        <span class="comment">// 配置参数</span></span><br><span class="line">        <span class="type">ParamConfig</span> <span class="variable">paramConfig</span> <span class="operator">=</span> ParamConfig.getDefaultConfig();</span><br><span class="line">        paramConfig.setDoAngle(<span class="literal">true</span>);</span><br><span class="line">        paramConfig.setMostAngle(<span class="literal">true</span>);</span><br><span class="line">        <span class="comment">// 开始识别</span></span><br><span class="line">        <span class="type">OcrResult</span> <span class="variable">ONNXResult</span> <span class="operator">=</span> OcrUtil.runOcr(imgPath, LibConfig.getOnnxConfig(), paramConfig);</span><br><span class="line">        <span class="comment">// 绘制推理结果</span></span><br><span class="line">        ArrayList&lt;TextBlock&gt; textBlocks = ONNXResult.getTextBlocks();</span><br><span class="line">        FileUtil.copy(imgPath, drawPath, Boolean.TRUE);</span><br><span class="line">        <span class="type">ByteArrayInputStream</span> <span class="variable">in</span> <span class="operator">=</span> IoUtil.toStream(ImageUtil.drawImg(drawFile, textBlocks));</span><br><span class="line">        FileUtil.writeFromStream(in, drawFile);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Test</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">paramTest</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="comment">// 配置参数</span></span><br><span class="line">        <span class="type">ParamConfig</span> <span class="variable">paramConfig</span> <span class="operator">=</span> ParamConfig.getDefaultConfig();</span><br><span class="line">        paramConfig.setDoAngle(<span class="literal">true</span>);</span><br><span class="line">        paramConfig.setMostAngle(<span class="literal">true</span>);</span><br><span class="line">        <span class="comment">// 开始识别</span></span><br><span class="line">        <span class="type">OcrResult</span> <span class="variable">ocrResult</span> <span class="operator">=</span> OcrUtil.runOcr(getResourcePath(<span class="string">&quot;/images/test.png&quot;</span>), LibConfig.getNcnnConfig(), paramConfig);</span><br><span class="line">        System.out.println(ocrResult);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Test</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">hardWareTest</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="comment">// 配置可变参数</span></span><br><span class="line">        <span class="type">ParamConfig</span> <span class="variable">paramConfig</span> <span class="operator">=</span> ParamConfig.getDefaultConfig();</span><br><span class="line">        paramConfig.setDoAngle(<span class="literal">true</span>);</span><br><span class="line">        paramConfig.setMostAngle(<span class="literal">true</span>);</span><br><span class="line">        <span class="comment">// 配置硬件参数：4核CPU，使用GPU0</span></span><br><span class="line">        <span class="type">HardwareConfig</span> <span class="variable">hardwareConfig</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">HardwareConfig</span>(<span class="number">4</span>, <span class="number">0</span>);</span><br><span class="line">        <span class="comment">// 开始识别</span></span><br><span class="line">        <span class="type">OcrResult</span> <span class="variable">ocrResult</span> <span class="operator">=</span> OcrUtil.runOcr(getResourcePath(<span class="string">&quot;/images/test.png&quot;</span>), LibConfig.getNcnnConfig(), paramConfig, hardwareConfig);</span><br><span class="line">        System.out.println(ocrResult);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Test</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">repeatOcr</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="type">String</span> <span class="variable">real</span> <span class="operator">=</span> <span class="string">&quot;40&quot;</span>;</span><br><span class="line">        System.out.println(<span class="string">&quot;NCNN 1&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; &quot;</span>);</span><br><span class="line">        <span class="type">OcrResult</span> <span class="variable">NCNN_1</span> <span class="operator">=</span> OcrUtil.runOcr(getResourcePath(<span class="string">&quot;/images/40.png&quot;</span>));</span><br><span class="line">        Assert.assertEquals(real, NCNN_1.getStrRes().trim().toString());</span><br><span class="line"></span><br><span class="line">        System.out.println(<span class="string">&quot;NCNN 2&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; &quot;</span>);</span><br><span class="line">        <span class="type">OcrResult</span> <span class="variable">NCNN_2</span> <span class="operator">=</span> OcrUtil.runOcr(getResourcePath(<span class="string">&quot;/images/40.png&quot;</span>));</span><br><span class="line">        Assert.assertEquals(real, NCNN_2.getStrRes().trim().toString());</span><br><span class="line"></span><br><span class="line">        System.out.println(<span class="string">&quot;NCNN 3&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; &quot;</span>);</span><br><span class="line">        <span class="type">OcrResult</span> <span class="variable">NCNN_3</span> <span class="operator">=</span> OcrUtil.runOcr(getResourcePath(<span class="string">&quot;/images/40.png&quot;</span>));</span><br><span class="line">        Assert.assertEquals(real, NCNN_3.getStrRes().trim().toString());</span><br><span class="line"></span><br><span class="line">        System.out.println(<span class="string">&quot;NCNN 4&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; &quot;</span>);</span><br><span class="line">        <span class="type">OcrResult</span> <span class="variable">NCNN_4</span> <span class="operator">=</span> OcrUtil.runOcr(getResourcePath(<span class="string">&quot;/images/system.png&quot;</span>));</span><br><span class="line">        Assert.assertEquals(<span class="string">&quot;System&quot;</span>, NCNN_4.getStrRes().trim().toString());</span><br><span class="line"></span><br><span class="line">        System.out.println(<span class="string">&quot;NCNN 5&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; &quot;</span>);</span><br><span class="line">        <span class="type">OcrResult</span> <span class="variable">NCNN_5</span> <span class="operator">=</span> OcrUtil.runOcr(getResourcePath(<span class="string">&quot;/images/40.png&quot;</span>));</span><br><span class="line">        Assert.assertEquals(real, NCNN_5.getStrRes().trim().toString());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@SneakyThrows</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> String <span class="title function_">getResourcePath</span><span class="params">(String path)</span> &#123;</span><br><span class="line">        <span class="type">String</span> <span class="variable">encodePath</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">File</span>(OcrUtilTest.class.getResource(path).getFile()).toString();</span><br><span class="line">        <span class="comment">// 如果包含中文会转义，所以需要转回来</span></span><br><span class="line">        <span class="keyword">return</span> URLDecoder.decode(encodePath,<span class="string">&quot;utf-8&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<h4 id="2、进阶使用"><a href="#2、进阶使用" class="headerlink" title="2、进阶使用"></a>2、进阶使用</h4><h5 id="hourglass-flowing-sand-OcrConfig参数调优"><a href="#hourglass-flowing-sand-OcrConfig参数调优" class="headerlink" title=":hourglass_flowing_sand: OcrConfig参数调优"></a>:hourglass_flowing_sand: OcrConfig参数调优</h5><p><strong>LibConfig</strong>参数说明如下：</p>
+<table>
+<thead>
+<tr>
+<th align="center">参数名</th>
+<th align="center">说明</th>
+<th align="center">类型</th>
+<th align="center">权限</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">libraryDir</td>
+<td align="center">动态链接库路径</td>
+<td align="center">String</td>
+<td align="center">读写</td>
+</tr>
+<tr>
+<td align="center">modelsDir</td>
+<td align="center">模型路径</td>
+<td align="center">String</td>
+<td align="center">读写</td>
+</tr>
+<tr>
+<td align="center">deleteOnExit</td>
+<td align="center">是否在JVM退出时删除动态链接库和模型文件</td>
+<td align="center">boolean</td>
+<td align="center">读写</td>
+</tr>
+<tr>
+<td align="center">detName</td>
+<td align="center">Det文件名称</td>
+<td align="center">String</td>
+<td align="center">只读</td>
+</tr>
+<tr>
+<td align="center">clsName</td>
+<td align="center">Cls文件名称</td>
+<td align="center">String</td>
+<td align="center">只读</td>
+</tr>
+<tr>
+<td align="center">recName</td>
+<td align="center">Rec文件名称</td>
+<td align="center">String</td>
+<td align="center">只读</td>
+</tr>
+<tr>
+<td align="center">keysName</td>
+<td align="center">词单</td>
+<td align="center">String</td>
+<td align="center">只读</td>
+</tr>
+</tbody></table>
+<p><strong>HardWareConfig</strong>参数说明如下：</p>
+<table>
+<thead>
+<tr>
+<th align="center">参数名</th>
+<th align="center">说明</th>
+<th align="center">类型</th>
+<th align="center">权限</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">numThread</td>
+<td align="center">CPU 核心数量</td>
+<td align="center">int</td>
+<td align="center">读写</td>
+</tr>
+<tr>
+<td align="center">gpuIndex</td>
+<td align="center">GPU0一般为默认GPU，参数选项：使用CPU(-1)&#x2F;使用GPU0(0)&#x2F;使用GPU1(1)&#x2F;…，默认0</td>
+<td align="center">int</td>
+<td align="center">读写</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>⚠️ ONNX不使用GPU，即使用-1</p>
+</blockquote>
+<p><strong>ParamConfig</strong>参数说明如下：</p>
+<table>
+<thead>
+<tr>
+<th align="center">参数名</th>
+<th align="center">说明</th>
+<th align="center">类型</th>
+<th align="center">权限</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">padding</td>
+<td align="center">图像外接白框，用于提升识别率，文字框没有正确框住所有文字时，增加此值。默认50。</td>
+<td align="center">int</td>
+<td align="center">读写</td>
+</tr>
+<tr>
+<td align="center">maxSideLen</td>
+<td align="center">按图像长边进行总体缩放，放大增加识别耗时但精度更高，缩小减小耗时但精度降低，maxSideLen为0表示不缩放</td>
+<td align="center">int</td>
+<td align="center">读写</td>
+</tr>
+<tr>
+<td align="center">boxScoreThresh</td>
+<td align="center">文字框置信度门限，文字框没有正确框住所有文字时，减小此值，默认0.5f</td>
+<td align="center">float</td>
+<td align="center">读写</td>
+</tr>
+<tr>
+<td align="center">boxThresh</td>
+<td align="center">值越大，文字部分会越小，默认0.3f</td>
+<td align="center">float</td>
+<td align="center">读写</td>
+</tr>
+<tr>
+<td align="center">unClipRatio</td>
+<td align="center">单个文字框大小倍率，越大时单个文字框越大，默认1.6f</td>
+<td align="center">float</td>
+<td align="center">读写</td>
+</tr>
+<tr>
+<td align="center">doAngleFlag</td>
+<td align="center">启用(1)&#x2F;禁用(0) 文字方向检测，只有图片倒置的情况下(旋转90~270度的图片)，才需要启用文字方向检测，默认关闭</td>
+<td align="center">boolean</td>
+<td align="center">读写</td>
+</tr>
+<tr>
+<td align="center">mostAngleFlag</td>
+<td align="center">启用(1)&#x2F;禁用(0) 角度投票(整张图片以最大可能文字方向来识别)，当禁用文字方向检测时，此项也不起作用，默认关闭</td>
+<td align="center">boolean</td>
+<td align="center">读写</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>✍️ 想更深入了解，请移步<a target="_blank" rel="noopener" href="https://rapidai.github.io/RapidOCRDocs/docs/blog/02_config_parameter/">config.yaml参数解释</a></p>
+</blockquote>
+<h5 id="🗣️-目录说明"><a href="#🗣️-目录说明" class="headerlink" title="🗣️ 目录说明"></a>🗣️ 目录说明</h5><ul>
+<li>com.benjaminwan.ocrlibrary: 核心代码，用来与dll、so、dylib进行交互。‼️ 千万不要改包名！！！</li>
+<li>com.github.monster.ocr<ul>
+<li><p>config</p>
+<ul>
+<li>HardwareConfig: 硬件配置类</li>
+<li>LibConfig: 库文件配置类</li>
+<li>ParamConfig: 可调节参数配置</li>
+</ul>
+</li>
+<li><p>JarFileUtils: 从jar包中加载动态库</p>
+</li>
+<li><p>PathConstants: 模型&#x2F;文件路径常量</p>
+</li>
+<li><p>OcrUtil: 调用核心代码工具类</p>
+</li>
+</ul>
+</li>
+</ul>
+<h5 id="⚠️-版本说明"><a href="#⚠️-版本说明" class="headerlink" title="⚠️ 版本说明"></a>⚠️ 版本说明</h5><p>当前使用版本如下（此处的版本指的是<a target="_blank" rel="noopener" href="https://github.com/RapidAI/RapidOcrNcnn">RapidOcrNcnn</a>或者<a target="_blank" rel="noopener" href="https://github.com/RapidAI/RapidOcrOnnx">RapidOcrOnnx</a>的版本）</p>
+<h5 id="ncnn：仅支持PP-OCRv3"><a href="#ncnn：仅支持PP-OCRv3" class="headerlink" title="ncnn：仅支持PP-OCRv3"></a>ncnn：仅支持PP-OCRv3</h5><ul>
+<li><p>Mac-Arm64: <code>v1.2.0</code></p>
+</li>
+<li><p>Mac-x86_64、Linux、Win：<code>v1.1.2</code></p>
+</li>
+<li><p>win7可能存在问题，未经测试</p>
+</li>
+</ul>
+<blockquote>
+<p>如何更新模型？</p>
+<ul>
+<li>方式一：前往<a target="_blank" rel="noopener" href="https://github.com/RapidAI/RapidOcrNcnn">自行更新地址</a>，在release下载模型</li>
+<li>方式二：自行<a href="./COMPILE_LIB.md">编译</a></li>
+</ul>
+</blockquote>
+<h5 id="onnx：支持PP-OCRv4和PP-OCRv3"><a href="#onnx：支持PP-OCRv4和PP-OCRv3" class="headerlink" title="onnx：支持PP-OCRv4和PP-OCRv3"></a>onnx：支持<a target="_blank" rel="noopener" href="https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.7/doc/doc_ch/PP-OCRv4_introduction.md">PP-OCRv4</a>和PP-OCRv3</h5><ul>
+<li><p>Mac-Arm64: <code>v1.2.2</code></p>
+</li>
+<li><p>Mac-x86_64、Linux、Win：<code>v1.2.2</code></p>
+</li>
+<li><p>win7可能存在问题，未经测试</p>
+</li>
+</ul>
+<blockquote>
+<p>如何更新模型？</p>
+<ul>
+<li>方式一：前往<a target="_blank" rel="noopener" href="https://github.com/RapidAI/RapidOcrOnnx">自行更新地址</a>，在release下载最新的模型</li>
+<li>方式二：自行<a href="./COMPILE_LIB.md">编译</a></li>
+</ul>
+</blockquote>
+<h5 id="saxophone-分支说明"><a href="#saxophone-分支说明" class="headerlink" title=":saxophone: 分支说明"></a>:saxophone: 分支说明</h5><ul>
+<li>main: 主分支，使用ncnn和onnx进行推理</li>
+<li>dev-ncnn： 仅使用ncnn进行推理</li>
+</ul>
+<h4 id="3、-如何进行模型更新"><a href="#3、-如何进行模型更新" class="headerlink" title="3、 如何进行模型更新"></a>3、 如何进行模型更新</h4><p>1.按照<a target="_blank" rel="noopener" href="https://rapidai.github.io/RapidOCRDocs/docs/about_model/convert_model/">Rapid官方说明文档</a>转换即可</p>
+<ul>
+<li>前往<a target="_blank" rel="noopener" href="https://www.modelscope.cn/studios/liekkas/PaddleOCRModelConverter/summary">魔搭</a></li>
+<li>输入模型地址: 在<a target="_blank" rel="noopener" href="https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.7/doc/doc_ch/models_list.md">官方模型地址</a>选择想转换的模型</li>
+<li>输入txt地址: 在<a target="_blank" rel="noopener" href="https://github.com/PaddlePaddle/PaddleOCR">官方地址</a>–&gt;选择分支 –&gt; utils –&gt; ppocr_keys_v1.txt</li>
+</ul>
+<p><img src="/blog/2023/09/25/OCR%E5%9B%BE%E7%89%87%E8%AF%86%E5%88%AB/txt.png"></p>
+<ul>
+<li>点击covert</li>
+<li>将该模型放入<code>src\main\resources\onnx\models</code></li>
+<li>修改<code>PathConstants.MODEL_REC_NAME</code>为你模型的名称</li>
+</ul>
+<p><img src="/blog/2023/09/25/OCR%E5%9B%BE%E7%89%87%E8%AF%86%E5%88%AB/convert.png"></p>
+<h4 id="4、如何自行编译-jar-包"><a href="#4、如何自行编译-jar-包" class="headerlink" title="4、如何自行编译 jar 包"></a>4、如何自行编译 jar 包</h4><h5 id="方式一：打包动态库"><a href="#方式一：打包动态库" class="headerlink" title="方式一：打包动态库"></a>方式一：打包动态库</h5><p>此方式使用了打包插件，会将resources下的所有动态库均打包进jar，这会导致jar包将近100M。</p>
+<p>当然，实际使用过程中，可以通过调整includes标签来只打包相应系统的动态库（比如只打包onnx mac-arm64，jar包只有30M左右）</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">build</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">resources</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">resource</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">directory</span>&gt;</span>src/main/resources<span class="tag">&lt;/<span class="name">directory</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">includes</span>&gt;</span></span><br><span class="line">                <span class="comment">&lt;!--方式一：包含文件夹以及子文件夹下所有资源--&gt;</span></span><br><span class="line">                <span class="comment">&lt;!-- &lt;include&gt;**/*.*&lt;/include&gt; --&gt;</span></span><br><span class="line">                <span class="comment">&lt;!--方式二：仅打包onnx mac-arm64(按照自己的需求来，推荐👍)--&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">include</span>&gt;</span>onnx/mac/arm64/*<span class="tag">&lt;/<span class="name">include</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">include</span>&gt;</span>onnx/models/*<span class="tag">&lt;/<span class="name">include</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">includes</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">resource</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">resources</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">build</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>在这种方式下，当引入该jar后，直接使用即可</p>
+<h5 id="方式二：不打包动态库"><a href="#方式二：不打包动态库" class="headerlink" title="方式二：不打包动态库"></a>方式二：不打包动态库</h5><p>同样的，通过打包插件可以控制不打包动态库，打包后jar只有19KB</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">build</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">resources</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">resource</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">directory</span>&gt;</span>src/main/resources<span class="tag">&lt;/<span class="name">directory</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">excludes</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">exclude</span>&gt;</span>**/*.*<span class="tag">&lt;/<span class="name">exclude</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">excludes</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">resource</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">resources</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">build</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>在这种方式下，当引入该jar后，<strong>还需在项目src&#x2F;main&#x2F;resources下添加相应的动态</strong>库(如下图所示)</p>
+<p><img src="/blog/2023/09/25/OCR%E5%9B%BE%E7%89%87%E8%AF%86%E5%88%AB/package-no-example.png"></p>
+<p>否则会抛出NoSuchFileException</p>
+<blockquote>
+<p>具体使用哪种方式还是按照自己的需求来</p>
+</blockquote>
+<h4 id="5、Java调用OCR方式比较"><a href="#5、Java调用OCR方式比较" class="headerlink" title="5、Java调用OCR方式比较"></a>5、Java调用OCR方式比较</h4><ul>
+<li>由于认知程度跟时间成正比，调用方式可能会不断增加，当前更新时间：<strong>2023年11月4日</strong></li>
+</ul>
+<p><img src="/blog/2023/09/25/OCR%E5%9B%BE%E7%89%87%E8%AF%86%E5%88%AB/compare.png"></p>
+<table>
+<thead>
+<tr>
+<th align="center">方式</th>
+<th align="center">原理&#x2F;大致流程</th>
+<th align="center">优点</th>
+<th align="center">缺点</th>
+<th align="center">其他说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">使用RapidOcr-Java</td>
+<td align="center">Java程序通过JNI调用编译好的OCR动态库</td>
+<td align="center">下载即用，跨平台，开发者无需了解OCR相关知识</td>
+<td align="center">无法直接对模型进行控制</td>
+<td align="center">已开源维护，推荐使用👍</td>
+</tr>
+<tr>
+<td align="center">直接调用onnx-runtime</td>
+<td align="center">通过onnx-runtime调用并使用模型</td>
+<td align="center">下载即用，跨平台，可对模型直接进行控制</td>
+<td align="center">开发者需了解OCR相关知识</td>
+<td align="center">开发中，暂未开源，推荐使用👍</td>
+</tr>
+<tr>
+<td align="center">通过DJL实现间接调用</td>
+<td align="center">不直接使用onnx-runtime，使用DJL间接调用onnx-runtime</td>
+<td align="center">无需关注打包时平台依赖，DJL已整合好</td>
+<td align="center">DJL语法学习成本较大，开发者需了解OCR相关知识</td>
+<td align="center">开源但停止维护，不推荐</td>
+</tr>
+<tr>
+<td align="center">API调用</td>
+<td align="center">在服务器&#x2F;容器中开启OCR服务，通过http请求进行OCR</td>
+<td align="center">功能解耦</td>
+<td align="center">对于小型系统来说完全没必要再引入Docker</td>
+<td align="center">自行查找镜像源或web服务，例如<a target="_blank" rel="noopener" href="https://github.com/RapidAI/RapidOCR">RapidOCR-web版本</a></td>
+</tr>
+</tbody></table>
+<h2 id="Tesseract"><a href="#Tesseract" class="headerlink" title="Tesseract"></a>Tesseract</h2><ul>
+<li>可以使用开源的 Tesseract 转换文本</li>
+<li>Tesseract最初于1985年至1994年间在英国布里斯托尔的惠普实验室和美国科罗拉多州格里利的惠普公司开发，1996年对移植到Windows进行了更多更改，并在1998年进行了一些C++化。2005年，Tesseract由HP开源。从 2006 年到 2018 年，它由谷歌开发。</li>
+</ul>
+<h3 id="一、安装Tesseract"><a href="#一、安装Tesseract" class="headerlink" title="一、安装Tesseract"></a>一、安装Tesseract</h3><ul>
+<li>安装介绍页：<a target="_blank" rel="noopener" href="https://tesseract-ocr.github.io/tessdoc/Installation.html">https://tesseract-ocr.github.io/tessdoc/Installation.html</a></li>
+<li>Windows安装包下载地址：<a target="_blank" rel="noopener" href="https://github.com/UB-Mannheim/tesseract/wiki">https://github.com/UB-Mannheim/tesseract/wiki</a></li>
+<li>各个语言的数据集：<a target="_blank" rel="noopener" href="https://github.com/tesseract-ocr/tessdata">https://github.com/tesseract-ocr/tessdata</a></li>
+<li>以windows为例，直接双击傻瓜式安装在即可。有个问题就是默认没有中文的，可以选择英文，安装成功之后把中文的包放到安装目录下的：<code>tessdata</code> 即可,可以下载中文包地址：<a target="_blank" rel="noopener" href="https://github.com/tesseract-ocr/tessdata/raw/4.00/chi_sim.traineddata">https://github.com/tesseract-ocr/tessdata/raw/4.00/chi_sim.traineddata</a></li>
+</ul>
+<h3 id="二、使用Tesseract"><a href="#二、使用Tesseract" class="headerlink" title="二、使用Tesseract"></a>二、使用Tesseract</h3><ul>
+<li>可以使用 <code>tesseract.exe --help</code> 或者 <code>tesseract.exe --help-extra</code>查看命令提示</li>
+</ul>
+<p><img src="/blog/2023/09/25/OCR%E5%9B%BE%E7%89%87%E8%AF%86%E5%88%AB/help.png"></p>
+<ul>
+<li>简单例子，图片转文字</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 把图片help.png转换文字，输出到D:/test.txt</span></span><br><span class="line">tesseract.exe D:/help.png D:/test.txt -l eng+chi_sim  --dpi 300</span><br><span class="line"></span><br><span class="line"><span class="comment"># 把图片help.png转换文字，控制台输出</span></span><br><span class="line">tesseract.exe D:/help.png - -l eng+chi_sim  --dpi 300</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="三、Java调用"><a href="#三、Java调用" class="headerlink" title="三、Java调用"></a>三、Java调用</h3><ul>
+<li>Java调用，可以使用<code>tess4j</code></li>
+<li>导入pom依赖</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&lt;!-- https://mvnrepository.com/artifact/net.sourceforge.tess4j/tess4j --&gt;</span><br><span class="line">&lt;dependency&gt;</span><br><span class="line">    &lt;groupId&gt;net.sourceforge.tess4j&lt;/groupId&gt;</span><br><span class="line">    &lt;artifactId&gt;tess4j&lt;/artifactId&gt;</span><br><span class="line">    &lt;version&gt;5.7.0&lt;/version&gt;</span><br><span class="line">&lt;/dependency&gt;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>代码示例：</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> net.sourceforge.tess4j.Tesseract;</span><br><span class="line"><span class="keyword">import</span> net.sourceforge.tess4j.TesseractException;</span><br><span class="line"><span class="keyword">import</span> java.io.File;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ImageToText</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> TesseractException &#123;</span><br><span class="line">        <span class="comment">// 安装tesseract的路径</span></span><br><span class="line">        <span class="type">String</span> <span class="variable">tessData</span> <span class="operator">=</span> <span class="string">&quot;C:\\install\\tesseract-ocr\\tessdata&quot;</span>;</span><br><span class="line">        <span class="type">Tesseract</span> <span class="variable">tesseract</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Tesseract</span>();</span><br><span class="line">        <span class="comment">// 设置 Tesseract OCR 引擎的语言</span></span><br><span class="line"><span class="comment">//        tesseract.setLanguage(&quot;eng&quot;);</span></span><br><span class="line">        tesseract.setLanguage(<span class="string">&quot;eng+chi_sim&quot;</span>);</span><br><span class="line">        tesseract.setDatapath(tessData);</span><br><span class="line">        <span class="comment">//设置 psm  默认也是3</span></span><br><span class="line">        tesseract.setPageSegMode(<span class="number">3</span>);</span><br><span class="line">        <span class="type">String</span> <span class="variable">pngPath</span> <span class="operator">=</span> <span class="string">&quot;D://test.png&quot;</span>;</span><br><span class="line">        <span class="type">String</span> <span class="variable">text</span> <span class="operator">=</span> tesseract.doOCR(<span class="keyword">new</span> <span class="title class_">File</span>(pngPath));</span><br><span class="line">        System.out.println(<span class="string">&quot;图片转文字=&quot;</span>+text);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="四、PDF图片转文字"><a href="#四、PDF图片转文字" class="headerlink" title="四、PDF图片转文字"></a>四、PDF图片转文字</h3><ul>
+<li><p>有些pdf是又有图片又有文字的，如果直接获取文字可能会漏字符</p>
+</li>
+<li><p>可以尝试pdf转图片，然后再使用过OCR识别</p>
+</li>
+<li><p>PDF转图片，可以使用<code>pdfbox</code></p>
+</li>
+<li><p>依赖如下：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.pdfbox<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>pdfbox<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.0.27<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>完整的PDF图片识别文字代码</p>
+</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> cn.hutool.core.io.file.FileWriter;</span><br><span class="line"><span class="keyword">import</span> lombok.extern.slf4j.Slf4j;</span><br><span class="line"><span class="keyword">import</span> net.sourceforge.tess4j.Tesseract;</span><br><span class="line"><span class="keyword">import</span> net.sourceforge.tess4j.TesseractException;</span><br><span class="line"><span class="keyword">import</span> org.apache.pdfbox.pdmodel.PDDocument;</span><br><span class="line"><span class="keyword">import</span> org.apache.pdfbox.rendering.PDFRenderer;</span><br><span class="line"><span class="keyword">import</span> javax.imageio.ImageIO;</span><br><span class="line"><span class="keyword">import</span> java.awt.image.BufferedImage;</span><br><span class="line"><span class="keyword">import</span> java.io.File;</span><br><span class="line"><span class="keyword">import</span> java.io.IOException;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Slf4j</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">PdfToTextConverter</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="comment">// 安装tesseract的路径</span></span><br><span class="line">        <span class="type">String</span> <span class="variable">tessData</span> <span class="operator">=</span> <span class="string">&quot;C:\\install\\tesseract-ocr\\tessdata&quot;</span>;</span><br><span class="line">        <span class="type">Tesseract</span> <span class="variable">tesseract</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Tesseract</span>();</span><br><span class="line">        <span class="comment">// 设置 Tesseract OCR 引擎的语言</span></span><br><span class="line">        tesseract.setLanguage(<span class="string">&quot;eng+chi_sim&quot;</span>);</span><br><span class="line">        tesseract.setDatapath(tessData);</span><br><span class="line">        <span class="comment">//设置 psm  默认也是3</span></span><br><span class="line">        tesseract.setPageSegMode(<span class="number">3</span>);</span><br><span class="line">        tesseract.setTessVariable(<span class="string">&quot;user_defined_dpi&quot;</span>, <span class="string">&quot;300&quot;</span>);</span><br><span class="line">        <span class="comment">// 设置字体</span></span><br><span class="line">        tesseract.setTessVariable(<span class="string">&quot;textonly_pdf&quot;</span>, <span class="string">&quot;1&quot;</span>);</span><br><span class="line">        tesseract.setTessVariable(<span class="string">&quot;tessedit_create_pdf&quot;</span>, <span class="string">&quot;1&quot;</span>);</span><br><span class="line">        <span class="comment">//选项来将不可识别的字符替换为占位符。</span></span><br><span class="line">        tesseract.setTessVariable(<span class="string">&quot;pdf_font_name&quot;</span>, <span class="string">&quot;Arial&quot;</span>);</span><br><span class="line">        <span class="comment">// 定义 PDF 文件路径和输出文本文件路径</span></span><br><span class="line">        <span class="type">String</span> <span class="variable">pdfFilePath</span> <span class="operator">=</span> <span class="string">&quot;D:\\pdf\\email\\a.pdf&quot;</span>;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            pdfToText(tesseract,pdfFilePath);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">           log.error(e.getMessage(),e);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * pdf提取文字</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> tesseract tesseract安装路径</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> pdfPath pdf路径</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">pdfToText</span><span class="params">(Tesseract tesseract, String pdfPath)</span> <span class="keyword">throws</span> IOException, TesseractException &#123;</span><br><span class="line">        <span class="type">long</span> <span class="variable">begin</span> <span class="operator">=</span> System.currentTimeMillis();</span><br><span class="line">        <span class="comment">// 将 PDF 文件转换为图像文件，并保存在指定目录中</span></span><br><span class="line">        <span class="type">File</span> <span class="variable">file</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">File</span>(pdfPath);</span><br><span class="line">        <span class="type">String</span> <span class="variable">pngPath</span> <span class="operator">=</span> file.getPath().replace(<span class="string">&quot;.pdf&quot;</span>, <span class="string">&quot;_png&quot;</span>);</span><br><span class="line">        <span class="type">String</span> <span class="variable">txtPath</span> <span class="operator">=</span> file.getPath().replace(<span class="string">&quot;.pdf&quot;</span>, <span class="string">&quot;.txt&quot;</span>);</span><br><span class="line">        <span class="type">int</span> <span class="variable">pages</span> <span class="operator">=</span> convertToImage(pdfPath, pngPath, <span class="number">300</span>);</span><br><span class="line">        <span class="type">FileWriter</span> <span class="variable">fileWriter</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">FileWriter</span>(txtPath);</span><br><span class="line">        fileWriter.write(<span class="string">&quot;&quot;</span>);</span><br><span class="line">        <span class="comment">// 逐个处理图像文件，并将 OCR 文本输出到文本文件中</span></span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">1</span>; i &lt;= pages; i++) &#123;</span><br><span class="line">            <span class="type">String</span> <span class="variable">imagePath</span> <span class="operator">=</span> pngPath + <span class="string">&quot;/page&quot;</span> + i + <span class="string">&quot;.png&quot;</span>;</span><br><span class="line">            <span class="type">File</span> <span class="variable">imageFile</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">File</span>(imagePath);</span><br><span class="line">            <span class="comment">// 使用 Tesseract OCR 引擎提取文本内容</span></span><br><span class="line">            <span class="type">String</span> <span class="variable">ocrText</span> <span class="operator">=</span> tesseract.doOCR(imageFile);</span><br><span class="line">            <span class="comment">// 将 OCR 文本追加到输出文本文件中</span></span><br><span class="line">            fileWriter.write(ocrText, <span class="literal">true</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="type">long</span> <span class="variable">end</span> <span class="operator">=</span> System.currentTimeMillis();</span><br><span class="line">        log.info(<span class="string">&quot;解析耗时=&#123;&#125;秒，输出文件为=&#123;&#125;&quot;</span>, (end - begin) / <span class="number">1000</span>, txtPath);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * pdf转图片</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> pdfFilePath pdf文件路径</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> outputImageFolder 输出pdf的图片路径</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> dpi</span></span><br><span class="line"><span class="comment">     *  dpi 取值越高，输出的图片文件大小和渲染时间就越大（取值范围是 72 到 300）</span></span><br><span class="line"><span class="comment">     *  72 DPI：适用于屏幕显示和网络共享的低分辨率图片，例如 Web 图片、电子邮件附件等。</span></span><br><span class="line"><span class="comment">     *  96 DPI：适用于打印机打印和屏幕显示的中等分辨率图片，例如办公文档、幻灯片、简单的海报等。</span></span><br><span class="line"><span class="comment">     *  150 DPI：适用于打印机打印的高质量图片，例如印刷品、照片等。</span></span><br><span class="line"><span class="comment">     *  300 DPI：适用于高质量打印、印刷和出版，例如印刷品、高质量照片、艺术品等。</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> 图片个数</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="type">int</span> <span class="title function_">convertToImage</span><span class="params">(String pdfFilePath, String outputImageFolder, <span class="type">int</span> dpi)</span> <span class="keyword">throws</span> IOException &#123;</span><br><span class="line">        <span class="type">long</span> <span class="variable">start</span> <span class="operator">=</span> System.currentTimeMillis();</span><br><span class="line">        <span class="type">PDDocument</span> <span class="variable">document</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="type">File</span> <span class="variable">file</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">File</span>(outputImageFolder);</span><br><span class="line">            <span class="keyword">if</span>(!file.exists())&#123;</span><br><span class="line">                file.mkdirs();</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">// 加载 PDF 文件</span></span><br><span class="line">            document = PDDocument.load(<span class="keyword">new</span> <span class="title class_">File</span>(pdfFilePath));</span><br><span class="line">            <span class="comment">// 初始化 PDF 渲染器</span></span><br><span class="line">            <span class="type">PDFRenderer</span> <span class="variable">pdfRenderer</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">PDFRenderer</span>(document);</span><br><span class="line">            <span class="comment">// 逐页将 PDF 文件渲染成图片，并保存到指定目录中</span></span><br><span class="line">            <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; document.getNumberOfPages(); i++) &#123;</span><br><span class="line">                <span class="type">BufferedImage</span> <span class="variable">image</span> <span class="operator">=</span> pdfRenderer.renderImageWithDPI(i, dpi);</span><br><span class="line">                <span class="type">String</span> <span class="variable">imagePath</span> <span class="operator">=</span> outputImageFolder + File.separator + <span class="string">&quot;page&quot;</span> + (i + <span class="number">1</span>) + <span class="string">&quot;.png&quot;</span>;</span><br><span class="line">                ImageIO.write(image, <span class="string">&quot;png&quot;</span>, <span class="keyword">new</span> <span class="title class_">File</span>(imagePath));</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">            <span class="keyword">if</span> (document != <span class="literal">null</span>) &#123;</span><br><span class="line">                document.close();</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="type">long</span> <span class="variable">end</span> <span class="operator">=</span> System.currentTimeMillis();</span><br><span class="line">            log.info(<span class="string">&quot;pdf转图片耗时=&#123;&#125;毫秒&quot;</span>,end-start);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> document.getNumberOfPages();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>首先把pdf的每页转为图片，然后再识别每张图片转为文字</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>您的打赏，是我创作的动力！不给钱？那我只能靠想象力充饥了。</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/wechat_pay.jpg" alt="rstyro 微信支付">
+        <p>微信支付</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/alipay.jpg" alt="rstyro 支付宝">
+        <p>支付宝</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/blog/tags/OCR/" rel="tag"><i class="fa fa-tag"></i> OCR</a>
+              <a href="/blog/tags/%E5%9B%BE%E7%89%87%E8%AF%86%E5%88%AB/" rel="tag"><i class="fa fa-tag"></i> 图片识别</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2023/09/19/seata%E4%BD%BF%E7%94%A8%E7%AC%94%E8%AE%B0/" rel="prev" title="seata使用笔记">
+      <i class="fa fa-chevron-left"></i> seata使用笔记
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/blog/2023/09/25/ES%E5%90%91%E9%87%8F%E6%9F%A5%E8%AF%A2/" rel="next" title="ES向量查询">
+      ES向量查询 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#RapidOCR"><span class="nav-number">1.</span> <span class="nav-text">RapidOCR</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#RapidOCR%E6%A6%82%E8%BF%B0"><span class="nav-number">1.1.</span> <span class="nav-text">RapidOCR概述</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E6%95%B4%E4%BD%93%E6%A1%86%E6%9E%B6"><span class="nav-number">1.2.</span> <span class="nav-text">一、整体框架</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E5%9C%A8%E7%BA%BFDemo"><span class="nav-number">1.3.</span> <span class="nav-text">二、在线Demo</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1%E3%80%81Demo%E6%BA%90%E7%A0%81-link"><span class="nav-number">1.3.1.</span> <span class="nav-text">1、Demo源码 link</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2%E3%80%81%E5%9C%A8%E7%BA%BFDemo"><span class="nav-number">1.3.2.</span> <span class="nav-text">2、在线Demo</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%89%E3%80%81Java%E8%AF%AD%E8%A8%80%E6%94%AF%E6%8C%81"><span class="nav-number">1.4.</span> <span class="nav-text">三、Java语言支持</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1%E3%80%81%E5%BF%AB%E9%80%9F%E5%BC%80%E5%A7%8B"><span class="nav-number">1.4.1.</span> <span class="nav-text">1、快速开始</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2%E3%80%81%E8%BF%9B%E9%98%B6%E4%BD%BF%E7%94%A8"><span class="nav-number">1.4.2.</span> <span class="nav-text">2、进阶使用</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#hourglass-flowing-sand-OcrConfig%E5%8F%82%E6%95%B0%E8%B0%83%E4%BC%98"><span class="nav-number">1.4.2.1.</span> <span class="nav-text">:hourglass_flowing_sand: OcrConfig参数调优</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%F0%9F%97%A3%EF%B8%8F-%E7%9B%AE%E5%BD%95%E8%AF%B4%E6%98%8E"><span class="nav-number">1.4.2.2.</span> <span class="nav-text">🗣️ 目录说明</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E2%9A%A0%EF%B8%8F-%E7%89%88%E6%9C%AC%E8%AF%B4%E6%98%8E"><span class="nav-number">1.4.2.3.</span> <span class="nav-text">⚠️ 版本说明</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#ncnn%EF%BC%9A%E4%BB%85%E6%94%AF%E6%8C%81PP-OCRv3"><span class="nav-number">1.4.2.4.</span> <span class="nav-text">ncnn：仅支持PP-OCRv3</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#onnx%EF%BC%9A%E6%94%AF%E6%8C%81PP-OCRv4%E5%92%8CPP-OCRv3"><span class="nav-number">1.4.2.5.</span> <span class="nav-text">onnx：支持PP-OCRv4和PP-OCRv3</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#saxophone-%E5%88%86%E6%94%AF%E8%AF%B4%E6%98%8E"><span class="nav-number">1.4.2.6.</span> <span class="nav-text">:saxophone: 分支说明</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3%E3%80%81-%E5%A6%82%E4%BD%95%E8%BF%9B%E8%A1%8C%E6%A8%A1%E5%9E%8B%E6%9B%B4%E6%96%B0"><span class="nav-number">1.4.3.</span> <span class="nav-text">3、 如何进行模型更新</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4%E3%80%81%E5%A6%82%E4%BD%95%E8%87%AA%E8%A1%8C%E7%BC%96%E8%AF%91-jar-%E5%8C%85"><span class="nav-number">1.4.4.</span> <span class="nav-text">4、如何自行编译 jar 包</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%96%B9%E5%BC%8F%E4%B8%80%EF%BC%9A%E6%89%93%E5%8C%85%E5%8A%A8%E6%80%81%E5%BA%93"><span class="nav-number">1.4.4.1.</span> <span class="nav-text">方式一：打包动态库</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%96%B9%E5%BC%8F%E4%BA%8C%EF%BC%9A%E4%B8%8D%E6%89%93%E5%8C%85%E5%8A%A8%E6%80%81%E5%BA%93"><span class="nav-number">1.4.4.2.</span> <span class="nav-text">方式二：不打包动态库</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5%E3%80%81Java%E8%B0%83%E7%94%A8OCR%E6%96%B9%E5%BC%8F%E6%AF%94%E8%BE%83"><span class="nav-number">1.4.5.</span> <span class="nav-text">5、Java调用OCR方式比较</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Tesseract"><span class="nav-number">2.</span> <span class="nav-text">Tesseract</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E5%AE%89%E8%A3%85Tesseract"><span class="nav-number">2.1.</span> <span class="nav-text">一、安装Tesseract</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E4%BD%BF%E7%94%A8Tesseract"><span class="nav-number">2.2.</span> <span class="nav-text">二、使用Tesseract</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%89%E3%80%81Java%E8%B0%83%E7%94%A8"><span class="nav-number">2.3.</span> <span class="nav-text">三、Java调用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9B%9B%E3%80%81PDF%E5%9B%BE%E7%89%87%E8%BD%AC%E6%96%87%E5%AD%97"><span class="nav-number">2.4.</span> <span class="nav-text">四、PDF图片转文字</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="rstyro"
+      src="/blog/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">rstyro</p>
+  <div class="site-description" itemprop="description">人间的饭，吃一碗少一碗，身边的人，见一面少一面，脚下的路，走一天少一天，其实人生就是一个减法，来日并不方长！</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives/">
+        
+          <span class="site-state-item-count">216</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/blog/tags/">
+          
+        <span class="site-state-item-count">88</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/rstyro" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;rstyro" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/rstyro" title="Gitee → https:&#x2F;&#x2F;gitee.com&#x2F;rstyro" rel="noopener" target="_blank"><i class="fab fa-codiepie fa-fw"></i>Gitee</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.jianshu.com/u/651c15a1758a" title="简书 → https:&#x2F;&#x2F;www.jianshu.com&#x2F;u&#x2F;651c15a1758a" rel="noopener" target="_blank"><i class="fa fa-book fa-fw"></i>简书</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      友链
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://rstyro.github.io/blog/" title="https:&#x2F;&#x2F;rstyro.github.io&#x2F;blog&#x2F;">胖不了小陆</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; Mon Apr 10 2017 08:00:00 GMT+0800 (中国标准时间) – 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">以梦为马，诗酒趁年华</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/muse.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+  <script>
+    (function(){
+      var canonicalURL, curProtocol;
+      //Get the <link> tag
+      var x=document.getElementsByTagName("link");
+		//Find the last canonical URL
+		if(x.length > 0){
+			for (i=0;i<x.length;i++){
+				if(x[i].rel.toLowerCase() == 'canonical' && x[i].href){
+					canonicalURL=x[i].href;
+				}
+			}
+		}
+    //Get protocol
+	    if (!canonicalURL){
+	    	curProtocol = window.location.protocol.split(':')[0];
+	    }
+	    else{
+	    	curProtocol = canonicalURL.split(':')[0];
+	    }
+      //Get current URL if the canonical URL does not exist
+	    if (!canonicalURL) canonicalURL = window.location.href;
+	    //Assign script content. Replace current URL with the canonical URL
+      !function(){var e=/([http|https]:\/\/[a-zA-Z0-9\_\.]+\.baidu\.com)/gi,r=canonicalURL,t=document.referrer;if(!e.test(r)){var n=(String(curProtocol).toLowerCase() === 'https')?"https://sp0.baidu.com/9_Q4simg2RQJ8t7jm9iCKT-xh_/s.gif":"//api.share.baidu.com/s.gif";t?(n+="?r="+encodeURIComponent(document.referrer),r&&(n+="&l="+r)):r&&(n+="?l="+r);var i=new Image;i.src=n}}(window);})();
+  </script>
+
+
+
+
+  
+<script src="/blog/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+<script>
+if (document.querySelectorAll('pre.mermaid').length) {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mermaid@8/dist/mermaid.min.js', () => {
+    mermaid.initialize({
+      theme    : 'default',
+      logLevel : 3,
+      flowchart: { curve     : 'linear' },
+      gantt    : { axisFormat: '%m/%d/%Y' },
+      sequence : { actorMargin: 50 }
+    });
+  }, window.mermaid);
+}
+</script>
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : 'Ov23litYkWaOGM7kAKPD',
+      clientSecret: '43bd3cf99bfcb9d05d16627c97a9f7a0200df04a',
+      repo        : 'blog',
+      owner       : 'rstyro',
+      admin       : ['rstyro'],
+      id          : '63faf42fee0ea3b9cd3f31fcd782bb8d',
+        language: '',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>

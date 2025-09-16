@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/favicon.jpg">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon.jpg">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon.jpg">
+  <link rel="mask-icon" href="/blog/images/favicon.jpg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="/blog/lib/pace/pace-theme-flash.min.css">
+  <script src="/blog/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"rstyro.github.io","root":"/blog/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":true},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.json"};
+  </script>
+
+  <meta name="description" content="Centos 安装redis 并配置服务一.下载源码包123456# 安装gcc依赖yum install -y gcc gcc-c++wget http:&#x2F;&#x2F;download.redis.io&#x2F;releases&#x2F;redis-4.0.14.tar.gztar -zxvf redis-4.0.14.tar.gz -C &#x2F;opt&#x2F;cd &#x2F;opt&#x2F;redis-4.0.14&#x2F;make PREFIX&#x3D;&#x2F;us">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux 安装redis　并配置服务">
+<meta property="og:url" content="https://rstyro.github.io/blog/2017/06/09/Linux%20%E5%AE%89%E8%A3%85redis%E3%80%80%E5%B9%B6%E9%85%8D%E7%BD%AE%E6%9C%8D%E5%8A%A1/index.html">
+<meta property="og:site_name" content="胖不了小陆">
+<meta property="og:description" content="Centos 安装redis 并配置服务一.下载源码包123456# 安装gcc依赖yum install -y gcc gcc-c++wget http:&#x2F;&#x2F;download.redis.io&#x2F;releases&#x2F;redis-4.0.14.tar.gztar -zxvf redis-4.0.14.tar.gz -C &#x2F;opt&#x2F;cd &#x2F;opt&#x2F;redis-4.0.14&#x2F;make PREFIX&#x3D;&#x2F;us">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://rstyro.github.io/blog/2017/06/09/Linux%20%E5%AE%89%E8%A3%85redis%E3%80%80%E5%B9%B6%E9%85%8D%E7%BD%AE%E6%9C%8D%E5%8A%A1/1497593356955096462.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2017/06/09/Linux%20%E5%AE%89%E8%A3%85redis%E3%80%80%E5%B9%B6%E9%85%8D%E7%BD%AE%E6%9C%8D%E5%8A%A1/40316.png">
+<meta property="article:published_time" content="2017-06-09T07:14:58.000Z">
+<meta property="article:modified_time" content="2017-06-09T07:14:58.000Z">
+<meta property="article:author" content="rstyro">
+<meta property="article:tag" content="Linux">
+<meta property="article:tag" content="Redis">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://rstyro.github.io/blog/2017/06/09/Linux%20%E5%AE%89%E8%A3%85redis%E3%80%80%E5%B9%B6%E9%85%8D%E7%BD%AE%E6%9C%8D%E5%8A%A1/1497593356955096462.png">
+
+<link rel="canonical" href="https://rstyro.github.io/blog/2017/06/09/Linux%20%E5%AE%89%E8%A3%85redis%E3%80%80%E5%B9%B6%E9%85%8D%E7%BD%AE%E6%9C%8D%E5%8A%A1/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Linux 安装redis　并配置服务 | 胖不了小陆</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">胖不了小陆</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">信你所信，为你所见</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/blog/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/blog/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/blog/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/rstyro" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://rstyro.github.io/blog/2017/06/09/Linux%20%E5%AE%89%E8%A3%85redis%E3%80%80%E5%B9%B6%E9%85%8D%E7%BD%AE%E6%9C%8D%E5%8A%A1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/avatar.jpg">
+      <meta itemprop="name" content="rstyro">
+      <meta itemprop="description" content="人间的饭，吃一碗少一碗，身边的人，见一面少一面，脚下的路，走一天少一天，其实人生就是一个减法，来日并不方长！">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="胖不了小陆">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Linux 安装redis　并配置服务
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2017-06-09 15:14:58" itemprop="dateCreated datePublished" datetime="2017-06-09T15:14:58+08:00">2017-06-09</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E7%BD%91%E7%BB%9C%E8%BF%90%E7%BB%B4/" itemprop="url" rel="index"><span itemprop="name">网络运维</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="Centos-安装redis-并配置服务"><a href="#Centos-安装redis-并配置服务" class="headerlink" title="Centos 安装redis 并配置服务"></a>Centos 安装redis 并配置服务</h1><h2 id="一-下载源码包"><a href="#一-下载源码包" class="headerlink" title="一.下载源码包"></a>一.下载源码包</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"># 安装gcc依赖</span><br><span class="line">yum install -y gcc gcc-c++</span><br><span class="line">wget http://download.redis.io/releases/redis-4.0.14.tar.gz</span><br><span class="line">tar -zxvf redis-4.0.14.tar.gz -C /opt/</span><br><span class="line">cd /opt/redis-4.0.14/</span><br><span class="line">make PREFIX=/usr/local/redis install      //指定安装的路径,</span><br></pre></td></tr></table></figure>
+
+<span id="more"></span>
+
+<h4 id="可能报错一"><a href="#可能报错一" class="headerlink" title="可能报错一"></a>可能报错一</h4><blockquote>
+<p>zmalloc.h:50:31: error: jemalloc&#x2F;jemalloc.h: No such file or directory<br>zmalloc.h:55:2: error: #error “Newer version of jemalloc required”<br>make[1]: *** [adlist.o] Error 1<br>make[1]: Leaving directory &#96;&#x2F;data0&#x2F;src&#x2F;redis-2.6.2&#x2F;src’<br>make: *** [all] Error 2</p>
+</blockquote>
+<h4 id="可以改成"><a href="#可以改成" class="headerlink" title="可以改成"></a>可以改成</h4><blockquote>
+<p>make MALLOC&#x3D;libc PREFIX&#x3D;&#x2F;usr&#x2F;local&#x2F;redis install<br>ll &#x2F;usr&#x2F;local&#x2F;redis&#x2F;bin</p>
+</blockquote>
+<h4 id="可以报错二"><a href="#可以报错二" class="headerlink" title="可以报错二"></a>可以报错二</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">cc: error: ../deps/hiredis/libhiredis.a: No such file or directory</span><br><span class="line">cc: error: ../deps/lua/src/liblua.a: No such file or directory</span><br><span class="line">make[1]: *** [redis-server] Error 1</span><br><span class="line">make[1]: Leaving directory `/usr/local/src/redis-4.0.1/src&#x27;</span><br><span class="line">make: *** [all] Error 2</span><br></pre></td></tr></table></figure>
+<p><strong>解决方法：</strong></p>
+<ul>
+<li>进入源码包目录下的<code>deps</code>目录中执行:</li>
+<li><code>make lua hiredis linenoise</code></li>
+</ul>
+<h2 id="二、添加服务"><a href="#二、添加服务" class="headerlink" title="二、添加服务"></a>二、添加服务</h2><h3 id="a-、这个是centos6-的service-命令"><a href="#a-、这个是centos6-的service-命令" class="headerlink" title="a)、这个是centos6 的service 命令"></a>a)、这个是centos6 的service 命令</h3><h4 id="1、创建服务脚本"><a href="#1、创建服务脚本" class="headerlink" title="1、创建服务脚本"></a>1、创建服务脚本</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">cp /opt/redis-4.0.14/utils/redis_init_script  /etc/rc.d/init.d/redis</span><br><span class="line">mkdir /etc/redis             #创建redis目录，是为了以后可以存放多个redis配置  </span><br><span class="line">cp /opt/redis-4.0.14/redis.conf /etc/redis/6379.conf      </span><br><span class="line">vim /etc/rc.d/init.d/redis               #修改如下圈出来的地方</span><br></pre></td></tr></table></figure>
+<p><img src="/blog/2017/06/09/Linux%20%E5%AE%89%E8%A3%85redis%E3%80%80%E5%B9%B6%E9%85%8D%E7%BD%AE%E6%9C%8D%E5%8A%A1/1497593356955096462.png"></p>
+<blockquote>
+<p>前面两行注释是：redis服务必须在运行级2，3，4，5下被启动或关闭，启动的优先级是90，关闭的优先级是10。</p>
+</blockquote>
+<h4 id="2、修改配置文件"><a href="#2、修改配置文件" class="headerlink" title="2、修改配置文件"></a>2、修改配置文件</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vim /etc/redis/6379.conf  </span><br></pre></td></tr></table></figure>
+<h5 id="把daemnize-no改为yes，意思是后台运行"><a href="#把daemnize-no改为yes，意思是后台运行" class="headerlink" title="把daemnize no改为yes，意思是后台运行"></a>把daemnize no改为yes，意思是后台运行</h5><h4 id="3、添加服务"><a href="#3、添加服务" class="headerlink" title="3、添加服务"></a>3、添加服务</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">chkconfig --add redis   	#如果没报错的话，说明成功，可以用</span><br><span class="line">chkconfig --list        	#查看所有服务</span><br><span class="line"></span><br><span class="line">service redis start         #启动redis服务器</span><br><span class="line">ps -ef | grep redis         #查看是否启动成功</span><br></pre></td></tr></table></figure>
+
+<h2 id="b-、这个是centos-7-的systemctl-命令"><a href="#b-、这个是centos-7-的systemctl-命令" class="headerlink" title="b)、这个是centos 7 的systemctl 命令"></a>b)、这个是centos 7 的systemctl 命令</h2><h4 id="使用systemctl-命令之前先来说说-systemctl脚本的配置"><a href="#使用systemctl-命令之前先来说说-systemctl脚本的配置" class="headerlink" title="使用systemctl 命令之前先来说说 systemctl脚本的配置"></a>使用systemctl 命令之前先来说说 systemctl脚本的配置</h4><h4 id="位置：-lib-systemd-system"><a href="#位置：-lib-systemd-system" class="headerlink" title="位置：&#x2F;lib&#x2F;systemd&#x2F;system&#x2F;"></a>位置：&#x2F;lib&#x2F;systemd&#x2F;system&#x2F;</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">[Unit]</span><br><span class="line">	部分主要是对这个服务的说明，内容包括Description和After，</span><br><span class="line">	Description		用于描述服务，</span><br><span class="line">	After			用于描述服务类别;</span><br><span class="line">[Service]</span><br><span class="line">	部分是服务的关键，是服务的一些具体运行参数的设置，</span><br><span class="line">	这里:</span><br><span class="line">	Type=forking	是后台运行的形式，</span><br><span class="line">	PIDFile		  为存放PID的文件路径，</span><br><span class="line">	ExecStart		为服务的运行命令，</span><br><span class="line">	ExecReload		为重启命令，</span><br><span class="line">	ExecStop			为停止命令，</span><br><span class="line">	PrivateTmp=True	表示给服务分配独立的临时空间，</span><br><span class="line">	</span><br><span class="line"></span><br><span class="line">[Install]</span><br><span class="line">	部分是服务安装的相关设置，可设置为多用户的</span><br></pre></td></tr></table></figure>
+<h4 id="1、创建redis-脚本"><a href="#1、创建redis-脚本" class="headerlink" title="1、创建redis 脚本"></a>1、创建redis 脚本</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vim /lib/systemd/system/redis.service</span><br></pre></td></tr></table></figure>
+<h4 id="2、编辑内容"><a href="#2、编辑内容" class="headerlink" title="2、编辑内容"></a>2、编辑内容</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">[Unit]</span><br><span class="line">Description=Redis</span><br><span class="line">After=syslog.target network.target remote-fs.target nss-lookup.target</span><br><span class="line"></span><br><span class="line">[Service]</span><br><span class="line">Type=forking</span><br><span class="line">PIDFile=/var/run/redis_6379.pid</span><br><span class="line">ExecStart=/usr/local/redis/bin/redis-server /etc/redis/6379.conf</span><br><span class="line">ExecReload=/bin/kill -s HUP $MAINPID</span><br><span class="line">ExecStop=/bin/kill -s QUIT $MAINPID</span><br><span class="line">PrivateTmp=true</span><br><span class="line"></span><br><span class="line">[Install]</span><br><span class="line">WantedBy=multi-user.target</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h5 id="先说明一下啊，上面的："><a href="#先说明一下啊，上面的：" class="headerlink" title="先说明一下啊，上面的："></a>先说明一下啊，上面的：</h5><h5 id="PIDFile-这个值要和-上面配置脚本中的-ExecStart-命令启动-redis-的配置文件（-etc-redis-6379-conf）里的pidfile-一样，比如下图："><a href="#PIDFile-这个值要和-上面配置脚本中的-ExecStart-命令启动-redis-的配置文件（-etc-redis-6379-conf）里的pidfile-一样，比如下图：" class="headerlink" title="PIDFile   这个值要和 上面配置脚本中的 ExecStart 命令启动 redis 的配置文件（&#x2F;etc&#x2F;redis&#x2F;6379.conf）里的pidfile 一样，比如下图："></a>PIDFile   这个值要和 上面配置脚本中的 <code>ExecStart </code>命令启动 redis 的配置文件（&#x2F;etc&#x2F;redis&#x2F;6379.conf）里的pidfile 一样，比如下图：</h5><p><img src="/blog/2017/06/09/Linux%20%E5%AE%89%E8%A3%85redis%E3%80%80%E5%B9%B6%E9%85%8D%E7%BD%AE%E6%9C%8D%E5%8A%A1/40316.png"></p>
+<h5 id="ExecStart-前面是redis启动的服务脚本-空格-之后是启动需要的配置文件路径"><a href="#ExecStart-前面是redis启动的服务脚本-空格-之后是启动需要的配置文件路径" class="headerlink" title="ExecStart 前面是redis启动的服务脚本 空格 之后是启动需要的配置文件路径"></a>ExecStart 前面是redis启动的服务脚本 空格 之后是启动需要的配置文件路径</h5><h4 id="3、重载系统服务"><a href="#3、重载系统服务" class="headerlink" title="3、重载系统服务"></a>3、重载系统服务</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systemctl daemon-reload</span><br></pre></td></tr></table></figure>
+
+<h4 id="4、启动redis-服务"><a href="#4、启动redis-服务" class="headerlink" title="4、启动redis 服务"></a>4、启动redis 服务</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systemctl start redis.service </span><br></pre></td></tr></table></figure>
+
+<h4 id="5、开机自启动-可选"><a href="#5、开机自启动-可选" class="headerlink" title="5、开机自启动 (可选)"></a>5、开机自启动 (可选)</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systemctl enable redis.service</span><br></pre></td></tr></table></figure>
+<h3 id="结束，配置不成功，评论说明，不出意外-３分钟之内回复"><a href="#结束，配置不成功，评论说明，不出意外-３分钟之内回复" class="headerlink" title="结束，配置不成功，评论说明，不出意外　３分钟之内回复"></a>结束，配置不成功，评论说明，不出意外　３分钟之内回复</h3><h2 id="三、Centos一键脚本安装Redis"><a href="#三、Centos一键脚本安装Redis" class="headerlink" title="三、Centos一键脚本安装Redis"></a>三、Centos一键脚本安装Redis</h2><ul>
+<li>使用脚本安装</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#!/bin/bash</span></span><br><span class="line"><span class="built_in">set</span> -e</span><br><span class="line"></span><br><span class="line">REDIS_CONF=<span class="string">&quot;/etc/redis.conf&quot;</span></span><br><span class="line">SERVICE_NAME=<span class="string">&quot;redis&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">echo</span> -e <span class="string">&quot;\033[36m[1/5] 安装EPEL仓库\033[0m&quot;</span></span><br><span class="line">dnf install -y epel-release</span><br><span class="line"></span><br><span class="line"><span class="built_in">echo</span> -e <span class="string">&quot;\033[36m[2/5] 安装Redis\033[0m&quot;</span></span><br><span class="line">dnf install -y redis</span><br><span class="line"></span><br><span class="line"><span class="built_in">echo</span> -e <span class="string">&quot;\033[36m[3/5] 配置Redis\033[0m&quot;</span></span><br><span class="line"><span class="comment"># 备份原始配置</span></span><br><span class="line"><span class="built_in">cp</span> <span class="variable">$&#123;REDIS_CONF&#125;</span> <span class="variable">$&#123;REDIS_CONF&#125;</span>.bak</span><br><span class="line"></span><br><span class="line"><span class="comment"># 基础优化配置</span></span><br><span class="line">sed -i <span class="string">&#x27;s/^bind 127.0.0.1 -::1/# bind 127.0.0.1 -::1/&#x27;</span> <span class="variable">$&#123;REDIS_CONF&#125;</span></span><br><span class="line">sed -i <span class="string">&#x27;s/^protected-mode yes/protected-mode no/&#x27;</span> <span class="variable">$&#123;REDIS_CONF&#125;</span></span><br><span class="line">sed -i <span class="string">&#x27;s/^daemonize no/daemonize yes/&#x27;</span> <span class="variable">$&#123;REDIS_CONF&#125;</span></span><br><span class="line">sed -i <span class="string">&#x27;s/^# requirepass foobared/requirepass MyRedisPwd!/&#x27;</span> <span class="variable">$&#123;REDIS_CONF&#125;</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">echo</span> -e <span class="string">&quot;\033[36m[4/5] 启动服务\033[0m&quot;</span></span><br><span class="line">systemctl <span class="built_in">enable</span> --now <span class="variable">$&#123;SERVICE_NAME&#125;</span></span><br><span class="line">firewall-cmd --permanent --add-port=6379/tcp</span><br><span class="line">firewall-cmd --reload</span><br><span class="line"></span><br><span class="line"><span class="built_in">echo</span> -e <span class="string">&quot;\033[36m[5/5] 验证安装\033[0m&quot;</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;服务状态:&quot;</span></span><br><span class="line">systemctl status <span class="variable">$&#123;SERVICE_NAME&#125;</span> --no-pager</span><br><span class="line"></span><br><span class="line"><span class="built_in">echo</span> -e <span class="string">&quot;\n连接测试:&quot;</span></span><br><span class="line">redis-cli -a MyRedisPwd! ping</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>您的打赏，是我创作的动力！不给钱？那我只能靠想象力充饥了。</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/wechat_pay.jpg" alt="rstyro 微信支付">
+        <p>微信支付</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/alipay.jpg" alt="rstyro 支付宝">
+        <p>支付宝</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/blog/tags/Linux/" rel="tag"><i class="fa fa-tag"></i> Linux</a>
+              <a href="/blog/tags/Redis/" rel="tag"><i class="fa fa-tag"></i> Redis</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2017/06/05/%E9%81%8D%E5%8E%86Map%E7%9A%84%E5%87%A0%E7%A7%8D%E6%96%B9%E5%BC%8F/" rel="prev" title="遍历Map的几种方式">
+      <i class="fa fa-chevron-left"></i> 遍历Map的几种方式
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/blog/2017/06/11/Linux%20%E4%B8%80%E4%BA%9B%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4/" rel="next" title="Linux 一些常用命令">
+      Linux 一些常用命令 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Centos-%E5%AE%89%E8%A3%85redis-%E5%B9%B6%E9%85%8D%E7%BD%AE%E6%9C%8D%E5%8A%A1"><span class="nav-number">1.</span> <span class="nav-text">Centos 安装redis 并配置服务</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80-%E4%B8%8B%E8%BD%BD%E6%BA%90%E7%A0%81%E5%8C%85"><span class="nav-number">1.1.</span> <span class="nav-text">一.下载源码包</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8F%AF%E8%83%BD%E6%8A%A5%E9%94%99%E4%B8%80"><span class="nav-number">1.1.0.1.</span> <span class="nav-text">可能报错一</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8F%AF%E4%BB%A5%E6%94%B9%E6%88%90"><span class="nav-number">1.1.0.2.</span> <span class="nav-text">可以改成</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8F%AF%E4%BB%A5%E6%8A%A5%E9%94%99%E4%BA%8C"><span class="nav-number">1.1.0.3.</span> <span class="nav-text">可以报错二</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E6%B7%BB%E5%8A%A0%E6%9C%8D%E5%8A%A1"><span class="nav-number">1.2.</span> <span class="nav-text">二、添加服务</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#a-%E3%80%81%E8%BF%99%E4%B8%AA%E6%98%AFcentos6-%E7%9A%84service-%E5%91%BD%E4%BB%A4"><span class="nav-number">1.2.1.</span> <span class="nav-text">a)、这个是centos6 的service 命令</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1%E3%80%81%E5%88%9B%E5%BB%BA%E6%9C%8D%E5%8A%A1%E8%84%9A%E6%9C%AC"><span class="nav-number">1.2.1.1.</span> <span class="nav-text">1、创建服务脚本</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2%E3%80%81%E4%BF%AE%E6%94%B9%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="nav-number">1.2.1.2.</span> <span class="nav-text">2、修改配置文件</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%8A%8Adaemnize-no%E6%94%B9%E4%B8%BAyes%EF%BC%8C%E6%84%8F%E6%80%9D%E6%98%AF%E5%90%8E%E5%8F%B0%E8%BF%90%E8%A1%8C"><span class="nav-number">1.2.1.2.1.</span> <span class="nav-text">把daemnize no改为yes，意思是后台运行</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3%E3%80%81%E6%B7%BB%E5%8A%A0%E6%9C%8D%E5%8A%A1"><span class="nav-number">1.2.1.3.</span> <span class="nav-text">3、添加服务</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#b-%E3%80%81%E8%BF%99%E4%B8%AA%E6%98%AFcentos-7-%E7%9A%84systemctl-%E5%91%BD%E4%BB%A4"><span class="nav-number">1.3.</span> <span class="nav-text">b)、这个是centos 7 的systemctl 命令</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8systemctl-%E5%91%BD%E4%BB%A4%E4%B9%8B%E5%89%8D%E5%85%88%E6%9D%A5%E8%AF%B4%E8%AF%B4-systemctl%E8%84%9A%E6%9C%AC%E7%9A%84%E9%85%8D%E7%BD%AE"><span class="nav-number">1.3.0.1.</span> <span class="nav-text">使用systemctl 命令之前先来说说 systemctl脚本的配置</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BD%8D%E7%BD%AE%EF%BC%9A-lib-systemd-system"><span class="nav-number">1.3.0.2.</span> <span class="nav-text">位置：&#x2F;lib&#x2F;systemd&#x2F;system&#x2F;</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1%E3%80%81%E5%88%9B%E5%BB%BAredis-%E8%84%9A%E6%9C%AC"><span class="nav-number">1.3.0.3.</span> <span class="nav-text">1、创建redis 脚本</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2%E3%80%81%E7%BC%96%E8%BE%91%E5%86%85%E5%AE%B9"><span class="nav-number">1.3.0.4.</span> <span class="nav-text">2、编辑内容</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%85%88%E8%AF%B4%E6%98%8E%E4%B8%80%E4%B8%8B%E5%95%8A%EF%BC%8C%E4%B8%8A%E9%9D%A2%E7%9A%84%EF%BC%9A"><span class="nav-number">1.3.0.4.1.</span> <span class="nav-text">先说明一下啊，上面的：</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#PIDFile-%E8%BF%99%E4%B8%AA%E5%80%BC%E8%A6%81%E5%92%8C-%E4%B8%8A%E9%9D%A2%E9%85%8D%E7%BD%AE%E8%84%9A%E6%9C%AC%E4%B8%AD%E7%9A%84-ExecStart-%E5%91%BD%E4%BB%A4%E5%90%AF%E5%8A%A8-redis-%E7%9A%84%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%EF%BC%88-etc-redis-6379-conf%EF%BC%89%E9%87%8C%E7%9A%84pidfile-%E4%B8%80%E6%A0%B7%EF%BC%8C%E6%AF%94%E5%A6%82%E4%B8%8B%E5%9B%BE%EF%BC%9A"><span class="nav-number">1.3.0.4.2.</span> <span class="nav-text">PIDFile   这个值要和 上面配置脚本中的 ExecStart 命令启动 redis 的配置文件（&#x2F;etc&#x2F;redis&#x2F;6379.conf）里的pidfile 一样，比如下图：</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#ExecStart-%E5%89%8D%E9%9D%A2%E6%98%AFredis%E5%90%AF%E5%8A%A8%E7%9A%84%E6%9C%8D%E5%8A%A1%E8%84%9A%E6%9C%AC-%E7%A9%BA%E6%A0%BC-%E4%B9%8B%E5%90%8E%E6%98%AF%E5%90%AF%E5%8A%A8%E9%9C%80%E8%A6%81%E7%9A%84%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E8%B7%AF%E5%BE%84"><span class="nav-number">1.3.0.4.3.</span> <span class="nav-text">ExecStart 前面是redis启动的服务脚本 空格 之后是启动需要的配置文件路径</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3%E3%80%81%E9%87%8D%E8%BD%BD%E7%B3%BB%E7%BB%9F%E6%9C%8D%E5%8A%A1"><span class="nav-number">1.3.0.5.</span> <span class="nav-text">3、重载系统服务</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4%E3%80%81%E5%90%AF%E5%8A%A8redis-%E6%9C%8D%E5%8A%A1"><span class="nav-number">1.3.0.6.</span> <span class="nav-text">4、启动redis 服务</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5%E3%80%81%E5%BC%80%E6%9C%BA%E8%87%AA%E5%90%AF%E5%8A%A8-%E5%8F%AF%E9%80%89"><span class="nav-number">1.3.0.7.</span> <span class="nav-text">5、开机自启动 (可选)</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BB%93%E6%9D%9F%EF%BC%8C%E9%85%8D%E7%BD%AE%E4%B8%8D%E6%88%90%E5%8A%9F%EF%BC%8C%E8%AF%84%E8%AE%BA%E8%AF%B4%E6%98%8E%EF%BC%8C%E4%B8%8D%E5%87%BA%E6%84%8F%E5%A4%96-%EF%BC%93%E5%88%86%E9%92%9F%E4%B9%8B%E5%86%85%E5%9B%9E%E5%A4%8D"><span class="nav-number">1.3.1.</span> <span class="nav-text">结束，配置不成功，评论说明，不出意外　３分钟之内回复</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81Centos%E4%B8%80%E9%94%AE%E8%84%9A%E6%9C%AC%E5%AE%89%E8%A3%85Redis"><span class="nav-number">1.4.</span> <span class="nav-text">三、Centos一键脚本安装Redis</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="rstyro"
+      src="/blog/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">rstyro</p>
+  <div class="site-description" itemprop="description">人间的饭，吃一碗少一碗，身边的人，见一面少一面，脚下的路，走一天少一天，其实人生就是一个减法，来日并不方长！</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives/">
+        
+          <span class="site-state-item-count">216</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/blog/tags/">
+          
+        <span class="site-state-item-count">88</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/rstyro" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;rstyro" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/rstyro" title="Gitee → https:&#x2F;&#x2F;gitee.com&#x2F;rstyro" rel="noopener" target="_blank"><i class="fab fa-codiepie fa-fw"></i>Gitee</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.jianshu.com/u/651c15a1758a" title="简书 → https:&#x2F;&#x2F;www.jianshu.com&#x2F;u&#x2F;651c15a1758a" rel="noopener" target="_blank"><i class="fa fa-book fa-fw"></i>简书</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      友链
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://rstyro.github.io/blog/" title="https:&#x2F;&#x2F;rstyro.github.io&#x2F;blog&#x2F;">胖不了小陆</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; Mon Apr 10 2017 08:00:00 GMT+0800 (中国标准时间) – 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">以梦为马，诗酒趁年华</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/muse.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+  <script>
+    (function(){
+      var canonicalURL, curProtocol;
+      //Get the <link> tag
+      var x=document.getElementsByTagName("link");
+		//Find the last canonical URL
+		if(x.length > 0){
+			for (i=0;i<x.length;i++){
+				if(x[i].rel.toLowerCase() == 'canonical' && x[i].href){
+					canonicalURL=x[i].href;
+				}
+			}
+		}
+    //Get protocol
+	    if (!canonicalURL){
+	    	curProtocol = window.location.protocol.split(':')[0];
+	    }
+	    else{
+	    	curProtocol = canonicalURL.split(':')[0];
+	    }
+      //Get current URL if the canonical URL does not exist
+	    if (!canonicalURL) canonicalURL = window.location.href;
+	    //Assign script content. Replace current URL with the canonical URL
+      !function(){var e=/([http|https]:\/\/[a-zA-Z0-9\_\.]+\.baidu\.com)/gi,r=canonicalURL,t=document.referrer;if(!e.test(r)){var n=(String(curProtocol).toLowerCase() === 'https')?"https://sp0.baidu.com/9_Q4simg2RQJ8t7jm9iCKT-xh_/s.gif":"//api.share.baidu.com/s.gif";t?(n+="?r="+encodeURIComponent(document.referrer),r&&(n+="&l="+r)):r&&(n+="?l="+r);var i=new Image;i.src=n}}(window);})();
+  </script>
+
+
+
+
+  
+<script src="/blog/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+<script>
+if (document.querySelectorAll('pre.mermaid').length) {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mermaid@8/dist/mermaid.min.js', () => {
+    mermaid.initialize({
+      theme    : 'default',
+      logLevel : 3,
+      flowchart: { curve     : 'linear' },
+      gantt    : { axisFormat: '%m/%d/%Y' },
+      sequence : { actorMargin: 50 }
+    });
+  }, window.mermaid);
+}
+</script>
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : 'Ov23litYkWaOGM7kAKPD',
+      clientSecret: '43bd3cf99bfcb9d05d16627c97a9f7a0200df04a',
+      repo        : 'blog',
+      owner       : 'rstyro',
+      admin       : ['rstyro'],
+      id          : '09ad0b74c84326e6e429af87943ae643',
+        language: '',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>

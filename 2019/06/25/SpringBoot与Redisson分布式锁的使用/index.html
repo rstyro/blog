@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/favicon.jpg">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon.jpg">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon.jpg">
+  <link rel="mask-icon" href="/blog/images/favicon.jpg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="/blog/lib/pace/pace-theme-flash.min.css">
+  <script src="/blog/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"rstyro.github.io","root":"/blog/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":true},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.json"};
+  </script>
+
+  <meta name="description" content="一、Redisson 是什么？来看看百度百科怎么说的。  Redisson是架设在Redis基础上的一个Java驻内存数据网格（In-Memory Data Grid）。【Redis官方推荐】   Redisson在基于NIO的 Netty 框架上，充分的利用了Redis键值数据库提供的一系列优势，在Java实用工具包中常用接口的基础上，为使用者提供了一系列具有分布式特性的常用工具类。使得原本作为">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SpringBoot与Redisson分布式锁的使用">
+<meta property="og:url" content="https://rstyro.github.io/blog/2019/06/25/SpringBoot%E4%B8%8ERedisson%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%E7%9A%84%E4%BD%BF%E7%94%A8/index.html">
+<meta property="og:site_name" content="胖不了小陆">
+<meta property="og:description" content="一、Redisson 是什么？来看看百度百科怎么说的。  Redisson是架设在Redis基础上的一个Java驻内存数据网格（In-Memory Data Grid）。【Redis官方推荐】   Redisson在基于NIO的 Netty 框架上，充分的利用了Redis键值数据库提供的一系列优势，在Java实用工具包中常用接口的基础上，为使用者提供了一系列具有分布式特性的常用工具类。使得原本作为">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://rstyro.github.io/blog/2019/06/25/SpringBoot%E4%B8%8ERedisson%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%E7%9A%84%E4%BD%BF%E7%94%A8/lock.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2019/06/25/SpringBoot%E4%B8%8ERedisson%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%E7%9A%84%E4%BD%BF%E7%94%A8/test1.png">
+<meta property="article:published_time" content="2019-06-25T08:58:26.000Z">
+<meta property="article:modified_time" content="2019-06-25T08:58:26.000Z">
+<meta property="article:author" content="rstyro">
+<meta property="article:tag" content="Spring Boot">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://rstyro.github.io/blog/2019/06/25/SpringBoot%E4%B8%8ERedisson%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%E7%9A%84%E4%BD%BF%E7%94%A8/lock.png">
+
+<link rel="canonical" href="https://rstyro.github.io/blog/2019/06/25/SpringBoot%E4%B8%8ERedisson%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%E7%9A%84%E4%BD%BF%E7%94%A8/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>SpringBoot与Redisson分布式锁的使用 | 胖不了小陆</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">胖不了小陆</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">信你所信，为你所见</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/blog/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/blog/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/blog/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/rstyro" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://rstyro.github.io/blog/2019/06/25/SpringBoot%E4%B8%8ERedisson%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%E7%9A%84%E4%BD%BF%E7%94%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/avatar.jpg">
+      <meta itemprop="name" content="rstyro">
+      <meta itemprop="description" content="人间的饭，吃一碗少一碗，身边的人，见一面少一面，脚下的路，走一天少一天，其实人生就是一个减法，来日并不方长！">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="胖不了小陆">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          SpringBoot与Redisson分布式锁的使用
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2019-06-25 16:58:26" itemprop="dateCreated datePublished" datetime="2019-06-25T16:58:26+08:00">2019-06-25</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/Java/" itemprop="url" rel="index"><span itemprop="name">Java</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="一、Redisson-是什么？"><a href="#一、Redisson-是什么？" class="headerlink" title="一、Redisson 是什么？"></a>一、Redisson 是什么？</h2><p>来看看百度百科怎么说的。</p>
+<blockquote>
+<p>Redisson是架设在<a target="_blank" rel="noopener" href="https://redis.io/">Redis</a>基础上的一个Java驻内存数据网格（<code>In-Memory Data Grid</code>）。<code>【Redis官方推荐】</code></p>
+</blockquote>
+<blockquote>
+<p>Redisson在基于NIO的 <a target="_blank" rel="noopener" href="https://netty.io/">Netty</a> 框架上，充分的利用了Redis键值数据库提供的一系列优势，在Java实用工具包中常用接口的基础上，为使用者提供了一系列具有分布式特性的常用工具类。使得原本作为协调单机多线程并发程序的工具包获得了协调分布式多机多线程并发系统的能力，大大降低了设计和研发大规模分布式系统的难度。同时结合各富特色的分布式服务，更进一步简化了分布式环境中程序相互之间的协作。</p>
+</blockquote>
+<span id="more"></span>
+<p>然后<code>【Redisson官方WiKi】 </code>是这样说的</p>
+<blockquote>
+<p>Redisson 不仅提供了一系列的分布式的Java常用对象，还提供了许多分布式服务。其中包括(<code>BitSet, Set, Multimap, SortedSet, Map, List, Queue, BlockingQueue, Deque, BlockingDeque, Semaphore, Lock, AtomicLong, CountDownLatch, Publish / Subscribe, Bloom filter, Remote service, Spring cache, Executor service, Live Object service, Scheduler service</code>) Redisson提供了使用Redis的最简单和最便捷的方法。Redisson的宗旨是促进使用者对Redis的关注分离（Separation of Concern），从而让使用者能够将精力更集中地放在处理业务逻辑上。</p>
+</blockquote>
+<h3 id="功能太强大了，我都有点不会用了！！！"><a href="#功能太强大了，我都有点不会用了！！！" class="headerlink" title="功能太强大了，我都有点不会用了！！！"></a>功能太强大了，我都有点不会用了！！！</h3><h2 id="二、开始使用"><a href="#二、开始使用" class="headerlink" title="二、开始使用"></a>二、开始使用</h2><h3 id="1、导入依赖"><a href="#1、导入依赖" class="headerlink" title="1、导入依赖"></a>1、导入依赖</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"> &lt;!-- redis --&gt;</span><br><span class="line">&lt;dependency&gt;</span><br><span class="line">	&lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;</span><br><span class="line">	&lt;artifactId&gt;spring-boot-starter-data-redis&lt;/artifactId&gt;</span><br><span class="line">&lt;/dependency&gt;</span><br><span class="line">&lt;dependency&gt;</span><br><span class="line">	&lt;groupId&gt;org.apache.commons&lt;/groupId&gt;</span><br><span class="line">	&lt;artifactId&gt;commons-pool2&lt;/artifactId&gt;</span><br><span class="line">&lt;/dependency&gt;</span><br><span class="line">&lt;!-- redisson --&gt;</span><br><span class="line">&lt;dependency&gt;</span><br><span class="line">	&lt;groupId&gt;org.redisson&lt;/groupId&gt;</span><br><span class="line">	&lt;artifactId&gt;redisson&lt;/artifactId&gt;</span><br><span class="line">	&lt;version&gt;3.11.0&lt;/version&gt;</span><br><span class="line">&lt;/dependency&gt;</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-、配置文件配置Redis"><a href="#2-、配置文件配置Redis" class="headerlink" title="2 、配置文件配置Redis"></a>2 、配置文件配置Redis</h3><p>Springboot2 中，redis 默认用的是<code>lettuce</code>连接池</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">spring:</span><br><span class="line">  # redis config</span><br><span class="line">  redis:</span><br><span class="line">    host: 127.0.0.1</span><br><span class="line">    password:</span><br><span class="line">    port: 6379</span><br><span class="line">    database: 0</span><br><span class="line">    lettuce:</span><br><span class="line">      pool:</span><br><span class="line">        max-idle: 8</span><br><span class="line">        min-idle: 0</span><br><span class="line">        max-active: 8</span><br><span class="line">        max-wait: -1ms</span><br><span class="line">    timeout: 10000ms</span><br></pre></td></tr></table></figure>
+
+<h3 id="3、配置Redisson"><a href="#3、配置Redisson" class="headerlink" title="3、配置Redisson"></a>3、配置Redisson</h3><p>有两种方法</p>
+<h4 id="第一种：程序化配置方法"><a href="#第一种：程序化配置方法" class="headerlink" title="第一种：程序化配置方法"></a>第一种：程序化配置方法</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Config config = new Config();</span><br><span class="line">config.setTransportMode(TransportMode.EPOLL);</span><br><span class="line">config.useClusterServers()</span><br><span class="line">      //可以用&quot;rediss://&quot;来启用SSL连接</span><br><span class="line">      .addNodeAddress(&quot;redis://127.0.0.1:7181&quot;);</span><br></pre></td></tr></table></figure>
+
+<h4 id="第二种：文件方式配置"><a href="#第二种：文件方式配置" class="headerlink" title="第二种：文件方式配置"></a>第二种：文件方式配置</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">// json 文件</span><br><span class="line">Config config = Config.fromJSON(new File(&quot;config-file.json&quot;));</span><br><span class="line">RedissonClient redisson = Redisson.create(config);</span><br><span class="line"></span><br><span class="line"># yaml 文件</span><br><span class="line">Config config = Config.fromYAML(new File(&quot;config-file.yaml&quot;));</span><br><span class="line">RedissonClient redisson = Redisson.create(config);</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>配置文件的具体内容，就不多介绍了，官方的听详细的,下面给传送门<br><a target="_blank" rel="noopener" href="https://github.com/redisson/redisson/wiki/2.-%E9%85%8D%E7%BD%AE%E6%96%B9%E6%B3%95">点我带你飞：传送门</a></p>
+</blockquote>
+<h5 id="我个人比较喜欢程序化方式，全部代码如下："><a href="#我个人比较喜欢程序化方式，全部代码如下：" class="headerlink" title="我个人比较喜欢程序化方式，全部代码如下："></a>我个人比较喜欢程序化方式，全部代码如下：</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> top.lrshuai.redisson.config;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.redisson.Redisson;</span><br><span class="line"><span class="keyword">import</span> org.redisson.api.RedissonClient;</span><br><span class="line"><span class="keyword">import</span> org.redisson.config.Config;</span><br><span class="line"><span class="keyword">import</span> org.springframework.beans.factory.annotation.Value;</span><br><span class="line"><span class="keyword">import</span> org.springframework.context.annotation.Bean;</span><br><span class="line"><span class="keyword">import</span> org.springframework.context.annotation.Configuration;</span><br><span class="line"><span class="keyword">import</span> org.springframework.util.StringUtils;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * redisson 配置，下面是单节点配置：</span></span><br><span class="line"><span class="comment"> * 官方wiki地址：https://github.com/redisson/redisson/wiki/2.-%E9%85%8D%E7%BD%AE%E6%96%B9%E6%B3%95#26-%E5%8D%95redis%E8%8A%82%E7%82%B9%E6%A8%A1%E5%BC%8F</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">RedissonConfig</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Value(&quot;$&#123;spring.redis.host&#125;&quot;)</span></span><br><span class="line">    <span class="keyword">private</span> String host;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Value(&quot;$&#123;spring.redis.port&#125;&quot;)</span></span><br><span class="line">    <span class="keyword">private</span> String port;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Value(&quot;$&#123;spring.redis.password&#125;&quot;)</span></span><br><span class="line">    <span class="keyword">private</span> String password;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="keyword">public</span> RedissonClient <span class="title function_">redissonClient</span><span class="params">()</span>&#123;</span><br><span class="line">        <span class="type">Config</span> <span class="variable">config</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Config</span>();</span><br><span class="line">        <span class="comment">//单节点</span></span><br><span class="line">        config.useSingleServer().setAddress(<span class="string">&quot;redis://&quot;</span> + host + <span class="string">&quot;:&quot;</span> + port);</span><br><span class="line">        <span class="keyword">if</span>(StringUtils.isEmpty(password))&#123;</span><br><span class="line">            config.useSingleServer().setPassword(<span class="literal">null</span>);</span><br><span class="line">        &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">            config.useSingleServer().setPassword(password);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//添加主从配置</span></span><br><span class="line"><span class="comment">//        config.useMasterSlaveServers().setMasterAddress(&quot;&quot;).setPassword(&quot;&quot;).addSlaveAddress(new String[]&#123;&quot;&quot;,&quot;&quot;&#125;);</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">// 集群模式配置 setScanInterval()扫描间隔时间，单位是毫秒,  //可以用&quot;rediss://&quot;来启用SSL连接</span></span><br><span class="line"><span class="comment">//        config.useClusterServers().setScanInterval(2000).addNodeAddress(&quot;redis://127.0.0.1:7000&quot;, &quot;redis://127.0.0.1:7001&quot;).addNodeAddress(&quot;redis://127.0.0.1:7002&quot;);</span></span><br><span class="line">        <span class="keyword">return</span> Redisson.create(config);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>以<code>Bean</code>的方式注入，然后在想用的地方创建一个变量即可</p>
+<h3 id="4、代码使用Redisson"><a href="#4、代码使用Redisson" class="headerlink" title="4、代码使用Redisson"></a>4、代码使用Redisson</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="meta">@Autowired</span></span><br><span class="line"><span class="keyword">private</span> RedissonClient redissonClient;</span><br></pre></td></tr></table></figure>
+
+<h2 id="三、Redisson-分布式锁的简单使用"><a href="#三、Redisson-分布式锁的简单使用" class="headerlink" title="三、Redisson 分布式锁的简单使用"></a>三、Redisson 分布式锁的简单使用</h2><p>什么是分布式锁？分布式锁有什么作用？分布式锁怎么用？</p>
+<blockquote>
+<p><strong>个人见解</strong>：学过多线程的应该知道，共享变量，如果不加锁的话，当多个线程去操作的时候就有可能导致数据的不一致性等问题。所以Java 本身给我们提供了<code>Synchronized</code> 关键字或者 <code>Lock</code> 锁,都可以处理这种问题。这种方式只针对单台服务器而言的，像<code>双十一</code>、<code>618</code> 这种大型活动，肯定不是只有一台服务器就能带飞的，走都不一定能走，别说飞了。当采用分布式系统多台服务器运行的时候，上面的锁方案就不靠谱了。所以分布式锁出来了。</p>
+</blockquote>
+<blockquote>
+<p><strong>百度百科</strong>：<br>分布式锁是控制分布式系统之间同步访问共享资源的一种方式。在<a target="_blank" rel="noopener" href="https://baike.baidu.com/item/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F/4905336">分布式系统</a>中，常常需要协调他们的动作。如果不同的系统或是同一个系统的不同主机之间共享了一个或一组资源，那么访问这些资源的时候，往往需要互斥来防止彼此干扰来保证<a target="_blank" rel="noopener" href="https://baike.baidu.com/item/%E4%B8%80%E8%87%B4%E6%80%A7/9840083">一致性</a>，在这种情况下，便需要使用到分布式锁。</p>
+</blockquote>
+<blockquote>
+<p>废话真多，代码撸起</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">    * 如果只有一个线程来访问，那么在rLock.tryLock() 这个方法就会阻塞，等锁释放然后再继续下面的操作，</span></span><br><span class="line"><span class="comment">    * 如果是多线程访问，那么在rLock.tryLock() 这个方法会直接返回false不阻塞了,继续往下执行</span></span><br><span class="line"><span class="comment">    * 可以配合Jmeter 来测试</span></span><br><span class="line"><span class="comment">    * 更多锁的demo,可以参考wiki: https://github.com/redisson/redisson/wiki/8.-%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%E5%92%8C%E5%90%8C%E6%AD%A5%E5%99%A8</span></span><br><span class="line"><span class="comment">    * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">   <span class="meta">@GetMapping(&quot;/test&quot;)</span></span><br><span class="line">   <span class="keyword">public</span> Object <span class="title function_">test</span><span class="params">()</span>&#123;</span><br><span class="line">       <span class="comment">//获取锁实例</span></span><br><span class="line">       <span class="type">RLock</span> <span class="variable">rLock</span> <span class="operator">=</span> redissonClient.getLock(lock);</span><br><span class="line">       <span class="type">boolean</span> <span class="variable">isLock</span> <span class="operator">=</span><span class="literal">false</span>;</span><br><span class="line">       <span class="keyword">try</span> &#123;</span><br><span class="line">           <span class="comment">// 上锁</span></span><br><span class="line">           isLock = rLock.tryLock();</span><br><span class="line">           System.out.println(Thread.currentThread().getName()+<span class="string">&quot;isLock=&quot;</span>+isLock);</span><br><span class="line">           <span class="keyword">if</span> (isLock) &#123;</span><br><span class="line">               System.out.println(Thread.currentThread().getName()+<span class="string">&quot;我抢到锁了，开心，先休息10秒先&quot;</span>);</span><br><span class="line">               Thread.sleep(<span class="number">10</span> *<span class="number">1000</span>);</span><br><span class="line">               <span class="comment">// todo service 业务代码</span></span><br><span class="line">           &#125;<span class="keyword">else</span> &#123;</span><br><span class="line">               System.out.println(Thread.currentThread().getName()+<span class="string">&quot;被人锁了，郁闷下次再来&quot;</span>);</span><br><span class="line">               <span class="keyword">return</span> FAILED;</span><br><span class="line">           &#125;</span><br><span class="line">       &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">           e.printStackTrace();</span><br><span class="line">       &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">           <span class="keyword">if</span>(isLock)&#123;</span><br><span class="line">               System.out.println(Thread.currentThread().getName()+<span class="string">&quot;不玩了，开锁了！！！&quot;</span>);</span><br><span class="line">               <span class="comment">// 解锁</span></span><br><span class="line">               rLock.unlock();</span><br><span class="line">           &#125;</span><br><span class="line">       &#125;</span><br><span class="line">       <span class="keyword">return</span> SUCCESS;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/blog/2019/06/25/SpringBoot%E4%B8%8ERedisson%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%E7%9A%84%E4%BD%BF%E7%94%A8/lock.png" alt="测试图片"></p>
+<p>Redisson 提供的锁有那么几个，按需使用</p>
+<ul>
+<li>可重入锁</li>
+<li>公平锁</li>
+<li>联锁</li>
+<li>红锁</li>
+<li>读写锁</li>
+<li>闭锁<br>各个锁的使用<a href="%5Bhttps://github.com/redisson/redisson/wiki/8.-%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%E5%92%8C%E5%90%8C%E6%AD%A5%E5%99%A8%5D(https://github.com/redisson/redisson/wiki/8.-%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%E5%92%8C%E5%90%8C%E6%AD%A5%E5%99%A8)">Wiki</a> 都有介绍，我只是粗略的开个头。</li>
+</ul>
+<h2 id="四、Redisson消息的发布订阅"><a href="#四、Redisson消息的发布订阅" class="headerlink" title="四、Redisson消息的发布订阅"></a>四、Redisson消息的发布订阅</h2><p>这个简单，一个发布，一个接受，简单代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//发布</span></span><br><span class="line"><span class="keyword">public</span> <span class="type">long</span> <span class="title function_">publish</span><span class="params">(MyObjectDTO myObjectDTO)</span>&#123;</span><br><span class="line">	<span class="type">RTopic</span> <span class="variable">rTopic</span> <span class="operator">=</span> redissonClient.getTopic(Consts.TopicName);</span><br><span class="line">	<span class="keyword">return</span>  rTopic.publish(myObjectDTO);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 订阅</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">subscribe</span><span class="params">()</span>&#123;</span><br><span class="line">        <span class="type">RTopic</span> <span class="variable">rTopic</span> <span class="operator">=</span> redissonClient.getTopic(Consts.TopicName);</span><br><span class="line">        rTopic.addListener(MyObjectDTO.class, <span class="keyword">new</span> <span class="title class_">MessageListener</span>&lt;MyObjectDTO&gt;() &#123;</span><br><span class="line">            <span class="comment">// 接受订阅的消息</span></span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">onMessage</span><span class="params">(CharSequence charSequence, MyObjectDTO myObjectDTO)</span> &#123;</span><br><span class="line">                log.info(<span class="string">&quot;接受到消息主题=&#123;&#125;，内容=&#123;&#125;&quot;</span>,charSequence,myObjectDTO);</span><br><span class="line">                System.out.println(<span class="string">&quot;传输的数据为=&quot;</span>+myObjectDTO);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p><code>MyObjectDTO</code> 就是发布的消息体，随意一个对象就行，命名有点<code>LOW</code><br><img src="/blog/2019/06/25/SpringBoot%E4%B8%8ERedisson%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%E7%9A%84%E4%BD%BF%E7%94%A8/test1.png" alt="示例图"></p>
+</blockquote>
+<h4 id="完整代码地址"><a href="#完整代码地址" class="headerlink" title="完整代码地址"></a>完整代码地址</h4><ul>
+<li>Github 地址：<a href="%5Bhttps://github.com/rstyro/Springboot/tree/master/SpringBoot2-Redisson%5D(https://github.com/rstyro/Springboot/tree/master/SpringBoot2-Redisson)"><a target="_blank" rel="noopener" href="https://github.com/rstyro/Springboot/tree/master/SpringBoot2-Redisson">https://github.com/rstyro/Springboot/tree/master/SpringBoot2-Redisson</a>
+</a>  </li>
+<li>Gitee 地址：<a href="%5Bhttps://gitee.com/rstyro/spring-boot/tree/master/SpringBoot2-Redisson%5D(https://gitee.com/rstyro/spring-boot/tree/master/SpringBoot2-Redisson)"><a target="_blank" rel="noopener" href="https://gitee.com/rstyro/spring-boot/tree/master/SpringBoot2-Redisson">https://gitee.com/rstyro/spring-boot/tree/master/SpringBoot2-Redisson</a>
+</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>您的打赏，是我创作的动力！不给钱？那我只能靠想象力充饥了。</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/wechat_pay.jpg" alt="rstyro 微信支付">
+        <p>微信支付</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/alipay.jpg" alt="rstyro 支付宝">
+        <p>支付宝</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/blog/tags/Spring-Boot/" rel="tag"><i class="fa fa-tag"></i> Spring Boot</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2019/06/06/Google%E6%B5%8F%E8%A7%88%E5%99%A8%E5%AE%9E%E7%94%A8%E6%8F%92%E4%BB%B6/" rel="prev" title="Google浏览器实用插件">
+      <i class="fa fa-chevron-left"></i> Google浏览器实用插件
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/blog/2019/09/14/Centos%E5%AE%89%E8%A3%85GitLab/" rel="next" title="Centos安装GitLab">
+      Centos安装GitLab <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81Redisson-%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="nav-number">1.</span> <span class="nav-text">一、Redisson 是什么？</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8A%9F%E8%83%BD%E5%A4%AA%E5%BC%BA%E5%A4%A7%E4%BA%86%EF%BC%8C%E6%88%91%E9%83%BD%E6%9C%89%E7%82%B9%E4%B8%8D%E4%BC%9A%E7%94%A8%E4%BA%86%EF%BC%81%EF%BC%81%EF%BC%81"><span class="nav-number">1.1.</span> <span class="nav-text">功能太强大了，我都有点不会用了！！！</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E5%BC%80%E5%A7%8B%E4%BD%BF%E7%94%A8"><span class="nav-number">2.</span> <span class="nav-text">二、开始使用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1%E3%80%81%E5%AF%BC%E5%85%A5%E4%BE%9D%E8%B5%96"><span class="nav-number">2.1.</span> <span class="nav-text">1、导入依赖</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E3%80%81%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E9%85%8D%E7%BD%AERedis"><span class="nav-number">2.2.</span> <span class="nav-text">2 、配置文件配置Redis</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3%E3%80%81%E9%85%8D%E7%BD%AERedisson"><span class="nav-number">2.3.</span> <span class="nav-text">3、配置Redisson</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%AC%AC%E4%B8%80%E7%A7%8D%EF%BC%9A%E7%A8%8B%E5%BA%8F%E5%8C%96%E9%85%8D%E7%BD%AE%E6%96%B9%E6%B3%95"><span class="nav-number">2.3.1.</span> <span class="nav-text">第一种：程序化配置方法</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%AC%AC%E4%BA%8C%E7%A7%8D%EF%BC%9A%E6%96%87%E4%BB%B6%E6%96%B9%E5%BC%8F%E9%85%8D%E7%BD%AE"><span class="nav-number">2.3.2.</span> <span class="nav-text">第二种：文件方式配置</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%88%91%E4%B8%AA%E4%BA%BA%E6%AF%94%E8%BE%83%E5%96%9C%E6%AC%A2%E7%A8%8B%E5%BA%8F%E5%8C%96%E6%96%B9%E5%BC%8F%EF%BC%8C%E5%85%A8%E9%83%A8%E4%BB%A3%E7%A0%81%E5%A6%82%E4%B8%8B%EF%BC%9A"><span class="nav-number">2.3.2.1.</span> <span class="nav-text">我个人比较喜欢程序化方式，全部代码如下：</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4%E3%80%81%E4%BB%A3%E7%A0%81%E4%BD%BF%E7%94%A8Redisson"><span class="nav-number">2.4.</span> <span class="nav-text">4、代码使用Redisson</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81Redisson-%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%E7%9A%84%E7%AE%80%E5%8D%95%E4%BD%BF%E7%94%A8"><span class="nav-number">3.</span> <span class="nav-text">三、Redisson 分布式锁的简单使用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81Redisson%E6%B6%88%E6%81%AF%E7%9A%84%E5%8F%91%E5%B8%83%E8%AE%A2%E9%98%85"><span class="nav-number">4.</span> <span class="nav-text">四、Redisson消息的发布订阅</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AE%8C%E6%95%B4%E4%BB%A3%E7%A0%81%E5%9C%B0%E5%9D%80"><span class="nav-number">4.0.1.</span> <span class="nav-text">完整代码地址</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="rstyro"
+      src="/blog/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">rstyro</p>
+  <div class="site-description" itemprop="description">人间的饭，吃一碗少一碗，身边的人，见一面少一面，脚下的路，走一天少一天，其实人生就是一个减法，来日并不方长！</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives/">
+        
+          <span class="site-state-item-count">216</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/blog/tags/">
+          
+        <span class="site-state-item-count">88</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/rstyro" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;rstyro" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/rstyro" title="Gitee → https:&#x2F;&#x2F;gitee.com&#x2F;rstyro" rel="noopener" target="_blank"><i class="fab fa-codiepie fa-fw"></i>Gitee</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.jianshu.com/u/651c15a1758a" title="简书 → https:&#x2F;&#x2F;www.jianshu.com&#x2F;u&#x2F;651c15a1758a" rel="noopener" target="_blank"><i class="fa fa-book fa-fw"></i>简书</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      友链
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://rstyro.github.io/blog/" title="https:&#x2F;&#x2F;rstyro.github.io&#x2F;blog&#x2F;">胖不了小陆</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; Mon Apr 10 2017 08:00:00 GMT+0800 (中国标准时间) – 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">以梦为马，诗酒趁年华</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/muse.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+  <script>
+    (function(){
+      var canonicalURL, curProtocol;
+      //Get the <link> tag
+      var x=document.getElementsByTagName("link");
+		//Find the last canonical URL
+		if(x.length > 0){
+			for (i=0;i<x.length;i++){
+				if(x[i].rel.toLowerCase() == 'canonical' && x[i].href){
+					canonicalURL=x[i].href;
+				}
+			}
+		}
+    //Get protocol
+	    if (!canonicalURL){
+	    	curProtocol = window.location.protocol.split(':')[0];
+	    }
+	    else{
+	    	curProtocol = canonicalURL.split(':')[0];
+	    }
+      //Get current URL if the canonical URL does not exist
+	    if (!canonicalURL) canonicalURL = window.location.href;
+	    //Assign script content. Replace current URL with the canonical URL
+      !function(){var e=/([http|https]:\/\/[a-zA-Z0-9\_\.]+\.baidu\.com)/gi,r=canonicalURL,t=document.referrer;if(!e.test(r)){var n=(String(curProtocol).toLowerCase() === 'https')?"https://sp0.baidu.com/9_Q4simg2RQJ8t7jm9iCKT-xh_/s.gif":"//api.share.baidu.com/s.gif";t?(n+="?r="+encodeURIComponent(document.referrer),r&&(n+="&l="+r)):r&&(n+="?l="+r);var i=new Image;i.src=n}}(window);})();
+  </script>
+
+
+
+
+  
+<script src="/blog/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+<script>
+if (document.querySelectorAll('pre.mermaid').length) {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mermaid@8/dist/mermaid.min.js', () => {
+    mermaid.initialize({
+      theme    : 'default',
+      logLevel : 3,
+      flowchart: { curve     : 'linear' },
+      gantt    : { axisFormat: '%m/%d/%Y' },
+      sequence : { actorMargin: 50 }
+    });
+  }, window.mermaid);
+}
+</script>
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : 'Ov23litYkWaOGM7kAKPD',
+      clientSecret: '43bd3cf99bfcb9d05d16627c97a9f7a0200df04a',
+      repo        : 'blog',
+      owner       : 'rstyro',
+      admin       : ['rstyro'],
+      id          : '26fb3f5ae10b364233d90ada0f50f854',
+        language: '',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>

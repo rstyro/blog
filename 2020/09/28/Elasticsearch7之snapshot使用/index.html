@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/favicon.jpg">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon.jpg">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon.jpg">
+  <link rel="mask-icon" href="/blog/images/favicon.jpg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="/blog/lib/pace/pace-theme-flash.min.css">
+  <script src="/blog/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"rstyro.github.io","root":"/blog/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":true},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.json"};
+  </script>
+
+  <meta name="description" content="一、snapshot 简介在网络中最重要的是数据，所有在存储应用中，定期的做数据备份还是很有必要的。而snapshot 就是Elasticsearch为了做数据备份用的api。翻译过来就是快照。ES的高可用是通过多节点多副本来实现的，但是副本的数据并没有提供灾难性故障的保护。所有提供一个快照api是很有必要。比如集群数据转移功能，通过snapshot 数据拷贝还是很方便的。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Elasticsearch7之snapshot使用">
+<meta property="og:url" content="https://rstyro.github.io/blog/2020/09/28/Elasticsearch7%E4%B9%8Bsnapshot%E4%BD%BF%E7%94%A8/index.html">
+<meta property="og:site_name" content="胖不了小陆">
+<meta property="og:description" content="一、snapshot 简介在网络中最重要的是数据，所有在存储应用中，定期的做数据备份还是很有必要的。而snapshot 就是Elasticsearch为了做数据备份用的api。翻译过来就是快照。ES的高可用是通过多节点多副本来实现的，但是副本的数据并没有提供灾难性故障的保护。所有提供一个快照api是很有必要。比如集群数据转移功能，通过snapshot 数据拷贝还是很方便的。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://rstyro.github.io/blog/2020/09/28/Elasticsearch7%E4%B9%8Bsnapshot%E4%BD%BF%E7%94%A8/snapshot-version.png">
+<meta property="article:published_time" content="2020-09-28T10:35:44.000Z">
+<meta property="article:modified_time" content="2020-09-28T10:35:44.000Z">
+<meta property="article:author" content="rstyro">
+<meta property="article:tag" content="ElasticSearch">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://rstyro.github.io/blog/2020/09/28/Elasticsearch7%E4%B9%8Bsnapshot%E4%BD%BF%E7%94%A8/snapshot-version.png">
+
+<link rel="canonical" href="https://rstyro.github.io/blog/2020/09/28/Elasticsearch7%E4%B9%8Bsnapshot%E4%BD%BF%E7%94%A8/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Elasticsearch7之snapshot使用 | 胖不了小陆</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">胖不了小陆</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">信你所信，为你所见</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/blog/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/blog/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/blog/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/rstyro" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://rstyro.github.io/blog/2020/09/28/Elasticsearch7%E4%B9%8Bsnapshot%E4%BD%BF%E7%94%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/avatar.jpg">
+      <meta itemprop="name" content="rstyro">
+      <meta itemprop="description" content="人间的饭，吃一碗少一碗，身边的人，见一面少一面，脚下的路，走一天少一天，其实人生就是一个减法，来日并不方长！">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="胖不了小陆">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Elasticsearch7之snapshot使用
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-09-28 18:35:44" itemprop="dateCreated datePublished" datetime="2020-09-28T18:35:44+08:00">2020-09-28</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E/" itemprop="url" rel="index"><span itemprop="name">搜索引擎</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h3 id="一、snapshot-简介"><a href="#一、snapshot-简介" class="headerlink" title="一、snapshot 简介"></a>一、snapshot 简介</h3><p>在网络中最重要的是数据，所有在存储应用中，定期的做数据备份还是很有必要的。而snapshot 就是Elasticsearch为了做数据备份用的api。翻译过来就是快照。<br>ES的高可用是通过多节点多副本来实现的，但是副本的数据并没有提供灾难性故障的保护。所有提供一个快照api是很有必要。<br>比如集群数据转移功能，通过snapshot 数据拷贝还是很方便的。</p>
+<span id="more"></span>
+
+<p>但是有版本还原限制，可以从低到高</p>
+<p><img src="/blog/2020/09/28/Elasticsearch7%E4%B9%8Bsnapshot%E4%BD%BF%E7%94%A8/snapshot-version.png"></p>
+<h3 id="二、配置snapshot-repository"><a href="#二、配置snapshot-repository" class="headerlink" title="二、配置snapshot repository"></a>二、配置snapshot repository</h3><p>在创建快照(<code>snapshot</code>)之前，首先需要创建快照仓库(<code>repository</code>)，一个仓库里面可以有多个快照。而创建快照仓库需要在<code>elasticsearch.yml</code>配置仓库地址。<br>在<code>elasticsearch.yml</code> 中添加：</p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 可以填多个仓库地址，后面添加快照时保存地址必须在下面配置地址之中</span></span><br><span class="line"><span class="attr">path.repo:</span> [<span class="string">&quot;/opt/elasticsearch-cluster/snapshot_repo&quot;</span>, <span class="string">&quot;/opt/elasticsearch-cluster/data_backups&quot;</span>]</span><br></pre></td></tr></table></figure>
+<p>配置之后，需要重启ES服务</p>
+<h4 id="1、创建快照仓库"><a href="#1、创建快照仓库" class="headerlink" title="1、创建快照仓库"></a>1、创建快照仓库</h4><p>创建一个名为<code>my_backup</code>的快照仓库</p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># location 需要在上面配置的地址数组路径之中</span></span><br><span class="line"><span class="string">PUT</span> <span class="string">http://172.16.1.236:9201/_snapshot/my_backup</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="attr">&quot;type&quot;:</span> <span class="string">&quot;fs&quot;</span>, </span><br><span class="line">    <span class="attr">&quot;settings&quot;:</span> &#123;</span><br><span class="line">        <span class="attr">&quot;location&quot;:</span> <span class="string">&quot;/opt/elasticsearch-cluster/snapshot_repo/my_backup&quot;</span> </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这样就创建了一个仓库地址，之后就可以在这个仓库之后添加快照。</p>
+<p>可以验证集群各个节点是否可以使用这个仓库：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">POST http://172.16.1.236:9201/_snapshot/my_backup/_verify</span><br><span class="line"></span><br><span class="line">//返回，说明我3个节点的集群都验证通过</span><br><span class="line">&#123;</span><br><span class="line">    &quot;nodes&quot;: &#123;</span><br><span class="line">        &quot;S2ZU6-25TO-bBSQACZDhqQ&quot;: &#123;</span><br><span class="line">            &quot;name&quot;: &quot;mtNode2&quot;</span><br><span class="line">        &#125;,</span><br><span class="line">        &quot;hXWHAW6uQQi7lMHdargp0w&quot;: &#123;</span><br><span class="line">            &quot;name&quot;: &quot;mtNode1&quot;</span><br><span class="line">        &#125;,</span><br><span class="line">        &quot;xgFCwPHQTPaaTmG9SW2Ctg&quot;: &#123;</span><br><span class="line">            &quot;name&quot;: &quot;mtNode3&quot;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="2、其他参数"><a href="#2、其他参数" class="headerlink" title="2、其他参数"></a>2、其他参数</h4><p>创建仓库还有其他的参数可以设置：</p>
+<ul>
+<li>location<br>仓库地址</li>
+<li>compress<br>是否压缩，默认true,</li>
+<li>chunk_size<br>是否将大文件分解成块，分解成块的单位，例子: <code>1GB</code>, <code>10MB</code>, <code>5KB</code>, <code>500B</code>，默认：<code>null</code>(不限制)</li>
+<li>max_restore_bytes_per_sec<br>快照恢复的速度，默认：无限制</li>
+<li>max_snapshot_bytes_per_sec<br>节点出入站的速率，默认：<code>40mb/s</code></li>
+<li>readonly<br>仓库快照是否时只读，默认：<code>false</code></li>
+</ul>
+<h4 id="3、第三方插件"><a href="#3、第三方插件" class="headerlink" title="3、第三方插件"></a>3、第三方插件</h4><p><strong>以上介绍的是基于本地存储，可以配置仓库插件就可以存储在其他地方，如：</strong></p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://www.elastic.co/guide/en/elasticsearch/plugins/7.9/repository-s3.html">repository-s3</a> 支持S3 仓库</li>
+<li><a target="_blank" rel="noopener" href="https://www.elastic.co/guide/en/elasticsearch/plugins/7.9/repository-hdfs.html">repository-hdfs</a> 支持HDFS 仓库</li>
+<li><a target="_blank" rel="noopener" href="https://www.elastic.co/guide/en/elasticsearch/plugins/7.9/repository-azure.html">repository-azure</a> 支持Azure 仓库</li>
+<li><a target="_blank" rel="noopener" href="https://www.elastic.co/guide/en/elasticsearch/plugins/7.9/repository-gcs.html">repository-gcs</a> 支持 Google Cloud 仓库</li>
+</ul>
+<h3 id="三、snapshot-备份"><a href="#三、snapshot-备份" class="headerlink" title="三、snapshot 备份"></a>三、snapshot 备份</h3><p>仓库配置好了，就可以开始备份了。</p>
+<h4 id="1、保存集群下的所有索引快照"><a href="#1、保存集群下的所有索引快照" class="headerlink" title="1、保存集群下的所有索引快照"></a>1、保存集群下的所有索引快照</h4><p>所有索引</p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 格式：/_snapshot/仓库名称/快照名称</span></span><br><span class="line"><span class="string">PUT</span> <span class="string">http://172.16.1.236:9201/_snapshot/my_backup/snapshot_1</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="2、保存集群下的指定索引快照"><a href="#2、保存集群下的指定索引快照" class="headerlink" title="2、保存集群下的指定索引快照"></a>2、保存集群下的指定索引快照</h4><p>指定索引,添加<code>wait_for_completion</code> 参数，等于<code>true</code>时，将等待快照保存结束时才会返回结果。反之异步返回结果</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">PUT http://172.16.1.236:9201/_snapshot/my_backup/snapshot_2?wait_for_completion=true</span><br><span class="line">&#123;</span><br><span class="line">    &quot;indices&quot;: &quot;.security-7,topic,indexName&quot;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>快照是增量的，有可能很多快照依赖于过去的段，在仓库下的文件要注意了不要手动删除</strong></p>
+<h4 id="3、获取指定快照状态"><a href="#3、获取指定快照状态" class="headerlink" title="3、获取指定快照状态"></a>3、获取指定快照状态</h4><p>除了上边加的<code>wait_for_completion</code> 参数，可以知道快照是否完成之外，可以使用如下：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable constant_">GET</span> <span class="attr">http</span>:<span class="comment">//172.16.1.236:9201/_snapshot/my_backup/snapshot_2/_status</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// 返回</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="string">&quot;snapshots&quot;</span>: [</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="string">&quot;snapshot&quot;</span>: <span class="string">&quot;snapshot_2&quot;</span>,</span><br><span class="line">            <span class="string">&quot;repository&quot;</span>: <span class="string">&quot;my_backup&quot;</span>,</span><br><span class="line">            <span class="string">&quot;uuid&quot;</span>: <span class="string">&quot;yGDt-O2-TcKvqn35DI8Wyg&quot;</span>,</span><br><span class="line">            <span class="string">&quot;state&quot;</span>: <span class="string">&quot;SUCCESS&quot;</span>,</span><br><span class="line">            <span class="string">&quot;include_global_state&quot;</span>: <span class="literal">true</span>,</span><br><span class="line">            <span class="string">&quot;shards_stats&quot;</span>: &#123;</span><br><span class="line">                <span class="string">&quot;initializing&quot;</span>: <span class="number">0</span>,</span><br><span class="line">                <span class="string">&quot;started&quot;</span>: <span class="number">0</span>,</span><br><span class="line">                <span class="string">&quot;finalizing&quot;</span>: <span class="number">0</span>,</span><br><span class="line">                <span class="string">&quot;done&quot;</span>: <span class="number">4</span>,</span><br><span class="line">                <span class="string">&quot;failed&quot;</span>: <span class="number">0</span>,</span><br><span class="line">                <span class="string">&quot;total&quot;</span>: <span class="number">4</span></span><br><span class="line">            &#125;,</span><br><span class="line">            <span class="string">&quot;stats&quot;</span>: &#123;</span><br><span class="line">                <span class="string">&quot;incremental&quot;</span>: &#123;</span><br><span class="line">                    <span class="string">&quot;file_count&quot;</span>: <span class="number">0</span>,</span><br><span class="line">                    <span class="string">&quot;size_in_bytes&quot;</span>: <span class="number">0</span></span><br><span class="line">                &#125;,</span><br><span class="line">                <span class="string">&quot;total&quot;</span>: &#123;</span><br><span class="line">                    <span class="string">&quot;file_count&quot;</span>: <span class="number">61</span>,</span><br><span class="line">                    <span class="string">&quot;size_in_bytes&quot;</span>: <span class="number">105076</span></span><br><span class="line">                &#125;,</span><br><span class="line">                <span class="string">&quot;start_time_in_millis&quot;</span>: <span class="number">1601196083846</span>,</span><br><span class="line">                <span class="string">&quot;time_in_millis&quot;</span>: <span class="number">1601</span></span><br><span class="line">            &#125;,</span><br><span class="line">            <span class="string">&quot;indices&quot;</span>: &#123;</span><br><span class="line">                <span class="string">&quot;.security-7&quot;</span>: &#123;</span><br><span class="line">                    <span class="string">&quot;shards_stats&quot;</span>: &#123;</span><br><span class="line">                        <span class="string">&quot;initializing&quot;</span>: <span class="number">0</span>,</span><br><span class="line">                        <span class="string">&quot;started&quot;</span>: <span class="number">0</span>,</span><br><span class="line">                        <span class="string">&quot;finalizing&quot;</span>: <span class="number">0</span>,</span><br><span class="line">                        <span class="string">&quot;done&quot;</span>: <span class="number">1</span>,</span><br><span class="line">                        <span class="string">&quot;failed&quot;</span>: <span class="number">0</span>,</span><br><span class="line">                        <span class="string">&quot;total&quot;</span>: <span class="number">1</span></span><br><span class="line">                    &#125;,</span><br><span class="line">                    <span class="string">&quot;stats&quot;</span>: &#123;</span><br><span class="line">                        <span class="string">&quot;incremental&quot;</span>: &#123;</span><br><span class="line">                            <span class="string">&quot;file_count&quot;</span>: <span class="number">0</span>,</span><br><span class="line">                            <span class="string">&quot;size_in_bytes&quot;</span>: <span class="number">0</span></span><br><span class="line">                        &#125;,</span><br><span class="line">                        <span class="string">&quot;total&quot;</span>: &#123;</span><br><span class="line">                            <span class="string">&quot;file_count&quot;</span>: <span class="number">22</span>,</span><br><span class="line">                            <span class="string">&quot;size_in_bytes&quot;</span>: <span class="number">26134</span></span><br><span class="line">                        &#125;,</span><br><span class="line">                        <span class="string">&quot;start_time_in_millis&quot;</span>: <span class="number">1601196084171</span>,</span><br><span class="line">                        <span class="string">&quot;time_in_millis&quot;</span>: <span class="number">0</span></span><br><span class="line">                    &#125;,</span><br><span class="line">                    <span class="string">&quot;shards&quot;</span>: &#123;</span><br><span class="line">                        <span class="string">&quot;0&quot;</span>: &#123;</span><br><span class="line">                            <span class="string">&quot;stage&quot;</span>: <span class="string">&quot;DONE&quot;</span>,</span><br><span class="line">                            <span class="string">&quot;stats&quot;</span>: &#123;</span><br><span class="line">                                <span class="string">&quot;incremental&quot;</span>: &#123;</span><br><span class="line">                                    <span class="string">&quot;file_count&quot;</span>: <span class="number">0</span>,</span><br><span class="line">                                    <span class="string">&quot;size_in_bytes&quot;</span>: <span class="number">0</span></span><br><span class="line">                                &#125;,</span><br><span class="line">                                <span class="string">&quot;total&quot;</span>: &#123;</span><br><span class="line">                                    <span class="string">&quot;file_count&quot;</span>: <span class="number">22</span>,</span><br><span class="line">                                    <span class="string">&quot;size_in_bytes&quot;</span>: <span class="number">26134</span></span><br><span class="line">                                &#125;,</span><br><span class="line">                                <span class="string">&quot;start_time_in_millis&quot;</span>: <span class="number">1601196084171</span>,</span><br><span class="line">                                <span class="string">&quot;time_in_millis&quot;</span>: <span class="number">0</span></span><br><span class="line">                            &#125;</span><br><span class="line">                        &#125;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;,</span><br><span class="line">                <span class="string">&quot;topic&quot;</span>: &#123;</span><br><span class="line">                    <span class="string">&quot;shards_stats&quot;</span>: &#123;</span><br><span class="line">                        <span class="string">&quot;initializing&quot;</span>: <span class="number">0</span>,</span><br><span class="line">                        <span class="string">&quot;started&quot;</span>: <span class="number">0</span>,</span><br><span class="line">                        <span class="string">&quot;finalizing&quot;</span>: <span class="number">0</span>,</span><br><span class="line">                        <span class="string">&quot;done&quot;</span>: <span class="number">3</span>,</span><br><span class="line">                        <span class="string">&quot;failed&quot;</span>: <span class="number">0</span>,</span><br><span class="line">                        <span class="string">&quot;total&quot;</span>: <span class="number">3</span></span><br><span class="line">                    &#125;,</span><br><span class="line">                    <span class="string">&quot;stats&quot;</span>: &#123;</span><br><span class="line">                        <span class="string">&quot;incremental&quot;</span>: &#123;</span><br><span class="line">                            <span class="string">&quot;file_count&quot;</span>: <span class="number">0</span>,</span><br><span class="line">                            <span class="string">&quot;size_in_bytes&quot;</span>: <span class="number">0</span></span><br><span class="line">                        &#125;,</span><br><span class="line">                        <span class="string">&quot;total&quot;</span>: &#123;</span><br><span class="line">                            <span class="string">&quot;file_count&quot;</span>: <span class="number">39</span>,</span><br><span class="line">                            <span class="string">&quot;size_in_bytes&quot;</span>: <span class="number">78942</span></span><br><span class="line">                        &#125;,</span><br><span class="line">                        <span class="string">&quot;start_time_in_millis&quot;</span>: <span class="number">1601196084246</span>,</span><br><span class="line">                        <span class="string">&quot;time_in_millis&quot;</span>: <span class="number">525</span></span><br><span class="line">                    &#125;,</span><br><span class="line">                    <span class="string">&quot;shards&quot;</span>: &#123;</span><br><span class="line">                        <span class="string">&quot;0&quot;</span>: &#123;</span><br><span class="line">                            <span class="string">&quot;stage&quot;</span>: <span class="string">&quot;DONE&quot;</span>,</span><br><span class="line">                            <span class="string">&quot;stats&quot;</span>: &#123;</span><br><span class="line">                                <span class="string">&quot;incremental&quot;</span>: &#123;</span><br><span class="line">                                    <span class="string">&quot;file_count&quot;</span>: <span class="number">0</span>,</span><br><span class="line">                                    <span class="string">&quot;size_in_bytes&quot;</span>: <span class="number">0</span></span><br><span class="line">                                &#125;,</span><br><span class="line">                                <span class="string">&quot;total&quot;</span>: &#123;</span><br><span class="line">                                    <span class="string">&quot;file_count&quot;</span>: <span class="number">16</span>,</span><br><span class="line">                                    <span class="string">&quot;size_in_bytes&quot;</span>: <span class="number">32821</span></span><br><span class="line">                                &#125;,</span><br><span class="line">                                <span class="string">&quot;start_time_in_millis&quot;</span>: <span class="number">1601196084771</span>,</span><br><span class="line">                                <span class="string">&quot;time_in_millis&quot;</span>: <span class="number">0</span></span><br><span class="line">                            &#125;</span><br><span class="line">                        &#125;,</span><br><span class="line">                        <span class="string">&quot;1&quot;</span>: &#123;</span><br><span class="line">                            <span class="string">&quot;stage&quot;</span>: <span class="string">&quot;DONE&quot;</span>,</span><br><span class="line">                            <span class="string">&quot;stats&quot;</span>: &#123;</span><br><span class="line">                                <span class="string">&quot;incremental&quot;</span>: &#123;</span><br><span class="line">                                    <span class="string">&quot;file_count&quot;</span>: <span class="number">0</span>,</span><br><span class="line">                                    <span class="string">&quot;size_in_bytes&quot;</span>: <span class="number">0</span></span><br><span class="line">                                &#125;,</span><br><span class="line">                                <span class="string">&quot;total&quot;</span>: &#123;</span><br><span class="line">                                    <span class="string">&quot;file_count&quot;</span>: <span class="number">4</span>,</span><br><span class="line">                                    <span class="string">&quot;size_in_bytes&quot;</span>: <span class="number">6728</span></span><br><span class="line">                                &#125;,</span><br><span class="line">                                <span class="string">&quot;start_time_in_millis&quot;</span>: <span class="number">1601196084571</span>,</span><br><span class="line">                                <span class="string">&quot;time_in_millis&quot;</span>: <span class="number">0</span></span><br><span class="line">                            &#125;</span><br><span class="line">                        &#125;,</span><br><span class="line">                        <span class="string">&quot;2&quot;</span>: &#123;</span><br><span class="line">                            <span class="string">&quot;stage&quot;</span>: <span class="string">&quot;DONE&quot;</span>,</span><br><span class="line">                            <span class="string">&quot;stats&quot;</span>: &#123;</span><br><span class="line">                                <span class="string">&quot;incremental&quot;</span>: &#123;</span><br><span class="line">                                    <span class="string">&quot;file_count&quot;</span>: <span class="number">0</span>,</span><br><span class="line">                                    <span class="string">&quot;size_in_bytes&quot;</span>: <span class="number">0</span></span><br><span class="line">                                &#125;,</span><br><span class="line">                                <span class="string">&quot;total&quot;</span>: &#123;</span><br><span class="line">                                    <span class="string">&quot;file_count&quot;</span>: <span class="number">19</span>,</span><br><span class="line">                                    <span class="string">&quot;size_in_bytes&quot;</span>: <span class="number">39393</span></span><br><span class="line">                                &#125;,</span><br><span class="line">                                <span class="string">&quot;start_time_in_millis&quot;</span>: <span class="number">1601196084246</span>,</span><br><span class="line">                                <span class="string">&quot;time_in_millis&quot;</span>: <span class="number">0</span></span><br><span class="line">                            &#125;</span><br><span class="line">                        &#125;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>分片的状态有</strong>：</p>
+<ul>
+<li><strong>INITIALIZING</strong><br>分片在检查集群状态看看自己是否可以被快照。这个一般是非常快的。</li>
+<li><strong>STARTED</strong><br>数据正在被传输到仓库。</li>
+<li><strong>FINALIZING</strong><br>数据传输完成；分片现在在发送快照元数据</li>
+<li><strong>DONE</strong><br>快照完成！</li>
+<li><strong>FAILED</strong><br>快照处理的时候碰到了错误，这个分片&#x2F;索引&#x2F;快照不可能完成了。检查你的日志获取更多信息。</li>
+</ul>
+<h4 id="4、获取所有快照信息"><a href="#4、获取所有快照信息" class="headerlink" title="4、获取所有快照信息"></a>4、获取所有快照信息</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">GET http://172.16.1.236:9201/_snapshot/my_backup/_all</span><br></pre></td></tr></table></figure>
+
+<h4 id="5、获取指定快照信息"><a href="#5、获取指定快照信息" class="headerlink" title="5、获取指定快照信息"></a>5、获取指定快照信息</h4><p>获取<code>snapshot_2</code> 快照信息</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">GET http://172.16.1.236:9201/_snapshot/my_backup/snapshot_2</span><br></pre></td></tr></table></figure>
+
+<h4 id="6、创建日期表达式的快照"><a href="#6、创建日期表达式的快照" class="headerlink" title="6、创建日期表达式的快照"></a>6、创建日期表达式的快照</h4><p>和之前文章<a target="_blank" rel="noopener" href="https://rstyro.gitee.io/blog/2020/09/27/Elasticsearch7%E4%B9%8BRollover%E4%BD%BF%E7%94%A8%E8%AF%A6%E8%A7%A3/">rollover创建日期索引</a>一样，也是需要用日期表达式而且也需要放在尖括号中且最终转为URI编码。</p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 创建格式为：snapshot-2020-09-28 转为表达式：&lt;snapshot-&#123;now/d&#125;&gt;   转为URI: %3Csnapshot-%7Bnow%2Fd%7D%3E</span></span><br><span class="line"><span class="comment"># 创建以当前日期保存所有索引的快照</span></span><br><span class="line"><span class="string">PUT</span> <span class="string">http://172.16.1.236:9201/_snapshot/my_backup/%3Csnapshot-%7Bnow%2Fd%7D%3E</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="7、获取通配符快照信息"><a href="#7、获取通配符快照信息" class="headerlink" title="7、获取通配符快照信息"></a>7、获取通配符快照信息</h4><p>获取模糊快照信息,多个用逗号隔开</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">GET http://172.16.1.236:9201/_snapshot/my_backup/snap*</span><br><span class="line"></span><br><span class="line">GET http://172.16.1.236:9201/_snapshot/my_backup/snap*,test*</span><br><span class="line"></span><br><span class="line">GET http://172.16.1.236:9201/_snapshot/my_backup/snapshot_2,snapshot_1</span><br></pre></td></tr></table></figure>
+
+
+<h3 id="四、snapshot-还原"><a href="#四、snapshot-还原" class="headerlink" title="四、snapshot 还原"></a>四、snapshot 还原</h3><p>一旦你备份过了数据，恢复它就简单了：只要在你希望恢复回集群的快照ID后面加上 <code>_restore</code> 即可：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">POST http://172.16.1.236:9201/_snapshot/my_backup/snapshot_1/_restore</span><br></pre></td></tr></table></figure>
+<p>如上，就会恢复快照中的所有索引与数据，如果集群中已有快照的索引那就会报索引已存在的错误。</p>
+<p><strong>如果你想在不替换现有数据的前提下，恢复老数据来验证内容，或者做其他处理。可以从快照里恢复单个索引并提供一个替换的名称：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">POST http://172.16.1.236:9201/_snapshot/my_backup/snapshot_1/_restore</span><br><span class="line">&#123;</span><br><span class="line">  &quot;indices&quot;: &quot;topic&quot;,</span><br><span class="line">  &quot;ignore_unavailable&quot;: true,</span><br><span class="line">  &quot;include_global_state&quot;: false,              </span><br><span class="line">  &quot;rename_pattern&quot;: &quot;topic&quot;,</span><br><span class="line">  &quot;rename_replacement&quot;: &quot;restored_topic&quot;,</span><br><span class="line">  &quot;include_aliases&quot;: false</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li><code>partial:false</code>可选，默认：false，如果快照包含一个或多个索引没有所有主碎片可用，则整个还原操作将失败。 如果为true，则允许恢复具有不可用碎片的索引的部分快照。将只恢复快照中成功包含的碎片。所有丢失的碎片将重新创建为空 。</li>
+<li><code>include_global_state:false</code> 将还原快照中的所有数据流和索引，但不还原群集状态 。</li>
+<li>如果<code>ignore_unavailable:false</code>时，当缺少topic索引时报错</li>
+<li><code>include_aliases</code> 是否需要别名，true恢复，false不恢复别名</li>
+<li>这个<code>rename_pattern</code> 与<code>rename_replacement</code> 支持正则表达式可以参考：<a target="_blank" rel="noopener" href="https://docs.oracle.com/javase/8/docs/api/java/util/regex/Matcher.html#appendReplacement-java.lang.StringBuffer-java.lang.String-">Matcher.appendReplacement</a>，也可以像上面直接写死。</li>
+</ul>
+<p><strong>使用正则表达式：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">POST http://172.16.1.236:9201/_snapshot/my_backup/snapshot_1/_restore</span><br><span class="line">&#123;</span><br><span class="line">  &quot;indices&quot;: &quot;test-01&quot;,</span><br><span class="line">  &quot;ignore_unavailable&quot;: true,</span><br><span class="line">  &quot;include_global_state&quot;: false,              </span><br><span class="line">  &quot;rename_pattern&quot;: &quot;test-0(.+)&quot;,</span><br><span class="line">  &quot;rename_replacement&quot;: &quot;restored_test_$1&quot;,</span><br><span class="line">  &quot;include_aliases&quot;: false</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>还原数据的时候，修改索引配置</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">POST http://172.16.1.236:9201/_snapshot/my_backup/snapshot_1/_restore</span><br><span class="line">&#123;</span><br><span class="line">  &quot;indices&quot;: &quot;index_1&quot;,</span><br><span class="line">  &quot;ignore_unavailable&quot;: true,</span><br><span class="line">  &quot;index_settings&quot;: &#123;</span><br><span class="line">    &quot;index.number_of_replicas&quot;: 0</span><br><span class="line">  &#125;,</span><br><span class="line">  &quot;ignore_index_settings&quot;: [</span><br><span class="line">    &quot;index.refresh_interval&quot;</span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>恢复数据时，把恢复索引的副本数改为0（不需要副本）。</p>
+<h3 id="五、其他"><a href="#五、其他" class="headerlink" title="五、其他"></a>五、其他</h3><p>快照的用法不只有这些，像配置插件使用这些因条件有限等使用到在补充</p>
+<h4 id="1、删除快照"><a href="#1、删除快照" class="headerlink" title="1、删除快照"></a>1、删除快照</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">DELETE http://172.16.1.236:9201/_snapshot/my_backup/snapshot_2</span><br></pre></td></tr></table></figure>
+
+<h4 id="2、删除多个"><a href="#2、删除多个" class="headerlink" title="2、删除多个"></a>2、删除多个</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">DELETE http://172.16.1.236:9201/_snapshot/my_backup/snapshot_2,snapshot_3,snapshot_4</span><br></pre></td></tr></table></figure>
+
+<h4 id="3、通配符删除"><a href="#3、通配符删除" class="headerlink" title="3、通配符删除"></a>3、通配符删除</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">DELETE http://172.16.1.236:9201/_snapshot/my_backup/snaps*</span><br></pre></td></tr></table></figure>
+
+<h4 id="4、过期快照清理"><a href="#4、过期快照清理" class="headerlink" title="4、过期快照清理"></a>4、过期快照清理</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">POST http://172.16.1.236:9201/_snapshot/my_backup/_cleanup</span><br></pre></td></tr></table></figure>
+
+
+<p>本文只是在同一个集群做快照保存与恢复，不同集群的快照恢复，有兴趣的同学可以看<a target="_blank" rel="noopener" href="https://www.elastic.co/guide/en/elasticsearch/reference/current/snapshots-register-repository.html#snapshots-repository-plugins">官方文档</a>和<a target="_blank" rel="noopener" href="https://www.elastic.co/guide/en/elasticsearch/plugins/7.9/repository.html">repository插件</a>。</p>
+<p><strong>参考文档：</strong></p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://www.elastic.co/guide/en/elasticsearch/reference/current/snapshot-restore.html">snapshot-restore</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>您的打赏，是我创作的动力！不给钱？那我只能靠想象力充饥了。</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/wechat_pay.jpg" alt="rstyro 微信支付">
+        <p>微信支付</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/alipay.jpg" alt="rstyro 支付宝">
+        <p>支付宝</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/blog/tags/ElasticSearch/" rel="tag"><i class="fa fa-tag"></i> ElasticSearch</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2020/09/27/Elasticsearch7%E4%B9%8BRollover%E4%BD%BF%E7%94%A8%E8%AF%A6%E8%A7%A3/" rel="prev" title="Elasticsearch7之Rollover使用详解">
+      <i class="fa fa-chevron-left"></i> Elasticsearch7之Rollover使用详解
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/blog/2020/10/12/Elasticsearch7%E4%B9%8Bnested%E4%B8%8Ejoin%E8%AF%A6%E8%A7%A3/" rel="next" title="Elasticsearch7之nested与join详解">
+      Elasticsearch7之nested与join详解 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%80%E3%80%81snapshot-%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">一、snapshot 简介</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E9%85%8D%E7%BD%AEsnapshot-repository"><span class="nav-number">2.</span> <span class="nav-text">二、配置snapshot repository</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1%E3%80%81%E5%88%9B%E5%BB%BA%E5%BF%AB%E7%85%A7%E4%BB%93%E5%BA%93"><span class="nav-number">2.1.</span> <span class="nav-text">1、创建快照仓库</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2%E3%80%81%E5%85%B6%E4%BB%96%E5%8F%82%E6%95%B0"><span class="nav-number">2.2.</span> <span class="nav-text">2、其他参数</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3%E3%80%81%E7%AC%AC%E4%B8%89%E6%96%B9%E6%8F%92%E4%BB%B6"><span class="nav-number">2.3.</span> <span class="nav-text">3、第三方插件</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%89%E3%80%81snapshot-%E5%A4%87%E4%BB%BD"><span class="nav-number">3.</span> <span class="nav-text">三、snapshot 备份</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1%E3%80%81%E4%BF%9D%E5%AD%98%E9%9B%86%E7%BE%A4%E4%B8%8B%E7%9A%84%E6%89%80%E6%9C%89%E7%B4%A2%E5%BC%95%E5%BF%AB%E7%85%A7"><span class="nav-number">3.1.</span> <span class="nav-text">1、保存集群下的所有索引快照</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2%E3%80%81%E4%BF%9D%E5%AD%98%E9%9B%86%E7%BE%A4%E4%B8%8B%E7%9A%84%E6%8C%87%E5%AE%9A%E7%B4%A2%E5%BC%95%E5%BF%AB%E7%85%A7"><span class="nav-number">3.2.</span> <span class="nav-text">2、保存集群下的指定索引快照</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3%E3%80%81%E8%8E%B7%E5%8F%96%E6%8C%87%E5%AE%9A%E5%BF%AB%E7%85%A7%E7%8A%B6%E6%80%81"><span class="nav-number">3.3.</span> <span class="nav-text">3、获取指定快照状态</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4%E3%80%81%E8%8E%B7%E5%8F%96%E6%89%80%E6%9C%89%E5%BF%AB%E7%85%A7%E4%BF%A1%E6%81%AF"><span class="nav-number">3.4.</span> <span class="nav-text">4、获取所有快照信息</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5%E3%80%81%E8%8E%B7%E5%8F%96%E6%8C%87%E5%AE%9A%E5%BF%AB%E7%85%A7%E4%BF%A1%E6%81%AF"><span class="nav-number">3.5.</span> <span class="nav-text">5、获取指定快照信息</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#6%E3%80%81%E5%88%9B%E5%BB%BA%E6%97%A5%E6%9C%9F%E8%A1%A8%E8%BE%BE%E5%BC%8F%E7%9A%84%E5%BF%AB%E7%85%A7"><span class="nav-number">3.6.</span> <span class="nav-text">6、创建日期表达式的快照</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#7%E3%80%81%E8%8E%B7%E5%8F%96%E9%80%9A%E9%85%8D%E7%AC%A6%E5%BF%AB%E7%85%A7%E4%BF%A1%E6%81%AF"><span class="nav-number">3.7.</span> <span class="nav-text">7、获取通配符快照信息</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9B%9B%E3%80%81snapshot-%E8%BF%98%E5%8E%9F"><span class="nav-number">4.</span> <span class="nav-text">四、snapshot 还原</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%94%E3%80%81%E5%85%B6%E4%BB%96"><span class="nav-number">5.</span> <span class="nav-text">五、其他</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1%E3%80%81%E5%88%A0%E9%99%A4%E5%BF%AB%E7%85%A7"><span class="nav-number">5.1.</span> <span class="nav-text">1、删除快照</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2%E3%80%81%E5%88%A0%E9%99%A4%E5%A4%9A%E4%B8%AA"><span class="nav-number">5.2.</span> <span class="nav-text">2、删除多个</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3%E3%80%81%E9%80%9A%E9%85%8D%E7%AC%A6%E5%88%A0%E9%99%A4"><span class="nav-number">5.3.</span> <span class="nav-text">3、通配符删除</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4%E3%80%81%E8%BF%87%E6%9C%9F%E5%BF%AB%E7%85%A7%E6%B8%85%E7%90%86"><span class="nav-number">5.4.</span> <span class="nav-text">4、过期快照清理</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="rstyro"
+      src="/blog/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">rstyro</p>
+  <div class="site-description" itemprop="description">人间的饭，吃一碗少一碗，身边的人，见一面少一面，脚下的路，走一天少一天，其实人生就是一个减法，来日并不方长！</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives/">
+        
+          <span class="site-state-item-count">216</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/blog/tags/">
+          
+        <span class="site-state-item-count">88</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/rstyro" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;rstyro" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/rstyro" title="Gitee → https:&#x2F;&#x2F;gitee.com&#x2F;rstyro" rel="noopener" target="_blank"><i class="fab fa-codiepie fa-fw"></i>Gitee</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.jianshu.com/u/651c15a1758a" title="简书 → https:&#x2F;&#x2F;www.jianshu.com&#x2F;u&#x2F;651c15a1758a" rel="noopener" target="_blank"><i class="fa fa-book fa-fw"></i>简书</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      友链
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://rstyro.github.io/blog/" title="https:&#x2F;&#x2F;rstyro.github.io&#x2F;blog&#x2F;">胖不了小陆</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; Mon Apr 10 2017 08:00:00 GMT+0800 (中国标准时间) – 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">以梦为马，诗酒趁年华</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/muse.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+  <script>
+    (function(){
+      var canonicalURL, curProtocol;
+      //Get the <link> tag
+      var x=document.getElementsByTagName("link");
+		//Find the last canonical URL
+		if(x.length > 0){
+			for (i=0;i<x.length;i++){
+				if(x[i].rel.toLowerCase() == 'canonical' && x[i].href){
+					canonicalURL=x[i].href;
+				}
+			}
+		}
+    //Get protocol
+	    if (!canonicalURL){
+	    	curProtocol = window.location.protocol.split(':')[0];
+	    }
+	    else{
+	    	curProtocol = canonicalURL.split(':')[0];
+	    }
+      //Get current URL if the canonical URL does not exist
+	    if (!canonicalURL) canonicalURL = window.location.href;
+	    //Assign script content. Replace current URL with the canonical URL
+      !function(){var e=/([http|https]:\/\/[a-zA-Z0-9\_\.]+\.baidu\.com)/gi,r=canonicalURL,t=document.referrer;if(!e.test(r)){var n=(String(curProtocol).toLowerCase() === 'https')?"https://sp0.baidu.com/9_Q4simg2RQJ8t7jm9iCKT-xh_/s.gif":"//api.share.baidu.com/s.gif";t?(n+="?r="+encodeURIComponent(document.referrer),r&&(n+="&l="+r)):r&&(n+="?l="+r);var i=new Image;i.src=n}}(window);})();
+  </script>
+
+
+
+
+  
+<script src="/blog/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+<script>
+if (document.querySelectorAll('pre.mermaid').length) {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mermaid@8/dist/mermaid.min.js', () => {
+    mermaid.initialize({
+      theme    : 'default',
+      logLevel : 3,
+      flowchart: { curve     : 'linear' },
+      gantt    : { axisFormat: '%m/%d/%Y' },
+      sequence : { actorMargin: 50 }
+    });
+  }, window.mermaid);
+}
+</script>
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : 'Ov23litYkWaOGM7kAKPD',
+      clientSecret: '43bd3cf99bfcb9d05d16627c97a9f7a0200df04a',
+      repo        : 'blog',
+      owner       : 'rstyro',
+      admin       : ['rstyro'],
+      id          : 'dc8f5e11f0eaaeda4a8539912e9d519d',
+        language: '',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>

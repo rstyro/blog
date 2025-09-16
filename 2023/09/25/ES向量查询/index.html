@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/favicon.jpg">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon.jpg">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon.jpg">
+  <link rel="mask-icon" href="/blog/images/favicon.jpg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="/blog/lib/pace/pace-theme-flash.min.css">
+  <script src="/blog/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"rstyro.github.io","root":"/blog/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":true},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.json"};
+  </script>
+
+  <meta name="description" content="一、向量检索1、向量的定义 计算机只认识数字，它只能通过数字来量化这个世界，用一组数字来表示一个事物，这样的一组数字就是一个向量（Vector） 如果一个向量由N个数字组成，它就是一个N维向量。拿目前广泛使用的人脸识别技术来说，计算机从照片或视频中提取出人脸的图像，然后将人脸图像转换为128维或者更高维度的向量。 首先我们了解下什么是向量，所谓向量就是由N个数字（二值向量由N个比特组成）组成的数组">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ES向量查询">
+<meta property="og:url" content="https://rstyro.github.io/blog/2023/09/25/ES%E5%90%91%E9%87%8F%E6%9F%A5%E8%AF%A2/index.html">
+<meta property="og:site_name" content="胖不了小陆">
+<meta property="og:description" content="一、向量检索1、向量的定义 计算机只认识数字，它只能通过数字来量化这个世界，用一组数字来表示一个事物，这样的一组数字就是一个向量（Vector） 如果一个向量由N个数字组成，它就是一个N维向量。拿目前广泛使用的人脸识别技术来说，计算机从照片或视频中提取出人脸的图像，然后将人脸图像转换为128维或者更高维度的向量。 首先我们了解下什么是向量，所谓向量就是由N个数字（二值向量由N个比特组成）组成的数组">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://rstyro.github.io/blog/2023/09/25/ES%E5%90%91%E9%87%8F%E6%9F%A5%E8%AF%A2/os.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2023/09/25/ES%E5%90%91%E9%87%8F%E6%9F%A5%E8%AF%A2/cos.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2023/09/25/ES%E5%90%91%E9%87%8F%E6%9F%A5%E8%AF%A2/mhd.jpg">
+<meta property="article:published_time" content="2023-09-25T08:56:23.000Z">
+<meta property="article:modified_time" content="2023-09-25T08:56:23.000Z">
+<meta property="article:author" content="rstyro">
+<meta property="article:tag" content="ElasticSearch">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://rstyro.github.io/blog/2023/09/25/ES%E5%90%91%E9%87%8F%E6%9F%A5%E8%AF%A2/os.png">
+
+<link rel="canonical" href="https://rstyro.github.io/blog/2023/09/25/ES%E5%90%91%E9%87%8F%E6%9F%A5%E8%AF%A2/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>ES向量查询 | 胖不了小陆</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">胖不了小陆</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">信你所信，为你所见</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/blog/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/blog/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/blog/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/rstyro" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://rstyro.github.io/blog/2023/09/25/ES%E5%90%91%E9%87%8F%E6%9F%A5%E8%AF%A2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/avatar.jpg">
+      <meta itemprop="name" content="rstyro">
+      <meta itemprop="description" content="人间的饭，吃一碗少一碗，身边的人，见一面少一面，脚下的路，走一天少一天，其实人生就是一个减法，来日并不方长！">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="胖不了小陆">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          ES向量查询
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2023-09-25 16:56:23" itemprop="dateCreated datePublished" datetime="2023-09-25T16:56:23+08:00">2023-09-25</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E/" itemprop="url" rel="index"><span itemprop="name">搜索引擎</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h3 id="一、向量检索"><a href="#一、向量检索" class="headerlink" title="一、向量检索"></a>一、向量检索</h3><h4 id="1、向量的定义"><a href="#1、向量的定义" class="headerlink" title="1、向量的定义"></a>1、向量的定义</h4><ul>
+<li>计算机只认识数字，它只能通过数字来量化这个世界，用一组数字来表示一个事物，这样的一组数字就是一个向量（Vector）</li>
+<li>如果一个向量由N个数字组成，它就是一个N维向量。拿目前广泛使用的人脸识别技术来说，计算机从照片或视频中提取出人脸的图像，然后将人脸图像转换为128维或者更高维度的向量。</li>
+<li>首先我们了解下什么是向量，所谓向量就是由N个数字（二值向量由N个比特组成）组成的数组，我们称之为N维向量。</li>
+<li>而向量检索就是在一个给定向量数据集中，按照某种度量方式，检索出与查询向量相近的K个向量（K-Nearest Neighbor，KNN），但由于KNN计算量过大，我们通常只关注近似近邻（Approximate Nearest Neighbor，ANN）问题。</li>
+</ul>
+<span id="more"></span>
+
+
+<h4 id="2、常见的向量度量"><a href="#2、常见的向量度量" class="headerlink" title="2、常见的向量度量"></a>2、常见的向量度量</h4><ul>
+<li>欧氏距离、余弦、曼哈顿距离、点积</li>
+<li><strong>欧几里得度量（euclidean metric）（也称欧氏距离）</strong> 是一个通常采用的距离定义，指在m维空间中两个点之间的真实距离，或者向量的自然长度（即该点到原点的距离）。在二维和三维空间中的欧氏距离就是两点之间的实际距离。</li>
+</ul>
+<p><img src="/blog/2023/09/25/ES%E5%90%91%E9%87%8F%E6%9F%A5%E8%AF%A2/os.png"></p>
+<ul>
+<li><strong>余弦距离</strong>：也称为余弦相似度。一个向量空间中两个向量夹角间的余弦值作为衡量两个个体之间差异的大小，余弦值接近1，夹角趋于0，表明两个向量越相似，余弦值接近于0，夹角趋于90度，表明两个向量越不相似。</li>
+</ul>
+<p><img src="/blog/2023/09/25/ES%E5%90%91%E9%87%8F%E6%9F%A5%E8%AF%A2/cos.png"></p>
+<ul>
+<li><strong>曼哈顿距离</strong>也称出租车几何，是由十九世纪的赫尔曼·闵可夫斯基所创词汇，是种使用在几何度量空间的几何学用语，用以标明两个点在标准坐标系上的绝对轴距总和。</li>
+</ul>
+<p><img src="/blog/2023/09/25/ES%E5%90%91%E9%87%8F%E6%9F%A5%E8%AF%A2/mhd.jpg"></p>
+<blockquote>
+<p>图中红线代表曼哈顿距离，绿色代表欧氏距离，也就是直线距离，而蓝色和黄色代表等价的曼哈顿距离。</p>
+<p>曼哈顿距离——两点在南北方向上的距离加上在东西方向上的距离</p>
+</blockquote>
+<ul>
+<li><strong>点积</strong> 在数学中，又称数量积（dot product; scalar product），是指接受在实数R上的两个向量并返回一个实数值标量的二元运算。它是欧几里得空间的标准内积。</li>
+</ul>
+<blockquote>
+<p>两个向量a &#x3D; [a1, a2,…, an]和b &#x3D; [b1, b2,…, bn]的点积 定义为：a·b&#x3D;a1b1+a2b2+……+anbn。</p>
+</blockquote>
+<h4 id="3、向量检索的方法"><a href="#3、向量检索的方法" class="headerlink" title="3、向量检索的方法"></a>3、向量检索的方法</h4><ul>
+<li>向量检索有两类方法 ：<ul>
+<li>存在最近邻检索（Nearest Neighbor Search，NN）</li>
+<li>近似最近邻检索（Approximate Nearest Neighbor Search， ANN）</li>
+</ul>
+</li>
+<li>NN 主要是说对结果进行穷举 ，计算结果也是最为精确。</li>
+<li>ANN 主要是对结果的一个近似值估计，ANN则是在可接受的精度条件下通过把向量分簇建立索引，大幅提高搜索效率，这也大规模向量检索场景下所使用的主要方法。</li>
+<li>为什么是近似，而不是我们想要的精确？这就是精度与时间、算力资源的折中，采用了牺牲精度换取时间和空间的方式，从海量的样本中实时获取跟查询最相似的样本。</li>
+</ul>
+<h3 id="二、向量的生成"><a href="#二、向量的生成" class="headerlink" title="二、向量的生成"></a>二、向量的生成</h3><ul>
+<li><p>向量可以表示一个事物，一段文字，一张图片，那向量怎么生成呢?</p>
+</li>
+<li><p>可以使用在HuggingFace中的sentence-transformers的预训练模型来生成我们的向量</p>
+<blockquote>
+<p>查看地址模型介绍：<a target="_blank" rel="noopener" href="https://www.sbert.net/docs/pretrained_models.html">https://www.sbert.net/docs/pretrained_models.html</a><br>或者访问<a target="_blank" rel="noopener" href="https://huggingface.co/sentence-transformers">HuggingFace模型中心</a></p>
+</blockquote>
+</li>
+<li><p>大部分深度学习框架都是PyTorch和TensorFlow，使用的基本都是python</p>
+</li>
+<li><p>如何通过使用Java调用这些模型呢？可以使用DJL</p>
+</li>
+<li><p>Deep Java Library （DJL） 是一个用于深度学习的开源、高级、与引擎无关的 Java 框架。</p>
+</li>
+</ul>
+<h4 id="1、转换并导出模型"><a href="#1、转换并导出模型" class="headerlink" title="1、转换并导出模型"></a>1、转换并导出模型</h4><ul>
+<li>将模型转换为 TorchScript</li>
+</ul>
+<p><strong>①、首先安装:sentence-transformers</strong></p>
+<ul>
+<li>需要安装python环境<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install -U sentence-transformers</span><br></pre></td></tr></table></figure></li>
+</ul>
+<p><strong>②、使用模型的python代码例子</strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> sentence_transformers <span class="keyword">import</span> SentenceTransformer</span><br><span class="line">sentences = [<span class="string">&quot;This is an example sentence&quot;</span>, <span class="string">&quot;Each sentence is converted&quot;</span>]</span><br><span class="line"></span><br><span class="line">model = SentenceTransformer(<span class="string">&#x27;sentence-transformers/all-mpnet-base-v2&#x27;</span>)</span><br><span class="line">embeddings = model.encode(sentences)</span><br><span class="line"><span class="built_in">print</span>(embeddings)</span><br></pre></td></tr></table></figure>
+
+<p><strong>③、导出为TorchScript模型</strong></p>
+<ul>
+<li>为什么要使用TorchScript对模型进行转换？</li>
+<li>TorchScript代码可以在它自己的解释器中调用，它本质上是一个受限的Python解释器。这个解释器不获取全局解释器锁，因此可以在同一个实例上同时处理多个请求。</li>
+<li>这种格式允许我们将整个模型保存到磁盘上，并将其加载到另一个环境中，比如用Python以外的语言编写的服务器中</li>
+<li>TorchScript提供了一种表示方式，我们可以在其中对代码进行编译器优化，以提供更有效的执行</li>
+<li>TorchScript允许我们与许多后端&#x2F;设备运行时进行交互</li>
+<li>trace方法首先使用输入数据执行一遍模型，并记录下模型执行过程中的参数，并创建一个torch.jit.ScriptModule实例</li>
+<li>指定导出设备为CPU执行、批次1、最大分段长度128</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> sentence_transformers <span class="keyword">import</span> SentenceTransformer</span><br><span class="line"><span class="keyword">import</span> torch</span><br><span class="line"></span><br><span class="line"><span class="comment"># model = SentenceTransformer(&#x27;stsb-distilbert-base&#x27;, device=&#x27;cpu&#x27;)</span></span><br><span class="line">model = SentenceTransformer(<span class="string">&#x27;sentence-transformers/all-mpnet-base-v2&#x27;</span>, device=<span class="string">&#x27;cpu&#x27;</span>)</span><br><span class="line">model.<span class="built_in">eval</span>()</span><br><span class="line">batch_size=<span class="number">1</span></span><br><span class="line">max_seq_length=<span class="number">128</span></span><br><span class="line">device = torch.device(<span class="string">&quot;cpu&quot;</span>)</span><br><span class="line">model.to(device)</span><br><span class="line">input_ids = torch.zeros(batch_size, max_seq_length, dtype=torch.long).to(device)</span><br><span class="line">input_type_ids = torch.zeros(batch_size, max_seq_length, dtype=torch.long).to(device)</span><br><span class="line">input_mask = torch.zeros(batch_size, max_seq_length, dtype=torch.long).to(device)</span><br><span class="line"><span class="comment"># input_features = (input_ids, input_type_ids, input_mask)</span></span><br><span class="line">input_features = &#123;<span class="string">&#x27;input_ids&#x27;</span>: input_ids, <span class="string">&#x27;attention_mask&#x27;</span>: input_mask&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># traced_model = torch.jit.trace(model, example_inputs=input_features)</span></span><br><span class="line">traced_model = torch.jit.trace(model,example_inputs=input_features,strict=<span class="literal">False</span>)</span><br><span class="line"><span class="comment"># 保存位置,还需要找到模型文件下的 vocab.txt</span></span><br><span class="line">traced_model.save(<span class="string">&quot;D:/models/all-mpnet-base-v2.pt&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<h4 id="2、代码调用"><a href="#2、代码调用" class="headerlink" title="2、代码调用"></a>2、代码调用</h4><ul>
+<li>直接使用别人写好的SDK,</li>
+<li>链接：<a target="_blank" rel="noopener" href="https://gitee.com/mymagicpower/AIAS/tree/main/2_nlp_sdks/embedding/sentence_encoder_15_sdk">https://gitee.com/mymagicpower/AIAS/tree/main/2_nlp_sdks&#x2F;embedding&#x2F;sentence_encoder_15_sdk</a></li>
+<li>我们只需更换预训练模型即可</li>
+</ul>
+<h3 id="三、Elasticsearch向量检索"><a href="#三、Elasticsearch向量检索" class="headerlink" title="三、Elasticsearch向量检索"></a>三、Elasticsearch向量检索</h3><ul>
+<li>ES是有向量检索的功能的。</li>
+<li>ES存储向量的类型为：<code>dense_vector</code><blockquote>
+<p>可参考官方文档的解释：<a target="_blank" rel="noopener" href="https://www.elastic.co/guide/en/elasticsearch/reference/8.8/dense-vector.html">https://www.elastic.co/guide/en/elasticsearch/reference/8.8/dense-vector.html</a></p>
+</blockquote>
+</li>
+</ul>
+<h4 id="1、创建索引"><a href="#1、创建索引" class="headerlink" title="1、创建索引"></a>1、创建索引</h4><ul>
+<li>使用dense_vector类型</li>
+</ul>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable constant_">PUT</span> vector_test</span><br><span class="line">&#123;</span><br><span class="line">    <span class="string">&quot;settings&quot;</span>: &#123;</span><br><span class="line">        <span class="string">&quot;index&quot;</span>: &#123;</span><br><span class="line">            <span class="string">&quot;number_of_shards&quot;</span>: <span class="number">3</span>,</span><br><span class="line">            <span class="string">&quot;number_of_replicas&quot;</span>: <span class="number">0</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="string">&quot;mappings&quot;</span>: &#123;</span><br><span class="line">        <span class="string">&quot;properties&quot;</span>: &#123;       </span><br><span class="line">            <span class="string">&quot;text&quot;</span>: &#123;</span><br><span class="line">                <span class="string">&quot;type&quot;</span>: <span class="string">&quot;text&quot;</span>,</span><br><span class="line">                <span class="string">&quot;analyzer&quot;</span>: <span class="string">&quot;ik_max_word&quot;</span>,</span><br><span class="line">                <span class="string">&quot;search_analyzer&quot;</span>: <span class="string">&quot;ik_smart&quot;</span>,</span><br><span class="line">                <span class="string">&quot;fields&quot;</span>: &#123;</span><br><span class="line">                    <span class="string">&quot;keyword&quot;</span>: &#123;</span><br><span class="line">                        <span class="string">&quot;type&quot;</span>: <span class="string">&quot;keyword&quot;</span></span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;,</span><br><span class="line">            <span class="string">&quot;text_vector&quot;</span>: &#123;</span><br><span class="line">                <span class="string">&quot;type&quot;</span>: <span class="string">&quot;dense_vector&quot;</span>,</span><br><span class="line">                <span class="string">&quot;dims&quot;</span>: <span class="number">768</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="2、添加测试数据"><a href="#2、添加测试数据" class="headerlink" title="2、添加测试数据"></a>2、添加测试数据</h4><ul>
+<li>添加数据</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">PUT vector_test/_doc/1</span><br><span class="line">&#123;</span><br><span class="line">  &quot;text&quot; : &quot;你是一个好人&quot;,</span><br><span class="line">  &quot;text_vector&quot; : [-0.012505854, 0.06147224, -0.0067574065, 0.025252825, 0.014709864, 0.033223037, -0.017184058, -0.0051696957, -0.035197385, 0.026809592, 0.027802333, 0.0017389302, -0.035867143, 0.08371559, 0.001929885, -0.00361458, -0.00790528, 0.007553991, -0.04324307, -0.02613851, -0.021153033, 0.01321285, -0.0055257166, -0.031233996, 0.0057854257, -0.05406903, 0.04010051, -0.007975791, 0.017508717, -0.041565668, 0.017980184, -1.2280754E-4, -0.0013545807, -0.03489499, 3.9524753E-6, -0.0013673576, 0.0066923774, 0.03573856, -0.04826888, 0.04836444, 0.007832441, 0.03425717, -0.017280841, -0.03295188, 0.023084749, 0.01604493, 0.011758922, -0.026320491, -0.04445929, 0.028686358, 0.00845232, -0.0430134, -0.12548839, -0.05049735, 0.05833067, 0.0288667, -0.0032852066, -0.009654961, 0.016982516, -0.0030822305, -0.0073693004, -0.030570433, -0.01663565, 0.049951658, 9.3295967E-4, 0.032069236, 0.033799138, -0.035447292, 0.022693088, -0.013528679, -0.013003488, -0.022620179, -0.027964601, 0.12342365, -0.031526618, -0.015668027, -0.03361883, 0.03753069, 0.029121695, -0.0074943276, -0.02216617, -0.010202485, 0.03770157, 0.017450918, -0.070545085, 0.041509267, -0.03993419, -5.662474E-5, -0.018616673, 0.0037204954, 0.0042463783, -0.06394287, -0.020681422, -0.009565846, 0.03294697, 0.0017930836, -0.02396136, -0.029505575, 0.019975543, -0.006016828, -0.05468337, 0.02398109, -0.006946013, 0.0069326125, -0.050539847, 0.0061268453, 0.020605352, -0.023599977, 0.027339987, 0.07509858, -0.042036332, 0.03168564, 0.023419036, 0.021137541, -0.0035736216, -0.015688013, -0.017046712, 0.043178722, 0.022865435, 0.0080238525, 0.092107825, 0.05981639, -0.006804504, -0.03161816, 0.0270866, 0.006111659, 0.010318148, -0.03923, -0.055287804, 0.0036645613, -0.022025242, 0.02340399, 0.0033243995, -0.0053636613, 0.030040259, -0.011936752, 0.010141162, -0.022458613, 0.03983138, -0.0014371767, -0.020213308, 0.027583351, 0.0027297717, -0.005357834, -0.02409058, 0.010241934, 0.090006314, -0.035087414, 0.00653623, 0.0039346516, 0.010250705, 0.050382856, -0.017161509, 0.0510087, 0.042621862, 0.03852051, -0.067141876, -0.019240148, 0.0026372338, 0.028185826, 0.05324459, 0.0022941523, -0.035028506, -0.015599167, -0.028435806, -0.0377882, 0.03562174, 0.0018862897, -0.0039061485, -0.06412545, 0.0010350816, -0.0087632425, 0.008577654, 0.012741296, 0.023999304, 0.025778512, -0.10294877, -0.027144121, -0.0058766077, -0.06442985, -0.032297857, -0.06633747, -0.0086341705, -0.0066604386, 0.048547257, 0.017669922, 0.0095065, 0.015545884, 0.0013499043, 0.05949494, 0.055600356, -0.042850595, 0.030414412, 0.035267334, -0.019230738, -0.06648767, 0.005003243, -0.03441964, -0.019969247, -0.019210108, 0.03602104, -0.06424204, -0.026293077, -0.04298499, -0.012769627, 0.0018947484, 0.021175286, -0.052582107, -0.023451183, -0.015615097, -0.064428896, 0.02585893, 0.022697253, 0.017226717, -0.030952323, -0.039098963, 0.04379272, -0.013877491, -0.049149875, 0.0774724, 0.026301159, 0.050520763, 0.011468258, 0.02022638, 0.06777097, 0.029125728, -0.0023182877, 0.011963849, 0.042853955, -0.030143002, -0.028947085, 0.053452827, 0.058101688, -0.04697138, -0.050331306, 0.03690062, 0.062990144, -0.010179526, 0.043333348, -0.100340046, -0.040861085, 0.059042346, 0.015464096, 0.018711371, 0.111341216, -8.3441264E-4, -0.004530031, 0.006856246, -0.015820755, 0.009357037, -0.027195353, 0.01678015, -0.022458278, 0.02926691, 0.036279358, 0.07195243, -0.012337138, -0.009632895, -0.019338757, -1.09720595E-5, 0.012300873, 0.04435552, -0.023237402, -0.05616277, 0.0240922, 0.036906064, -0.017152641, -0.026374659, -0.040514916, -0.0056392485, 0.05129517, 0.028157331, 0.034693655, -0.010055021, 0.037343204, -0.015862973, -0.023454988, -0.004275543, -0.048241034, -0.020899124, -0.027822293, 0.089256965, 0.010648741, -0.004147703, 0.027146544, -0.0053803716, -0.019663313, -0.028382884, -0.055638853, -0.025330327, -0.028426137, -0.026666772, 0.071450576, -0.051179703, 0.05322181, 0.003881786, -0.035428137, 0.006871749, 0.022797529, -0.009136533, -0.051556863, 0.06774118, -0.008329566, -0.026973749, -0.016143592, -0.029515121, -0.019877851, 0.008610793, 0.06042954, -0.023035929, 0.004455642, 0.0255108, 0.008197381, 0.03397594, -0.06143347, -0.046329204, -0.03193, -0.06772362, 0.008335626, -0.0062010437, 0.052905224, -0.036074646, -0.014172472, 0.009480537, 0.010074608, 0.08615532, -0.057823773, -0.02569674, 0.0011091571, -0.014469492, 0.003692755, -0.00180485, -0.020816932, -0.029465076, 0.019561762, -0.035990085, 0.010145427, 0.0075150393, 0.036904298, 0.016324293, 0.030511009, -0.04671149, -0.02251021, -0.103131235, -0.031056376, -0.0151869245, -0.020397903, 0.0013616608, -0.06311841, 0.011365675, -0.03667886, -0.030479968, 0.026767144, 0.008654333, 0.034051906, 0.0055492814, -0.033325706, -0.010394677, -0.04182928, -0.040240984, -0.054245364, 0.012879458, 0.06612671, 0.059664443, -0.025509264, 5.9313833E-4, 0.029463183, 0.005490717, -0.009813763, -0.06596544, -0.027723474, 0.020579752, 0.033905815, 0.07558331, 0.013703343, 0.011566349, 0.077872336, 0.011674445, 0.066398405, -0.024423152, -0.01660125, -0.06957541, -0.088175565, -0.013689627, 0.011793456, 0.036941543, 0.015599193, 0.02968292, -0.04144736, 0.022022178, 0.063752055, 0.016542379, -0.016617775, 0.045222204, 0.016872643, -0.05769019, -0.010147114, 0.03114703, 0.0051837205, 0.055146314, 0.02853815, 0.036281273, -0.016086787, 0.012725542, -0.014290429, -0.037641004, 0.044304557, 3.62814E-4, 0.029461324, -0.06055084, -0.05310168, -0.020571979, 0.029543608, 0.015433996, 0.0033671295, -0.018463276, -0.05632213, 0.041322347, 0.03857234, -0.044536218, 0.017263962, -0.01552795, 0.09605645, 0.008688397, -0.041638713, -7.460972E-5, 0.01599738, 0.05843698, 0.0508531, -0.044521865, -0.040530432, 0.039355725, -0.031610724, 0.009913072, -0.030967807, -0.09124379, 0.032799624, 0.05857894, -0.011123611, -0.03524198, -0.02404115, -0.03185005, 0.032866925, -0.034415253, -0.028242845, -0.007635998, -0.018282294, 0.023517247, 0.025484852, -0.051364344, -0.0017907086, -0.041250806, 0.016433058, -0.07226839, 0.034877867, -0.027846958, 0.04421044, -0.029414197, -0.005111358, -0.042056244, 0.047466226, -0.01782071, 0.049537525, 0.056073792, 0.018851044, 0.045955822, 0.04292147, -0.05415365, 0.01144231, -0.054429833, -0.03272419, -0.015372414, -0.02621323, 0.0214265, 0.04106312, -9.740529E-4, -0.05273616, -0.044687234, -0.061119366, 0.020349767, 0.03428493, -0.016279843, -0.016226638, -0.034148663, 0.015322524, 0.027373414, 0.024346756, -0.0031301596, -0.004702841, 0.014334275, -0.010540824, -0.0013895943, 0.0032654635, -0.026203556, 2.5946766E-4, 0.046088476, -0.02253931, -0.049956378, 0.0016936477, -0.016688636, 0.01257619, 0.014531191, 0.07264041, -0.0016916422, 0.011830216, -0.05760921, -0.027429108, 0.010079213, -0.037514653, 0.0148782395, 0.016009051, -0.011714079, 0.023386784, -0.08414525, 0.010772063, 0.054867916, 0.03390206, -0.067308456, 0.024955824, -0.0065232567, 0.059096325, 3.8397656E-4, 0.0017244497, 0.05745784, 0.019498682, 0.06431358, 0.008503143, -0.029383926, -0.05435278, 0.0029664906, -0.012685078, -0.0055286386, 0.08989173, -0.0054096836, -0.05002699, 0.10742954, -0.015800381, -0.016217759, -0.0070680636, 0.018921603, -0.06770832, -0.01903497, 0.007963758, -0.009616666, 0.04473252, -0.011077201, -0.0020928096, -0.051992845, -0.026985755, -0.04610937, 0.039185517, 0.05945134, -0.027102053, 0.0061615603, -0.0768129, -1.7295704E-32, 0.035317, 0.0219929, -0.01790403, -0.027079498, -0.026575312, -0.055016436, 0.04162931, -0.027480282, 0.04364564, -2.0629673E-4, -0.034147326, -0.061749768, 0.0886111, 0.030985324, -0.003071205, -0.06550483, 0.03790275, -0.0056091533, 0.03268208, -0.0052961344, -0.050385714, -0.02493322, -0.012485181, -0.010890675, -0.0193166, 0.016982986, -0.050390452, -0.058259174, 0.039912853, -0.0048905304, -0.03959887, 0.032292433, 0.0086986935, 0.041798912, 0.02420321, 0.0017432563, 0.043273624, -0.011582973, 0.0026177447, -0.028080417, -0.08539406, 0.022111084, 0.015072255, -0.09684252, -0.005454781, 0.01978267, 0.023920622, 0.0058161933, 0.03470632, -0.004187661, -0.028828895, 0.015490826, -0.017417595, 0.040624265, -0.002125864, 0.018177766, 0.004613023, 0.023367357, 0.0361941, 0.0080737, 0.017960636, 0.013591572, 0.059291393, 0.06145877, -0.0019097899, 0.036604486, -0.016236227, 0.055379704, 0.025022436, -0.013153723, -0.031179832, 0.04997251, -0.0028860106, -0.024477055, -0.01700109, -0.05874153, -0.024895621, 0.026405387, 0.068785004, -0.01788662, -0.03627912, 0.045744203, 0.042671025, 0.0018450335, 0.001834208, -0.06310543, 0.001979173, -0.023845715, -0.0018861454, 0.04186343, -0.05269792, 0.045228235, -0.060798503, -0.028638572, -0.0228071, -0.070954636, 0.0078078024, -0.041703627, 0.0025806723, -0.014570363, -0.0039354116, -0.034452397, 0.002529964, 0.043591492, -0.014511649, 0.013183844, 0.011353356, 9.751483E-4, -0.015498388, -0.0030334396, -0.022776796, 0.00446422, 0.03147401, -0.023508854, 0.028402278, 0.012927605, 0.030423557, -0.06872545, 9.792577E-4, 0.0056752623, 0.0958454, -0.0020520398, 0.0075088274, 0.039462253, -0.037520554, 0.017715598, 0.0028989988, -0.026699575, 0.011080348, -0.07706165, 0.022399683, -0.032965884, 4.5342185E-7, -0.044260148, -0.04811291, 0.018212777, -0.0038508293, 0.028676698, 0.01431396, -0.005058972, 0.03720743, -0.0015348713, -0.039004844, 0.02639723, -0.063463606, 0.024510205, -0.0070474367, -0.013666664, 0.031803716, -0.024600165, -0.032639313, -7.961371E-4, -0.03440909, 0.09303336, 0.022659928, 0.032243475, 0.044743482, -0.0074496665, -0.05655795, 0.014978297, -0.03521938, -0.023144424, -0.010839281, -0.076098755, 0.028191978, -0.045076158, -0.033995856, -0.014625676, 0.02008576, 0.03164706, 1.3723833E-4, 0.016604789, -0.020803023, -0.0733839, -0.06853161, -0.024279924, -0.018286688, 0.024374323, -0.029345883, 0.0034723277, 0.0040782033, -0.02832936, 0.013157311, -0.021874687, 0.0053453976, -0.005933344, 0.024842756, -0.016247336, -0.046917956, 0.009863487, -0.004510552, -0.019274969, -0.016453179, -0.02380178, 0.029494025, -0.031934112, 0.020972388, -0.0029798383, -0.045054633, -0.017571395, -1.2807555E-34, 0.056822862, 0.018111244, -0.019010654, 0.004600001, -0.036646195, -0.02234512, 0.017520165, -0.009043565, -0.0019575048, -0.050363533, -0.019037234]</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="3、-脚本分数查询"><a href="#3、-脚本分数查询" class="headerlink" title="3、 脚本分数查询"></a>3、 脚本分数查询</h4><ul>
+<li>相似度查询</li>
+</ul>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 向量使用的是：今天天气不错</span></span><br><span class="line"><span class="comment">//公式1： 1 / (1 + l2norm(params.queryVector, &#x27;text_vector&#x27;))</span></span><br><span class="line"><span class="comment">//公式2： 1 / (1 + l1norm(params.queryVector, &#x27;text_vector&#x27;)) </span></span><br><span class="line"><span class="comment">//公式3： double value = dotProduct(params.queryVector,&#x27;text_vector&#x27;);return sigmoid(1, Math.E, -value);</span></span><br><span class="line"><span class="comment">//公式4： cosineSimilarity(params.queryVector, &#x27;text_vector&#x27;) + 1.0</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="variable constant_">POST</span> vector_test/_search</span><br><span class="line">&#123;</span><br><span class="line">    <span class="string">&quot;_source&quot;</span>:&#123;</span><br><span class="line">        <span class="string">&quot;includes&quot;</span>:[<span class="string">&quot;text&quot;</span>]</span><br><span class="line">    &#125;,</span><br><span class="line">     <span class="string">&quot;min_score&quot;</span>:<span class="string">&quot;1.45&quot;</span>,</span><br><span class="line">  <span class="string">&quot;query&quot;</span>: &#123;</span><br><span class="line">    <span class="string">&quot;script_score&quot;</span>: &#123;</span><br><span class="line">      <span class="string">&quot;query&quot;</span> : &#123;</span><br><span class="line">        <span class="string">&quot;match_all&quot;</span>: &#123;&#125;</span><br><span class="line">      &#125;,</span><br><span class="line">      <span class="string">&quot;script&quot;</span>: &#123;</span><br><span class="line">        <span class="string">&quot;source&quot;</span>: <span class="string">&quot;double value = dotProduct(params.queryVector, &#x27;text_vector&#x27;);return sigmoid(1, Math.E, -value);&quot;</span>,</span><br><span class="line">        <span class="string">&quot;params&quot;</span>: &#123;</span><br><span class="line">          <span class="string">&quot;queryVector&quot;</span>: [<span class="number">0.012180052</span>, -<span class="number">0.035749264</span>, <span class="number">0.028726313</span>, <span class="number">0.07741992</span>, <span class="number">0.07618319</span>, <span class="number">0.03632554</span>, -<span class="number">0.032679413</span>, <span class="number">0.008679836</span>, <span class="number">0.010796744</span>, -<span class="number">0.0019097894</span>, -<span class="number">0.038197577</span>, <span class="number">0.08862243</span>, <span class="number">0.00534406</span>, <span class="number">0.018697966</span>, -<span class="number">0.062172916</span>, -<span class="number">0.020433698</span>, -<span class="number">0.020399865</span>, <span class="number">0.07238936</span>, -<span class="number">0.007107044</span>, -<span class="number">0.01198608</span>, -<span class="number">0.010562083</span>, -<span class="number">0.02283883</span>, -<span class="number">0.019021884</span>, <span class="number">0.06342994</span>, <span class="number">0.026685713</span>, -<span class="number">0.025934406</span>, -<span class="number">0.039257795</span>, <span class="number">0.012371695</span>, -<span class="number">0.011688991</span>, -<span class="number">0.026081014</span>, -<span class="number">0.065597735</span>, <span class="number">0.053438343</span>, -<span class="number">0.028596632</span>, -<span class="number">0.15381034</span>, -<span class="number">0.02709136</span>, -<span class="number">0.083783306</span>, -<span class="number">0.021032596</span>, <span class="number">0.014292716</span>, -<span class="number">0.022718986</span>, <span class="number">0.07942374</span>, -<span class="number">0.048416447</span>, <span class="number">0.033912044</span>, <span class="number">0.010580469</span>, -<span class="number">0.004320236</span>, -<span class="number">0.014759818</span>, <span class="number">0.0125834765</span>, <span class="number">0.037446205</span>, <span class="number">0.015093978</span>, <span class="number">0.009011443</span>, <span class="number">0.012786734</span>, -<span class="number">0.03191145</span>, -<span class="number">0.0041232645</span>, -<span class="number">0.022926472</span>, -<span class="number">0.044445902</span>, <span class="number">0.010174482</span>, -<span class="number">0.022331368</span>, -<span class="number">0.013825135</span>, -<span class="number">0.04677142</span>, -<span class="number">0.007983386</span>, -<span class="number">1.1289655E-4</span>, <span class="number">6.232522E-4</span>, -<span class="number">0.0073136776</span>, -<span class="number">0.047892943</span>, -<span class="number">0.016695375</span>, <span class="number">0.004697273</span>, <span class="number">0.02884165</span>, -<span class="number">0.010049979</span>, -<span class="number">0.021391468</span>, -<span class="number">0.015952744</span>, <span class="number">0.015066106</span>, <span class="number">0.038178846</span>, <span class="number">0.017233396</span>, <span class="number">0.034392256</span>, <span class="number">0.0011104626</span>, <span class="number">0.011157879</span>, -<span class="number">0.011426429</span>, -<span class="number">0.02386704</span>, -<span class="number">0.0037315986</span>, -<span class="number">0.023951532</span>, -<span class="number">0.040905442</span>, <span class="number">0.061722003</span>, -<span class="number">0.09844558</span>, -<span class="number">0.023778837</span>, -<span class="number">0.025130626</span>, <span class="number">0.010026219</span>, <span class="number">0.090813845</span>, <span class="number">0.02116601</span>, <span class="number">0.030656965</span>, -<span class="number">0.051983073</span>, -<span class="number">0.046070114</span>, -<span class="number">0.013155748</span>, <span class="number">0.025508625</span>, <span class="number">0.062288605</span>, <span class="number">0.0024993517</span>, -<span class="number">0.029925758</span>, <span class="number">0.08035762</span>, -<span class="number">0.021303015</span>, -<span class="number">0.01593142</span>, -<span class="number">0.08512837</span>, -<span class="number">0.0071579553</span>, <span class="number">0.0067918263</span>, -<span class="number">0.021745214</span>, -<span class="number">0.05515468</span>, -<span class="number">0.070750885</span>, <span class="number">0.034810245</span>, -<span class="number">0.08569365</span>, <span class="number">0.021458823</span>, -<span class="number">0.017061787</span>, <span class="number">0.0026869043</span>, <span class="number">0.030018022</span>, -<span class="number">0.041494858</span>, <span class="number">0.09564145</span>, <span class="number">0.0017981793</span>, <span class="number">0.0158431</span>, <span class="number">0.07715243</span>, -<span class="number">0.023778513</span>, <span class="number">0.0426596</span>, <span class="number">0.04772864</span>, <span class="number">0.17061941</span>, <span class="number">0.037555538</span>, -<span class="number">0.0018540444</span>, <span class="number">0.005351006</span>, <span class="number">0.02371963</span>, <span class="number">0.020617967</span>, -<span class="number">0.06761714</span>, <span class="number">0.048594203</span>, -<span class="number">0.013896715</span>, -<span class="number">0.015313695</span>, <span class="number">0.0053959116</span>, -<span class="number">0.019819288</span>, <span class="number">0.0077850046</span>, -<span class="number">0.00752286</span>, <span class="number">0.03487459</span>, <span class="number">0.05093316</span>, -<span class="number">0.012938046</span>, -<span class="number">0.019690173</span>, -<span class="number">0.0016301284</span>, -<span class="number">0.057390906</span>, -<span class="number">0.024133995</span>, <span class="number">0.025157755</span>, -<span class="number">0.0028830157</span>, -<span class="number">0.018437425</span>, <span class="number">0.024095569</span>, -<span class="number">0.009438414</span>, -<span class="number">0.08874059</span>, -<span class="number">0.005173016</span>, -<span class="number">0.065511614</span>, <span class="number">0.057566475</span>, -<span class="number">0.020237643</span>, -<span class="number">0.0041861776</span>, -<span class="number">0.018955257</span>, -<span class="number">0.039282065</span>, -<span class="number">0.0013770495</span>, -<span class="number">0.043112427</span>, <span class="number">0.05317557</span>, <span class="number">0.060080312</span>, -<span class="number">0.044718403</span>, <span class="number">0.07168413</span>, <span class="number">0.035226155</span>, <span class="number">0.020365102</span>, <span class="number">0.041678067</span>, <span class="number">0.16186184</span>, -<span class="number">0.007941735</span>, <span class="number">0.05319947</span>, -<span class="number">0.016731527</span>, <span class="number">0.02331473</span>, <span class="number">0.011195926</span>, -<span class="number">0.08663159</span>, -<span class="number">0.025290083</span>, -<span class="number">0.0037673104</span>, -<span class="number">0.109234005</span>, <span class="number">0.14701073</span>, -<span class="number">0.09029996</span>, <span class="number">0.035318837</span>, <span class="number">0.0047066077</span>, <span class="number">0.020087335</span>, -<span class="number">0.02241932</span>, -<span class="number">0.029502394</span>, <span class="number">0.024866907</span>, <span class="number">0.013387565</span>, -<span class="number">0.010215959</span>, <span class="number">0.039151758</span>, -<span class="number">0.017890649</span>, <span class="number">0.032414656</span>, -<span class="number">0.0026917201</span>, <span class="number">0.02742293</span>, -<span class="number">0.037203185</span>, <span class="number">0.029606108</span>, <span class="number">0.026543185</span>, -<span class="number">0.038486738</span>, -<span class="number">0.034082644</span>, <span class="number">0.018328678</span>, <span class="number">0.010387662</span>, -<span class="number">0.017738141</span>, -<span class="number">0.02813968</span>, -<span class="number">0.0062098643</span>, -<span class="number">0.021350194</span>, <span class="number">0.009390433</span>, <span class="number">0.019586427</span>, <span class="number">7.196608E-4</span>, -<span class="number">0.002126615</span>, -<span class="number">0.07509526</span>, <span class="number">0.019139549</span>, -<span class="number">0.07706402</span>, <span class="number">0.014352148</span>, -<span class="number">0.007941991</span>, <span class="number">0.001187094</span>, <span class="number">0.023037983</span>, <span class="number">0.039248127</span>, <span class="number">0.0044647</span>, -<span class="number">0.019044168</span>, -<span class="number">0.031702917</span>, <span class="number">0.014304962</span>, -<span class="number">0.043643914</span>, <span class="number">0.028015547</span>, <span class="number">0.014476172</span>, -<span class="number">0.0140340645</span>, <span class="number">0.03881786</span>, <span class="number">0.013956274</span>, -<span class="number">0.0060902843</span>, <span class="number">0.03224034</span>, <span class="number">0.020009317</span>, -<span class="number">0.054327503</span>, <span class="number">3.1390623E-4</span>, -<span class="number">0.007521768</span>, <span class="number">0.07434456</span>, -<span class="number">0.026895037</span>, <span class="number">0.0074033877</span>, -<span class="number">0.017457958</span>, <span class="number">0.035889063</span>, -<span class="number">0.006310429</span>, <span class="number">0.016894849</span>, <span class="number">0.018498972</span>, -<span class="number">0.17547764</span>, <span class="number">0.025896212</span>, <span class="number">0.05847995</span>, <span class="number">0.027605882</span>, <span class="number">0.026951058</span>, <span class="number">0.108890675</span>, <span class="number">0.054185085</span>, <span class="number">0.041628905</span>, -<span class="number">0.08013876</span>, -<span class="number">0.00881632</span>, <span class="number">0.010635092</span>, <span class="number">0.0021265517</span>, <span class="number">0.02421204</span>, -<span class="number">0.008131912</span>, <span class="number">0.017787877</span>, <span class="number">0.0037791964</span>, <span class="number">0.07604542</span>, -<span class="number">0.011710854</span>, -<span class="number">0.05541998</span>, <span class="number">0.037059188</span>, -<span class="number">0.029180674</span>, -<span class="number">0.009971812</span>, -<span class="number">0.05023198</span>, <span class="number">0.03185823</span>, <span class="number">0.0042317584</span>, <span class="number">0.009935685</span>, -<span class="number">9.914517E-4</span>, -<span class="number">0.016759787</span>, -<span class="number">0.01822887</span>, -<span class="number">0.022956256</span>, <span class="number">0.05123107</span>, <span class="number">0.030935027</span>, <span class="number">0.001766718</span>, -<span class="number">0.0017011124</span>, -<span class="number">0.009909989</span>, -<span class="number">0.0069078826</span>, -<span class="number">0.03376478</span>, -<span class="number">0.0053532426</span>, -<span class="number">0.039759737</span>, -<span class="number">0.050867483</span>, <span class="number">0.015165593</span>, -<span class="number">0.011836869</span>, <span class="number">0.026792185</span>, -<span class="number">0.023747869</span>, <span class="number">0.010067161</span>, -<span class="number">0.017702028</span>, -<span class="number">0.004723526</span>, <span class="number">0.00300006</span>, <span class="number">0.0016986935</span>, <span class="number">0.038826488</span>, -<span class="number">0.033063017</span>, -<span class="number">0.01677645</span>, -<span class="number">0.032374114</span>, <span class="number">0.05408412</span>, <span class="number">0.022496011</span>, -<span class="number">0.021329155</span>, <span class="number">0.056598924</span>, <span class="number">0.016690996</span>, <span class="number">0.0068791145</span>, <span class="number">0.09522898</span>, -<span class="number">0.043186683</span>, <span class="number">0.040847424</span>, -<span class="number">0.011698286</span>, <span class="number">0.0135710025</span>, -<span class="number">0.035192512</span>, <span class="number">0.036276057</span>, <span class="number">0.013632161</span>, -<span class="number">0.0073640253</span>, <span class="number">0.034589622</span>, -<span class="number">0.0010686518</span>, -<span class="number">0.052932758</span>, -<span class="number">0.038841534</span>, <span class="number">0.010487382</span>, <span class="number">0.019552423</span>, <span class="number">0.043749604</span>, <span class="number">0.023301532</span>, <span class="number">0.049772337</span>, <span class="number">0.0035389883</span>, <span class="number">0.037149318</span>, -<span class="number">0.02884169</span>, <span class="number">0.10656746</span>, <span class="number">0.010259339</span>, <span class="number">0.010951093</span>, <span class="number">0.00436831</span>, -<span class="number">0.004981387</span>, -<span class="number">0.0036905985</span>, <span class="number">0.025460914</span>, -<span class="number">0.04280052</span>, -<span class="number">0.020674769</span>, <span class="number">0.012859347</span>, -<span class="number">0.036366872</span>, -<span class="number">0.001395519</span>, <span class="number">0.012532833</span>, -<span class="number">0.035698198</span>, <span class="number">0.039046146</span>, <span class="number">0.009063786</span>, -<span class="number">0.061672088</span>, -<span class="number">0.041516546</span>, <span class="number">0.10154377</span>, -<span class="number">0.038796037</span>, -<span class="number">0.06833652</span>, -<span class="number">0.047975738</span>, -<span class="number">0.028164193</span>, -<span class="number">0.032864887</span>, -<span class="number">0.012679307</span>, <span class="number">0.0626986</span>, -<span class="number">0.0012406608</span>, <span class="number">0.020456884</span>, -<span class="number">0.062185243</span>, <span class="number">0.011227085</span>, -<span class="number">0.0037145878</span>, <span class="number">0.02469058</span>, <span class="number">0.014030718</span>, <span class="number">3.1149993E-4</span>, <span class="number">0.046243083</span>, <span class="number">0.005926181</span>, <span class="number">0.0013831255</span>, <span class="number">6.042434E-4</span>, <span class="number">0.03886239</span>, <span class="number">0.014452023</span>, -<span class="number">0.0075967573</span>, -<span class="number">0.060689192</span>, <span class="number">3.739034E-4</span>, -<span class="number">0.01953238</span>, <span class="number">0.004154923</span>, -<span class="number">5.5117934E-4</span>, -<span class="number">3.9158596E-4</span>, -<span class="number">0.0025693835</span>, <span class="number">0.024300324</span>, -<span class="number">0.015288723</span>, <span class="number">0.034946747</span>, <span class="number">0.03161286</span>, <span class="number">0.03977112</span>, <span class="number">0.002458337</span>, <span class="number">0.012037479</span>, -<span class="number">0.0043486874</span>, <span class="number">0.022048473</span>, -<span class="number">0.029447526</span>, <span class="number">0.06267555</span>, <span class="number">0.003721683</span>, -<span class="number">0.009302285</span>, -<span class="number">0.008346288</span>, -<span class="number">0.009577012</span>, -<span class="number">0.056524895</span>, -<span class="number">0.07812324</span>, -<span class="number">0.032444503</span>, <span class="number">0.032762017</span>, -<span class="number">0.04687511</span>, -<span class="number">0.029303363</span>, -<span class="number">0.010462125</span>, <span class="number">0.039505556</span>, <span class="number">0.07359841</span>, <span class="number">0.024376001</span>, -<span class="number">0.0069653434</span>, <span class="number">0.04368373</span>, <span class="number">0.021885287</span>, <span class="number">0.0027853583</span>, <span class="number">0.025914587</span>, <span class="number">0.017866002</span>, -<span class="number">0.045154694</span>, -<span class="number">0.043425806</span>, -<span class="number">0.031375147</span>, -<span class="number">0.0016954301</span>, -<span class="number">0.05397924</span>, -<span class="number">7.3173956E-4</span>, -<span class="number">0.030575963</span>, <span class="number">0.028093044</span>, <span class="number">0.012965086</span>, -<span class="number">0.025183583</span>, <span class="number">0.02098049</span>, <span class="number">0.034593325</span>, <span class="number">0.03932597</span>, <span class="number">0.033634048</span>, <span class="number">0.0066029956</span>, <span class="number">0.014215493</span>, -<span class="number">0.021505551</span>, <span class="number">0.009805857</span>, <span class="number">0.024105322</span>, -<span class="number">0.014140352</span>, -<span class="number">0.044044096</span>, -<span class="number">0.03188026</span>, <span class="number">0.009873442</span>, <span class="number">0.037475552</span>, <span class="number">0.048770875</span>, -<span class="number">0.040513124</span>, -<span class="number">0.019519703</span>, -<span class="number">0.011500647</span>, -<span class="number">0.006415138</span>, <span class="number">0.0053910064</span>, <span class="number">0.060585946</span>, -<span class="number">0.021809272</span>, -<span class="number">0.018201474</span>, -<span class="number">0.010937814</span>, -<span class="number">0.013718217</span>, -<span class="number">0.0098273</span>, <span class="number">0.014209563</span>, <span class="number">0.046512794</span>, <span class="number">0.039359875</span>, <span class="number">0.013178235</span>, <span class="number">0.09829644</span>, -<span class="number">0.017505629</span>, -<span class="number">0.02489381</span>, -<span class="number">2.3858843E-4</span>, -<span class="number">0.020584479</span>, -<span class="number">0.04027231</span>, -<span class="number">0.011223206</span>, -<span class="number">0.05104645</span>, -<span class="number">0.037288275</span>, <span class="number">0.041676395</span>, <span class="number">0.022464395</span>, <span class="number">0.053146843</span>, <span class="number">0.03199663</span>, -<span class="number">0.035019115</span>, <span class="number">0.022478977</span>, <span class="number">0.013013626</span>, -<span class="number">0.008785934</span>, <span class="number">0.019700278</span>, <span class="number">0.008832397</span>, <span class="number">0.050076284</span>, -<span class="number">0.048255526</span>, <span class="number">0.060217008</span>, -<span class="number">0.061237134</span>, <span class="number">0.012971778</span>, <span class="number">0.034852937</span>, -<span class="number">0.013775348</span>, <span class="number">0.0625222</span>, <span class="number">0.014649475</span>, <span class="number">0.02334319</span>, <span class="number">0.094726816</span>, <span class="number">0.10769309</span>, <span class="number">0.013569286</span>, <span class="number">0.027372217</span>, -<span class="number">0.03523267</span>, -<span class="number">4.7623852E-4</span>, <span class="number">0.019275036</span>, -<span class="number">0.0022663868</span>, -<span class="number">0.008160418</span>, <span class="number">0.009928951</span>, -<span class="number">0.005347177</span>, -<span class="number">0.044416487</span>, <span class="number">0.006646296</span>, <span class="number">0.016597273</span>, <span class="number">0.028997697</span>, -<span class="number">0.053415935</span>, -<span class="number">0.020151006</span>, <span class="number">0.03897491</span>, -<span class="number">0.010869943</span>, <span class="number">0.042187016</span>, -<span class="number">0.036412258</span>, <span class="number">0.018086394</span>, -<span class="number">0.014274242</span>, -<span class="number">0.07227256</span>, <span class="number">0.0010064453</span>, -<span class="number">0.024512593</span>, <span class="number">0.052229125</span>, <span class="number">0.009150336</span>, <span class="number">0.028474018</span>, <span class="number">0.030175298</span>, -<span class="number">0.024292236</span>, -<span class="number">0.011538669</span>, <span class="number">0.060554747</span>, -<span class="number">0.052448735</span>, -<span class="number">0.006761913</span>, <span class="number">0.0042523365</span>, -<span class="number">0.07272278</span>, -<span class="number">0.009903328</span>, -<span class="number">0.09878354</span>, <span class="number">0.0026040864</span>, -<span class="number">0.008681447</span>, <span class="number">0.026760314</span>, -<span class="number">0.007293892</span>, -<span class="number">0.0049932534</span>, <span class="number">0.025040645</span>, -<span class="number">0.009999375</span>, <span class="number">0.009470686</span>, -<span class="number">0.0025464199</span>, -<span class="number">0.062322162</span>, <span class="number">0.020844592</span>, -<span class="number">0.048238114</span>]</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>您的打赏，是我创作的动力！不给钱？那我只能靠想象力充饥了。</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/wechat_pay.jpg" alt="rstyro 微信支付">
+        <p>微信支付</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/alipay.jpg" alt="rstyro 支付宝">
+        <p>支付宝</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/blog/tags/ElasticSearch/" rel="tag"><i class="fa fa-tag"></i> ElasticSearch</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2023/09/25/OCR%E5%9B%BE%E7%89%87%E8%AF%86%E5%88%AB/" rel="prev" title="OCR图片识别">
+      <i class="fa fa-chevron-left"></i> OCR图片识别
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/blog/2023/10/24/Sentinel%E7%9A%84%E4%BD%BF%E7%94%A8/" rel="next" title="Sentinel的使用">
+      Sentinel的使用 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E5%90%91%E9%87%8F%E6%A3%80%E7%B4%A2"><span class="nav-number">1.</span> <span class="nav-text">一、向量检索</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1%E3%80%81%E5%90%91%E9%87%8F%E7%9A%84%E5%AE%9A%E4%B9%89"><span class="nav-number">1.1.</span> <span class="nav-text">1、向量的定义</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2%E3%80%81%E5%B8%B8%E8%A7%81%E7%9A%84%E5%90%91%E9%87%8F%E5%BA%A6%E9%87%8F"><span class="nav-number">1.2.</span> <span class="nav-text">2、常见的向量度量</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3%E3%80%81%E5%90%91%E9%87%8F%E6%A3%80%E7%B4%A2%E7%9A%84%E6%96%B9%E6%B3%95"><span class="nav-number">1.3.</span> <span class="nav-text">3、向量检索的方法</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E5%90%91%E9%87%8F%E7%9A%84%E7%94%9F%E6%88%90"><span class="nav-number">2.</span> <span class="nav-text">二、向量的生成</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1%E3%80%81%E8%BD%AC%E6%8D%A2%E5%B9%B6%E5%AF%BC%E5%87%BA%E6%A8%A1%E5%9E%8B"><span class="nav-number">2.1.</span> <span class="nav-text">1、转换并导出模型</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2%E3%80%81%E4%BB%A3%E7%A0%81%E8%B0%83%E7%94%A8"><span class="nav-number">2.2.</span> <span class="nav-text">2、代码调用</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%89%E3%80%81Elasticsearch%E5%90%91%E9%87%8F%E6%A3%80%E7%B4%A2"><span class="nav-number">3.</span> <span class="nav-text">三、Elasticsearch向量检索</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1%E3%80%81%E5%88%9B%E5%BB%BA%E7%B4%A2%E5%BC%95"><span class="nav-number">3.1.</span> <span class="nav-text">1、创建索引</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2%E3%80%81%E6%B7%BB%E5%8A%A0%E6%B5%8B%E8%AF%95%E6%95%B0%E6%8D%AE"><span class="nav-number">3.2.</span> <span class="nav-text">2、添加测试数据</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3%E3%80%81-%E8%84%9A%E6%9C%AC%E5%88%86%E6%95%B0%E6%9F%A5%E8%AF%A2"><span class="nav-number">3.3.</span> <span class="nav-text">3、 脚本分数查询</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="rstyro"
+      src="/blog/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">rstyro</p>
+  <div class="site-description" itemprop="description">人间的饭，吃一碗少一碗，身边的人，见一面少一面，脚下的路，走一天少一天，其实人生就是一个减法，来日并不方长！</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives/">
+        
+          <span class="site-state-item-count">216</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/blog/tags/">
+          
+        <span class="site-state-item-count">88</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/rstyro" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;rstyro" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/rstyro" title="Gitee → https:&#x2F;&#x2F;gitee.com&#x2F;rstyro" rel="noopener" target="_blank"><i class="fab fa-codiepie fa-fw"></i>Gitee</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.jianshu.com/u/651c15a1758a" title="简书 → https:&#x2F;&#x2F;www.jianshu.com&#x2F;u&#x2F;651c15a1758a" rel="noopener" target="_blank"><i class="fa fa-book fa-fw"></i>简书</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      友链
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://rstyro.github.io/blog/" title="https:&#x2F;&#x2F;rstyro.github.io&#x2F;blog&#x2F;">胖不了小陆</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; Mon Apr 10 2017 08:00:00 GMT+0800 (中国标准时间) – 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">以梦为马，诗酒趁年华</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/muse.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+  <script>
+    (function(){
+      var canonicalURL, curProtocol;
+      //Get the <link> tag
+      var x=document.getElementsByTagName("link");
+		//Find the last canonical URL
+		if(x.length > 0){
+			for (i=0;i<x.length;i++){
+				if(x[i].rel.toLowerCase() == 'canonical' && x[i].href){
+					canonicalURL=x[i].href;
+				}
+			}
+		}
+    //Get protocol
+	    if (!canonicalURL){
+	    	curProtocol = window.location.protocol.split(':')[0];
+	    }
+	    else{
+	    	curProtocol = canonicalURL.split(':')[0];
+	    }
+      //Get current URL if the canonical URL does not exist
+	    if (!canonicalURL) canonicalURL = window.location.href;
+	    //Assign script content. Replace current URL with the canonical URL
+      !function(){var e=/([http|https]:\/\/[a-zA-Z0-9\_\.]+\.baidu\.com)/gi,r=canonicalURL,t=document.referrer;if(!e.test(r)){var n=(String(curProtocol).toLowerCase() === 'https')?"https://sp0.baidu.com/9_Q4simg2RQJ8t7jm9iCKT-xh_/s.gif":"//api.share.baidu.com/s.gif";t?(n+="?r="+encodeURIComponent(document.referrer),r&&(n+="&l="+r)):r&&(n+="?l="+r);var i=new Image;i.src=n}}(window);})();
+  </script>
+
+
+
+
+  
+<script src="/blog/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+<script>
+if (document.querySelectorAll('pre.mermaid').length) {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mermaid@8/dist/mermaid.min.js', () => {
+    mermaid.initialize({
+      theme    : 'default',
+      logLevel : 3,
+      flowchart: { curve     : 'linear' },
+      gantt    : { axisFormat: '%m/%d/%Y' },
+      sequence : { actorMargin: 50 }
+    });
+  }, window.mermaid);
+}
+</script>
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : 'Ov23litYkWaOGM7kAKPD',
+      clientSecret: '43bd3cf99bfcb9d05d16627c97a9f7a0200df04a',
+      repo        : 'blog',
+      owner       : 'rstyro',
+      admin       : ['rstyro'],
+      id          : '9a477fd98740e79838e19c91052ac108',
+        language: '',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>

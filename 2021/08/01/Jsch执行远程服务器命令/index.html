@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/favicon.jpg">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon.jpg">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon.jpg">
+  <link rel="mask-icon" href="/blog/images/favicon.jpg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="/blog/lib/pace/pace-theme-flash.min.css">
+  <script src="/blog/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"rstyro.github.io","root":"/blog/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":true},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.json"};
+  </script>
+
+  <meta name="description" content="一、Java-SSH连接执行远程服务命令一、前言 刚好，项目需要调用远程服务器的命令，所以研究一波 目前，Java执行远程命令的第三方包常用的有：jsch、ganymed-ssh2、 本文的例子是 jsch">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Jsch执行远程服务器命令">
+<meta property="og:url" content="https://rstyro.github.io/blog/2021/08/01/Jsch%E6%89%A7%E8%A1%8C%E8%BF%9C%E7%A8%8B%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%91%BD%E4%BB%A4/index.html">
+<meta property="og:site_name" content="胖不了小陆">
+<meta property="og:description" content="一、Java-SSH连接执行远程服务命令一、前言 刚好，项目需要调用远程服务器的命令，所以研究一波 目前，Java执行远程命令的第三方包常用的有：jsch、ganymed-ssh2、 本文的例子是 jsch">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://rstyro.github.io/blog/2021/08/01/Jsch%E6%89%A7%E8%A1%8C%E8%BF%9C%E7%A8%8B%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%91%BD%E4%BB%A4/shell.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2021/08/01/Jsch%E6%89%A7%E8%A1%8C%E8%BF%9C%E7%A8%8B%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%91%BD%E4%BB%A4/exec.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2021/08/01/Jsch%E6%89%A7%E8%A1%8C%E8%BF%9C%E7%A8%8B%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%91%BD%E4%BB%A4/upload.png">
+<meta property="article:published_time" content="2021-08-01T10:46:03.000Z">
+<meta property="article:modified_time" content="2021-08-01T10:46:03.000Z">
+<meta property="article:author" content="rstyro">
+<meta property="article:tag" content="Jsch">
+<meta property="article:tag" content="Shell">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://rstyro.github.io/blog/2021/08/01/Jsch%E6%89%A7%E8%A1%8C%E8%BF%9C%E7%A8%8B%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%91%BD%E4%BB%A4/shell.png">
+
+<link rel="canonical" href="https://rstyro.github.io/blog/2021/08/01/Jsch%E6%89%A7%E8%A1%8C%E8%BF%9C%E7%A8%8B%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%91%BD%E4%BB%A4/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Jsch执行远程服务器命令 | 胖不了小陆</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">胖不了小陆</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">信你所信，为你所见</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/blog/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/blog/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/blog/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/rstyro" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://rstyro.github.io/blog/2021/08/01/Jsch%E6%89%A7%E8%A1%8C%E8%BF%9C%E7%A8%8B%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%91%BD%E4%BB%A4/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/avatar.jpg">
+      <meta itemprop="name" content="rstyro">
+      <meta itemprop="description" content="人间的饭，吃一碗少一碗，身边的人，见一面少一面，脚下的路，走一天少一天，其实人生就是一个减法，来日并不方长！">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="胖不了小陆">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Jsch执行远程服务器命令
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-08-01 18:46:03" itemprop="dateCreated datePublished" datetime="2021-08-01T18:46:03+08:00">2021-08-01</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/Java/" itemprop="url" rel="index"><span itemprop="name">Java</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h3 id="一、Java-SSH连接执行远程服务命令"><a href="#一、Java-SSH连接执行远程服务命令" class="headerlink" title="一、Java-SSH连接执行远程服务命令"></a>一、Java-SSH连接执行远程服务命令</h3><h3 id="一、前言"><a href="#一、前言" class="headerlink" title="一、前言"></a>一、前言</h3><ul>
+<li>刚好，项目需要调用远程服务器的命令，所以研究一波</li>
+<li>目前，Java执行远程命令的第三方包常用的有：jsch、ganymed-ssh2、</li>
+<li>本文的例子是 jsch</li>
+</ul>
+<span id="more"></span>
+
+<h3 id="二、导入依赖"><a href="#二、导入依赖" class="headerlink" title="二、导入依赖"></a>二、导入依赖</h3><ul>
+<li>导入jsch的依赖，最近的更新时间是2018年：<code>0.1.55</code> 版本</li>
+<li>可能是因为Java 执行第三方的需求比较少吧，所以市面上可使用的Jar很少</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;dependency&gt;</span><br><span class="line">    &lt;groupId&gt;com.jcraft&lt;/groupId&gt;</span><br><span class="line">    &lt;artifactId&gt;jsch&lt;/artifactId&gt;</span><br><span class="line">    &lt;version&gt;0.1.55&lt;/version&gt;</span><br><span class="line">&lt;/dependency&gt;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>访问官方文档例子：<a target="_blank" rel="noopener" href="http://www.jcraft.com/jsch/examples/">http://www.jcraft.com/jsch/examples/</a></li>
+<li></li>
+</ul>
+<h3 id="三、快速开始"><a href="#三、快速开始" class="headerlink" title="三、快速开始"></a>三、快速开始</h3><ul>
+<li>简单例子来一波</li>
+</ul>
+<h4 id="1、shell登录"><a href="#1、shell登录" class="headerlink" title="1、shell登录"></a>1、shell登录</h4><ul>
+<li>可直接通过Java控制台与远程服务器shell命令交互</li>
+<li>简单代码如下：</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line">public class Demo &#123;</span><br><span class="line">    public static void main(String[] args) throws JSchException &#123;</span><br><span class="line">        //远程服务用户名</span><br><span class="line">        String username = &quot;root&quot;;</span><br><span class="line">        // 远程服务ip</span><br><span class="line">        String host = &quot;192.168.2.25&quot;;</span><br><span class="line">        // 远程服务密码</span><br><span class="line">        String password = &quot;root&quot;;</span><br><span class="line">        // 连接超时 10秒</span><br><span class="line">        int timeout = 10000;</span><br><span class="line">        int port = 22;</span><br><span class="line">        JSch jSch = new JSch();</span><br><span class="line">        Session session = jSch.getSession(username, host, port);</span><br><span class="line">        // 设置密码</span><br><span class="line">        session.setPassword(password);</span><br><span class="line"></span><br><span class="line">        Properties config = new Properties();</span><br><span class="line">        // 设置第一次登录的时候提示，可选值：(ask | yes | no)</span><br><span class="line">        config.put(&quot;StrictHostKeyChecking&quot;, &quot;no&quot;);</span><br><span class="line">        // 为Session对象设置properties</span><br><span class="line">        session.setConfig(config);</span><br><span class="line">        // 设置连接超时</span><br><span class="line">        session.setTimeout(timeout);</span><br><span class="line">        // 通过Session建立连接</span><br><span class="line">        session.connect();</span><br><span class="line">        // 打开shell通道</span><br><span class="line">        Channel shell = session.openChannel(&quot;shell&quot;);</span><br><span class="line">        // 控制台接收输入</span><br><span class="line">        shell.setInputStream(System.in);</span><br><span class="line">        // 控制台接收输出</span><br><span class="line">        shell.setOutputStream(System.out);</span><br><span class="line">        // 超时时间，0 表示无限制</span><br><span class="line">        shell.connect(3*1000);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>执行，不出问题即可看到控制台已连接到服务端了，执行linux命令了</li>
+</ul>
+<p><img src="/blog/2021/08/01/Jsch%E6%89%A7%E8%A1%8C%E8%BF%9C%E7%A8%8B%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%91%BD%E4%BB%A4/shell.png"></p>
+<ul>
+<li>如上是控制台交互的，如果要直接执行命令，java接收呢？如下</li>
+</ul>
+<h4 id="2、执行远程Linux命令"><a href="#2、执行远程Linux命令" class="headerlink" title="2、执行远程Linux命令"></a>2、执行远程Linux命令</h4><ul>
+<li>和上面一样，也是创建一个session，然后通过session,打开一个命令通道即可。</li>
+<li>例子如下：</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br></pre></td><td class="code"><pre><span class="line">public class Demo &#123;</span><br><span class="line">    public static void main(String[] args) throws JSchException &#123;</span><br><span class="line">        String username = &quot;root&quot;;</span><br><span class="line">        String host = &quot;192.168.2.25&quot;;</span><br><span class="line">        String password = &quot;root&quot;;</span><br><span class="line">        int timeout = 10000;</span><br><span class="line">        int port = 22;</span><br><span class="line">        JSch jSch = new JSch();</span><br><span class="line">        Session session = jSch.getSession(username, host, port);</span><br><span class="line">        session.setPassword(password);</span><br><span class="line">        Properties config = new Properties();</span><br><span class="line">        config.put(&quot;StrictHostKeyChecking&quot;, &quot;no&quot;);</span><br><span class="line">        session.setConfig(config);</span><br><span class="line">        session.setTimeout(timeout);</span><br><span class="line">        session.connect();</span><br><span class="line">        // 打印root目录下的信息</span><br><span class="line">        String cmd = &quot;ls -l /root&quot;;</span><br><span class="line">        List&lt;String&gt; result = exec(session, cmd);</span><br><span class="line">        if(!ObjectUtils.isEmpty(result))&#123;</span><br><span class="line">            result.forEach(i-&gt;&#123;</span><br><span class="line">                System.out.println(i);</span><br><span class="line">            &#125;);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    /**</span><br><span class="line">     * 执行命令</span><br><span class="line">     * @param command 命令</span><br><span class="line">     * @return list</span><br><span class="line">     * @throws JSchException err</span><br><span class="line">     */</span><br><span class="line">    public static  List&lt;String&gt; exec(Session session,String command) throws JSchException &#123;</span><br><span class="line">        List&lt;String&gt; resultLines = new ArrayList&lt;&gt;();</span><br><span class="line">        ChannelExec channel = null;</span><br><span class="line">        try&#123;</span><br><span class="line">            channel = (ChannelExec) session.openChannel(&quot;exec&quot;);</span><br><span class="line">            channel.setCommand(command);</span><br><span class="line">            channel.setInputStream(null);</span><br><span class="line">            channel.setErrStream(System.err);</span><br><span class="line">            channel.connect(10000);</span><br><span class="line">            InputStream input = channel.getInputStream();</span><br><span class="line">            try &#123;</span><br><span class="line">                BufferedReader inputReader = new BufferedReader(new InputStreamReader(input));</span><br><span class="line">                String inputLine = null;</span><br><span class="line">                while((inputLine = inputReader.readLine()) != null) &#123;</span><br><span class="line">                    resultLines.add(inputLine);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125; finally &#123;</span><br><span class="line">                if (input != null) &#123;</span><br><span class="line">                    try &#123;</span><br><span class="line">                        input.close();</span><br><span class="line">                    &#125; catch (Exception e) &#123;</span><br><span class="line">                        // todo...</span><br><span class="line">                        e.printStackTrace();</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; catch (IOException e) &#123;</span><br><span class="line">        &#125; finally &#123;</span><br><span class="line">            if (channel != null) &#123;</span><br><span class="line">                try &#123;</span><br><span class="line">                    channel.disconnect();</span><br><span class="line">                &#125; catch (Exception e) &#123;</span><br><span class="line">                    e.printStackTrace();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        return resultLines;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>session的获取和第一个一样，也就是说，后期可以做封装方便调用 </li>
+<li>使用：<code>session.openChannel(&quot;exec&quot;)</code> 打开一个命令通道，然后接收命令返回即可</li>
+<li>结果如下图：</li>
+</ul>
+<p><img src="/blog/2021/08/01/Jsch%E6%89%A7%E8%A1%8C%E8%BF%9C%E7%A8%8B%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%91%BD%E4%BB%A4/exec.png"></p>
+<h4 id="3、文件上传下载"><a href="#3、文件上传下载" class="headerlink" title="3、文件上传下载"></a>3、文件上传下载</h4><ul>
+<li>除了调用命令，文件的上传下载也是常用的功能</li>
+<li>jsch 里面的ChannelSftp实现了SFTP核心类，它包含了所有SFTP的方法，如：</li>
+<li><code>put()：</code>      文件上传</li>
+<li><code>get()：</code>      文件下载</li>
+<li><code>cd()：</code>     进入指定目录</li>
+<li><code>ls()：</code>       得到指定目录下的文件列表</li>
+<li><code>rename()：</code>   重命名指定文件或目录</li>
+<li><code>rm()：</code>       删除指定文件</li>
+<li><code>mkdir()：</code>    创建目录</li>
+<li><code>rmdir()：</code>    删除目录<br>等等（这里省略了方法的参数，put和get都有多个重载方法，具体请看源代码：<code>com.jcraft.jsch.ChannelSftp</code></li>
+</ul>
+<p><strong>Jsch支持三种文件传输模式：</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 完全覆盖模式，这是JSch的默认文件传输模式，即如果目标文件已经存在，传输的文件将完全覆盖目标文件，产生新的文件</span></span><br><span class="line"> <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">int</span> OVERWRITE=<span class="number">0</span>;</span><br><span class="line"> </span><br><span class="line"> <span class="comment">// 恢复模式，如果文件已经传输一部分，这时由于网络或其他任何原因导致文件传输中断，如果下一次传输相同的文件，则会从上一次中断的地方续传。</span></span><br><span class="line"> <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">int</span> RESUME=<span class="number">1</span>;</span><br><span class="line"> </span><br><span class="line"> <span class="comment">// 追加模式，如果目标文件已存在，传输的文件将在目标文件后追加。</span></span><br><span class="line"> <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">int</span> APPEND=<span class="number">2</span>;</span><br></pre></td></tr></table></figure>
+
+<h5 id="①、文件上传"><a href="#①、文件上传" class="headerlink" title="①、文件上传"></a>①、文件上传</h5><ul>
+<li>使用的是<code>put()</code> 方法，所有重载方法，最终都会调用的方法如下：</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">public void put(String src, String dst,SftpProgressMonitor monitor, int mode) throws SftpException&#123;</span><br><span class="line">	// ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>参数解释：</li>
+<li>第一个参数：src，将本地文件名为src的文件上传到目标服务器</li>
+<li>第二个参数：dst,目标文件名为dst，若dst为目录，则目标文件名将与src文件名相同</li>
+<li>第三个参数：monitor，monitor对象来监控文件传输的进度。</li>
+<li>第四个参数：mode,文件的传输方式，采用默认的传输模式：<code>OVERWRITE</code></li>
+</ul>
+<p><em>还是之前的Demo,如下：</em></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Demo</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> JSchException &#123;</span><br><span class="line">        <span class="type">String</span> <span class="variable">username</span> <span class="operator">=</span> <span class="string">&quot;root&quot;</span>;</span><br><span class="line">        <span class="type">String</span> <span class="variable">host</span> <span class="operator">=</span> <span class="string">&quot;192.168.2.25&quot;</span>;</span><br><span class="line">        <span class="type">String</span> <span class="variable">password</span> <span class="operator">=</span> <span class="string">&quot;root&quot;</span>;</span><br><span class="line">        <span class="type">int</span> <span class="variable">timeout</span> <span class="operator">=</span> <span class="number">10000</span>;</span><br><span class="line">        <span class="type">int</span> <span class="variable">port</span> <span class="operator">=</span> <span class="number">22</span>;</span><br><span class="line">        <span class="type">JSch</span> <span class="variable">jSch</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">JSch</span>();</span><br><span class="line">        <span class="type">Session</span> <span class="variable">session</span> <span class="operator">=</span> jSch.getSession(username, host, port);</span><br><span class="line">        <span class="comment">// 设置密码</span></span><br><span class="line">        session.setPassword(password);</span><br><span class="line"></span><br><span class="line">        <span class="type">Properties</span> <span class="variable">config</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Properties</span>();</span><br><span class="line">        config.put(<span class="string">&quot;StrictHostKeyChecking&quot;</span>, <span class="string">&quot;no&quot;</span>);</span><br><span class="line">        <span class="comment">// 为Session对象设置properties</span></span><br><span class="line">        session.setConfig(config);</span><br><span class="line">        <span class="comment">// 设置连接超时</span></span><br><span class="line">        session.setTimeout(timeout);</span><br><span class="line">        <span class="comment">// 通过Session建立连接</span></span><br><span class="line">        session.connect();</span><br><span class="line">        <span class="comment">// 本地文件</span></span><br><span class="line">        String src=<span class="string">&quot;C:\\MyHome\\md\\jvm.txt&quot;</span>;</span><br><span class="line">        <span class="comment">// 上传到远程的路径</span></span><br><span class="line">        String target=<span class="string">&quot;/root/jvm.txt&quot;</span>;</span><br><span class="line">        <span class="comment">// 上传本地文件到服务器</span></span><br><span class="line">        uploadFile(session,src,target);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="type">boolean</span> <span class="title function_">uploadFile</span><span class="params">(Session session,String src,String target)</span>&#123;</span><br><span class="line">        <span class="keyword">try</span>&#123;</span><br><span class="line">            <span class="comment">// 打开channelSftp</span></span><br><span class="line">            <span class="type">ChannelSftp</span> <span class="variable">channelSftp</span> <span class="operator">=</span> (ChannelSftp) 			session.openChannel(<span class="string">&quot;sftp&quot;</span>);</span><br><span class="line">            <span class="comment">// 远程连接</span></span><br><span class="line">            channelSftp.connect();</span><br><span class="line">            <span class="comment">// 创建一个文件名称问uploadFile的文件</span></span><br><span class="line">            <span class="type">File</span> <span class="variable">file</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">File</span>(src);</span><br><span class="line">            <span class="comment">// 采用默认的传输模式:OVERWRITE</span></span><br><span class="line">            channelSftp.put(<span class="keyword">new</span> <span class="title class_">FileInputStream</span>(file), target,<span class="literal">null</span>, ChannelSftp.OVERWRITE);</span><br><span class="line">            System.out.println(<span class="string">&quot;上传成功&quot;</span>);</span><br><span class="line">            <span class="comment">// 切断远程连接</span></span><br><span class="line">            channelSftp.exit();</span><br><span class="line">        &#125;<span class="keyword">catch</span> (Exception e)&#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>上面的例子是没有监控文件的上传进度，那如果要使用怎么办，如下</li>
+<li>实现<code>SftpProgressMonitor</code> 接口，重写其方法即可，代码里面有注释</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * 自定义sftp上传监控</span><br><span class="line"> */</span><br><span class="line">public class MySftpProgressMonitor implements SftpProgressMonitor &#123;</span><br><span class="line"></span><br><span class="line">    private long transfered;</span><br><span class="line"></span><br><span class="line">    /**</span><br><span class="line">     * 当文件开始传输时，调用init方法。</span><br><span class="line">     * @param op</span><br><span class="line">     * @param src</span><br><span class="line">     * @param dest</span><br><span class="line">     * @param max</span><br><span class="line">     */</span><br><span class="line">    @Override</span><br><span class="line">    public void init(int op, String src, String dest, long max) &#123;</span><br><span class="line">        System.out.println(&quot;这里可以做一些初始化操作&quot;);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    /**</span><br><span class="line">     * 当每次传输了一个数据块后，调用count方法，count方法的参数为这一次传输的数据块大小</span><br><span class="line">     * @param count</span><br><span class="line">     * @return</span><br><span class="line">     */</span><br><span class="line">    @Override</span><br><span class="line">    public boolean count(long count) &#123;</span><br><span class="line">        transfered+=count;</span><br><span class="line">        System.out.println(&quot;当前已传输：&quot;+transfered);</span><br><span class="line">        return true;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    /**</span><br><span class="line">     * 当传输结束时，调用end方法</span><br><span class="line">     */</span><br><span class="line">    @Override</span><br><span class="line">    public void end() &#123;</span><br><span class="line">        System.out.println(&quot;传输完成&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>比较粗略，可以自己实现符合业务需求的结果如下：</li>
+</ul>
+<p><img src="/blog/2021/08/01/Jsch%E6%89%A7%E8%A1%8C%E8%BF%9C%E7%A8%8B%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%91%BD%E4%BB%A4/upload.png"></p>
+<h5 id="②、文件下载"><a href="#②、文件下载" class="headerlink" title="②、文件下载"></a>②、文件下载</h5><ul>
+<li>其实文件下载和文件上传类似，如下</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">public static boolean download(Session session,String src,String target)&#123;</span><br><span class="line">        try&#123;</span><br><span class="line">            // 打开channelSftp</span><br><span class="line">            ChannelSftp channelSftp = (ChannelSftp) session.openChannel(&quot;sftp&quot;);</span><br><span class="line">            // 远程连接</span><br><span class="line">            channelSftp.connect();</span><br><span class="line">            // 创建一个文件名称问uploadFile的文件</span><br><span class="line">            File file = new File(src);</span><br><span class="line">            channelSftp.get(src,target,new MySftpProgressMonitor(),ChannelSftp.OVERWRITE);</span><br><span class="line">            System.out.println(&quot;下载成功&quot;);</span><br><span class="line">            // 切断远程连接</span><br><span class="line">            channelSftp.exit();</span><br><span class="line">        &#125;catch (Exception e)&#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">            return false;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        return true;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>方法和文件上传一样，只是参数刚好交换而已</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">public static void main(String[] args) throws JSchException &#123;</span><br><span class="line">        String username = &quot;root&quot;;</span><br><span class="line">        String host = &quot;192.168.2.25&quot;;</span><br><span class="line">        String password = &quot;root&quot;;</span><br><span class="line">        int timeout = 10000;</span><br><span class="line">        int port = 22;</span><br><span class="line">        JSch jSch = new JSch();</span><br><span class="line">        Session session = jSch.getSession(username, host, port);</span><br><span class="line">        // 设置密码</span><br><span class="line">        session.setPassword(password);</span><br><span class="line"></span><br><span class="line">        Properties config = new Properties();</span><br><span class="line">        config.put(&quot;StrictHostKeyChecking&quot;, &quot;no&quot;);</span><br><span class="line">        // 为Session对象设置properties</span><br><span class="line">        session.setConfig(config);</span><br><span class="line">        // 设置连接超时</span><br><span class="line">        session.setTimeout(timeout);</span><br><span class="line">        // 通过Session建立连接</span><br><span class="line">        session.connect();</span><br><span class="line">        // 要下载的远程服务器文件</span><br><span class="line">        String src=&quot;/root/test.pdf&quot;;</span><br><span class="line">        // 保存到哪里</span><br><span class="line">        String target=&quot;C:\\MyHome\\test2.pdf&quot;;</span><br><span class="line">        download(session,src,target);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>如果是网页下载的话，直接传一个<code>response.getOutputStream()</code>过去就可以了,如下：</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">public static boolean download(Session session,String src,OutputStream out)&#123;</span><br><span class="line">        try&#123;</span><br><span class="line">            // 打开channelSftp</span><br><span class="line">            ChannelSftp channelSftp = (ChannelSftp) session.openChannel(&quot;sftp&quot;);</span><br><span class="line">            // 远程连接</span><br><span class="line">            channelSftp.connect();</span><br><span class="line">            // 创建一个文件名称问uploadFile的文件</span><br><span class="line">            File file = new File(src);</span><br><span class="line">            channelSftp.get(src,out,new MySftpProgressMonitor(),ChannelSftp.OVERWRITE,0);</span><br><span class="line">            System.out.println(&quot;下载成功&quot;);</span><br><span class="line">            // 切断远程连接</span><br><span class="line">            channelSftp.exit();</span><br><span class="line">        &#125;catch (Exception e)&#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">            return false;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        return true;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="4、跳板机"><a href="#4、跳板机" class="headerlink" title="4、跳板机"></a>4、跳板机</h4><ul>
+<li>可以通过Session的<code>setPortForwardingL()</code> 方法进行转发，但是我这边运行失败</li>
+<li>不知道是不是需要在linux执行才能成功，我是windows IDEA运行的，以后再研究一下。代码如下：</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Throwable &#123;</span><br><span class="line">        <span class="type">String</span> <span class="variable">username</span> <span class="operator">=</span> <span class="string">&quot;root&quot;</span>;</span><br><span class="line">        <span class="comment">// 跳板机ip</span></span><br><span class="line">        <span class="type">String</span> <span class="variable">host</span> <span class="operator">=</span> <span class="string">&quot;192.168.2.25&quot;</span>;</span><br><span class="line">        <span class="type">String</span> <span class="variable">password</span> <span class="operator">=</span> <span class="string">&quot;root&quot;</span>;</span><br><span class="line">        <span class="type">int</span> <span class="variable">timeout</span> <span class="operator">=</span> <span class="number">10000</span>;</span><br><span class="line">        <span class="type">int</span> <span class="variable">port</span> <span class="operator">=</span> <span class="number">22</span>;</span><br><span class="line">        <span class="type">JSch</span> <span class="variable">jSch</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">JSch</span>();</span><br><span class="line">        <span class="type">Session</span> <span class="variable">session</span> <span class="operator">=</span> jSch.getSession(username, host, port);</span><br><span class="line">        session.setPassword(password);</span><br><span class="line">        <span class="type">Properties</span> <span class="variable">config</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Properties</span>();</span><br><span class="line">        config.put(<span class="string">&quot;StrictHostKeyChecking&quot;</span>, <span class="string">&quot;no&quot;</span>);</span><br><span class="line">        session.setConfig(config);</span><br><span class="line">        session.setTimeout(timeout);</span><br><span class="line">        session.connect();<span class="comment">//THIS WORKS</span></span><br><span class="line"></span><br><span class="line">		<span class="comment">// 跳板机访问的目标ip</span></span><br><span class="line">        <span class="type">String</span> <span class="variable">targetHost</span> <span class="operator">=</span> <span class="string">&quot;192.168.2.189&quot;</span>;</span><br><span class="line">        <span class="type">int</span> <span class="variable">targetPort</span> <span class="operator">=</span> <span class="number">22</span>;</span><br><span class="line">        <span class="comment">// 转发端口</span></span><br><span class="line">        <span class="type">int</span> forwardPort=<span class="number">18008</span>;</span><br><span class="line">        <span class="comment">// 设置转发</span></span><br><span class="line">        <span class="type">int</span> <span class="variable">assetPort</span> <span class="operator">=</span> session.setPortForwardingL(<span class="string">&quot;127.0.0.1&quot;</span>, forwardPort, targetHost, targetPort); <span class="comment">//FAILS HERE!!</span></span><br><span class="line"><span class="comment">//        int assetPort = session.setPortForwardingL(host, forwardPort, targetHost, targetPort); //FAILS HERE!!</span></span><br><span class="line">        <span class="type">Session</span> <span class="variable">targetSession</span> <span class="operator">=</span> jSch.getSession(username, host, assetPort);</span><br><span class="line">        targetSession.setPassword(password);</span><br><span class="line">        <span class="type">Properties</span> <span class="variable">targetConfig</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Properties</span>();</span><br><span class="line">        targetConfig.put(<span class="string">&quot;StrictHostKeyChecking&quot;</span>, <span class="string">&quot;no&quot;</span>);</span><br><span class="line">        targetSession.setConfig(targetConfig);</span><br><span class="line">        targetSession.connect();</span><br><span class="line">        System.out.println(<span class="string">&quot;success&quot;</span>);</span><br><span class="line">        <span class="type">Channel</span> <span class="variable">shell</span> <span class="operator">=</span> targetSession.openChannel(<span class="string">&quot;shell&quot;</span>);</span><br><span class="line">        shell.setInputStream(System.in);</span><br><span class="line">        shell.setOutputStream(System.out);</span><br><span class="line">        shell.connect(<span class="number">3</span>*<span class="number">1000</span>);</span><br><span class="line"></span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>代码很简单，不知道哪里出问题了，<code>setPortForwardingL()</code> 的<code>bind_address</code>参数</p>
+</li>
+<li><p>能设置的都设置了，还是报错。服务器的防火墙什么的都关了。都能相互ping通。</p>
+</li>
+<li><p>参考链接：</p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="http://www.jcraft.com/jsch/examples/">http://www.jcraft.com/jsch/examples/</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/longyg/archive/2012/06/25/2556576.html">https://www.cnblogs.com/longyg/archive/2012/06/25/2556576.html</a></p>
+</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>您的打赏，是我创作的动力！不给钱？那我只能靠想象力充饥了。</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/wechat_pay.jpg" alt="rstyro 微信支付">
+        <p>微信支付</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/alipay.jpg" alt="rstyro 支付宝">
+        <p>支付宝</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/blog/tags/Jsch/" rel="tag"><i class="fa fa-tag"></i> Jsch</a>
+              <a href="/blog/tags/Shell/" rel="tag"><i class="fa fa-tag"></i> Shell</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2021/07/28/Gateway%E4%B8%8ENacos%E5%AE%9E%E7%8E%B0%E5%8A%A8%E6%80%81%E8%B7%AF%E7%94%B1/" rel="prev" title="Gateway与Nacos实现动态路由">
+      <i class="fa fa-chevron-left"></i> Gateway与Nacos实现动态路由
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/blog/2021/08/19/TiledMap%E7%AE%80%E5%8D%95%E5%85%A5%E9%97%A8/" rel="next" title="TiledMap简单入门">
+      TiledMap简单入门 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%80%E3%80%81Java-SSH%E8%BF%9E%E6%8E%A5%E6%89%A7%E8%A1%8C%E8%BF%9C%E7%A8%8B%E6%9C%8D%E5%8A%A1%E5%91%BD%E4%BB%A4"><span class="nav-number">1.</span> <span class="nav-text">一、Java-SSH连接执行远程服务命令</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E5%89%8D%E8%A8%80"><span class="nav-number">2.</span> <span class="nav-text">一、前言</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E5%AF%BC%E5%85%A5%E4%BE%9D%E8%B5%96"><span class="nav-number">3.</span> <span class="nav-text">二、导入依赖</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E5%BF%AB%E9%80%9F%E5%BC%80%E5%A7%8B"><span class="nav-number">4.</span> <span class="nav-text">三、快速开始</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1%E3%80%81shell%E7%99%BB%E5%BD%95"><span class="nav-number">4.1.</span> <span class="nav-text">1、shell登录</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2%E3%80%81%E6%89%A7%E8%A1%8C%E8%BF%9C%E7%A8%8BLinux%E5%91%BD%E4%BB%A4"><span class="nav-number">4.2.</span> <span class="nav-text">2、执行远程Linux命令</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3%E3%80%81%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E4%B8%8B%E8%BD%BD"><span class="nav-number">4.3.</span> <span class="nav-text">3、文件上传下载</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E2%91%A0%E3%80%81%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0"><span class="nav-number">4.3.1.</span> <span class="nav-text">①、文件上传</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E2%91%A1%E3%80%81%E6%96%87%E4%BB%B6%E4%B8%8B%E8%BD%BD"><span class="nav-number">4.3.2.</span> <span class="nav-text">②、文件下载</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4%E3%80%81%E8%B7%B3%E6%9D%BF%E6%9C%BA"><span class="nav-number">4.4.</span> <span class="nav-text">4、跳板机</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="rstyro"
+      src="/blog/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">rstyro</p>
+  <div class="site-description" itemprop="description">人间的饭，吃一碗少一碗，身边的人，见一面少一面，脚下的路，走一天少一天，其实人生就是一个减法，来日并不方长！</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives/">
+        
+          <span class="site-state-item-count">216</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/blog/tags/">
+          
+        <span class="site-state-item-count">88</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/rstyro" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;rstyro" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/rstyro" title="Gitee → https:&#x2F;&#x2F;gitee.com&#x2F;rstyro" rel="noopener" target="_blank"><i class="fab fa-codiepie fa-fw"></i>Gitee</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.jianshu.com/u/651c15a1758a" title="简书 → https:&#x2F;&#x2F;www.jianshu.com&#x2F;u&#x2F;651c15a1758a" rel="noopener" target="_blank"><i class="fa fa-book fa-fw"></i>简书</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      友链
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://rstyro.github.io/blog/" title="https:&#x2F;&#x2F;rstyro.github.io&#x2F;blog&#x2F;">胖不了小陆</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; Mon Apr 10 2017 08:00:00 GMT+0800 (中国标准时间) – 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">以梦为马，诗酒趁年华</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/muse.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+  <script>
+    (function(){
+      var canonicalURL, curProtocol;
+      //Get the <link> tag
+      var x=document.getElementsByTagName("link");
+		//Find the last canonical URL
+		if(x.length > 0){
+			for (i=0;i<x.length;i++){
+				if(x[i].rel.toLowerCase() == 'canonical' && x[i].href){
+					canonicalURL=x[i].href;
+				}
+			}
+		}
+    //Get protocol
+	    if (!canonicalURL){
+	    	curProtocol = window.location.protocol.split(':')[0];
+	    }
+	    else{
+	    	curProtocol = canonicalURL.split(':')[0];
+	    }
+      //Get current URL if the canonical URL does not exist
+	    if (!canonicalURL) canonicalURL = window.location.href;
+	    //Assign script content. Replace current URL with the canonical URL
+      !function(){var e=/([http|https]:\/\/[a-zA-Z0-9\_\.]+\.baidu\.com)/gi,r=canonicalURL,t=document.referrer;if(!e.test(r)){var n=(String(curProtocol).toLowerCase() === 'https')?"https://sp0.baidu.com/9_Q4simg2RQJ8t7jm9iCKT-xh_/s.gif":"//api.share.baidu.com/s.gif";t?(n+="?r="+encodeURIComponent(document.referrer),r&&(n+="&l="+r)):r&&(n+="?l="+r);var i=new Image;i.src=n}}(window);})();
+  </script>
+
+
+
+
+  
+<script src="/blog/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+<script>
+if (document.querySelectorAll('pre.mermaid').length) {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mermaid@8/dist/mermaid.min.js', () => {
+    mermaid.initialize({
+      theme    : 'default',
+      logLevel : 3,
+      flowchart: { curve     : 'linear' },
+      gantt    : { axisFormat: '%m/%d/%Y' },
+      sequence : { actorMargin: 50 }
+    });
+  }, window.mermaid);
+}
+</script>
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : 'Ov23litYkWaOGM7kAKPD',
+      clientSecret: '43bd3cf99bfcb9d05d16627c97a9f7a0200df04a',
+      repo        : 'blog',
+      owner       : 'rstyro',
+      admin       : ['rstyro'],
+      id          : 'f8dfda6b5663ce42c957620ad3d3b70d',
+        language: '',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>

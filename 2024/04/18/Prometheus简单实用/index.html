@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/favicon.jpg">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon.jpg">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon.jpg">
+  <link rel="mask-icon" href="/blog/images/favicon.jpg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="/blog/lib/pace/pace-theme-flash.min.css">
+  <script src="/blog/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"rstyro.github.io","root":"/blog/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":true},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.json"};
+  </script>
+
+  <meta name="description" content="一、什么是Prometheus？ Prometheus 是一个开源的系统监控和警报工具，主要用于采集和存储时间序列数据，它主要服务于现代的云原生环境，支持各种基础设施和应用程序的监控。 最初在 SoundCloud 构建。自 2012 年成立以来，许多 公司和组织都采用了 Prometheus，该项目有一个非常 活跃的开发人员和用户社区。它现在是一个独立的开源项目 并独立于任何公司进行维护。强调这">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Prometheus简单实用">
+<meta property="og:url" content="https://rstyro.github.io/blog/2024/04/18/Prometheus%E7%AE%80%E5%8D%95%E5%AE%9E%E7%94%A8/index.html">
+<meta property="og:site_name" content="胖不了小陆">
+<meta property="og:description" content="一、什么是Prometheus？ Prometheus 是一个开源的系统监控和警报工具，主要用于采集和存储时间序列数据，它主要服务于现代的云原生环境，支持各种基础设施和应用程序的监控。 最初在 SoundCloud 构建。自 2012 年成立以来，许多 公司和组织都采用了 Prometheus，该项目有一个非常 活跃的开发人员和用户社区。它现在是一个独立的开源项目 并独立于任何公司进行维护。强调这">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://rstyro.github.io/blog/2024/04/18/Prometheus%E7%AE%80%E5%8D%95%E5%AE%9E%E7%94%A8/datasource1.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/dashboard.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2024/04/18/Prometheus%E7%AE%80%E5%8D%95%E5%AE%9E%E7%94%A8/load1.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2024/04/18/Prometheus%E7%AE%80%E5%8D%95%E5%AE%9E%E7%94%A8/load2.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2024/04/18/Prometheus%E7%AE%80%E5%8D%95%E5%AE%9E%E7%94%A8/view.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2024/04/18/Prometheus%E7%AE%80%E5%8D%95%E5%AE%9E%E7%94%A8/jvm.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2024/04/18/Prometheus%E7%AE%80%E5%8D%95%E5%AE%9E%E7%94%A8/jvm2.png">
+<meta property="article:published_time" content="2024-04-18T12:42:45.000Z">
+<meta property="article:modified_time" content="2024-04-18T12:42:45.000Z">
+<meta property="article:author" content="rstyro">
+<meta property="article:tag" content="Prometheus">
+<meta property="article:tag" content="Grafana">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://rstyro.github.io/blog/2024/04/18/Prometheus%E7%AE%80%E5%8D%95%E5%AE%9E%E7%94%A8/datasource1.png">
+
+<link rel="canonical" href="https://rstyro.github.io/blog/2024/04/18/Prometheus%E7%AE%80%E5%8D%95%E5%AE%9E%E7%94%A8/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Prometheus简单实用 | 胖不了小陆</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">胖不了小陆</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">信你所信，为你所见</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/blog/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/blog/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/blog/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/rstyro" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://rstyro.github.io/blog/2024/04/18/Prometheus%E7%AE%80%E5%8D%95%E5%AE%9E%E7%94%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/avatar.jpg">
+      <meta itemprop="name" content="rstyro">
+      <meta itemprop="description" content="人间的饭，吃一碗少一碗，身边的人，见一面少一面，脚下的路，走一天少一天，其实人生就是一个减法，来日并不方长！">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="胖不了小陆">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Prometheus简单实用
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2024-04-18 20:42:45" itemprop="dateCreated datePublished" datetime="2024-04-18T20:42:45+08:00">2024-04-18</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/Java/" itemprop="url" rel="index"><span itemprop="name">Java</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h3 id="一、什么是Prometheus？"><a href="#一、什么是Prometheus？" class="headerlink" title="一、什么是Prometheus？"></a>一、什么是Prometheus？</h3><ul>
+<li>Prometheus 是一个开源的系统监控和警报工具，主要用于采集和存储时间序列数据，它主要服务于现代的云原生环境，支持各种基础设施和应用程序的监控。</li>
+<li>最初在 SoundCloud 构建。自 2012 年成立以来，许多 公司和组织都采用了 Prometheus，该项目有一个非常 活跃的开发人员和用户社区。它现在是一个独立的开源项目 并独立于任何公司进行维护。强调这一点，并澄清 该项目的治理架构，Prometheus 于 2016 年加入云原生计算基金会 作为继 Kubernetes 之后的第二个托管项目。</li>
+</ul>
+<span id="more"></span>
+
+<h4 id="1、特征"><a href="#1、特征" class="headerlink" title="1、特征"></a>1、特征</h4><p>Prometheus 的主要功能是：</p>
+<ul>
+<li><p><strong>多维度数据模型：</strong>Prometheus 使用一个多维度的数据模型，每个样本数据都有一个时间戳、一个数值和一组标签（labels），这使得它可以高效地进行聚合和查询。</p>
+</li>
+<li><p><strong>Pull-based数据采集：</strong>Prometheus 主动从被监控目标（targets）拉取指标数据，而不是等待目标主动推送。</p>
+</li>
+<li><p><strong>强大的查询语言PromQL：</strong>Prometheus 提供了一种强大的表达式查询语言PromQL，用户可以编写复杂的查询语句来分析和可视化监控数据。</p>
+</li>
+<li><p><strong>持久化存储：</strong>Prometheus 内置了本地存储，可以长期存储历史数据，并支持水平扩展以容纳大量数据。</p>
+</li>
+<li><p><strong>警报管理：</strong>Prometheus 提供了警报规则和警报管理器，可以基于指标触发警报，并通过Alertmanager将警报发送给多种通知渠道。</p>
+</li>
+</ul>
+<p>在Spring Cloud项目中，Prometheus 可以发挥重要作用，尤其在微服务架构环境中：</p>
+<ul>
+<li><strong>服务监控：</strong>通过集成Micrometer库（Spring Boot Actuator默认集成了Micrometer），Spring Cloud应用可以导出Prometheus格式的监控指标，如服务调用次数、响应时间、内存使用情况等。</li>
+<li><strong>服务网格监控：</strong>在Spring Cloud Gateway、Spring Cloud Kubernetes等场景下，Prometheus可以很好地配合服务网格，监控各个服务实例的性能和状态。</li>
+<li><strong>集群监控：</strong>Prometheus可以与Kubernetes等容器编排平台无缝集成，监控容器的生命周期、资源使用等。</li>
+</ul>
+<h4 id="2、Prometheus有什么用，解决了什么问题"><a href="#2、Prometheus有什么用，解决了什么问题" class="headerlink" title="2、Prometheus有什么用，解决了什么问题"></a>2、Prometheus有什么用，解决了什么问题</h4><p>Prometheus主要解决了现代分布式系统监控的以下几个问题：</p>
+<ul>
+<li><strong>集中化监控：</strong>Prometheus通过统一的监控平台收集和展现各种基础设施和应用的指标数据，实现了全栈监控。</li>
+<li><strong>灵活查询与可视化：</strong>PromQL允许用户编写复杂的查询表达式，深入了解系统性能和行为，配合Grafana等可视化工具，可以直观呈现监控数据和趋势。</li>
+<li><strong>自动化告警：</strong>Prometheus具备强大的告警功能，可以设定阈值触发告警，并通过Alertmanager进行告警通知和路由。</li>
+<li><strong>云原生兼容：</strong>Prometheus很好地契合了Kubernetes等容器编排平台，可以轻松监控容器化服务及其资源使用情况。</li>
+</ul>
+<h4 id="3、术语名词解释"><a href="#3、术语名词解释" class="headerlink" title="3、术语名词解释"></a>3、术语名词解释</h4><ul>
+<li><p>**1、指标（Metrics）： **</p>
+<ul>
+<li>指标是Prometheus监控的基本元素，包括但不限于计数器（Counters）、仪表盘（Gauges）、直方图（Histograms）和摘要（Summaries）。它们是度量系统状态和行为的数据点，如CPU利用率、内存使用量、HTTP请求成功率等。</li>
+</ul>
+</li>
+<li><p>**2、Exporter： **</p>
+<ul>
+<li>Exporter是Prometheus生态中的一种组件，负责从各种系统、服务和应用程序中收集指标，并以Prometheus可以抓取的格式暴露出来。例如，Node Exporter用于收集主机系统指标，而Jaeger Tracer Exporter则用于收集分布式追踪数据。</li>
+</ul>
+</li>
+<li><p>**3、Pull模型： **</p>
+<ul>
+<li>Prometheus采用Pull（拉取）模型收集数据，即Prometheus服务器定期主动从配置的目标（Target）处拉取指标数据。</li>
+</ul>
+</li>
+<li><p>**4、Pushgateway： **</p>
+<ul>
+<li>对于短暂任务或批量作业不适合Pull模型的情况下，可以使用Pushgateway暂时存储指标数据，再由Prometheus拉取。</li>
+</ul>
+</li>
+<li><p>**5、Service Discovery： **</p>
+<ul>
+<li>服务发现机制使Prometheus能自动发现和管理监控的目标，减少手动配置的工作量。</li>
+</ul>
+</li>
+</ul>
+<h3 id="二、Prometheus安装"><a href="#二、Prometheus安装" class="headerlink" title="二、Prometheus安装"></a>二、Prometheus安装</h3><ul>
+<li>Prometheus（普罗米修斯）安装</li>
+<li>Github地址：<a target="_blank" rel="noopener" href="https://github.com/prometheus/prometheus">https://github.com/prometheus/prometheus</a></li>
+<li>下载地址：<a target="_blank" rel="noopener" href="https://prometheus.io/download/">https://prometheus.io/download/</a></li>
+<li>下载对应系统的安装包，然后解压即可执行进程,如windows的<code>prometheus.exe</code><ul>
+<li>默认启动端口是9090，执行之后即可访问：<a target="_blank" rel="noopener" href="http://localhost:9090/">http://localhost:9090/</a> 前端UI页面</li>
+<li>如果想修改启动端口则：<code>prometheus.exe --web.listen-address=:9091</code></li>
+</ul>
+</li>
+</ul>
+<h4 id="1、Prometheus监控组件"><a href="#1、Prometheus监控组件" class="headerlink" title="1、Prometheus监控组件"></a>1、Prometheus监控组件</h4><ul>
+<li>在Prometheus下载页，可以看到与Prometheus监控系统紧密相关的组件可以下载</li>
+<li><strong>blackbox_exporter</strong><ul>
+<li>blackbox_exporter 是一个用于执行黑盒监控的工具，它可以通过HTTP(S)、TCP、ICMP等协议来检测远程服务的可达性、响应时间和性能指标。它可以用来监控任何可网络访问的服务端点，而无需了解服务内部工作原理。</li>
+</ul>
+</li>
+<li><strong>consul_exporter</strong><ul>
+<li>consul_exporter 用于从Consul（一款服务网格和服务发现工具）中提取服务健康状况、节点状态和其他关键指标，并将其转换为Prometheus可读的格式，这样Prometheus就可以收集并分析Consul集群中的服务监控数据。</li>
+</ul>
+</li>
+<li><strong>graphite_exporter</strong><ul>
+<li>graphite_exporter 旨在从Graphite服务器导入指标数据。Graphite是一个广泛使用的时序数据存储和可视化工具，graphite_exporter 将其存储的数据格式转换为 Prometheus 可以抓取的格式，使得Prometheus可以整合Graphite环境下的监控数据。</li>
+</ul>
+</li>
+<li><strong>memcached_exporter</strong><ul>
+<li>memcached_exporter 是针对Memcached内存缓存系统的监控工具，它收集Memcached实例的各种统计信息，并暴露给Prometheus进行监控，如缓存命中率、连接数、缓存使用情况等。</li>
+</ul>
+</li>
+<li><strong>mysqld_exporter</strong><ul>
+<li>mysqld_exporter 是专为MySQL数据库设计的监控组件，它可以收集MySQL服务器的性能指标，比如查询速率、连接数、锁争用情况、缓存效率等，并将这些信息转换为Prometheus可以处理的形式。</li>
+</ul>
+</li>
+<li><strong>node_exporter</strong><ul>
+<li>node_exporter 是用于收集本地机器（即“节点”）硬件和操作系统级别的指标，包括CPU使用率、内存使用情况、磁盘I&#x2F;O、网络流量等系统级统计信息，是Prometheus监控基础设施的重要组成部分。</li>
+</ul>
+</li>
+<li><strong>promlens</strong><ul>
+<li>promlens 是Prometheus的一个附加工具，主要用于查询数据聚合、可视化和报警规则编写，提供了一种更高级的方式来查询和理解Prometheus中的复杂数据关系。</li>
+</ul>
+</li>
+<li><strong>pushgateway</strong><ul>
+<li>pushgateway 是Prometheus架构中的一个组件，它允许临时性的或批处理作业（例如定时任务）将指标推送到Gateway，而不是由Prometheus主动拉取。这对于不支持长时间存活或无法直接被Prometheus拉取数据的job非常有用。</li>
+</ul>
+</li>
+<li><strong>statsd_exporter</strong><ul>
+<li>statsd_exporter 是一个接收StatsD协议发送的指标数据并将之转换为Prometheus可以抓取的格式的工具。StatsD是一种轻量级的度量传输协议，常用于应用程序中实时发送统计数据。通过statsd_exporter，原本使用StatsD的应用程序可以无缝对接到Prometheus监控体系中</li>
+</ul>
+</li>
+</ul>
+<h3 id="三、SpringBoot整合Prometheus"><a href="#三、SpringBoot整合Prometheus" class="headerlink" title="三、SpringBoot整合Prometheus"></a>三、SpringBoot整合Prometheus</h3><p>导入依赖</p>
+<h4 id="1、导入依赖"><a href="#1、导入依赖" class="headerlink" title="1、导入依赖"></a>1、导入依赖</h4><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-actuator<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>io.micrometer<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>micrometer-registry-prometheus<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="2、修改配置"><a href="#2、修改配置" class="headerlink" title="2、修改配置"></a>2、修改配置</h4><ul>
+<li>在Java应用的application.properties或application.yml中启用并配置Prometheus端点暴露</li>
+</ul>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">management:</span></span><br><span class="line">  <span class="attr">metrics:</span></span><br><span class="line">    <span class="attr">export:</span></span><br><span class="line">      <span class="attr">prometheus:</span></span><br><span class="line">        <span class="attr">enabled:</span> <span class="literal">true</span></span><br><span class="line">  <span class="attr">endpoints:</span></span><br><span class="line">    <span class="attr">web:</span></span><br><span class="line">      <span class="comment"># 默认 /actuator，修改地址，不容易让人猜到</span></span><br><span class="line">      <span class="attr">base-path:</span> <span class="string">/rateIndex</span></span><br><span class="line">      <span class="attr">exposure:</span></span><br><span class="line">      <span class="comment"># 如果暴露所有就 &#x27;*&#x27; 需要用单引号包起来</span></span><br><span class="line">        <span class="attr">include:</span> <span class="string">health,</span> <span class="string">prometheus</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>启动Spring Boot应用后，可以直接访问<a target="_blank" rel="noopener" href="http://localhost:8080/rateIndex/prometheus%EF%BC%88%E5%81%87%E8%AE%BE%E4%BD%A0%E7%9A%84%E5%BA%94%E7%94%A8%E7%9B%91%E5%90%AC%E5%9C%A88080%E7%AB%AF%E5%8F%A3%E4%B8%8A%EF%BC%89%EF%BC%8C%E4%BD%A0%E4%BC%9A%E7%9C%8B%E5%88%B0%E5%BA%94%E7%94%A8%E6%9A%B4%E9%9C%B2%E5%87%BA%E6%9D%A5%E7%9A%84%E6%89%80%E6%9C%89%E7%AC%A6%E5%90%88Prometheus%E6%A0%BC%E5%BC%8F%E7%9A%84%E6%8C%87%E6%A0%87%E6%95%B0%E6%8D%AE%E3%80%82">http://localhost:8080/rateIndex/prometheus（假设你的应用监听在8080端口上），你会看到应用暴露出来的所有符合Prometheus格式的指标数据。</a></li>
+<li>为了在监控系统中进行分组和筛选，我们可以加上全局标签,新建一个配置类</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> io.micrometer.core.instrument.MeterRegistry;</span><br><span class="line"><span class="keyword">import</span> org.springframework.beans.factory.annotation.Value;</span><br><span class="line"><span class="keyword">import</span> org.springframework.boot.actuate.autoconfigure.metrics.MeterRegistryCustomizer;</span><br><span class="line"><span class="keyword">import</span> org.springframework.boot.autoconfigure.AutoConfiguration;</span><br><span class="line"><span class="keyword">import</span> org.springframework.context.annotation.Bean;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * prometheus 配置</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@AutoConfiguration</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">PrometheusConfiguration</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 添加全局标签，便于在监控系统中进行分组和筛选。</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> applicationName appName</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="keyword">public</span> MeterRegistryCustomizer&lt;MeterRegistry&gt; <span class="title function_">configurer</span><span class="params">(<span class="meta">@Value(&quot;$&#123;spring.application.name&#125;&quot;)</span> String applicationName)</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> (registry) -&gt; registry.config().commonTags(<span class="string">&quot;application&quot;</span>, applicationName);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<p><strong>修改Prometheus配置</strong></p>
+<ul>
+<li>在Prometheus服务器的配置文件prometheus.yml中，需要添加一个静态配置条目指向Spring Boot应用暴露的Prometheus端点：</li>
+</ul>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">scrape_configs:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">job_name:</span> <span class="string">&quot;cloud-user&quot;</span></span><br><span class="line">    <span class="attr">scrape_interval:</span> <span class="string">20s</span></span><br><span class="line">    <span class="attr">scrape_timeout:</span> <span class="string">20s</span></span><br><span class="line"><span class="comment">#	这里的 /rateIndex 是改过的，原来是/actuator</span></span><br><span class="line">    <span class="attr">metrics_path:</span> <span class="string">&quot;/rateIndex/prometheus&quot;</span></span><br><span class="line">    <span class="attr">static_configs:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">targets:</span> [<span class="string">&quot;localhost:8001&quot;</span>]</span><br><span class="line">      <span class="comment"># 注意labels前面是不带 - 的，意思是 指标添加app=&quot;cloud-user&quot;的标签</span></span><br><span class="line">        <span class="attr">labels:</span></span><br><span class="line">          <span class="attr">app:</span> <span class="string">cloud-user</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>然后重启Prometheus服务，它将会开始抓取你在Spring Boot应用中定义和暴露的所有指标。</li>
+<li>这样，你就成功地将Spring Boot应用与Prometheus进行了整合，现在可以通过Prometheus的Web界面或者其他可视化工具查看和分析应用的各项指标数据了。</li>
+<li>可以访问：<a target="_blank" rel="noopener" href="http://localhost:9090/targets?search=">http://localhost:9090/targets?search=</a> 查看连接情况</li>
+</ul>
+<h3 id="四、Grafana可视化Prometheus数据"><a href="#四、Grafana可视化Prometheus数据" class="headerlink" title="四、Grafana可视化Prometheus数据"></a>四、Grafana可视化Prometheus数据</h3><ul>
+<li><p>Grafana 是一款开源的、功能强大的数据可视化和分析平台，它支持多种数据源，特别适合用来创建交互式的仪表板，用于实时监控和数据分析。Grafana 的主要特点和功能包括：</p>
+</li>
+<li><p><strong>数据源多样性：</strong>Grafana 可以连接多种数据源，包括但不限于 Prometheus、Graphite、InfluxDB、Elasticsearch、MySQL、PostgreSQL、Microsoft SQL Server、MongoDB、Azure Monitor、AWS CloudWatch 等众多数据库和监控系统。</p>
+</li>
+<li><p><strong>可视化仪表板：</strong>用户可以使用 Grafana 创建高度定制化的仪表板，通过丰富的图形组件（如折线图、柱状图、饼图、热力图、地理地图等）来展示数据，这些仪表板可以反映系统性能、业务运营、数据库状态等各种维度的信息。</p>
+</li>
+<li><p><strong>动态查询和警报：</strong>Grafana 内置 PromQL、Elasticsearch 查询 DSL 等多种查询语言的支持，允许用户在Explore（探索）模式下实时查询数据，也可以在仪表板中定义动态数据视图。•Grafana 提供强大的警报功能，用户可以基于数据源中的指标设置警报规则，当满足特定条件时，Grafana 会通过邮件、Slack、PagerDuty等多种渠道发送警报通知。</p>
+</li>
+<li><p><strong>多租户和权限管理：</strong>Grafana 支持多用户登录和角色权限管理，可以设置不同的访问级别，保证数据的安全性和隐私保护。</p>
+</li>
+<li><p><strong>模板和插件：</strong>Grafana 提供了丰富的预设仪表板模板和数据源插件，方便用户快速搭建监控系统，同时也支持自定义插件扩展，增强了灵活性和扩展性。</p>
+</li>
+<li><p><strong>联动与嵌入：</strong>Grafana 支持面板之间的联动功能，即点击一个图表可以触发其他图表过滤或变更视图，此外，仪表板还可以嵌入到其他网页或应用程序中。</p>
+</li>
+<li><p><strong>时间范围与播放：</strong>Grafana 支持灵活的时间范围选择，可以查看实时数据或历史数据，同时还有时间序列播放功能，便于观察数据随时间的变化趋势。</p>
+</li>
+<li><p>总的来说，Grafana 是一套非常实用的数据可视化解决方案，不仅限于 IT 监控领域，也可用于商业智能（BI）和数据分析场景，帮助企业更好地理解和优化其业务表现和技术基础设施。随着时间的发展，Grafana 的功能和易用性都在不断改进和完善，已经成为业界广受欢迎的开源工具之一。</p>
+</li>
+</ul>
+<h4 id="1、Grafana下载安装"><a href="#1、Grafana下载安装" class="headerlink" title="1、Grafana下载安装"></a>1、Grafana下载安装</h4><ul>
+<li>官网地址：<a target="_blank" rel="noopener" href="https://grafana.com/">https://grafana.com/</a></li>
+<li>Github地址：<a target="_blank" rel="noopener" href="https://github.com/grafana/">https://github.com/grafana/</a></li>
+<li>下载地址：<a target="_blank" rel="noopener" href="https://grafana.com/grafana/download?pg=graf&plcmt=deploy-box-1&platform=windows">https://grafana.com/grafana/download?pg=graf&amp;plcmt=deploy-box-1&amp;platform=windows</a></li>
+</ul>
+<p><strong>Linux</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Linux 下载解压就行</span></span><br><span class="line">wget https://dl.grafana.com/enterprise/release/grafana-enterprise-10.4.2.linux-amd64.tar.gz</span><br><span class="line">tar -zxvf grafana-enterprise-10.4.2.linux-amd64.tar.gz</span><br><span class="line"><span class="comment"># 进入bin目录允许即可</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>windwos</strong></p>
+<ul>
+<li>下载二进制安装包：<a target="_blank" rel="noopener" href="https://dl.grafana.com/enterprise/release/grafana-enterprise-10.4.2.windows-amd64.msi">https://dl.grafana.com/enterprise/release/grafana-enterprise-10.4.2.windows-amd64.msi</a></li>
+<li>或者下载压缩包然后解压：<a target="_blank" rel="noopener" href="https://dl.grafana.com/enterprise/release/grafana-enterprise-10.4.2.windows-amd64.zip">https://dl.grafana.com/enterprise/release/grafana-enterprise-10.4.2.windows-amd64.zip</a><ul>
+<li>解压之后执行，bin目录下的grafana-server.exe就行</li>
+</ul>
+</li>
+</ul>
+<h4 id="2、Grafana配置Prometheus"><a href="#2、Grafana配置Prometheus" class="headerlink" title="2、Grafana配置Prometheus"></a>2、Grafana配置Prometheus</h4><ul>
+<li>启动Grafana之后，浏览器访问：<a target="_blank" rel="noopener" href="http://localhost:3000/">http://localhost:3000/</a> （默认启动端口3000）</li>
+<li>然后输入用户名密码，默认都是：<code>admin</code>,（输入之后可能会提示你修改新密码）</li>
+<li>添加数据源，大概在Connections&#x3D;&gt;Data Sources&#x3D;&gt;Add new connection，添加Prometheus数据源</li>
+</ul>
+<p><img src="/blog/2024/04/18/Prometheus%E7%AE%80%E5%8D%95%E5%AE%9E%E7%94%A8/datasource1.png"></p>
+<ul>
+<li>在<code>Prometheus server URL:</code>填入我们的Prometheus链接地址：<code>http://localhost:9090/</code>然后拉到最后面添加即可</li>
+<li>然后就可以进入 Dashboards 页面配置我们的仪表盘了</li>
+<li>一个个手动创建 panel 比较麻烦。Grafana 社区鼓励用户分享 Dashboard，</li>
+<li>通过 <a target="_blank" rel="noopener" href="https://grafana.com/dashboards">https://grafana.com/dashboards</a> 网站，可以找到大量可直接使用的 Dashboard 模板。</li>
+<li>Grafana 中所有的 Dashboard 都通过 JSON 进行共享，下载并且导入这些 JSON 文件，就可以直接使用这些已经定义好的 Dashboard，或者通过加载URL或ID。</li>
+<li>比如我们导入：Dashboards  &gt; Import dashboard，可以通过加载ID：3662（地址：<a target="_blank" rel="noopener" href="https://grafana.com/grafana/dashboards/3662-prometheus-2-0-overview/%EF%BC%89%E6%9D%A5%E8%BF%9B%E8%A1%8C%E5%AF%BC%E5%85%A5">https://grafana.com/grafana/dashboards/3662-prometheus-2-0-overview/）来进行导入</a></li>
+</ul>
+<p><img src="/blog/dashboard.png"></p>
+<p><img src="/blog/2024/04/18/Prometheus%E7%AE%80%E5%8D%95%E5%AE%9E%E7%94%A8/load1.png"></p>
+<p><img src="/blog/2024/04/18/Prometheus%E7%AE%80%E5%8D%95%E5%AE%9E%E7%94%A8/load2.png"></p>
+<p><img src="/blog/2024/04/18/Prometheus%E7%AE%80%E5%8D%95%E5%AE%9E%E7%94%A8/view.png"></p>
+<ul>
+<li>我们可以通过Dashboard搜索JVM，然后导入一个我们的jvm可视化。(ID&#x3D;4701)</li>
+</ul>
+<p><img src="/blog/2024/04/18/Prometheus%E7%AE%80%E5%8D%95%E5%AE%9E%E7%94%A8/jvm.png"></p>
+<p><img src="/blog/2024/04/18/Prometheus%E7%AE%80%E5%8D%95%E5%AE%9E%E7%94%A8/jvm2.png"></p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>您的打赏，是我创作的动力！不给钱？那我只能靠想象力充饥了。</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/wechat_pay.jpg" alt="rstyro 微信支付">
+        <p>微信支付</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/alipay.jpg" alt="rstyro 支付宝">
+        <p>支付宝</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/blog/tags/Prometheus/" rel="tag"><i class="fa fa-tag"></i> Prometheus</a>
+              <a href="/blog/tags/Grafana/" rel="tag"><i class="fa fa-tag"></i> Grafana</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2023/12/22/%E5%B8%B8%E7%94%A8%E5%87%BD%E6%95%B0%E5%BC%8F%E6%8E%A5%E5%8F%A3%E7%AE%80%E5%8D%95%E4%BD%BF%E7%94%A8%E7%A4%BA%E4%BE%8B/" rel="prev" title="常用函数式接口简单使用示例">
+      <i class="fa fa-chevron-left"></i> 常用函数式接口简单使用示例
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/blog/2024/04/26/Centos7%E9%83%A8%E7%BD%B2K8S/" rel="next" title="Centos7部署K8S">
+      Centos7部署K8S <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E4%BB%80%E4%B9%88%E6%98%AFPrometheus%EF%BC%9F"><span class="nav-number">1.</span> <span class="nav-text">一、什么是Prometheus？</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1%E3%80%81%E7%89%B9%E5%BE%81"><span class="nav-number">1.1.</span> <span class="nav-text">1、特征</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2%E3%80%81Prometheus%E6%9C%89%E4%BB%80%E4%B9%88%E7%94%A8%EF%BC%8C%E8%A7%A3%E5%86%B3%E4%BA%86%E4%BB%80%E4%B9%88%E9%97%AE%E9%A2%98"><span class="nav-number">1.2.</span> <span class="nav-text">2、Prometheus有什么用，解决了什么问题</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3%E3%80%81%E6%9C%AF%E8%AF%AD%E5%90%8D%E8%AF%8D%E8%A7%A3%E9%87%8A"><span class="nav-number">1.3.</span> <span class="nav-text">3、术语名词解释</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%8C%E3%80%81Prometheus%E5%AE%89%E8%A3%85"><span class="nav-number">2.</span> <span class="nav-text">二、Prometheus安装</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1%E3%80%81Prometheus%E7%9B%91%E6%8E%A7%E7%BB%84%E4%BB%B6"><span class="nav-number">2.1.</span> <span class="nav-text">1、Prometheus监控组件</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%89%E3%80%81SpringBoot%E6%95%B4%E5%90%88Prometheus"><span class="nav-number">3.</span> <span class="nav-text">三、SpringBoot整合Prometheus</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1%E3%80%81%E5%AF%BC%E5%85%A5%E4%BE%9D%E8%B5%96"><span class="nav-number">3.1.</span> <span class="nav-text">1、导入依赖</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2%E3%80%81%E4%BF%AE%E6%94%B9%E9%85%8D%E7%BD%AE"><span class="nav-number">3.2.</span> <span class="nav-text">2、修改配置</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9B%9B%E3%80%81Grafana%E5%8F%AF%E8%A7%86%E5%8C%96Prometheus%E6%95%B0%E6%8D%AE"><span class="nav-number">4.</span> <span class="nav-text">四、Grafana可视化Prometheus数据</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1%E3%80%81Grafana%E4%B8%8B%E8%BD%BD%E5%AE%89%E8%A3%85"><span class="nav-number">4.1.</span> <span class="nav-text">1、Grafana下载安装</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2%E3%80%81Grafana%E9%85%8D%E7%BD%AEPrometheus"><span class="nav-number">4.2.</span> <span class="nav-text">2、Grafana配置Prometheus</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="rstyro"
+      src="/blog/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">rstyro</p>
+  <div class="site-description" itemprop="description">人间的饭，吃一碗少一碗，身边的人，见一面少一面，脚下的路，走一天少一天，其实人生就是一个减法，来日并不方长！</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives/">
+        
+          <span class="site-state-item-count">216</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/blog/tags/">
+          
+        <span class="site-state-item-count">88</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/rstyro" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;rstyro" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/rstyro" title="Gitee → https:&#x2F;&#x2F;gitee.com&#x2F;rstyro" rel="noopener" target="_blank"><i class="fab fa-codiepie fa-fw"></i>Gitee</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.jianshu.com/u/651c15a1758a" title="简书 → https:&#x2F;&#x2F;www.jianshu.com&#x2F;u&#x2F;651c15a1758a" rel="noopener" target="_blank"><i class="fa fa-book fa-fw"></i>简书</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      友链
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://rstyro.github.io/blog/" title="https:&#x2F;&#x2F;rstyro.github.io&#x2F;blog&#x2F;">胖不了小陆</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; Mon Apr 10 2017 08:00:00 GMT+0800 (中国标准时间) – 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">以梦为马，诗酒趁年华</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/muse.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+  <script>
+    (function(){
+      var canonicalURL, curProtocol;
+      //Get the <link> tag
+      var x=document.getElementsByTagName("link");
+		//Find the last canonical URL
+		if(x.length > 0){
+			for (i=0;i<x.length;i++){
+				if(x[i].rel.toLowerCase() == 'canonical' && x[i].href){
+					canonicalURL=x[i].href;
+				}
+			}
+		}
+    //Get protocol
+	    if (!canonicalURL){
+	    	curProtocol = window.location.protocol.split(':')[0];
+	    }
+	    else{
+	    	curProtocol = canonicalURL.split(':')[0];
+	    }
+      //Get current URL if the canonical URL does not exist
+	    if (!canonicalURL) canonicalURL = window.location.href;
+	    //Assign script content. Replace current URL with the canonical URL
+      !function(){var e=/([http|https]:\/\/[a-zA-Z0-9\_\.]+\.baidu\.com)/gi,r=canonicalURL,t=document.referrer;if(!e.test(r)){var n=(String(curProtocol).toLowerCase() === 'https')?"https://sp0.baidu.com/9_Q4simg2RQJ8t7jm9iCKT-xh_/s.gif":"//api.share.baidu.com/s.gif";t?(n+="?r="+encodeURIComponent(document.referrer),r&&(n+="&l="+r)):r&&(n+="?l="+r);var i=new Image;i.src=n}}(window);})();
+  </script>
+
+
+
+
+  
+<script src="/blog/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+<script>
+if (document.querySelectorAll('pre.mermaid').length) {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mermaid@8/dist/mermaid.min.js', () => {
+    mermaid.initialize({
+      theme    : 'default',
+      logLevel : 3,
+      flowchart: { curve     : 'linear' },
+      gantt    : { axisFormat: '%m/%d/%Y' },
+      sequence : { actorMargin: 50 }
+    });
+  }, window.mermaid);
+}
+</script>
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : 'Ov23litYkWaOGM7kAKPD',
+      clientSecret: '43bd3cf99bfcb9d05d16627c97a9f7a0200df04a',
+      repo        : 'blog',
+      owner       : 'rstyro',
+      admin       : ['rstyro'],
+      id          : '028870b97c2dc7f9c78185ce2ef96438',
+        language: '',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>
