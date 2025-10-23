@@ -1,8 +1,7 @@
 ---
 title: spring-ai 三行代码治好AI “祖传健忘症”
-tags: [AI]
-description: 文章描述
-categories: Java
+tags: [AI,Spring AI Alibaba]
+categories: AI
 date: 2025-07-02 11:10:38
 updated: 2025-07-02 11:10:38
 ---

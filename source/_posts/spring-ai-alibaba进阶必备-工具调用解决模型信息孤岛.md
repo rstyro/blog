@@ -1,8 +1,8 @@
 ---
 title: spring-ai-alibaba进阶必备:工具调用解决模型信息孤岛
-tags: [AI]
+tags: [AI,Spring AI Alibaba]
 description: 大模型(LLM)调用工具函数
-categories: Java
+categories: AI
 date: 2025-07-03 13:37:39
 updated: 2025-07-03 13:37:39
 ---

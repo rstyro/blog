@@ -1,8 +1,8 @@
 ---
 title: RAG极速上手：推开大模型落地应用的宝藏大门！
-tags: [AI]
+tags: [AI,Spring AI Alibaba]
 description: RAG可以让大模型回答私域知识
-categories: Java
+categories: AI
 date: 2025-07-05 11:33:39
 updated: 2025-07-05 11:33:39
 ---

@@ -1,8 +1,7 @@
 ---
 title: SpringAI-MCP实战：3步让大模型学会查富婆电话号码
-tags: [AI]
-description: 文章描述
-categories: Java
+tags: [AI,Spring AI Alibaba]
+categories: AI
 date: 2025-07-08 12:02:51
 updated: 2025-07-08 12:02:51
 ---

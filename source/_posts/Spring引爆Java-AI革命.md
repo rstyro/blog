@@ -1,8 +1,7 @@
 ---
 title: Spring引爆Java AI革命：阿里百炼+Spring AI Alibaba=企业级智能新范式
-tags:  [AI]
-description: 文章描述
-categories:  Java
+tags:  [AI,Spring AI Alibaba]
+categories:  AI
 date: 2025-07-01 11:09:44
 updated: 2025-07-01 11:09:44
 ---
