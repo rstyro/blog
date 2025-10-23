@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/favicon.jpg">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon.jpg">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon.jpg">
+  <link rel="mask-icon" href="/blog/images/favicon.jpg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="/blog/lib/pace/pace-theme-flash.min.css">
+  <script src="/blog/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"rstyro.github.io","root":"/blog/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":true},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.json"};
+  </script>
+
+  <meta name="description" content="作为一名程序员，面对层出不穷的开发工具和平台，如何在AI自动化的浪潮中选择最适合自己的技术栈？今天我们就来深度剖析两款备受关注的开源平台：Dify和n8n。它们看似都涉及“工作流”和“自动化”，但设计理念和适用场景有着明显差异。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="自动化工具选型：Dify和n8n，谁才是你的最佳拍档">
+<meta property="og:url" content="https://rstyro.github.io/blog/2025/10/24/%E8%87%AA%E5%8A%A8%E5%8C%96%E5%B7%A5%E5%85%B7%E9%80%89%E5%9E%8B%EF%BC%9ADify%E5%92%8Cn8n%EF%BC%8C%E8%B0%81%E6%89%8D%E6%98%AF%E4%BD%A0%E7%9A%84%E6%9C%80%E4%BD%B3%E6%8B%8D%E6%A1%A3/index.html">
+<meta property="og:site_name" content="胖不了小陆">
+<meta property="og:description" content="作为一名程序员，面对层出不穷的开发工具和平台，如何在AI自动化的浪潮中选择最适合自己的技术栈？今天我们就来深度剖析两款备受关注的开源平台：Dify和n8n。它们看似都涉及“工作流”和“自动化”，但设计理念和适用场景有着明显差异。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-10-24T00:42:51.000Z">
+<meta property="article:modified_time" content="2025-10-23T10:01:25.312Z">
+<meta property="article:author" content="rstyro">
+<meta property="article:tag" content="AI">
+<meta property="article:tag" content="Dify">
+<meta property="article:tag" content="n8n">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://rstyro.github.io/blog/2025/10/24/%E8%87%AA%E5%8A%A8%E5%8C%96%E5%B7%A5%E5%85%B7%E9%80%89%E5%9E%8B%EF%BC%9ADify%E5%92%8Cn8n%EF%BC%8C%E8%B0%81%E6%89%8D%E6%98%AF%E4%BD%A0%E7%9A%84%E6%9C%80%E4%BD%B3%E6%8B%8D%E6%A1%A3/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>自动化工具选型：Dify和n8n，谁才是你的最佳拍档 | 胖不了小陆</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">胖不了小陆</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">信你所信，为你所见</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/blog/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/blog/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/blog/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/rstyro" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://rstyro.github.io/blog/2025/10/24/%E8%87%AA%E5%8A%A8%E5%8C%96%E5%B7%A5%E5%85%B7%E9%80%89%E5%9E%8B%EF%BC%9ADify%E5%92%8Cn8n%EF%BC%8C%E8%B0%81%E6%89%8D%E6%98%AF%E4%BD%A0%E7%9A%84%E6%9C%80%E4%BD%B3%E6%8B%8D%E6%A1%A3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/avatar.jpg">
+      <meta itemprop="name" content="rstyro">
+      <meta itemprop="description" content="人间的饭，吃一碗少一碗，身边的人，见一面少一面，脚下的路，走一天少一天，其实人生就是一个减法，来日并不方长！">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="胖不了小陆">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          自动化工具选型：Dify和n8n，谁才是你的最佳拍档
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2025-10-24 08:42:51" itemprop="dateCreated datePublished" datetime="2025-10-24T08:42:51+08:00">2025-10-24</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2025-10-23 18:01:25" itemprop="dateModified" datetime="2025-10-23T18:01:25+08:00">2025-10-23</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/AI/" itemprop="url" rel="index"><span itemprop="name">AI</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <ul>
+<li>作为一名程序员，面对层出不穷的开发工具和平台，如何在AI自动化的浪潮中选择最适合自己的技术栈？今天我们就来深度剖析两款备受关注的开源平台：Dify和n8n。它们看似都涉及“工作流”和“自动化”，但设计理念和适用场景有着明显差异。</li>
+</ul>
+<span id="more"></span>
+
+<h3 id="一、核心定位与设计哲学"><a href="#一、核心定位与设计哲学" class="headerlink" title="一、核心定位与设计哲学"></a>一、核心定位与设计哲学</h3><h4 id="1、Dify"><a href="#1、Dify" class="headerlink" title="1、Dify"></a>1、Dify</h4><ul>
+<li>Dify诞生于2023年，其名称源自“Define + Modify”。它是一个面向大语言模型（LLM）应用开发的低代码平台，专注帮助开发者快速构建基于AI的智能应用</li>
+<li>专注于低代码AI应用开发的平台，其设计目标是让开发者能够快速构建、部署基于大语言模型的AI应用，如智能客服、知识库问答和对话机器人。它提供了从模型管理、RAG（检索增强生成）到Agent工具调用的全链路AI能力</li>
+</ul>
+<h4 id="2、n8n"><a href="#2、n8n" class="headerlink" title="2、n8n"></a>2、n8n</h4><ul>
+<li>n8n于2019年由德国开发者Jan Oberhauser创立，其核心理念是“连接一切”。它是一个基于Node.js的开源工作流自动化平台</li>
+<li>核心优势在于连接各种系统、API和服务。它通过节点式的可视化方式，将不同的应用和服务连接起来，实现业务流程的自动化。</li>
+</ul>
+<h3 id="二、技术架构与核心能力"><a href="#二、技术架构与核心能力" class="headerlink" title="二、技术架构与核心能力"></a>二、技术架构与核心能力</h3><h4 id="1、Dify-1"><a href="#1、Dify-1" class="headerlink" title="1、Dify"></a>1、Dify</h4><ul>
+<li><p>Dify则采用模块化微服务架构，后端结合TypeScript和Python，前端使用React。它更专注于AI应用开发的全套解决方案</p>
+</li>
+<li><p><strong>功能特性：</strong></p>
+<ul>
+<li><strong>AI原生架构</strong>：Dify专为LLM应用设计，内置RAG引擎、多模型支持（OpenAI、Llama、通义千问等）和Agent框架</li>
+<li><strong>可视化工作流</strong>：提供拖拽式的AI工作流编排，支持复杂的AI流程，如”用户输入→文档检索→LLM生成回答</li>
+<li><strong>企业级特性</strong>：支持私有化部署，具备完整的LLMOps能力，包括版本管理、监控日志和性能分析</li>
+<li><strong>开发效率提升</strong>：通过可视化界面，非专业AI工程师也能参与AI应用的开发，大幅降低技术门槛</li>
+<li><strong>后端即服务</strong>： Dify 的所有产品都附带相应的 API，因此您可以毫不费力地将 Dify 集成到您自己的业务逻辑中</li>
+</ul>
+</li>
+</ul>
+<h4 id="2、n8n-1"><a href="#2、n8n-1" class="headerlink" title="2、n8n"></a>2、n8n</h4><ul>
+<li>n8n采用轻量级架构，后端基于Node.js 和TypeScript，前端使用Vue.js。它默认以单进程运行，支持通过Redis实现队列模式进行水平扩展</li>
+<li><strong>功能特性：</strong><ul>
+<li><strong>完全控制</strong>：使用我们的公平代码许可证自托管或使用我们的<a target="_blank" rel="noopener" href="https://app.n8n.cloud/login">云产品</a></li>
+<li><strong>混合编程模式</strong>：既支持无代码可视化搭建，也允许通过JavaScript&#x2F;Python代码节点进行深度定制</li>
+<li><strong>活跃社区</strong>：400+ 集成和 900+ 即用型<a target="_blank" rel="noopener" href="https://n8n.io/workflows">模板</a></li>
+</ul>
+</li>
+</ul>
+<h3 id="三、综合对比"><a href="#三、综合对比" class="headerlink" title="三、综合对比"></a>三、综合对比</h3><table>
+<thead>
+<tr>
+<th>对比项</th>
+<th>dify</th>
+<th>n8n</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Github地址</strong></td>
+<td><a target="_blank" rel="noopener" href="https://github.com/langgenius/dify">https://github.com/langgenius/dify</a></td>
+<td><a target="_blank" rel="noopener" href="https://github.com/n8n-io/n8n">https://github.com/n8n-io/n8n</a></td>
+</tr>
+<tr>
+<td><strong>核心定位</strong></td>
+<td>专注于大语言模型（LLM）应用开发的<strong>低代码&#x2F;无代码平台</strong>，核心理念是“AI原生”，旨在快速构建AI驱动的智能应用</td>
+<td>开源可视化<strong>工作流自动化工具</strong>，核心理念是“连接一切”，专注于跨系统集成与复杂业务流程自动化</td>
+</tr>
+<tr>
+<td><strong>核心能力</strong></td>
+<td>- 可视化AI工作流编排<br />- RAG知识库、 多模型支持<br />- Agent工具调用、API接口暴露</td>
+<td>- 节点式流程编排<br />- 支持数百种第三方服务集成<br />- 可自定义函数脚本</td>
+</tr>
+<tr>
+<td><strong>部署方式</strong></td>
+<td>本地Docker、Kubernetes、SaaS</td>
+<td>本地、Docker及云服务器部署</td>
+</tr>
+<tr>
+<td><strong>技术栈</strong></td>
+<td>- 前端：React<br/>- 后端：Rust + Python<br/>- 数据库：PostgreSQL、Redis</td>
+<td>- 前端：Vue.js<br/>- 后端：Node.js + TypeScript<br/>- 数据库：PostgreSQL &#x2F; MySQL &#x2F; SQLite</td>
+</tr>
+<tr>
+<td><strong>集成能力</strong></td>
+<td>主要集成AI相关服务和API，工具生态相对聚焦</td>
+<td><strong>集成广泛</strong>：400+预构建节点，覆盖CRM、数据库、云服务等各类系统</td>
+</tr>
+<tr>
+<td><strong>学习曲线</strong></td>
+<td>较低，图形化界面友好，非技术人员可能1-2天即可上手基础功能</td>
+<td>较高，需理解节点逻辑和API集成，掌握复杂工作流可能需要数周</td>
+</tr>
+<tr>
+<td><strong>成本模型</strong></td>
+<td>免费版（基础功能）、专业版和企业版（定制）</td>
+<td>开源免费，同时提供按需付费的企业版</td>
+</tr>
+<tr>
+<td><strong>优势</strong></td>
+<td>- AI原生设计，一站式AI应用开发体验<br/>- 低代码，上手快，适合快速验证<br/>- 内置RAG和Agent框架，AI功能强大</td>
+<td>集成能力广泛，连接性强<br/>- 自托管数据可控，灵活性高<br/>- 社区活跃，资源丰富</td>
+</tr>
+<tr>
+<td><strong>缺点</strong></td>
+<td>- 通用自动化能力较弱<br/>- 复杂集成场景支持有限<br/>- 依赖第三方模型成本</td>
+<td>- 原生AI能力不足，需额外集成<br/>- 学习曲线较陡<br/>- 需要技术背景</td>
+</tr>
+<tr>
+<td><strong>目标用户</strong></td>
+<td>AI应用开发者、产品经理、业务人员</td>
+<td>IT运维、开发者、自动化工程师</td>
+</tr>
+<tr>
+<td><strong>典型应用场景</strong></td>
+<td>- 企业级智能客服系统<br/>- 金融&#x2F;医疗等高安全需求的知识库与问答场景<br/>- 复杂的AI工作流自动化</td>
+<td>- 跨系统数据同步与自动化<br/>- 内容创作与社交媒体运营<br/>- 企业内部流程优化</td>
+</tr>
+</tbody></table>
+<h3 id="四、总结"><a href="#四、总结" class="headerlink" title="四、总结"></a>四、总结</h3><ul>
+<li><p>在选择Dify和n8n时，核心是明确项目的主要目标：</p>
+<ul>
+<li><strong>Dify</strong>是构建AI应用的<strong>专业化工具</strong>，它在AI领域提供更深度的集成和更高效的开发体验</li>
+<li><strong>n8n</strong>是自动化集成的<strong>通用平台</strong>，它在连接不同系统和服务方面具有更强的灵活性和扩展性</li>
+</ul>
+</li>
+<li><p>如果你的项目以AI为核心，追求快速开发和部署AI应用，Dify是更合适的选择；</p>
+</li>
+<li><p>如果你需要的是广泛的系统集成和业务流程自动化，n8n更能满足需求。在复杂项目中，考虑将两者结合使用，往往能获得最佳的效果</p>
+</li>
+<li><p>记住，<strong>工具本身只是手段，解决实际问题才是目的</strong>。</p>
+</li>
+</ul>
+<p>希望这篇对比能帮助你在AI自动化的道路上做出更明智的选择！如果你有具体的使用场景想讨论，欢迎留言交流。</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>您的打赏，是我创作的动力！不给钱？那我只能靠想象力充饥了。</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/wechat_pay.jpg" alt="rstyro 微信支付">
+        <p>微信支付</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/alipay.jpg" alt="rstyro 支付宝">
+        <p>支付宝</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/blog/tags/AI/" rel="tag"><i class="fa fa-tag"></i> AI</a>
+              <a href="/blog/tags/Dify/" rel="tag"><i class="fa fa-tag"></i> Dify</a>
+              <a href="/blog/tags/n8n/" rel="tag"><i class="fa fa-tag"></i> n8n</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2025/10/23/Dify%E6%9C%AC%E5%9C%B0%E9%83%A8%E7%BD%B2%E5%8F%8A%E4%BD%BF%E7%94%A8/" rel="prev" title="Dify本地部署及使用">
+      <i class="fa fa-chevron-left"></i> Dify本地部署及使用
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E6%A0%B8%E5%BF%83%E5%AE%9A%E4%BD%8D%E4%B8%8E%E8%AE%BE%E8%AE%A1%E5%93%B2%E5%AD%A6"><span class="nav-number">1.</span> <span class="nav-text">一、核心定位与设计哲学</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1%E3%80%81Dify"><span class="nav-number">1.1.</span> <span class="nav-text">1、Dify</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2%E3%80%81n8n"><span class="nav-number">1.2.</span> <span class="nav-text">2、n8n</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E6%8A%80%E6%9C%AF%E6%9E%B6%E6%9E%84%E4%B8%8E%E6%A0%B8%E5%BF%83%E8%83%BD%E5%8A%9B"><span class="nav-number">2.</span> <span class="nav-text">二、技术架构与核心能力</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1%E3%80%81Dify-1"><span class="nav-number">2.1.</span> <span class="nav-text">1、Dify</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2%E3%80%81n8n-1"><span class="nav-number">2.2.</span> <span class="nav-text">2、n8n</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E7%BB%BC%E5%90%88%E5%AF%B9%E6%AF%94"><span class="nav-number">3.</span> <span class="nav-text">三、综合对比</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E6%80%BB%E7%BB%93"><span class="nav-number">4.</span> <span class="nav-text">四、总结</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="rstyro"
+      src="/blog/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">rstyro</p>
+  <div class="site-description" itemprop="description">人间的饭，吃一碗少一碗，身边的人，见一面少一面，脚下的路，走一天少一天，其实人生就是一个减法，来日并不方长！</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives/">
+        
+          <span class="site-state-item-count">218</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">15</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/blog/tags/">
+          
+        <span class="site-state-item-count">91</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/rstyro" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;rstyro" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/rstyro" title="Gitee → https:&#x2F;&#x2F;gitee.com&#x2F;rstyro" rel="noopener" target="_blank"><i class="fab fa-codiepie fa-fw"></i>Gitee</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.jianshu.com/u/651c15a1758a" title="简书 → https:&#x2F;&#x2F;www.jianshu.com&#x2F;u&#x2F;651c15a1758a" rel="noopener" target="_blank"><i class="fa fa-book fa-fw"></i>简书</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      友链
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://rstyro.github.io/blog/" title="https:&#x2F;&#x2F;rstyro.github.io&#x2F;blog&#x2F;">胖不了小陆</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; Mon Apr 10 2017 08:00:00 GMT+0800 (中国标准时间) – 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">以梦为马，诗酒趁年华</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/muse.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+  <script>
+    (function(){
+      var canonicalURL, curProtocol;
+      //Get the <link> tag
+      var x=document.getElementsByTagName("link");
+		//Find the last canonical URL
+		if(x.length > 0){
+			for (i=0;i<x.length;i++){
+				if(x[i].rel.toLowerCase() == 'canonical' && x[i].href){
+					canonicalURL=x[i].href;
+				}
+			}
+		}
+    //Get protocol
+	    if (!canonicalURL){
+	    	curProtocol = window.location.protocol.split(':')[0];
+	    }
+	    else{
+	    	curProtocol = canonicalURL.split(':')[0];
+	    }
+      //Get current URL if the canonical URL does not exist
+	    if (!canonicalURL) canonicalURL = window.location.href;
+	    //Assign script content. Replace current URL with the canonical URL
+      !function(){var e=/([http|https]:\/\/[a-zA-Z0-9\_\.]+\.baidu\.com)/gi,r=canonicalURL,t=document.referrer;if(!e.test(r)){var n=(String(curProtocol).toLowerCase() === 'https')?"https://sp0.baidu.com/9_Q4simg2RQJ8t7jm9iCKT-xh_/s.gif":"//api.share.baidu.com/s.gif";t?(n+="?r="+encodeURIComponent(document.referrer),r&&(n+="&l="+r)):r&&(n+="?l="+r);var i=new Image;i.src=n}}(window);})();
+  </script>
+
+
+
+
+  
+<script src="/blog/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+<script>
+if (document.querySelectorAll('pre.mermaid').length) {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mermaid@8/dist/mermaid.min.js', () => {
+    mermaid.initialize({
+      theme    : 'default',
+      logLevel : 3,
+      flowchart: { curve     : 'linear' },
+      gantt    : { axisFormat: '%m/%d/%Y' },
+      sequence : { actorMargin: 50 }
+    });
+  }, window.mermaid);
+}
+</script>
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : 'Ov23litYkWaOGM7kAKPD',
+      clientSecret: '43bd3cf99bfcb9d05d16627c97a9f7a0200df04a',
+      repo        : 'blog',
+      owner       : 'rstyro',
+      admin       : ['rstyro'],
+      id          : '8e58b5959f8326a9865330a90a790d3a',
+        language: '',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>
