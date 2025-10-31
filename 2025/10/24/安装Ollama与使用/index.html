@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/favicon.jpg">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon.jpg">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon.jpg">
+  <link rel="mask-icon" href="/blog/images/favicon.jpg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="/blog/lib/pace/pace-theme-flash.min.css">
+  <script src="/blog/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"rstyro.github.io","root":"/blog/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":true},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.json"};
+  </script>
+
+  <meta name="description" content="Ollama 是一个专为本地运行大型语言模型（LLM）而设计的开源框架。你可以把它想象成一个“模型管理器”，它让在你自己电脑上部署和使用各种 AI 模型变得非常简单，就像安装和运行一个普通软件一样。 它的核心特点是轻量级、模块化，支持同时运行多个不同的模型，并且不需要联网，所有数据处理都在本地完成，非常适合注重隐私、需要离线使用或希望深度定制AI能力的用户。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="安装Ollama与使用">
+<meta property="og:url" content="https://rstyro.github.io/blog/2025/10/24/%E5%AE%89%E8%A3%85Ollama%E4%B8%8E%E4%BD%BF%E7%94%A8/index.html">
+<meta property="og:site_name" content="胖不了小陆">
+<meta property="og:description" content="Ollama 是一个专为本地运行大型语言模型（LLM）而设计的开源框架。你可以把它想象成一个“模型管理器”，它让在你自己电脑上部署和使用各种 AI 模型变得非常简单，就像安装和运行一个普通软件一样。 它的核心特点是轻量级、模块化，支持同时运行多个不同的模型，并且不需要联网，所有数据处理都在本地完成，非常适合注重隐私、需要离线使用或希望深度定制AI能力的用户。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://rstyro.github.io/blog/2025/10/24/%E5%AE%89%E8%A3%85Ollama%E4%B8%8E%E4%BD%BF%E7%94%A8/model.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2025/10/24/%E5%AE%89%E8%A3%85Ollama%E4%B8%8E%E4%BD%BF%E7%94%A8/ollama2.png">
+<meta property="article:published_time" content="2025-10-24T11:09:52.000Z">
+<meta property="article:modified_time" content="2025-10-27T02:27:06.152Z">
+<meta property="article:author" content="rstyro">
+<meta property="article:tag" content="AI">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://rstyro.github.io/blog/2025/10/24/%E5%AE%89%E8%A3%85Ollama%E4%B8%8E%E4%BD%BF%E7%94%A8/model.png">
+
+<link rel="canonical" href="https://rstyro.github.io/blog/2025/10/24/%E5%AE%89%E8%A3%85Ollama%E4%B8%8E%E4%BD%BF%E7%94%A8/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>安装Ollama与使用 | 胖不了小陆</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">胖不了小陆</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">信你所信，为你所见</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/blog/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/blog/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/blog/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/rstyro" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://rstyro.github.io/blog/2025/10/24/%E5%AE%89%E8%A3%85Ollama%E4%B8%8E%E4%BD%BF%E7%94%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/avatar.jpg">
+      <meta itemprop="name" content="rstyro">
+      <meta itemprop="description" content="人间的饭，吃一碗少一碗，身边的人，见一面少一面，脚下的路，走一天少一天，其实人生就是一个减法，来日并不方长！">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="胖不了小陆">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          安装Ollama与使用
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2025-10-24 19:09:52" itemprop="dateCreated datePublished" datetime="2025-10-24T19:09:52+08:00">2025-10-24</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2025-10-27 10:27:06" itemprop="dateModified" datetime="2025-10-27T10:27:06+08:00">2025-10-27</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/AI/" itemprop="url" rel="index"><span itemprop="name">AI</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>Ollama 是一个<strong>专为本地运行大型语言模型（LLM）而设计的开源框架</strong>。你可以把它想象成一个“模型管理器”，它让在你自己电脑上部署和使用各种 AI 模型变得非常简单，就像安装和运行一个普通软件一样。</p>
+<p>它的核心特点是<strong>轻量级、模块化</strong>，支持同时运行多个不同的模型，并且不需要联网，所有数据处理都在本地完成，非常适合注重隐私、需要离线使用或希望深度定制AI能力的用户。</p>
+<span id="more"></span>
+
+<p>选择Ollama进行本地化部署有几个核心优势：</p>
+<ul>
+<li><strong>数据隐私保障</strong>：敏感数据完全在本地处理，不会外传</li>
+<li><strong>定制化开发</strong>：可以自由修改模型参数和提示词</li>
+<li><strong>成本可控</strong>：一次性部署，无需持续支付API调用费用</li>
+<li><strong>离线可用</strong>：无网络环境仍可运行AI能力</li>
+<li><strong>多模型支持</strong>：支持同时运行多个不同模型，满足多样化需求</li>
+</ul>
+<h3 id="1、系统要求与环境准备"><a href="#1、系统要求与环境准备" class="headerlink" title="1、系统要求与环境准备"></a>1、系统要求与环境准备</h3><h4 id="硬件要求"><a href="#硬件要求" class="headerlink" title="硬件要求"></a>硬件要求</h4><table>
+<thead>
+<tr>
+<th align="left">组件</th>
+<th align="left">最低要求</th>
+<th align="left">推荐配置</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>CPU</strong></td>
+<td align="left">多核处理器（4核以上）</td>
+<td align="left">8核以上，支持 AVX2 指令集</td>
+</tr>
+<tr>
+<td align="left"><strong>内存</strong></td>
+<td align="left">8GB RAM</td>
+<td align="left">16GB 或更高（大型模型需要 32GB+）</td>
+</tr>
+<tr>
+<td align="left"><strong>存储</strong></td>
+<td align="left">50GB 可用空间</td>
+<td align="left">200GB+ SSD（模型文件较大）</td>
+</tr>
+<tr>
+<td align="left"><strong>GPU</strong></td>
+<td align="left">集成显卡（CPU 模式）</td>
+<td align="left">NVIDIA GPU（8GB+ 显存，支持 CUDA）</td>
+</tr>
+</tbody></table>
+<h4 id="软件要求"><a href="#软件要求" class="headerlink" title="软件要求"></a>软件要求</h4><ul>
+<li><strong>操作系统</strong>：Windows 10&#x2F;11、macOS 14+、Linux（Ubuntu 18.04+）</li>
+<li><strong>依赖环境</strong>：.NET Runtime（Windows）、Python 3.8+（可选）</li>
+</ul>
+<h3 id="2、安装步骤"><a href="#2、安装步骤" class="headerlink" title="2、安装步骤"></a>2、安装步骤</h3><h4 id="①、下载安装程序"><a href="#①、下载安装程序" class="headerlink" title="①、下载安装程序"></a>①、下载安装程序</h4><ul>
+<li>访问 Ollama 官方网站（<a target="_blank" rel="noopener" href="https://ollama.com/download%EF%BC%89%EF%BC%8C%E9%80%89%E6%8B%A9">https://ollama.com/download），选择</a> “Download for Windows” 按钮下载安装程序（文件名为 <code>OllamaSetup.exe</code>）</li>
+<li><strong>技巧</strong>：国内用户如遇下载速度慢的情况，可尝试使用迅雷等下载工具加速，或将下载链接复制到下载工具中</li>
+</ul>
+<h4 id="②、运行安装程序"><a href="#②、运行安装程序" class="headerlink" title="②、运行安装程序"></a>②、运行安装程序</h4><ul>
+<li><p>双击下载的 <code>OllamaSetup.exe</code>文件，如果出现用户账户控制提示，点击”是”授权安装，<strong>默认是安装在C盘的</strong>。</p>
+</li>
+<li><p><strong>自定义安装路径</strong>：如果希望将 Ollama 安装到非系统盘，可以按照以下步骤操作：</p>
+<ul>
+<li>1、打开命令提示符（CMD）或 PowerShell</li>
+<li>2、切换到安装程序所在目录</li>
+<li>3、执行以下命令（以安装到 D 盘为例）：</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 打开命令提示符或 PowerShell，执行：</span></span><br><span class="line">OllamaSetup.exe /DIR=<span class="string">&quot;D:\install\ollama&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 或者使用绝对路径</span></span><br><span class="line"><span class="string">&quot;C:\Users\用户名\Downloads\OllamaSetup.exe&quot;</span> /DIR=<span class="string">&quot;D:\install\ollama&quot;</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>推荐使用此方法，可以释放系统盘空间  。</p>
+</li>
+<li><p>安装过程会自动完成，最后关闭窗口即可</p>
+</li>
+</ul>
+<h4 id="③-验证安装"><a href="#③-验证安装" class="headerlink" title="③. 验证安装"></a>③. 验证安装</h4><ul>
+<li>安装完成后，打开命令提示符（CMD）或 PowerShell，输入以下命令验证安装是否成功：</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ollama --version</span><br><span class="line"><span class="comment"># 或者</span></span><br><span class="line">ollama -v</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>如果显示版本号（如 <code>ollama version is 0.12.6</code>），那么恭喜你，安装成功了</li>
+</ul>
+<h2 id="二、基本使用教程"><a href="#二、基本使用教程" class="headerlink" title="二、基本使用教程"></a>二、基本使用教程</h2><p>安装好 Ollama 后，我们就可以开始“召唤”AI模型了</p>
+<h3 id="1、下载和运行模型"><a href="#1、下载和运行模型" class="headerlink" title="1、下载和运行模型"></a>1、下载和运行模型</h3><ul>
+<li><p>Ollama 支持丰富的模型库，包括 Llama、DeepSeek 等热门模型。</p>
+</li>
+<li><p><strong>查看模型库</strong>：访问 Ollama</p>
+<ul>
+<li>官方模型库（<a target="_blank" rel="noopener" href="https://ollama.com/library%EF%BC%89%E9%80%89%E6%8B%A9%E6%89%80%E9%9C%80%E6%A8%A1%E5%9E%8B">https://ollama.com/library）选择所需模型</a> 。</li>
+<li>检索模型：<a target="_blank" rel="noopener" href="https://ollama.com/search">https://ollama.com/search</a></li>
+</ul>
+</li>
+<li><p><strong>下载并运行模型</strong>（以 DeepSeek R1 为例）：</p>
+</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 下载并运行模型</span></span><br><span class="line">ollama run deepseek-r1</span><br><span class="line"></span><br><span class="line"><span class="comment"># 仅下载模型（不运行）</span></span><br><span class="line">ollama pull deepseek-r1</span><br><span class="line"></span><br><span class="line"><span class="comment"># 运行已下载的模型</span></span><br><span class="line">ollama run 模型名称</span><br></pre></td></tr></table></figure>
+
+
+<p><img src="/blog/2025/10/24/%E5%AE%89%E8%A3%85Ollama%E4%B8%8E%E4%BD%BF%E7%94%A8/model.png" alt="deepseek模型示例"></p>
+<ul>
+<li>其中模型的 <strong>Size（大小）</strong> 指的是模型加载到内存后占用的总存储空间，这包括了<strong>系统内存（RAM）</strong> 和<strong>显存（VRAM）</strong> 的总和。</li>
+</ul>
+<p><img src="/blog/2025/10/24/%E5%AE%89%E8%A3%85Ollama%E4%B8%8E%E4%BD%BF%E7%94%A8/ollama2.png" alt="ollama运行模型演示图片"></p>
+<h3 id="2、Ollama相关命令"><a href="#2、Ollama相关命令" class="headerlink" title="2、Ollama相关命令"></a>2、Ollama相关命令</h3><ul>
+<li>Ollama 提供了多种命令行工具（CLI）供用户与本地运行的模型进行交互。</li>
+<li>我们可以用 ollama –help 查看包含有哪些命令</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 启动 Ollama 服务以在后台运行</span></span><br><span class="line">ollama serve</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看当前安装的 Ollama 版本</span></span><br><span class="line">ollama version</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看本地模型列表</span></span><br><span class="line">ollama list</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看模型详细信息</span></span><br><span class="line">ollama show 模型名称</span><br><span class="line"></span><br><span class="line"><span class="comment"># 复制模型</span></span><br><span class="line">ollama <span class="built_in">cp</span> 原模型名 新模型名</span><br><span class="line"></span><br><span class="line"><span class="comment"># 删除模型</span></span><br><span class="line">ollama <span class="built_in">rm</span> 模型名称</span><br><span class="line"></span><br><span class="line"><span class="comment"># 停止运行中的模型</span></span><br><span class="line">ollama stop 模型名称</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看运行中的模型</span></span><br><span class="line">ollama ps</span><br></pre></td></tr></table></figure>
+
+
+
+
+<h2 id="三、总结"><a href="#三、总结" class="headerlink" title="三、总结"></a>三、总结</h2><p>Ollama 极大地降低了在本地使用大型语言模型的门槛，将复杂的部署过程简化为几条简单的命令。</p>
+<h4 id="核心优势"><a href="#核心优势" class="headerlink" title="核心优势"></a>核心优势</h4><ul>
+<li><strong>隐私安全</strong>：数据完全本地处理，保障敏感信息安全</li>
+<li><strong>成本效益</strong>：一次部署，长期使用，避免持续 API 费用</li>
+<li><strong>灵活定制</strong>：你可以完全掌控模型行为，进行深度定制和优化，这是云端API无法比拟的</li>
+<li><strong>多模型支持</strong>：轻松切换和对比不同模型的优劣，满足多样化需求</li>
+</ul>
+<h4 id="适用场景"><a href="#适用场景" class="headerlink" title="适用场景"></a>适用场景</h4><ul>
+<li><strong>企业内部</strong>：部署在内部服务器上，用于知识库问答、数据分析和代码辅助，无需担心数据泄露。</li>
+<li><strong>开发测试</strong>：AI应用开发者理想的本地测试环境，方便进行功能验证和提示词工程。</li>
+<li><strong>离线环境</strong>：对于科研人员、野外工作者或任何需要在无网络环境下使用AI的用户</li>
+<li><strong>教育研究</strong>：学生和研究人员可以零成本地学习和实验最新的大语言模型技术</li>
+</ul>
+<h4 id="技术交流区"><a href="#技术交流区" class="headerlink" title="技术交流区"></a>技术交流区</h4><ol>
+<li>你认为本地部署大模型最大的挑战是什么？（性能、成本、易用性？）</li>
+<li>除了Ollama，你还用过哪些优秀的本地AI工具？</li>
+<li>在工作或学习中，哪个场景下本地AI模型给了你最大的帮助？</li>
+</ol>
+<p><strong>欢迎畅所欲言，每一条有价值的评论我们都会认真阅读！</strong></p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>您的打赏，是我创作的动力！不给钱？那我只能靠想象力充饥了。</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/wechat_pay.jpg" alt="rstyro 微信支付">
+        <p>微信支付</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/alipay.jpg" alt="rstyro 支付宝">
+        <p>支付宝</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/blog/tags/AI/" rel="tag"><i class="fa fa-tag"></i> AI</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2025/10/24/%E8%87%AA%E5%8A%A8%E5%8C%96%E5%B7%A5%E5%85%B7%E9%80%89%E5%9E%8B%EF%BC%9ADify%E5%92%8Cn8n%EF%BC%8C%E8%B0%81%E6%89%8D%E6%98%AF%E4%BD%A0%E7%9A%84%E6%9C%80%E4%BD%B3%E6%8B%8D%E6%A1%A3/" rel="prev" title="自动化工具选型：Dify和n8n，谁才是你的最佳拍档">
+      <i class="fa fa-chevron-left"></i> 自动化工具选型：Dify和n8n，谁才是你的最佳拍档
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/blog/2025/10/28/SpringAI%E6%95%B4%E5%90%88MCP%E6%96%B0%E8%8C%83%E5%BC%8FMCP-Annotations/" rel="next" title="SpringAI整合MCP新范式MCP-Annotations">
+      SpringAI整合MCP新范式MCP-Annotations <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#1%E3%80%81%E7%B3%BB%E7%BB%9F%E8%A6%81%E6%B1%82%E4%B8%8E%E7%8E%AF%E5%A2%83%E5%87%86%E5%A4%87"><span class="nav-number">1.</span> <span class="nav-text">1、系统要求与环境准备</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%A1%AC%E4%BB%B6%E8%A6%81%E6%B1%82"><span class="nav-number">1.1.</span> <span class="nav-text">硬件要求</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%BD%AF%E4%BB%B6%E8%A6%81%E6%B1%82"><span class="nav-number">1.2.</span> <span class="nav-text">软件要求</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2%E3%80%81%E5%AE%89%E8%A3%85%E6%AD%A5%E9%AA%A4"><span class="nav-number">2.</span> <span class="nav-text">2、安装步骤</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E2%91%A0%E3%80%81%E4%B8%8B%E8%BD%BD%E5%AE%89%E8%A3%85%E7%A8%8B%E5%BA%8F"><span class="nav-number">2.1.</span> <span class="nav-text">①、下载安装程序</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E2%91%A1%E3%80%81%E8%BF%90%E8%A1%8C%E5%AE%89%E8%A3%85%E7%A8%8B%E5%BA%8F"><span class="nav-number">2.2.</span> <span class="nav-text">②、运行安装程序</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E2%91%A2-%E9%AA%8C%E8%AF%81%E5%AE%89%E8%A3%85"><span class="nav-number">2.3.</span> <span class="nav-text">③. 验证安装</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E5%9F%BA%E6%9C%AC%E4%BD%BF%E7%94%A8%E6%95%99%E7%A8%8B"><span class="nav-number"></span> <span class="nav-text">二、基本使用教程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1%E3%80%81%E4%B8%8B%E8%BD%BD%E5%92%8C%E8%BF%90%E8%A1%8C%E6%A8%A1%E5%9E%8B"><span class="nav-number">1.</span> <span class="nav-text">1、下载和运行模型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2%E3%80%81Ollama%E7%9B%B8%E5%85%B3%E5%91%BD%E4%BB%A4"><span class="nav-number">2.</span> <span class="nav-text">2、Ollama相关命令</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E6%80%BB%E7%BB%93"><span class="nav-number"></span> <span class="nav-text">三、总结</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%A0%B8%E5%BF%83%E4%BC%98%E5%8A%BF"><span class="nav-number">0.1.</span> <span class="nav-text">核心优势</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%80%82%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-number">0.2.</span> <span class="nav-text">适用场景</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%8A%80%E6%9C%AF%E4%BA%A4%E6%B5%81%E5%8C%BA"><span class="nav-number">0.3.</span> <span class="nav-text">技术交流区</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="rstyro"
+      src="/blog/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">rstyro</p>
+  <div class="site-description" itemprop="description">人间的饭，吃一碗少一碗，身边的人，见一面少一面，脚下的路，走一天少一天，其实人生就是一个减法，来日并不方长！</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives/">
+        
+          <span class="site-state-item-count">221</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">15</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/blog/tags/">
+          
+        <span class="site-state-item-count">93</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/rstyro" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;rstyro" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/rstyro" title="Gitee → https:&#x2F;&#x2F;gitee.com&#x2F;rstyro" rel="noopener" target="_blank"><i class="fab fa-codiepie fa-fw"></i>Gitee</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.jianshu.com/u/651c15a1758a" title="简书 → https:&#x2F;&#x2F;www.jianshu.com&#x2F;u&#x2F;651c15a1758a" rel="noopener" target="_blank"><i class="fa fa-book fa-fw"></i>简书</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      友链
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://rstyro.github.io/blog/" title="https:&#x2F;&#x2F;rstyro.github.io&#x2F;blog&#x2F;">胖不了小陆</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; Mon Apr 10 2017 08:00:00 GMT+0800 (中国标准时间) – 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">以梦为马，诗酒趁年华</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/muse.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+  <script>
+    (function(){
+      var canonicalURL, curProtocol;
+      //Get the <link> tag
+      var x=document.getElementsByTagName("link");
+		//Find the last canonical URL
+		if(x.length > 0){
+			for (i=0;i<x.length;i++){
+				if(x[i].rel.toLowerCase() == 'canonical' && x[i].href){
+					canonicalURL=x[i].href;
+				}
+			}
+		}
+    //Get protocol
+	    if (!canonicalURL){
+	    	curProtocol = window.location.protocol.split(':')[0];
+	    }
+	    else{
+	    	curProtocol = canonicalURL.split(':')[0];
+	    }
+      //Get current URL if the canonical URL does not exist
+	    if (!canonicalURL) canonicalURL = window.location.href;
+	    //Assign script content. Replace current URL with the canonical URL
+      !function(){var e=/([http|https]:\/\/[a-zA-Z0-9\_\.]+\.baidu\.com)/gi,r=canonicalURL,t=document.referrer;if(!e.test(r)){var n=(String(curProtocol).toLowerCase() === 'https')?"https://sp0.baidu.com/9_Q4simg2RQJ8t7jm9iCKT-xh_/s.gif":"//api.share.baidu.com/s.gif";t?(n+="?r="+encodeURIComponent(document.referrer),r&&(n+="&l="+r)):r&&(n+="?l="+r);var i=new Image;i.src=n}}(window);})();
+  </script>
+
+
+
+
+  
+<script src="/blog/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+<script>
+if (document.querySelectorAll('pre.mermaid').length) {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mermaid@8/dist/mermaid.min.js', () => {
+    mermaid.initialize({
+      theme    : 'default',
+      logLevel : 3,
+      flowchart: { curve     : 'linear' },
+      gantt    : { axisFormat: '%m/%d/%Y' },
+      sequence : { actorMargin: 50 }
+    });
+  }, window.mermaid);
+}
+</script>
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : 'Ov23litYkWaOGM7kAKPD',
+      clientSecret: '43bd3cf99bfcb9d05d16627c97a9f7a0200df04a',
+      repo        : 'blog',
+      owner       : 'rstyro',
+      admin       : ['rstyro'],
+      id          : 'b82a18d64cdf50aedf409649dfd5347b',
+        language: '',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>
