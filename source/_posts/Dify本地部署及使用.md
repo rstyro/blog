@@ -67,7 +67,7 @@ docker compose up -d
 
 #### 3、访问Dify并初始化
 
-- 在浏览器中输入http://localhost:80（根据配置而定），首次访问会引导你设置管理员账户
+- 在浏览器中输入`http://localhost:80`（根据配置而定），首次访问会引导你设置管理员账户
 
 ![](init.png)
 
