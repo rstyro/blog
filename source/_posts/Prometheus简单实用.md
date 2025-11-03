@@ -46,19 +46,19 @@ Prometheus主要解决了现代分布式系统监控的以下几个问题：
 
 
 #### 3、术语名词解释
-- **1、指标（Metrics）： **
+- **1、指标（Metrics）：**
   - 指标是Prometheus监控的基本元素，包括但不限于计数器（Counters）、仪表盘（Gauges）、直方图（Histograms）和摘要（Summaries）。它们是度量系统状态和行为的数据点，如CPU利用率、内存使用量、HTTP请求成功率等。
 
-- **2、Exporter： **
+- **2、Exporter：**
   - Exporter是Prometheus生态中的一种组件，负责从各种系统、服务和应用程序中收集指标，并以Prometheus可以抓取的格式暴露出来。例如，Node Exporter用于收集主机系统指标，而Jaeger Tracer Exporter则用于收集分布式追踪数据。
 
-- **3、Pull模型： **
+- **3、Pull模型：**
   - Prometheus采用Pull（拉取）模型收集数据，即Prometheus服务器定期主动从配置的目标（Target）处拉取指标数据。
 
-- **4、Pushgateway： **
+- **4、Pushgateway：**
   - 对于短暂任务或批量作业不适合Pull模型的情况下，可以使用Pushgateway暂时存储指标数据，再由Prometheus拉取。
 
-- **5、Service Discovery： **
+- **5、Service Discovery：**
   - 服务发现机制使Prometheus能自动发现和管理监控的目标，减少手动配置的工作量。
 
 
@@ -238,7 +238,7 @@ tar -zxvf grafana-enterprise-10.4.2.linux-amd64.tar.gz
 - Grafana 中所有的 Dashboard 都通过 JSON 进行共享，下载并且导入这些 JSON 文件，就可以直接使用这些已经定义好的 Dashboard，或者通过加载URL或ID。
 - 比如我们导入：Dashboards  > Import dashboard，可以通过加载ID：3662（地址：https://grafana.com/grafana/dashboards/3662-prometheus-2-0-overview/）来进行导入
 
-![](dashboard.png)
+![Grafana仪表板示例图](dashboard.png)
 
 ![](load1.png)
 
