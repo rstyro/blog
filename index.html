@@ -196,6 +196,331 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://rstyro.github.io/blog/2025/11/12/SpringBoot%E9%9B%86%E7%BE%A4%E9%83%A8%E7%BD%B2%E5%A6%82%E4%BD%95%E9%81%BF%E5%85%8D%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1%E9%87%8D%E5%A4%8D%E6%89%A7%E8%A1%8C/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/avatar.jpg">
+      <meta itemprop="name" content="rstyro">
+      <meta itemprop="description" content="人间的饭，吃一碗少一碗，身边的人，见一面少一面，脚下的路，走一天少一天，其实人生就是一个减法，来日并不方长！">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="胖不了小陆">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/blog/2025/11/12/SpringBoot%E9%9B%86%E7%BE%A4%E9%83%A8%E7%BD%B2%E5%A6%82%E4%BD%95%E9%81%BF%E5%85%8D%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1%E9%87%8D%E5%A4%8D%E6%89%A7%E8%A1%8C/" class="post-title-link" itemprop="url">SpringBoot集群部署如何避免定时任务重复执行</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2025-11-12 09:23:50" itemprop="dateCreated datePublished" datetime="2025-11-12T09:23:50+08:00">2025-11-12</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/Java/" itemprop="url" rel="index"><span itemprop="name">Java</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="一、前言"><a href="#一、前言" class="headerlink" title="一、前言"></a>一、前言</h2><p>在单机时代，我们使用Spring的@Scheduled注解稳如老狗。但到了分布式环境，这个“老实人”就变得不可靠了。</p>
+<p><strong>核心问题在于</strong>：Spring的定时任务调度是每个应用实例独立进行的，它们之间没有通信机制。这就好比一个团队没有项目经理，每个成员都按照自己的理解去完成同一个任务，混乱是必然的。</p>
+<p>带来的直接后果：</p>
+<ul>
+<li><strong>资源浪费</strong>：多个实例执行完全相同的任务，消耗宝贵的CPU、内存和数据库连接。</li>
+<li><strong>数据错乱</strong>：核心的数据处理任务被重复执行，导致数据统计不准确，甚至引发业务逻辑错误。</li>
+<li><strong>服务雪崩</strong>：如果任务涉及大量计算或第三方API调用，瞬时多倍的压力可能打垮数据库或外部服务。</li>
+</ul>
+<p>面对这些问题，我们必须给这些”各自为政”的定时任务加上统一的”指挥系统”。</p>
+<h2 id="二、自研方案：分布式锁注解"><a href="#二、自研方案：分布式锁注解" class="headerlink" title="二、自研方案：分布式锁注解"></a>二、自研方案：分布式锁注解</h2><p>如何解决定时任务在集群环境下的重复执行？我们开发一个基于Redis的分布式锁来精准控制。</p>
+<h3 id="1、自定义-ScheduledLock-注解"><a href="#1、自定义-ScheduledLock-注解" class="headerlink" title="1、自定义@ScheduledLock 注解"></a>1、自定义<code>@ScheduledLock</code> 注解</h3><p>这个注解是我们能力的声明，它告诉我们：“这个定时任务，我需要独占执行！”</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Target(&#123;ElementType.METHOD&#125;)</span></span><br><span class="line"><span class="meta">@Retention(RetentionPolicy.RUNTIME)</span></span><br><span class="line"><span class="keyword">public</span> <span class="meta">@interface</span> ScheduledLock &#123;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 锁的key，用于唯一标识一个任务。</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    String <span class="title function_">lockKey</span><span class="params">()</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 锁的持有时间（秒），超过这个时间锁会自动释放，防止死锁。</span></span><br><span class="line"><span class="comment">     * 默认30秒，应根据任务实际执行时间设置。</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="type">long</span> <span class="title function_">holdTime</span><span class="params">()</span> <span class="keyword">default</span> <span class="number">30L</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p><strong>设计精髓</strong>：</p>
+<ul>
+<li>**<code>lockKey</code>**：这是锁的灵魂。它必须全局唯一。</li>
+<li>**<code>holdTime</code>**：这是锁的“保质期”。即使任务执行过程中实例崩溃，Redis也会在超时后自动释放锁，避免了死锁的噩梦。这个时间一定要设置得比任务最大可能执行时间稍长。</li>
+</ul>
+<h3 id="2、自定义RedisDistributedLock分布式锁"><a href="#2、自定义RedisDistributedLock分布式锁" class="headerlink" title="2、自定义RedisDistributedLock分布式锁"></a>2、自定义<code>RedisDistributedLock</code>分布式锁</h3><p>注解只是外表，真正的力量来源于背后的锁逻辑。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">RedisDistributedLock</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Resource</span></span><br><span class="line">    <span class="keyword">private</span> StringRedisTemplate stringRedisTemplate;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">String</span> <span class="variable">LOCK_PREFIX</span> <span class="operator">=</span> <span class="string">&quot;scheduled:lock:&quot;</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 尝试获取分布式锁</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> key      锁的key</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> value    锁的value（通常为机器标识，如IP+PID）</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> holdTime 锁持有时间（秒）</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> 是否获取成功</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="type">boolean</span> <span class="title function_">tryLock</span><span class="params">(String key, String value, <span class="type">long</span> holdTime)</span> &#123;</span><br><span class="line">        <span class="type">String</span> <span class="variable">fullKey</span> <span class="operator">=</span> LOCK_PREFIX + key;</span><br><span class="line">        <span class="comment">// 使用SET NX EX命令，保证原子性：如果key不存在则设置，并设置过期时间。</span></span><br><span class="line">        <span class="type">Boolean</span> <span class="variable">success</span> <span class="operator">=</span> stringRedisTemplate.opsForValue().setIfAbsent(fullKey, value, Duration.ofSeconds(holdTime));</span><br><span class="line">        <span class="keyword">return</span> Boolean.TRUE.equals(success);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 释放分布式锁</span></span><br><span class="line"><span class="comment">     * 注意：释放时需验证value，确保是自己加的锁，防止误删。</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">unlock</span><span class="params">(String key, String value)</span> &#123;</span><br><span class="line">        <span class="type">String</span> <span class="variable">fullKey</span> <span class="operator">=</span> LOCK_PREFIX + key;</span><br><span class="line">        <span class="type">String</span> <span class="variable">currentValue</span> <span class="operator">=</span> stringRedisTemplate.opsForValue().get(fullKey);</span><br><span class="line">        <span class="comment">// 关键逻辑：只能释放自己加的锁</span></span><br><span class="line">        <span class="keyword">if</span> (Objects.equals(value, currentValue)) &#123;</span><br><span class="line">            stringRedisTemplate.delete(fullKey);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// 如果不一致，说明锁已过期或被其他线程/进程获取，无需操作。</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 生成锁的value，用于标识当前持有锁的实例。</span></span><br><span class="line"><span class="comment">     * 格式：IP:PID:ThreadID</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">generateLockValue</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="type">String</span> <span class="variable">ip</span> <span class="operator">=</span> InetAddress.getLocalHost().getHostAddress();</span><br><span class="line">            <span class="type">long</span> <span class="variable">pid</span> <span class="operator">=</span> ProcessHandle.current().pid();</span><br><span class="line">            <span class="type">long</span> <span class="variable">threadId</span> <span class="operator">=</span> Thread.currentThread().getId();</span><br><span class="line">            <span class="keyword">return</span> String.format(<span class="string">&quot;%s:%d:%d&quot;</span>, ip, pid, threadId);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            <span class="keyword">return</span> UUID.randomUUID().toString();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>代码解析</strong>：</p>
+<ul>
+<li><strong><code>tryLock</code>方法</strong>：我们使用了Redis的 <code>SET key value NX EX seconds</code> 命令。这个操作的<strong>原子性</strong>是基石，它确保了“判断是否存在”和“设置值与超时”两个动作一气呵成，避免了并发场景下的竞态条件。</li>
+<li><strong><code>unlock</code>方法</strong>：这是最容易出错的地方。为什么不能直接<code>delete</code>？想象一下：任务A持有锁，但执行时间超过了<code>holdTime</code>，锁自动释放。此时任务B获得了锁并开始执行。如果这时任务A执行完毕，直接调用<code>delete</code>，就会把任务B的锁给删了！所以，我们必须验证<code>value</code>，确保“锁是自己加的”。</li>
+<li><strong><code>generateLockValue</code>方法</strong>：我们生成了一个包含<code>IP:PID:ThreadID</code>的复杂标识，几乎可以保证全局唯一。这比使用简单的UUID或时间戳更能清晰地告诉我们，到底是集群中的哪个节点、哪个进程、哪个线程持有了锁，对于后期排查问题至关重要。</li>
+</ul>
+<h3 id="3、任务调度ScheduledLockAspect-切面"><a href="#3、任务调度ScheduledLockAspect-切面" class="headerlink" title="3、任务调度ScheduledLockAspect 切面"></a>3、任务调度ScheduledLockAspect 切面</h3><p>AOP（面向切面编程）它将分布式锁的逻辑与业务逻辑完美解耦。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Slf4j</span></span><br><span class="line"><span class="meta">@Aspect</span></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ScheduledLockAspect</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Resource</span></span><br><span class="line">    <span class="keyword">private</span> RedisDistributedLock redisDistributedLock;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Around(&quot;@annotation(scheduledLock)&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> Object <span class="title function_">aroundAdvice</span><span class="params">(ProceedingJoinPoint joinPoint, ScheduledLock scheduledLock)</span> <span class="keyword">throws</span> Throwable &#123;</span><br><span class="line">        <span class="type">String</span> <span class="variable">lockKey</span> <span class="operator">=</span> scheduledLock.lockKey();</span><br><span class="line">        <span class="type">long</span> <span class="variable">holdTime</span> <span class="operator">=</span> scheduledLock.holdTime();</span><br><span class="line">        <span class="type">String</span> <span class="variable">lockValue</span> <span class="operator">=</span> redisDistributedLock.generateLockValue();</span><br><span class="line"></span><br><span class="line">        <span class="type">boolean</span> <span class="variable">isLockAcquired</span> <span class="operator">=</span> <span class="literal">false</span>;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="comment">// 1. 尝试获取锁</span></span><br><span class="line">            isLockAcquired = redisDistributedLock.tryLock(lockKey, lockValue, holdTime);</span><br><span class="line">            <span class="keyword">if</span> (!isLockAcquired) &#123;</span><br><span class="line">                log.warn(<span class="string">&quot;【定时任务锁】获取锁失败，任务即将跳过。lockKey: &#123;&#125;&quot;</span>, lockKey);</span><br><span class="line">                <span class="comment">// 这里简单返回null</span></span><br><span class="line">                <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            log.info(<span class="string">&quot;【定时任务锁】成功获取锁，开始执行任务。lockKey: &#123;&#125;, lockValue: &#123;&#125;&quot;</span>, lockKey, lockValue);</span><br><span class="line">            <span class="comment">// 2. 获取锁成功，执行原定时任务方法</span></span><br><span class="line">            <span class="keyword">return</span> joinPoint.proceed();</span><br><span class="line"></span><br><span class="line">        &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">            <span class="comment">// 3. 无论如何，最终都尝试释放锁</span></span><br><span class="line">            <span class="keyword">if</span> (isLockAcquired) &#123;</span><br><span class="line">                <span class="keyword">try</span> &#123;</span><br><span class="line">                    redisDistributedLock.unlock(lockKey, lockValue);</span><br><span class="line">                    log.info(<span class="string">&quot;【定时任务锁】任务执行完毕，锁已释放。lockKey: &#123;&#125;&quot;</span>, lockKey);</span><br><span class="line">                &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">                    log.error(<span class="string">&quot;【定时任务锁】释放锁时发生异常。lockKey: &quot;</span> + lockKey, e);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>代码执行流程</strong>：</p>
+<ul>
+<li><strong>前置增强</strong>：在目标定时任务方法执行前，尝试获取分布式锁。</li>
+<li><strong>短路逻辑</strong>：如果获取失败，直接记录日志并返回，任务被“跳过”。</li>
+<li><strong>执行原逻辑</strong>：如果获取成功，则放心地执行原有的定时任务逻辑。</li>
+<li><strong>后置增强</strong>：在<code>finally</code>块中，确保锁一定会被释放，避免资源泄漏</li>
+</ul>
+<h3 id="4、实战演练"><a href="#4、实战演练" class="headerlink" title="4、实战演练"></a>4、实战演练</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Slf4j</span></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">CustomDemoTask</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Scheduled(fixedDelay = 30000, initialDelay = 1000)</span></span><br><span class="line">    <span class="meta">@ScheduledLock(lockKey = &quot;task:checkOrderTimeout&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">checkOrderTimeout</span><span class="params">()</span> <span class="keyword">throws</span> InterruptedException &#123;</span><br><span class="line">        log.info(<span class="string">&quot;【超时订单检测任务】开始执行...,threadId:&#123;&#125;,threadName=&#123;&#125;&quot;</span>, Thread.currentThread().getId(),Thread.currentThread().getName());</span><br><span class="line">        log.info(<span class="string">&quot;【超时订单检测任务】检测中...,threadId:&#123;&#125;,threadName=&#123;&#125;&quot;</span>, Thread.currentThread().getId(),Thread.currentThread().getName());</span><br><span class="line">        Thread.sleep(<span class="number">30000</span>);</span><br><span class="line">        log.info(<span class="string">&quot;【超时订单检测任务】执行完毕。,threadId:&#123;&#125;,threadName=&#123;&#125;&quot;</span>, Thread.currentThread().getId(),Thread.currentThread().getName());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>代码解读</strong>：</p>
+<ul>
+<li>在<code>checkOrderTimeout</code>方法上，我们同时使用了<code>@Scheduled</code>和<code>@ScheduledLock</code>。</li>
+<li><code>lockKey</code>是一个明确的字符串，所有实例上的这个任务都会竞争同一把锁。</li>
+<li><code>holdTime</code>, 没设置，默认为30秒，这个值设置为大于你预估任务的执行时间，不然设置太短，锁释放了，会被其他实例重复执行。</li>
+</ul>
+<p><img src="/blog/2025/11/12/SpringBoot%E9%9B%86%E7%BE%A4%E9%83%A8%E7%BD%B2%E5%A6%82%E4%BD%95%E9%81%BF%E5%85%8D%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1%E9%87%8D%E5%A4%8D%E6%89%A7%E8%A1%8C/lock1.png" alt="定时任务运行示例图"></p>
+<p>可以看到我们通过不同的端口，启动不同2个实例，如果定时任务被其他实例运行了，那其他实例就不会再次运行了，自此我们已经实现了，分布式集群部署我们就可以实现只有一台实例运行定时任务。</p>
+<h2 id="三、拥抱开源"><a href="#三、拥抱开源" class="headerlink" title="三、拥抱开源"></a>三、拥抱开源</h2><p>自研的轮子跑起来了，感觉很好。但作为一个有经验的开发者，我们必须思考：这个轮子够稳固吗？它能应对所有复杂的边缘情况吗？</p>
+<p><strong>自研方案的潜在陷阱</strong>：</p>
+<ul>
+<li><strong>锁续期问题</strong>：如果任务执行时间超过了<code>holdTime</code>怎么办？自研方案中，锁会自动释放，另一个实例会拿到锁并执行，导致任务再次重复。你需要实现复杂的“看门狗”机制来续期。</li>
+<li><strong>Redis高可用</strong>：如果Redis是单点，它挂了整个系统就瘫痪了。你需要考虑Redis哨兵或集群模式下的兼容性。</li>
+<li><strong>错误处理</strong>：网络抖动导致获取锁失败，是否应该重试？重试策略如何？</li>
+<li><strong>性能与监控</strong>：缺乏开箱即用的监控指标，锁的竞争情况不易察觉。</li>
+</ul>
+<p>这时，我们就可以考虑使用开源的轮子：<strong>ShedLock</strong>。Github地址：<a target="_blank" rel="noopener" href="https://github.com/lukas-krecan/ShedLock">https://github.com/lukas-krecan/ShedLock</a></p>
+<p><strong>ShedLock的几大优势</strong>：</p>
+<ul>
+<li><strong>成熟稳定</strong>：经过大量生产环境验证，社区活跃，有完善的文档和问题解决方案</li>
+<li><strong>多存储支持</strong>：支持MySQL、Redis、MongoDB、ZooKeeper等多种存储后端</li>
+<li><strong>开箱即用</strong>：配置简单，与Spring生态完美集成，几乎零编码</li>
+<li><strong>完善的容错机制</strong>：内置锁超时、自动释放等机制，防止死锁</li>
+</ul>
+<h3 id="1、引入ShedLock"><a href="#1、引入ShedLock" class="headerlink" title="1、引入ShedLock"></a>1、引入ShedLock</h3><p>在你的<code>pom.xml</code>中添加依赖：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- shedlock --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>net.javacrumbs.shedlock<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>shedlock-spring<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>$&#123;shedlock.version&#125;<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">&lt;!-- shedlock redis实现--&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>net.javacrumbs.shedlock<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>shedlock-provider-redis-spring<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>$&#123;shedlock.version&#125;<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="2、配置ShedLock"><a href="#2、配置ShedLock" class="headerlink" title="2、配置ShedLock"></a>2、配置ShedLock</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * shedlock 配置</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="comment">// 默认锁最大持有时间，30分钟</span></span><br><span class="line"><span class="meta">@EnableSchedulerLock(defaultLockAtMostFor = &quot;30m&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ShedlockConfig</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 锁的提供者实现，使用redis</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="keyword">public</span> LockProvider <span class="title function_">lockProvider</span><span class="params">(RedisConnectionFactory connectionFactory)</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">RedisLockProvider</span>.Builder(connectionFactory)</span><br><span class="line">                .keyPrefix(<span class="string">&quot;task-lock&quot;</span>)</span><br><span class="line">                .build();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="3、快速使用"><a href="#3、快速使用" class="headerlink" title="3、快速使用"></a>3、快速使用</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Slf4j</span></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ShedLockDemoTask</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Scheduled(fixedDelay = 5000, initialDelay = 1000)</span></span><br><span class="line">    <span class="meta">@SchedulerLock(name = &quot;checkOrderTimeout&quot;,lockAtMostFor = &quot;1m&quot;,lockAtLeastFor = &quot;10s&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">shedLockCheckOrderTimeout</span><span class="params">()</span> <span class="keyword">throws</span> InterruptedException &#123;</span><br><span class="line">        log.info(<span class="string">&quot;【ShedLockDemoTask】开始执行...,threadId:&#123;&#125;,threadName=&#123;&#125;&quot;</span>, Thread.currentThread().getId(),Thread.currentThread().getName());</span><br><span class="line">        log.info(<span class="string">&quot;【ShedLockDemoTask】执行中...,threadId:&#123;&#125;,threadName=&#123;&#125;&quot;</span>, Thread.currentThread().getId(),Thread.currentThread().getName());</span><br><span class="line">        Thread.sleep(<span class="number">30000</span>);</span><br><span class="line">        log.info(<span class="string">&quot;【ShedLockDemoTask】执行完毕。,threadId:&#123;&#125;,threadName=&#123;&#125;&quot;</span>, Thread.currentThread().getId(),Thread.currentThread().getName());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p><strong><code>@SchedulerLock</code>注解参数解析：</strong></p>
+<ul>
+<li>**<code>name</code>**：锁的唯一标识<ul>
+<li>必须全局唯一，通常使用任务方法名</li>
+<li>支持SpEL表达式，可以实现动态任务名</li>
+<li>不同任务必须使用不同的name</li>
+</ul>
+</li>
+<li>**<code>lockAtMostFor</code>**：锁的最大持有时间<ul>
+<li><strong>作用</strong>：防止任务执行过程中应用崩溃导致死锁</li>
+<li><strong>设置原则</strong>：略大于任务正常执行的最大时间</li>
+<li><strong>示例</strong>：任务通常执行5-8分钟，设置为10分钟</li>
+</ul>
+</li>
+<li>**<code>lockAtLeastFor</code>**：锁的最小持有时间<ul>
+<li><strong>作用</strong>：防止任务执行过快导致多个实例同时获取锁</li>
+<li><strong>适用场景</strong>：高频任务或执行时间很短的任务</li>
+<li><strong>示例</strong>：每10秒执行的任务，设置最小持有时间8秒</li>
+</ul>
+</li>
+</ul>
+<p><img src="/blog/2025/11/12/SpringBoot%E9%9B%86%E7%BE%A4%E9%83%A8%E7%BD%B2%E5%A6%82%E4%BD%95%E9%81%BF%E5%85%8D%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1%E9%87%8D%E5%A4%8D%E6%89%A7%E8%A1%8C/lock2.png" alt="显示Shedlock获取锁失败和成功的日志"></p>
+<p>ShedLock底层也是使用AOP切面的。</p>
+<h2 id="四、总结"><a href="#四、总结" class="headerlink" title="四、总结"></a>四、总结</h2><p>从自研分布式锁到拥抱开源ShedLock。无论选择哪条路径，核心目标都是一致的：在分布式环境下确保定时任务的精确执行。</p>
+<p><strong>关键收获</strong>：</p>
+<ul>
+<li>理解分布式锁的核心原理和实现要点</li>
+<li>掌握AOP在解决横切关注点中的应用</li>
+<li>学会根据团队和项目情况做出合理的技术选型</li>
+</ul>
+<p>在技术选型的道路上，没有绝对的银弹。最重要的是根据实际业务场景、团队技术储备和运维能力，选择最适合的解决方案。</p>
+<p><strong>思考题</strong>：在你的业务场景中，还有哪些可以通过分布式锁解决的并发问题？欢迎在评论区分享你的实战经验！</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://rstyro.github.io/blog/2025/11/10/%E7%AD%96%E7%95%A5%E6%A8%A1%E5%BC%8F%E5%AE%9E%E6%88%98%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%8F%AF%E6%89%A9%E5%B1%95%E6%94%AF%E4%BB%98%E6%9E%B6%E6%9E%84/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/avatar.jpg">
+      <meta itemprop="name" content="rstyro">
+      <meta itemprop="description" content="人间的饭，吃一碗少一碗，身边的人，见一面少一面，脚下的路，走一天少一天，其实人生就是一个减法，来日并不方长！">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="胖不了小陆">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/blog/2025/11/10/%E7%AD%96%E7%95%A5%E6%A8%A1%E5%BC%8F%E5%AE%9E%E6%88%98%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%8F%AF%E6%89%A9%E5%B1%95%E6%94%AF%E4%BB%98%E6%9E%B6%E6%9E%84/" class="post-title-link" itemprop="url">策略模式实战设计与可扩展支付架构</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2025-11-10 16:23:03" itemprop="dateCreated datePublished" datetime="2025-11-10T16:23:03+08:00">2025-11-10</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" itemprop="url" rel="index"><span itemprop="name">设计模式</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="一、前言"><a href="#一、前言" class="headerlink" title="一、前言"></a>一、前言</h2><p>作为一名在Java世界里摸爬滚打了十年的“老码农”，我见证过无数项目的兴起与重构。其中一个最常见的、也是最让人头疼的问题，就是随着业务爆炸式增长，代码中充斥着庞大而脆弱的 <code>if-else</code> 或 <code>switch-case</code> 语句。</p>
+<p>它们像代码的 “肿瘤”，初始时良性，但随着时间推移，变得难以维护、难以测试、难以扩展。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/blog/2025/11/10/%E7%AD%96%E7%95%A5%E6%A8%A1%E5%BC%8F%E5%AE%9E%E6%88%98%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%8F%AF%E6%89%A9%E5%B1%95%E6%94%AF%E4%BB%98%E6%9E%B6%E6%9E%84/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://rstyro.github.io/blog/2025/11/02/Springboot%E5%AE%9E%E7%8E%B02FA%E5%8F%8C%E9%87%8D%E8%BA%AB%E4%BB%BD%E8%AE%A4%E8%AF%81/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/avatar.jpg">
+      <meta itemprop="name" content="rstyro">
+      <meta itemprop="description" content="人间的饭，吃一碗少一碗，身边的人，见一面少一面，脚下的路，走一天少一天，其实人生就是一个减法，来日并不方长！">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="胖不了小陆">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/blog/2025/11/02/Springboot%E5%AE%9E%E7%8E%B02FA%E5%8F%8C%E9%87%8D%E8%BA%AB%E4%BB%BD%E8%AE%A4%E8%AF%81/" class="post-title-link" itemprop="url">Springboot实现2FA双重身份认证</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2025-11-02 16:27:05" itemprop="dateCreated datePublished" datetime="2025-11-02T16:27:05+08:00">2025-11-02</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/Java/" itemprop="url" rel="index"><span itemprop="name">Java</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>在数字化时代，我们的日常生活与网络紧密相连。从社交软件、电子邮箱到移动支付，大量敏感信息需要在互联网上传输和处理。然而，传统的密码作为最主要的身份验证方式，存在着诸多安全隐患。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/blog/2025/11/02/Springboot%E5%AE%9E%E7%8E%B02FA%E5%8F%8C%E9%87%8D%E8%BA%AB%E4%BB%BD%E8%AE%A4%E8%AF%81/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://rstyro.github.io/blog/2025/10/31/SpringAI%E6%90%AD%E5%BB%BARAG%E7%9A%84%E5%90%91%E9%87%8F%E7%9F%A5%E8%AF%86%E5%BA%93/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -962,235 +1287,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://rstyro.github.io/blog/2025/07/05/RAG%E6%9E%81%E9%80%9F%E4%B8%8A%E6%89%8B%EF%BC%9A%E6%8E%A8%E5%BC%80%E5%A4%A7%E6%A8%A1%E5%9E%8B%E8%90%BD%E5%9C%B0%E5%BA%94%E7%94%A8%E7%9A%84%E5%AE%9D%E8%97%8F%E5%A4%A7%E9%97%A8%EF%BC%81/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/blog/images/avatar.jpg">
-      <meta itemprop="name" content="rstyro">
-      <meta itemprop="description" content="人间的饭，吃一碗少一碗，身边的人，见一面少一面，脚下的路，走一天少一天，其实人生就是一个减法，来日并不方长！">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="胖不了小陆">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/blog/2025/07/05/RAG%E6%9E%81%E9%80%9F%E4%B8%8A%E6%89%8B%EF%BC%9A%E6%8E%A8%E5%BC%80%E5%A4%A7%E6%A8%A1%E5%9E%8B%E8%90%BD%E5%9C%B0%E5%BA%94%E7%94%A8%E7%9A%84%E5%AE%9D%E8%97%8F%E5%A4%A7%E9%97%A8%EF%BC%81/" class="post-title-link" itemprop="url">RAG极速上手：推开大模型落地应用的宝藏大门！</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2025-07-05 11:33:39" itemprop="dateCreated datePublished" datetime="2025-07-05T11:33:39+08:00">2025-07-05</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/blog/categories/AI/" itemprop="url" rel="index"><span itemprop="name">AI</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>RAG可以让大模型回答私域知识</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/blog/2025/07/05/RAG%E6%9E%81%E9%80%9F%E4%B8%8A%E6%89%8B%EF%BC%9A%E6%8E%A8%E5%BC%80%E5%A4%A7%E6%A8%A1%E5%9E%8B%E8%90%BD%E5%9C%B0%E5%BA%94%E7%94%A8%E7%9A%84%E5%AE%9D%E8%97%8F%E5%A4%A7%E9%97%A8%EF%BC%81/">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://rstyro.github.io/blog/2025/07/03/spring-ai-alibaba%E8%BF%9B%E9%98%B6%E5%BF%85%E5%A4%87-%E5%B7%A5%E5%85%B7%E8%B0%83%E7%94%A8%E8%A7%A3%E5%86%B3%E6%A8%A1%E5%9E%8B%E4%BF%A1%E6%81%AF%E5%AD%A4%E5%B2%9B/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/blog/images/avatar.jpg">
-      <meta itemprop="name" content="rstyro">
-      <meta itemprop="description" content="人间的饭，吃一碗少一碗，身边的人，见一面少一面，脚下的路，走一天少一天，其实人生就是一个减法，来日并不方长！">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="胖不了小陆">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/blog/2025/07/03/spring-ai-alibaba%E8%BF%9B%E9%98%B6%E5%BF%85%E5%A4%87-%E5%B7%A5%E5%85%B7%E8%B0%83%E7%94%A8%E8%A7%A3%E5%86%B3%E6%A8%A1%E5%9E%8B%E4%BF%A1%E6%81%AF%E5%AD%A4%E5%B2%9B/" class="post-title-link" itemprop="url">spring-ai-alibaba进阶必备:工具调用解决模型信息孤岛</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2025-07-03 13:37:39" itemprop="dateCreated datePublished" datetime="2025-07-03T13:37:39+08:00">2025-07-03</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/blog/categories/AI/" itemprop="url" rel="index"><span itemprop="name">AI</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>大模型(LLM)调用工具函数</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/blog/2025/07/03/spring-ai-alibaba%E8%BF%9B%E9%98%B6%E5%BF%85%E5%A4%87-%E5%B7%A5%E5%85%B7%E8%B0%83%E7%94%A8%E8%A7%A3%E5%86%B3%E6%A8%A1%E5%9E%8B%E4%BF%A1%E6%81%AF%E5%AD%A4%E5%B2%9B/">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://rstyro.github.io/blog/2025/07/02/spring-ai%E4%B8%89%E8%A1%8C%E4%BB%A3%E7%A0%81%E6%B2%BB%E5%A5%BDAI-%E7%A5%96%E4%BC%A0%E5%81%A5%E5%BF%98%E7%97%87/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/blog/images/avatar.jpg">
-      <meta itemprop="name" content="rstyro">
-      <meta itemprop="description" content="人间的饭，吃一碗少一碗，身边的人，见一面少一面，脚下的路，走一天少一天，其实人生就是一个减法，来日并不方长！">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="胖不了小陆">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/blog/2025/07/02/spring-ai%E4%B8%89%E8%A1%8C%E4%BB%A3%E7%A0%81%E6%B2%BB%E5%A5%BDAI-%E7%A5%96%E4%BC%A0%E5%81%A5%E5%BF%98%E7%97%87/" class="post-title-link" itemprop="url">spring-ai 三行代码治好AI “祖传健忘症”</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2025-07-02 11:10:38" itemprop="dateCreated datePublished" datetime="2025-07-02T11:10:38+08:00">2025-07-02</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/blog/categories/AI/" itemprop="url" rel="index"><span itemprop="name">AI</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <blockquote>
-<p>让AI记住你说过的话，只需几行代码</p>
-</blockquote>
-<p>在日常与AI聊天机器人互动时，你是否曾因它“记性差”而沮丧？刚告诉它“我叫张三”，下一句问“我是谁”时，它却茫然无措。这种尴尬的背后，是<strong>大模型本质的无状态特性</strong>——每次请求都是独立处理，无法自动关联历史上下文。</p>
-<h2 id="一、为什么需要对话记忆？"><a href="#一、为什么需要对话记忆？" class="headerlink" title="一、为什么需要对话记忆？"></a>一、为什么需要对话记忆？</h2><p>想象一个典型场景：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">chatModel.call(&quot;我叫张三&quot;);  </span><br><span class="line">chatModel.call(&quot;我是谁？&quot;); // 模型无法回答你是“张三”</span><br></pre></td></tr></table></figure>
-
-<p><strong>大模型（LLM）本身不保存任何状态</strong>，每次调用都是全新的开始。在真实应用场景中，这种“健忘症”会带来巨大障碍——无论是智能客服处理用户咨询，还是旅行助手规划行程，都需要基于<strong>连续对话的上下文</strong>才能提供连贯服务。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/blog/2025/07/02/spring-ai%E4%B8%89%E8%A1%8C%E4%BB%A3%E7%A0%81%E6%B2%BB%E5%A5%BDAI-%E7%A5%96%E4%BC%A0%E5%81%A5%E5%BF%98%E7%97%87/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1262,7 +1358,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/blog/archives/">
         
-          <span class="site-state-item-count">221</span>
+          <span class="site-state-item-count">224</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -1275,7 +1371,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/blog/tags/">
           
-        <span class="site-state-item-count">93</span>
+        <span class="site-state-item-count">94</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>

@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/favicon.jpg">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon.jpg">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon.jpg">
+  <link rel="mask-icon" href="/blog/images/favicon.jpg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="/blog/lib/pace/pace-theme-flash.min.css">
+  <script src="/blog/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"rstyro.github.io","root":"/blog/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":true},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.json"};
+  </script>
+
+  <meta name="description" content="在数字化时代，我们的日常生活与网络紧密相连。从社交软件、电子邮箱到移动支付，大量敏感信息需要在互联网上传输和处理。然而，传统的密码作为最主要的身份验证方式，存在着诸多安全隐患。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Springboot实现2FA双重身份认证">
+<meta property="og:url" content="https://rstyro.github.io/blog/2025/11/02/Springboot%E5%AE%9E%E7%8E%B02FA%E5%8F%8C%E9%87%8D%E8%BA%AB%E4%BB%BD%E8%AE%A4%E8%AF%81/index.html">
+<meta property="og:site_name" content="胖不了小陆">
+<meta property="og:description" content="在数字化时代，我们的日常生活与网络紧密相连。从社交软件、电子邮箱到移动支付，大量敏感信息需要在互联网上传输和处理。然而，传统的密码作为最主要的身份验证方式，存在着诸多安全隐患。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://rstyro.github.io/blog/2025/11/02/Springboot%E5%AE%9E%E7%8E%B02FA%E5%8F%8C%E9%87%8D%E8%BA%AB%E4%BB%BD%E8%AE%A4%E8%AF%81/auth.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2025/11/02/Springboot%E5%AE%9E%E7%8E%B02FA%E5%8F%8C%E9%87%8D%E8%BA%AB%E4%BB%BD%E8%AE%A4%E8%AF%81/result.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2025/11/02/Springboot%E5%AE%9E%E7%8E%B02FA%E5%8F%8C%E9%87%8D%E8%BA%AB%E4%BB%BD%E8%AE%A4%E8%AF%81/2FA.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2025/11/02/Springboot%E5%AE%9E%E7%8E%B02FA%E5%8F%8C%E9%87%8D%E8%BA%AB%E4%BB%BD%E8%AE%A4%E8%AF%81/2FA2.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2025/11/02/Springboot%E5%AE%9E%E7%8E%B02FA%E5%8F%8C%E9%87%8D%E8%BA%AB%E4%BB%BD%E8%AE%A4%E8%AF%81/step1.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2025/11/02/Springboot%E5%AE%9E%E7%8E%B02FA%E5%8F%8C%E9%87%8D%E8%BA%AB%E4%BB%BD%E8%AE%A4%E8%AF%81/step2.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2025/11/02/Springboot%E5%AE%9E%E7%8E%B02FA%E5%8F%8C%E9%87%8D%E8%BA%AB%E4%BB%BD%E8%AE%A4%E8%AF%81/step3.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2025/11/02/Springboot%E5%AE%9E%E7%8E%B02FA%E5%8F%8C%E9%87%8D%E8%BA%AB%E4%BB%BD%E8%AE%A4%E8%AF%81/step4.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2025/11/02/Springboot%E5%AE%9E%E7%8E%B02FA%E5%8F%8C%E9%87%8D%E8%BA%AB%E4%BB%BD%E8%AE%A4%E8%AF%81/step5.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2025/11/02/Springboot%E5%AE%9E%E7%8E%B02FA%E5%8F%8C%E9%87%8D%E8%BA%AB%E4%BB%BD%E8%AE%A4%E8%AF%81/verify.png">
+<meta property="article:published_time" content="2025-11-02T08:27:05.000Z">
+<meta property="article:modified_time" content="2025-11-02T08:27:05.000Z">
+<meta property="article:author" content="rstyro">
+<meta property="article:tag" content="Spring Boot">
+<meta property="article:tag" content="Java">
+<meta property="article:tag" content="2FA">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://rstyro.github.io/blog/2025/11/02/Springboot%E5%AE%9E%E7%8E%B02FA%E5%8F%8C%E9%87%8D%E8%BA%AB%E4%BB%BD%E8%AE%A4%E8%AF%81/auth.png">
+
+<link rel="canonical" href="https://rstyro.github.io/blog/2025/11/02/Springboot%E5%AE%9E%E7%8E%B02FA%E5%8F%8C%E9%87%8D%E8%BA%AB%E4%BB%BD%E8%AE%A4%E8%AF%81/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Springboot实现2FA双重身份认证 | 胖不了小陆</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">胖不了小陆</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">信你所信，为你所见</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/blog/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/blog/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/blog/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/rstyro" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://rstyro.github.io/blog/2025/11/02/Springboot%E5%AE%9E%E7%8E%B02FA%E5%8F%8C%E9%87%8D%E8%BA%AB%E4%BB%BD%E8%AE%A4%E8%AF%81/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/avatar.jpg">
+      <meta itemprop="name" content="rstyro">
+      <meta itemprop="description" content="人间的饭，吃一碗少一碗，身边的人，见一面少一面，脚下的路，走一天少一天，其实人生就是一个减法，来日并不方长！">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="胖不了小陆">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Springboot实现2FA双重身份认证
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2025-11-02 16:27:05" itemprop="dateCreated datePublished" datetime="2025-11-02T16:27:05+08:00">2025-11-02</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/Java/" itemprop="url" rel="index"><span itemprop="name">Java</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>在数字化时代，我们的日常生活与网络紧密相连。从社交软件、电子邮箱到移动支付，大量敏感信息需要在互联网上传输和处理。然而，传统的密码作为最主要的身份验证方式，存在着诸多安全隐患。</p>
+<span id="more"></span>
+
+<p>你是否曾使用过简单易记的密码？或者在多个网站使用相同的密码？这些习惯让我们在不知不觉中暴露在风险之中。据统计，超过80%的数据泄露事件都与弱密码或密码被盗有关。在这个背景下，双重认证（2FA）应运而生，成为保护我们数字身份的重要防线。</p>
+<h3 id="一、什么是2FA双因素身份验证"><a href="#一、什么是2FA双因素身份验证" class="headerlink" title="一、什么是2FA双因素身份验证"></a>一、什么是2FA双因素身份验证</h3><p><strong>2FA</strong>，全称为<strong>Two-Factor Authentication</strong>，中文译为“双因素身份验证”或“二步验证”。它是一种安全认证机制，要求用户提供两种不同类型的证明来验证身份，然后才能获得访问权限。</p>
+<p>传统的身份验证通常只依赖一个因素——你知道的东西（如密码）。而2FA在此基础上增加了另外两种认证因素之一：</p>
+<ul>
+<li><strong>你知道的东西</strong>：密码、PIN码、安全问题的答案</li>
+<li><strong>你拥有的东西</strong>：手机、安全密钥、智能卡</li>
+<li><strong>你自身的特征</strong>：指纹、面部识别</li>
+</ul>
+<p>只有当其中两类因素同时验证通过时，系统才会允许访问。举个例子，使用银行卡在<strong>ATM</strong>机取款就是一个典型的2FA应用：你需要同时提供银行卡（你拥有的东西）和密码（你知道的东西）才能完成操作。</p>
+<p>在数字世界中，2FA通常表现为：输入正确密码后，系统还会向你的手机发送一个验证码，或要求你使用身份验证器应用生成一次性代码。这种双重检查机制大大提高了账户安全性。</p>
+<h3 id="二、2FA解决了什么问题"><a href="#二、2FA解决了什么问题" class="headerlink" title="二、2FA解决了什么问题"></a>二、2FA解决了什么问题</h3><p>2FA主要解决了单一密码验证带来的多种安全隐患。</p>
+<ul>
+<li><p><strong>弱密码问题</strong><br>许多人为了便于记忆，会使用“123456”、“password”等简单密码，或者使用生日、姓名等容易被猜到的密码。2FA确保即使密码简单，攻击者仍难以入侵账户。</p>
+</li>
+<li><p><strong>密码重复使用问题</strong><br>调查显示，平均每个网民需要管理超过100个在线账户，65%的人会在多个网站使用相同密码。一旦某个网站被攻破，攻击者就能用获得的密码尝试登录其他网站。2FA可以有效阻止这种<strong>“撞库攻击”</strong>。</p>
+</li>
+<li><p><strong>网络钓鱼攻击</strong><br>网络钓鱼是获取用户密码的常见手段。攻击者通过伪造登录页面诱骗用户输入密码。即使密码被窃，没有第二因素验证，攻击者仍然无法登录真实账户。</p>
+</li>
+<li><p><strong>暴力破解</strong><br>攻击者使用自动化工具尝试数百万种密码组合，直到找到正确的密码。2FA使得即使密码被猜中，账户仍然安全。</p>
+</li>
+<li><p><strong>社会工程学攻击</strong><br>攻击者通过电话或电子邮件冒充合法机构，诱骗用户透露密码。2FA确保仅凭密码不足以控制账户。</p>
+</li>
+<li><p><strong>设备丢失或被盗</strong><br>当你的设备丢失或被盗时，如果有密码保护的设备同时启用了2FA，那么发现设备的人将难以访问你的账户。</p>
+</li>
+</ul>
+<p>在企业环境中，2FA为网络设备提供额外保护层，防止未授权访问导致敏感信息泄露甚至系统瘫痪。对于远程访问场景，2FA更是确保只有授权人员能接入关键系统的重要保障</p>
+<h3 id="三、2FA怎么使用"><a href="#三、2FA怎么使用" class="headerlink" title="三、2FA怎么使用"></a>三、2FA怎么使用</h3><p>2FA有多种实现方式，每种方式各有特点：</p>
+<ul>
+<li><p><strong>SMS短信验证码</strong><br>这是最常见的2FA形式。在输入正确密码后，系统会向绑定的手机号发送包含验证码的短信。优点是简单易用，无需额外应用；缺点是可能受到SIM卡交换攻击或信号问题影响。</p>
+</li>
+<li><p><strong>认证器应用程序</strong><br>如<code>Google Authenticator</code>、<code>Microsoft Authenticator</code>、等应用可以生成基于时间的一次性密码(TOTP)。这些应用即使在没有网络的情况下也能工作，生成30秒有效期的验证码。相比SMS，这种方式更安全，不易被拦截。</p>
+</li>
+<li><p><strong>硬件安全密钥</strong><br>如YubiKey、Google Titan等物理设备，通过USB、NFC或蓝牙与设备连接进行验证。提供最高级别的安全性，尤其能有效防范网络钓鱼攻击。</p>
+</li>
+<li><p><strong>生物识别验证</strong><br>使用指纹、面部识别或虹膜扫描作为第二因素。常见于智能手机和笔记本电脑，平衡了安全性和便捷性。</p>
+</li>
+<li><p><strong>推送通知验证</strong><br>系统向已认证的设备发送推送通知，用户只需点击“批准”或“拒绝”即可完成验证。用户体验友好，但需要稳定的网络连接。</p>
+</li>
+</ul>
+<p>现在比较常用的是<strong>SMS短信验证码</strong>，因为现在人人都有手机，而且这种方式对用户来说操作比较简单。第二个常用的就是使用 <strong>身份验证器应用</strong>（TOTP）,比如我常用的Github也是需要启动2FA认证了，我这里使用的就是身份验证器，给你们看看。</p>
+<p><img src="/blog/2025/11/02/Springboot%E5%AE%9E%E7%8E%B02FA%E5%8F%8C%E9%87%8D%E8%BA%AB%E4%BB%BD%E8%AE%A4%E8%AF%81/auth.png" alt="Github 2FA认证示例图"></p>
+<p>身份验证器应用和服务端基于相同的密钥和相同的TOTP算法（通常是基于时间，每30秒变化一次）独立生成6位动态验证码</p>
+<h3 id="四、2FA实战身份验证器的实现"><a href="#四、2FA实战身份验证器的实现" class="headerlink" title="四、2FA实战身份验证器的实现"></a>四、2FA实战身份验证器的实现</h3><p>Google Authenticator 是谷歌推出的一种双因素身份验证（2FA）应用程序，它通过基于时间的一次性密码（TOTP）算法，为用户账户安全增加了一层强有力的保障 。下面我们全面解析如何用 Java 实现它。</p>
+<p>首先我们需要新建2个工具类：<code>TOTP</code>（算法实现）和<code>GoogleAuthenticator</code>（业务封装）。代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> javax.crypto.Mac;</span><br><span class="line"><span class="keyword">import</span> javax.crypto.spec.SecretKeySpec;</span><br><span class="line"><span class="keyword">import</span> java.math.BigInteger;</span><br><span class="line"><span class="keyword">import</span> java.security.GeneralSecurityException;</span><br><span class="line"><span class="keyword">import</span> java.time.Instant;</span><br><span class="line"><span class="keyword">import</span> java.time.ZoneId;</span><br><span class="line"><span class="keyword">import</span> java.time.format.DateTimeFormatter;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * TOTP (Time-based One-Time Password) 算法实现</span></span><br><span class="line"><span class="comment"> * 基于 RFC 6238 标准，用于生成基于时间的一次性密码。</span></span><br><span class="line"><span class="comment"> * 该类是工具类，所有方法均为静态方法，不可实例化。</span></span><br><span class="line"><span class="comment"> * 功能特点：</span></span><br><span class="line"><span class="comment"> * - 支持 HMAC-SHA1、HMAC-SHA256、HMAC-SHA512 算法</span></span><br><span class="line"><span class="comment"> * - 可自定义密码位数（1-8位）和时间步长</span></span><br><span class="line"><span class="comment"> * - 提供密码验证功能，支持时间偏移容错</span></span><br><span class="line"><span class="comment"> * 使用示例：</span></span><br><span class="line"><span class="comment"> * String key = &quot;3132333435363738393031323334353637383930&quot;;</span></span><br><span class="line"><span class="comment"> * String totp = TOTP.generateCurrentTOTP(key);</span></span><br><span class="line"><span class="comment"> * boolean isValid = TOTP.verifyTOTP(key, &quot;123456&quot;);</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@author</span> rstyro</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">class</span> <span class="title class_">TOTP</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 数字幂数组，用于计算10的n次方，索引对应位数（1-8位）</span></span><br><span class="line"><span class="comment">     * 例如：DIGITS_POWER[6] = 1000000</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">int</span>[] DIGITS_POWER = &#123;<span class="number">1</span>, <span class="number">10</span>, <span class="number">100</span>, <span class="number">1000</span>, <span class="number">10000</span>, <span class="number">100000</span>, <span class="number">1000000</span>, <span class="number">10000000</span>, <span class="number">100000000</span>&#125;;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/** HMAC-SHA1 算法标识 */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">String</span> <span class="variable">HMAC_SHA1</span> <span class="operator">=</span> <span class="string">&quot;HmacSHA1&quot;</span>;</span><br><span class="line">    <span class="comment">/** HMAC-SHA256 算法标识 */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">String</span> <span class="variable">HMAC_SHA256</span> <span class="operator">=</span> <span class="string">&quot;HmacSHA256&quot;</span>;</span><br><span class="line">    <span class="comment">/** HMAC-SHA512 算法标识 */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">String</span> <span class="variable">HMAC_SHA512</span> <span class="operator">=</span> <span class="string">&quot;HmacSHA512&quot;</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/** 默认动态密码位数（6位） */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">int</span> <span class="variable">DEFAULT_DIGITS</span> <span class="operator">=</span> <span class="number">6</span>;</span><br><span class="line">    <span class="comment">/** 默认时间步长（秒） */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">long</span> <span class="variable">DEFAULT_TIME_STEP</span> <span class="operator">=</span> <span class="number">30L</span>;</span><br><span class="line">    <span class="comment">/** 默认起始时间（Unix纪元） */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">long</span> <span class="variable">DEFAULT_START_TIME</span> <span class="operator">=</span> <span class="number">0L</span>;</span><br><span class="line">    <span class="comment">/** 默认验证时间窗口大小（允许前后偏移的步数） */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">int</span> <span class="variable">DEFAULT_TIME_WINDOW</span> <span class="operator">=</span> <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 私有构造方法，防止类实例化</span></span><br><span class="line"><span class="comment">     * 工具类应避免实例化，所有方法均为静态方法</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="title function_">TOTP</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">AssertionError</span>(<span class="string">&quot;TOTP 是工具类，不能实例化&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 使用HMAC算法计算哈希值</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> crypto   加密算法 (HmacSHA1, HmacSHA256, HmacSHA512)</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> keyBytes 密钥字节数组</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> text     要认证的消息文本</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> HMAC哈希值</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> GeneralSecurityException 安全算法异常</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="type">byte</span>[] hmacSha(String crypto, <span class="type">byte</span>[] keyBytes, <span class="type">byte</span>[] text)</span><br><span class="line">            <span class="keyword">throws</span> GeneralSecurityException &#123;</span><br><span class="line">        <span class="type">Mac</span> <span class="variable">hmac</span> <span class="operator">=</span> Mac.getInstance(crypto);</span><br><span class="line">        <span class="type">SecretKeySpec</span> <span class="variable">macKey</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">SecretKeySpec</span>(keyBytes, <span class="string">&quot;RAW&quot;</span>);</span><br><span class="line">        hmac.init(macKey);</span><br><span class="line">        <span class="keyword">return</span> hmac.doFinal(text);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 将十六进制字符串转换为字节数组</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> hex 十六进制字符串</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> 字节数组</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> IllegalArgumentException 当十六进制字符串格式错误时</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="type">byte</span>[] hexStr2Bytes(String hex) &#123;</span><br><span class="line">        <span class="comment">// 使用BigInteger处理十六进制字符串，确保正确转换</span></span><br><span class="line">        <span class="type">byte</span>[] bArray = <span class="keyword">new</span> <span class="title class_">BigInteger</span>(<span class="string">&quot;10&quot;</span> + hex, <span class="number">16</span>).toByteArray();</span><br><span class="line">        <span class="type">byte</span>[] ret = <span class="keyword">new</span> <span class="title class_">byte</span>[bArray.length - <span class="number">1</span>];</span><br><span class="line">        System.arraycopy(bArray, <span class="number">1</span>, ret, <span class="number">0</span>, ret.length);</span><br><span class="line">        <span class="keyword">return</span> ret;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 生成TOTP值</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> key          共享密钥，十六进制编码字符串</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> time         时间计数器值，十六进制编码字符串</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> returnDigits  返回的TOTP位数，必须在1到8之间</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> crypto       加密算法，如 &quot;HmacSHA1&quot;</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> TOTP数值字符串，指定位数</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> IllegalArgumentException 如果位数无效或参数错误</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> RuntimeException 如果安全算法出错</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> String <span class="title function_">generateTOTP</span><span class="params">(String key, String time, <span class="type">int</span> returnDigits, String crypto)</span> &#123;</span><br><span class="line">        <span class="comment">// 参数校验</span></span><br><span class="line">        <span class="keyword">if</span> (returnDigits &lt; <span class="number">1</span> || returnDigits &gt; <span class="number">8</span>) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">IllegalArgumentException</span>(<span class="string">&quot;TOTP位数必须在1到8之间&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (key == <span class="literal">null</span> || key.isEmpty() || time == <span class="literal">null</span> || time.isEmpty()) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">IllegalArgumentException</span>(<span class="string">&quot;密钥和时间参数不能为空&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 时间字符串填充至16字符（64位十六进制表示）</span></span><br><span class="line">        <span class="type">String</span> <span class="variable">paddedTime</span> <span class="operator">=</span> time;</span><br><span class="line">        <span class="keyword">while</span> (paddedTime.length() &lt; <span class="number">16</span>) &#123;</span><br><span class="line">            paddedTime = <span class="string">&quot;0&quot;</span> + paddedTime;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="type">byte</span>[] msg = hexStr2Bytes(paddedTime);</span><br><span class="line">            <span class="type">byte</span>[] k = hexStr2Bytes(key);</span><br><span class="line">            <span class="type">byte</span>[] hash = hmacSha(crypto, k, msg);</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 动态截取：取最后一字节的低4位作为偏移量</span></span><br><span class="line">            <span class="type">int</span> <span class="variable">offset</span> <span class="operator">=</span> hash[hash.length - <span class="number">1</span>] &amp; <span class="number">0x0f</span>;</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 从偏移位置取4字节，按大端序组合为整数</span></span><br><span class="line">            <span class="type">int</span> <span class="variable">binary</span> <span class="operator">=</span> ((hash[offset] &amp; <span class="number">0x7f</span>) &lt;&lt; <span class="number">24</span>)</span><br><span class="line">                    | ((hash[offset + <span class="number">1</span>] &amp; <span class="number">0xff</span>) &lt;&lt; <span class="number">16</span>)</span><br><span class="line">                    | ((hash[offset + <span class="number">2</span>] &amp; <span class="number">0xff</span>) &lt;&lt; <span class="number">8</span>)</span><br><span class="line">                    | (hash[offset + <span class="number">3</span>] &amp; <span class="number">0xff</span>);</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 取模得到指定位数的TOTP值</span></span><br><span class="line">            <span class="type">int</span> <span class="variable">otp</span> <span class="operator">=</span> binary % DIGITS_POWER[returnDigits];</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 格式化为指定位数字符串，不足位补零</span></span><br><span class="line">            <span class="keyword">return</span> String.format(<span class="string">&quot;%0&quot;</span> + returnDigits + <span class="string">&quot;d&quot;</span>, otp);</span><br><span class="line"></span><br><span class="line">        &#125; <span class="keyword">catch</span> (GeneralSecurityException e) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">RuntimeException</span>(<span class="string">&quot;TOTP生成安全错误: &quot;</span> + e.getMessage(), e);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">RuntimeException</span>(<span class="string">&quot;TOTP生成失败: &quot;</span> + e.getMessage(), e);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 生成TOTP（默认6位数，HMAC-SHA1算法）</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> String <span class="title function_">generateTOTP</span><span class="params">(String key, String time)</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> generateTOTP(key, time, DEFAULT_DIGITS, HMAC_SHA1);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 生成TOTP（指定位数，HMAC-SHA1算法）</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> String <span class="title function_">generateTOTP</span><span class="params">(String key, String time, <span class="type">int</span> returnDigits)</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> generateTOTP(key, time, returnDigits, HMAC_SHA1);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 生成TOTP（指定位数，HMAC-SHA256算法）</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> String <span class="title function_">generateTOTP256</span><span class="params">(String key, String time, <span class="type">int</span> returnDigits)</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> generateTOTP(key, time, returnDigits, HMAC_SHA256);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 生成TOTP（指定位数，HMAC-SHA512算法）</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> String <span class="title function_">generateTOTP512</span><span class="params">(String key, String time, <span class="type">int</span> returnDigits)</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> generateTOTP(key, time, returnDigits, HMAC_SHA512);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 基于当前时间生成TOTP</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> key 共享密钥（十六进制字符串）</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> TOTP值（6位数）</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> String <span class="title function_">generateCurrentTOTP</span><span class="params">(String key)</span> &#123;</span><br><span class="line">        <span class="type">long</span> <span class="variable">currentTime</span> <span class="operator">=</span> System.currentTimeMillis() / <span class="number">1000</span>;</span><br><span class="line">        <span class="type">long</span> <span class="variable">timeStep</span> <span class="operator">=</span> (currentTime - DEFAULT_START_TIME) / DEFAULT_TIME_STEP;</span><br><span class="line">        <span class="keyword">return</span> generateTOTP(key, Long.toHexString(timeStep).toUpperCase());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 验证TOTP代码，考虑时间偏移容错</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> key  共享密钥</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> code 要验证的代码</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> timeWindow 时间窗口大小（允许前后偏移的步数）</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> 验证是否成功</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="type">boolean</span> <span class="title function_">verifyTOTP</span><span class="params">(String key, String code, <span class="type">int</span> timeWindow)</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (key == <span class="literal">null</span> || key.isEmpty() || code == <span class="literal">null</span> || code.isEmpty()) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="type">long</span> <span class="variable">currentTime</span> <span class="operator">=</span> System.currentTimeMillis() / <span class="number">1000</span>;</span><br><span class="line">        <span class="type">long</span> <span class="variable">currentTimeStep</span> <span class="operator">=</span> (currentTime - DEFAULT_START_TIME) / DEFAULT_TIME_STEP;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 检查当前时间步及其前后时间窗口内的步数</span></span><br><span class="line">        <span class="keyword">for</span> (<span class="type">long</span> <span class="variable">i</span> <span class="operator">=</span> -timeWindow; i &lt;= timeWindow; i++) &#123;</span><br><span class="line">            <span class="type">long</span> <span class="variable">timeStep</span> <span class="operator">=</span> currentTimeStep + i;</span><br><span class="line">            <span class="type">String</span> <span class="variable">steps</span> <span class="operator">=</span> Long.toHexString(timeStep).toUpperCase();</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                <span class="type">String</span> <span class="variable">totp</span> <span class="operator">=</span> generateTOTP(key, steps);</span><br><span class="line">                <span class="keyword">if</span> (totp.equals(code)) &#123;</span><br><span class="line">                    <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">                <span class="comment">// 忽略单个时间步的错误，继续验证其他步数</span></span><br><span class="line">                <span class="keyword">continue</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 验证TOTP代码（使用默认时间窗口）</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="type">boolean</span> <span class="title function_">verifyTOTP</span><span class="params">(String key, String code)</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> verifyTOTP(key, code, DEFAULT_TIME_WINDOW);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<ul>
+<li><code>GoogleAuthenticator</code> 如下：</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br><span class="line">228</span><br><span class="line">229</span><br><span class="line">230</span><br><span class="line">231</span><br><span class="line">232</span><br><span class="line">233</span><br><span class="line">234</span><br><span class="line">235</span><br><span class="line">236</span><br><span class="line">237</span><br><span class="line">238</span><br><span class="line">239</span><br><span class="line">240</span><br><span class="line">241</span><br><span class="line">242</span><br><span class="line">243</span><br><span class="line">244</span><br><span class="line">245</span><br><span class="line">246</span><br><span class="line">247</span><br><span class="line">248</span><br><span class="line">249</span><br><span class="line">250</span><br><span class="line">251</span><br><span class="line">252</span><br><span class="line">253</span><br><span class="line">254</span><br><span class="line">255</span><br><span class="line">256</span><br><span class="line">257</span><br><span class="line">258</span><br><span class="line">259</span><br><span class="line">260</span><br><span class="line">261</span><br><span class="line">262</span><br><span class="line">263</span><br><span class="line">264</span><br><span class="line">265</span><br><span class="line">266</span><br><span class="line">267</span><br><span class="line">268</span><br><span class="line">269</span><br><span class="line">270</span><br><span class="line">271</span><br><span class="line">272</span><br><span class="line">273</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> org.apache.commons.codec.binary.Base32;</span><br><span class="line"><span class="keyword">import</span> org.apache.commons.codec.binary.Hex;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> javax.crypto.Mac;</span><br><span class="line"><span class="keyword">import</span> javax.crypto.spec.SecretKeySpec;</span><br><span class="line"><span class="keyword">import</span> java.net.URLEncoder;</span><br><span class="line"><span class="keyword">import</span> java.nio.charset.StandardCharsets;</span><br><span class="line"><span class="keyword">import</span> java.security.GeneralSecurityException;</span><br><span class="line"><span class="keyword">import</span> java.security.InvalidKeyException;</span><br><span class="line"><span class="keyword">import</span> java.security.NoSuchAlgorithmException;</span><br><span class="line"><span class="keyword">import</span> java.security.SecureRandom;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Google Authenticator 工具类</span></span><br><span class="line"><span class="comment"> * 基于 TOTP (Time-based One-Time Password) 算法实现双因素认证</span></span><br><span class="line"><span class="comment"> * 参考 RFC 6238 标准，兼容 Google Authenticator 移动应用</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * 主要功能：</span></span><br><span class="line"><span class="comment"> * - 生成随机密钥</span></span><br><span class="line"><span class="comment"> * - 生成TOTP动态验证码</span></span><br><span class="line"><span class="comment"> * - 生成Google Authenticator可识别的二维码数据</span></span><br><span class="line"><span class="comment"> * - 验证用户输入的验证码</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@author</span> rstyro</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">class</span> <span class="title class_">GoogleAuthenticator</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/** 默认密钥长度（字节） */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">int</span> <span class="variable">DEFAULT_SECRET_KEY_LENGTH</span> <span class="operator">=</span> <span class="number">20</span>;</span><br><span class="line">    <span class="comment">/** 默认时间窗口大小（30秒单位） */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">int</span> <span class="variable">DEFAULT_WINDOW_SIZE</span> <span class="operator">=</span> <span class="number">2</span>;</span><br><span class="line">    <span class="comment">/** 最大允许的时间窗口大小 */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">int</span> <span class="variable">MAX_WINDOW_SIZE</span> <span class="operator">=</span> <span class="number">17</span>;</span><br><span class="line">    <span class="comment">/** 时间步长（秒） */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">long</span> <span class="variable">TIME_STEP</span> <span class="operator">=</span> <span class="number">30L</span>;</span><br><span class="line">    <span class="comment">/** 验证码位数 */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">int</span> <span class="variable">CODE_DIGITS</span> <span class="operator">=</span> <span class="number">6</span>;</span><br><span class="line">    <span class="comment">/** HMAC算法名称 */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">String</span> <span class="variable">HMAC_ALGORITHM</span> <span class="operator">=</span> <span class="string">&quot;HmacSHA1&quot;</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/** 当前时间窗口大小 */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="type">int</span> <span class="variable">windowSize</span> <span class="operator">=</span> DEFAULT_WINDOW_SIZE;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 私有构造方法，防止实例化</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="title function_">GoogleAuthenticator</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">AssertionError</span>(<span class="string">&quot;GoogleAuthenticator是工具类，不能实例化&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 生成随机的Base32编码密钥</span></span><br><span class="line"><span class="comment">     * 密钥用于在客户端和服务器端之间共享，用于生成验证码</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> Base32编码的随机密钥（大写，无分隔符）</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> SecurityException 如果随机数生成失败</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> String <span class="title function_">generateRandomSecretKey</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="type">SecureRandom</span> <span class="variable">random</span> <span class="operator">=</span> SecureRandom.getInstanceStrong();</span><br><span class="line">            <span class="type">byte</span>[] bytes = <span class="keyword">new</span> <span class="title class_">byte</span>[DEFAULT_SECRET_KEY_LENGTH];</span><br><span class="line">            random.nextBytes(bytes);</span><br><span class="line"></span><br><span class="line">            <span class="type">Base32</span> <span class="variable">base32</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Base32</span>();</span><br><span class="line">            <span class="keyword">return</span> base32.encodeToString(bytes).toUpperCase();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (NoSuchAlgorithmException e) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">SecurityException</span>(<span class="string">&quot;安全随机数生成器不可用&quot;</span>, e);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 生成当前时间的TOTP验证码</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> secretKey Base32编码的共享密钥</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> 6位数字的TOTP验证码</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> IllegalArgumentException 如果密钥为空或格式错误</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> SecurityException 如果加密操作失败</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> String <span class="title function_">generateTOTPCode</span><span class="params">(String secretKey)</span> &#123;</span><br><span class="line">        validateSecretKey(secretKey);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="comment">// 标准化密钥：移除空格并转为大写</span></span><br><span class="line">            <span class="type">String</span> <span class="variable">normalizedKey</span> <span class="operator">=</span> secretKey.replace(<span class="string">&quot; &quot;</span>, <span class="string">&quot;&quot;</span>).toUpperCase();</span><br><span class="line">            <span class="type">Base32</span> <span class="variable">base32</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Base32</span>();</span><br><span class="line">            <span class="type">byte</span>[] decodedBytes = base32.decode(normalizedKey);</span><br><span class="line">            <span class="type">String</span> <span class="variable">hexKey</span> <span class="operator">=</span> Hex.encodeHexString(decodedBytes);</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 计算当前时间窗口</span></span><br><span class="line">            <span class="type">long</span> <span class="variable">timeWindow</span> <span class="operator">=</span> (System.currentTimeMillis() / <span class="number">1000L</span>) / TIME_STEP;</span><br><span class="line">            <span class="type">String</span> <span class="variable">hexTime</span> <span class="operator">=</span> Long.toHexString(timeWindow);</span><br><span class="line"></span><br><span class="line">            <span class="keyword">return</span> TOTP.generateTOTP(hexKey, hexTime, CODE_DIGITS, HMAC_ALGORITHM);</span><br><span class="line"></span><br><span class="line">        &#125; <span class="keyword">catch</span> (IllegalArgumentException e) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">IllegalArgumentException</span>(<span class="string">&quot;无效的密钥格式: &quot;</span> + e.getMessage(), e);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">SecurityException</span>(<span class="string">&quot;生成TOTP验证码失败&quot;</span>, e);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 生成Google Authenticator二维码内容URL</span></span><br><span class="line"><span class="comment">     * 该URL可用于生成二维码，供Google Authenticator应用扫描</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> secretKey 共享密钥</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> account 用户账号（如邮箱或用户名）</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> issuer 发行者名称（应用或网站名称）</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> 二维码内容URL</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> IllegalArgumentException 如果参数为空或格式错误</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> String <span class="title function_">generateQRCodeUrl</span><span class="params">(String secretKey, String account, String issuer)</span> &#123;</span><br><span class="line">        validateParameters(secretKey, account, issuer);</span><br><span class="line"></span><br><span class="line">        <span class="type">String</span> <span class="variable">normalizedKey</span> <span class="operator">=</span> secretKey.replace(<span class="string">&quot; &quot;</span>, <span class="string">&quot;&quot;</span>).toUpperCase();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 构建OTP Auth URL，符合Google Authenticator标准格式</span></span><br><span class="line">        <span class="type">String</span> <span class="variable">url</span> <span class="operator">=</span> <span class="string">&quot;otpauth://totp/&quot;</span></span><br><span class="line">                + URLEncoder.encode(issuer + <span class="string">&quot;:&quot;</span> + account, StandardCharsets.UTF_8).replace(<span class="string">&quot;+&quot;</span>, <span class="string">&quot;%20&quot;</span>)</span><br><span class="line">                + <span class="string">&quot;?secret=&quot;</span> + URLEncoder.encode(normalizedKey, StandardCharsets.UTF_8).replace(<span class="string">&quot;+&quot;</span>, <span class="string">&quot;%20&quot;</span>)</span><br><span class="line">                + <span class="string">&quot;&amp;issuer=&quot;</span> + URLEncoder.encode(issuer, StandardCharsets.UTF_8).replace(<span class="string">&quot;+&quot;</span>, <span class="string">&quot;%20&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> url;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 验证TOTP验证码</span></span><br><span class="line"><span class="comment">     * 考虑时间窗口偏移，以处理客户端和服务端之间的时间差异</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> secretKey 共享密钥</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> code 待验证的验证码</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> timestamp 时间戳（毫秒）</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> 验证是否成功</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> IllegalArgumentException 如果参数无效</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="type">boolean</span> <span class="title function_">verifyCode</span><span class="params">(String secretKey, <span class="type">long</span> code, <span class="type">long</span> timestamp)</span> &#123;</span><br><span class="line">        validateSecretKey(secretKey);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (code &lt; <span class="number">0</span> || code &gt; <span class="number">999999</span>) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">IllegalArgumentException</span>(<span class="string">&quot;验证码必须是6位数字&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="type">Base32</span> <span class="variable">codec</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Base32</span>();</span><br><span class="line">        <span class="type">String</span> <span class="variable">normalizedKey</span> <span class="operator">=</span> secretKey.replace(<span class="string">&quot; &quot;</span>, <span class="string">&quot;&quot;</span>).toUpperCase();</span><br><span class="line">        <span class="type">byte</span>[] decodedKey;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            decodedKey = codec.decode(normalizedKey);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (IllegalArgumentException e) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">IllegalArgumentException</span>(<span class="string">&quot;无效的Base32密钥格式&quot;</span>, e);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 计算基准时间窗口</span></span><br><span class="line">        <span class="type">long</span> <span class="variable">timeWindow</span> <span class="operator">=</span> (timestamp / <span class="number">1000L</span>) / TIME_STEP;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 检查当前及前后时间窗口内的验证码</span></span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> -windowSize; i &lt;= windowSize; i++) &#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                <span class="type">long</span> <span class="variable">generatedCode</span> <span class="operator">=</span> generateVerificationCode(decodedKey, timeWindow + i);</span><br><span class="line">                <span class="keyword">if</span> (generatedCode == code) &#123;</span><br><span class="line">                    <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125; <span class="keyword">catch</span> (GeneralSecurityException e) &#123;</span><br><span class="line">                <span class="comment">// 记录日志但继续检查其他时间窗口</span></span><br><span class="line">                System.err.println(<span class="string">&quot;验证码生成过程中出现安全异常: &quot;</span> + e.getMessage());</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 验证当前时间的TOTP验证码（便捷方法）</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> secretKey 共享密钥</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> code 待验证的验证码</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> 验证是否成功</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="type">boolean</span> <span class="title function_">verifyCurrentCode</span><span class="params">(String secretKey, <span class="type">long</span> code)</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> verifyCode(secretKey, code, System.currentTimeMillis());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 设置验证时间窗口大小</span></span><br><span class="line"><span class="comment">     * 时间窗口大小决定了允许的时间偏移范围（每个窗口30秒）</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> size 窗口大小（1-17）</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> IllegalArgumentException 如果窗口大小超出范围</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">setWindowSize</span><span class="params">(<span class="type">int</span> size)</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (size &lt; <span class="number">1</span> || size &gt; MAX_WINDOW_SIZE) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">IllegalArgumentException</span>(<span class="string">&quot;窗口大小必须在1到&quot;</span> + MAX_WINDOW_SIZE + <span class="string">&quot;之间&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        windowSize = size;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 获取当前时间窗口大小</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> 当前时间窗口大小</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="type">int</span> <span class="title function_">getWindowSize</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> windowSize;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 生成指定时间窗口的验证码</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> key 解码后的密钥字节数组</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> timeWindow 时间窗口值</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> 验证码数字</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> NoSuchAlgorithmException 如果HMAC-SHA1算法不可用</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> InvalidKeyException 如果密钥无效</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="type">long</span> <span class="title function_">generateVerificationCode</span><span class="params">(<span class="type">byte</span>[] key, <span class="type">long</span> timeWindow)</span></span><br><span class="line">            <span class="keyword">throws</span> NoSuchAlgorithmException, InvalidKeyException &#123;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 将时间窗口值转换为8字节数组（大端序）</span></span><br><span class="line">        <span class="type">byte</span>[] data = <span class="keyword">new</span> <span class="title class_">byte</span>[<span class="number">8</span>];</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">8</span>; i-- &gt; <span class="number">0</span>; timeWindow &gt;&gt;&gt;= <span class="number">8</span>) &#123;</span><br><span class="line">            data[i] = (<span class="type">byte</span>) timeWindow;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 计算HMAC-SHA1哈希</span></span><br><span class="line">        <span class="type">SecretKeySpec</span> <span class="variable">signKey</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">SecretKeySpec</span>(key, HMAC_ALGORITHM);</span><br><span class="line">        <span class="type">Mac</span> <span class="variable">mac</span> <span class="operator">=</span> Mac.getInstance(HMAC_ALGORITHM);</span><br><span class="line">        mac.init(signKey);</span><br><span class="line">        <span class="type">byte</span>[] hash = mac.doFinal(data);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 动态截取（基于RFC 4226标准）</span></span><br><span class="line">        <span class="type">int</span> <span class="variable">offset</span> <span class="operator">=</span> hash[hash.length - <span class="number">1</span>] &amp; <span class="number">0x0F</span>;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 从偏移位置提取4字节</span></span><br><span class="line">        <span class="type">long</span> <span class="variable">truncatedHash</span> <span class="operator">=</span> <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; <span class="number">4</span>; i++) &#123;</span><br><span class="line">            truncatedHash &lt;&lt;= <span class="number">8</span>;</span><br><span class="line">            truncatedHash |= (hash[offset + i] &amp; <span class="number">0xFF</span>);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 取模得到6位数</span></span><br><span class="line">        truncatedHash &amp;= <span class="number">0x7FFFFFFF</span>;</span><br><span class="line">        truncatedHash %= <span class="number">1000000</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> truncatedHash;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 验证密钥格式</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">validateSecretKey</span><span class="params">(String secretKey)</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (secretKey == <span class="literal">null</span> || secretKey.trim().isEmpty()) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">IllegalArgumentException</span>(<span class="string">&quot;密钥不能为空&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (!secretKey.matches(<span class="string">&quot;^[A-Z2-7\\s]+$&quot;</span>)) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">IllegalArgumentException</span>(<span class="string">&quot;密钥必须包含有效的Base32字符（A-Z, 2-7）&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 验证二维码生成参数</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">validateParameters</span><span class="params">(String secretKey, String account, String issuer)</span> &#123;</span><br><span class="line">        validateSecretKey(secretKey);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (account == <span class="literal">null</span> || account.trim().isEmpty()) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">IllegalArgumentException</span>(<span class="string">&quot;账号不能为空&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (issuer == <span class="literal">null</span> || issuer.trim().isEmpty()) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">IllegalArgumentException</span>(<span class="string">&quot;发行者名称不能为空&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<ul>
+<li><strong>TOTP类</strong>：实现TOTP (Time-based One-Time Password) 算法的核心逻辑</li>
+<li><strong>GoogleAuthenticator类</strong>：Google身份验证的业务工具类，提供便捷的API</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 测试示例</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">testExample</span><span class="params">()</span>&#123;</span><br><span class="line">    System.out.println(<span class="string">&quot;=== Google Authenticator 测试 ===\n&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 生成测试密钥</span></span><br><span class="line">    <span class="type">String</span> <span class="variable">secretKey</span> <span class="operator">=</span> generateRandomSecretKey();</span><br><span class="line">    System.out.println(<span class="string">&quot;1. 生成的密钥: &quot;</span> + secretKey);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 生成当前验证码</span></span><br><span class="line">    <span class="type">String</span> <span class="variable">totpCode</span> <span class="operator">=</span> generateTOTPCode(secretKey);</span><br><span class="line">    System.out.println(<span class="string">&quot;2. 当前TOTP验证码: &quot;</span> + totpCode);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 生成二维码URL</span></span><br><span class="line">    <span class="type">String</span> <span class="variable">qrCodeUrl</span> <span class="operator">=</span> generateQRCodeUrl(secretKey, <span class="string">&quot;16888888@qq.com&quot;</span>, <span class="string">&quot;2FA-demo&quot;</span>);</span><br><span class="line">    System.out.println(<span class="string">&quot;3. 二维码URL: &quot;</span> + qrCodeUrl);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 验证验证码（使用当前生成的验证码进行验证）</span></span><br><span class="line">    <span class="type">boolean</span> <span class="variable">isValid</span> <span class="operator">=</span> verifyCurrentCode(secretKey, Long.parseLong(totpCode));</span><br><span class="line">    System.out.println(<span class="string">&quot;4. 验证码验证结果: &quot;</span> + (isValid ? <span class="string">&quot;通过&quot;</span> : <span class="string">&quot;失败&quot;</span>));</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 错误验证码测试</span></span><br><span class="line">    <span class="type">boolean</span> <span class="variable">isInvalid</span> <span class="operator">=</span> verifyCurrentCode(secretKey, <span class="number">123456L</span>);</span><br><span class="line">    System.out.println(<span class="string">&quot;5. 错误验证码测试: &quot;</span> + (isInvalid ? <span class="string">&quot;测试不通过-错误验证码也通过&quot;</span> : <span class="string">&quot;测试通过-验证码错误&quot;</span>));</span><br><span class="line"></span><br><span class="line">    System.out.println(<span class="string">&quot;\n=== 测试完成 ===&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 测试示例</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">	testExample();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p><img src="/blog/2025/11/02/Springboot%E5%AE%9E%E7%8E%B02FA%E5%8F%8C%E9%87%8D%E8%BA%AB%E4%BB%BD%E8%AE%A4%E8%AF%81/result.png" alt="测试示例运行结果示例图"></p>
+<h4 id="2FA身份验证绑定流程"><a href="#2FA身份验证绑定流程" class="headerlink" title="2FA身份验证绑定流程"></a>2FA身份验证绑定流程</h4><ul>
+<li><p>1、<strong>用户发起绑定请求</strong></p>
+<ul>
+<li>用户登录系统后，在安全设置中选择启用2FA功能，向服务器发送生成2FA密钥的请求。</li>
+</ul>
+</li>
+<li><p>2、<strong>服务器生成并返回密钥信息</strong></p>
+<ul>
+<li>服务器生成一个唯一的随机密钥（Base32编码，例如：<code>JDFVW66IN54KRAEQRSS2WQJSC4I54WG3</code>），并将该密钥与用户账户临时关联（此时尚未正式绑定）。</li>
+<li>服务器同时生成一个二维码URL，格式如下：<code>otpauth://totp/2FA-DEMO%3A16888888%40qq.com?secret=JDFVW66IN54KRAEQRSS2WQJSC4I54WG3&amp;issuer=2FA-DEMO</code></li>
+<li>服务器将密钥和二维码URL返回给用户。</li>
+</ul>
+</li>
+<li><p>3、 <strong>用户扫描二维码</strong></p>
+<ul>
+<li>用户使用身份验证器应用（如Google Authenticator、Microsoft Authenticator等）扫描返回的二维码。</li>
+<li>身份验证器应用将自动解析二维码中的信息（包括密钥、发行者名称和用户账户），并开始生成基于时间的动态验证码。</li>
+</ul>
+</li>
+<li><p>4、<strong>用户验证并完成绑定</strong></p>
+<ul>
+<li>身份验证器应用每30秒生成一个新的6位动态验证码。</li>
+<li>用户将当前显示的动态验证码，提交给服务器。</li>
+<li>服务器验证动态验证码的正确性：<ul>
+<li>使用存储的密钥和当前时间窗口计算期望的验证码。</li>
+<li>检查用户提交的验证码是否与期望的验证码匹配（允许一定的时间窗口偏移，通常为1~3个窗口）。</li>
+</ul>
+</li>
+<li>验证通过后，服务器将该密钥正式与用户账户绑定，并启用2FA保护。</li>
+<li>验证失败时，服务器返回错误信息，用户可重新输入验证码再次尝试。</li>
+</ul>
+</li>
+</ul>
+<p>上面是标准的完整流程了，涉及到用户与服务器之间的交互，我们为了简单测试，直接使用，<code>GoogleAuthenticator</code> 来生成和验证动态验证码就行，我们的动态验证码需要安装身份验证器客户端。</p>
+<p>安装身份验证器的应用：</p>
+<ul>
+<li><p><strong>IOS 版本：</strong> <a target="_blank" rel="noopener" href="https://itunes.apple.com/cn/app/google-authenticator/id388497605">Google Authenticator</a><br>可以在App Store搜索<code>google authenticator</code></p>
+</li>
+<li><p><strong>安卓：</strong> <a target="_blank" rel="noopener" href="https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2">Google Authenticator</a>  ，访问手机商店搜索：<code>Authenticator</code> 一般都有应用的</p>
+</li>
+<li><p><strong>浏览器插件：</strong> 除了安装app应用，也可以安装浏览器插件，Authenticator: 2FA Client（Edge&#x2F;Chrome插件）</p>
+</li>
+</ul>
+<p>为了快速测试，我们使用浏览器插件的方式，我使用的是<code>Edge</code> 浏览器（因为它的浏览器插件安装不用梯子，Google浏览器这些需要梯子）。我要安装的是：<code>Authenticator: 2FA Client</code> 。</p>
+<p><img src="/blog/2025/11/02/Springboot%E5%AE%9E%E7%8E%B02FA%E5%8F%8C%E9%87%8D%E8%BA%AB%E4%BB%BD%E8%AE%A4%E8%AF%81/2FA.png"></p>
+<p><img src="/blog/2025/11/02/Springboot%E5%AE%9E%E7%8E%B02FA%E5%8F%8C%E9%87%8D%E8%BA%AB%E4%BB%BD%E8%AE%A4%E8%AF%81/2FA2.png"></p>
+<ul>
+<li><p>上面是我身份验证器，目前已经绑定了<code>Github</code> 和<code>ngrok</code>的 身份验证，那我们要如何绑定呢？</p>
+</li>
+<li><p>安装之后点击插件，就可以手动添加或者导入OTP链接或者二维码图片，我们可以导入上面例子中的链接：<code>otpauth://totp/2FA-DEMO%3A16888888%40qq.com?secret=JDFVW66IN54KRAEQRSS2WQJSC4I54WG3&amp;issuer=2FA-DEMO</code>  来测试</p>
+</li>
+</ul>
+<p><img src="/blog/2025/11/02/Springboot%E5%AE%9E%E7%8E%B02FA%E5%8F%8C%E9%87%8D%E8%BA%AB%E4%BB%BD%E8%AE%A4%E8%AF%81/step1.png"></p>
+<p><img src="/blog/2025/11/02/Springboot%E5%AE%9E%E7%8E%B02FA%E5%8F%8C%E9%87%8D%E8%BA%AB%E4%BB%BD%E8%AE%A4%E8%AF%81/step2.png"></p>
+<p><img src="/blog/2025/11/02/Springboot%E5%AE%9E%E7%8E%B02FA%E5%8F%8C%E9%87%8D%E8%BA%AB%E4%BB%BD%E8%AE%A4%E8%AF%81/step3.png"></p>
+<p><img src="/blog/2025/11/02/Springboot%E5%AE%9E%E7%8E%B02FA%E5%8F%8C%E9%87%8D%E8%BA%AB%E4%BB%BD%E8%AE%A4%E8%AF%81/step4.png"></p>
+<p><img src="/blog/2025/11/02/Springboot%E5%AE%9E%E7%8E%B02FA%E5%8F%8C%E9%87%8D%E8%BA%AB%E4%BB%BD%E8%AE%A4%E8%AF%81/step5.png"></p>
+<p>现在我们的动态验证码已经配置好了，我们就可以通过<code>GoogleAuthenticator</code> 的验证方法来进行2FA身份验证了。</p>
+<p><img src="/blog/2025/11/02/Springboot%E5%AE%9E%E7%8E%B02FA%E5%8F%8C%E9%87%8D%E8%BA%AB%E4%BB%BD%E8%AE%A4%E8%AF%81/verify.png" alt="动态验证示例图"></p>
+<ul>
+<li>我们可以看到，第一个验证码是错误，结果就是错的，第二个验证码：<code>359926</code> 是当前动态验证码，结果验证是对的。</li>
+<li>至此，我们已经实现了2FA的验证流程DEMO,不懂我有没有表达清楚，欢迎各位读者讨论留言。</li>
+</ul>
+<h3 id="五、总结"><a href="#五、总结" class="headerlink" title="五、总结"></a>五、总结</h3><ul>
+<li><p>2FA二步验证已经从一项高级安全功能逐渐变为网络账户的标准保护措施。它通过在传统密码基础上增加一层保护，极大地提高了账户安全性，有效防御多种常见网络攻击。</p>
+</li>
+<li><p>尽管2FA并非绝对安全（如针对SMS的SIM卡交换攻击仍存在风险），但它无疑大大增加了攻击者的入侵难度。安全性与便利性之间总是需要权衡，但2FA在两者之间找到了良好的平衡点。</p>
+</li>
+<li><p>随着技术发展，我们可能会看到更多无缝且安全的认证方式，如无密码认证、生物特征识别等。但在可预见的未来，2FA仍将是保护我们数字身份的重要工具。</p>
+</li>
+<li><p>在日益复杂的网络环境中，保护数字身份已成为每个人的必修课。启用2FA只需几分钟，却能为你避免可能的数据泄露和财产损失。现在就行动，为你的数字生活加上这把可靠的“安全锁”吧！</p>
+</li>
+</ul>
+<h4 id="资源获取："><a href="#资源获取：" class="headerlink" title="资源获取："></a>资源获取：</h4><ul>
+<li>本文完整代码已上传至 GitHub，欢迎 Star ⭐ 和 Fork： <a target="_blank" rel="noopener" href="https://github.com/rstyro/Springboot/tree/master/springboot-2FA">https://github.com/rstyro/Springboot/tree/master/springboot-2FA</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>您的打赏，是我创作的动力！不给钱？那我只能靠想象力充饥了。</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/wechat_pay.jpg" alt="rstyro 微信支付">
+        <p>微信支付</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/alipay.jpg" alt="rstyro 支付宝">
+        <p>支付宝</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/blog/tags/Spring-Boot/" rel="tag"><i class="fa fa-tag"></i> Spring Boot</a>
+              <a href="/blog/tags/Java/" rel="tag"><i class="fa fa-tag"></i> Java</a>
+              <a href="/blog/tags/2FA/" rel="tag"><i class="fa fa-tag"></i> 2FA</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2025/10/31/SpringAI%E6%90%AD%E5%BB%BARAG%E7%9A%84%E5%90%91%E9%87%8F%E7%9F%A5%E8%AF%86%E5%BA%93/" rel="prev" title="SpringAI搭建RAG的向量知识库">
+      <i class="fa fa-chevron-left"></i> SpringAI搭建RAG的向量知识库
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/blog/2025/11/10/%E7%AD%96%E7%95%A5%E6%A8%A1%E5%BC%8F%E5%AE%9E%E6%88%98%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%8F%AF%E6%89%A9%E5%B1%95%E6%94%AF%E4%BB%98%E6%9E%B6%E6%9E%84/" rel="next" title="策略模式实战设计与可扩展支付架构">
+      策略模式实战设计与可扩展支付架构 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E4%BB%80%E4%B9%88%E6%98%AF2FA%E5%8F%8C%E5%9B%A0%E7%B4%A0%E8%BA%AB%E4%BB%BD%E9%AA%8C%E8%AF%81"><span class="nav-number">1.</span> <span class="nav-text">一、什么是2FA双因素身份验证</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%8C%E3%80%812FA%E8%A7%A3%E5%86%B3%E4%BA%86%E4%BB%80%E4%B9%88%E9%97%AE%E9%A2%98"><span class="nav-number">2.</span> <span class="nav-text">二、2FA解决了什么问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%89%E3%80%812FA%E6%80%8E%E4%B9%88%E4%BD%BF%E7%94%A8"><span class="nav-number">3.</span> <span class="nav-text">三、2FA怎么使用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9B%9B%E3%80%812FA%E5%AE%9E%E6%88%98%E8%BA%AB%E4%BB%BD%E9%AA%8C%E8%AF%81%E5%99%A8%E7%9A%84%E5%AE%9E%E7%8E%B0"><span class="nav-number">4.</span> <span class="nav-text">四、2FA实战身份验证器的实现</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#2FA%E8%BA%AB%E4%BB%BD%E9%AA%8C%E8%AF%81%E7%BB%91%E5%AE%9A%E6%B5%81%E7%A8%8B"><span class="nav-number">4.1.</span> <span class="nav-text">2FA身份验证绑定流程</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%94%E3%80%81%E6%80%BB%E7%BB%93"><span class="nav-number">5.</span> <span class="nav-text">五、总结</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%B5%84%E6%BA%90%E8%8E%B7%E5%8F%96%EF%BC%9A"><span class="nav-number">5.1.</span> <span class="nav-text">资源获取：</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="rstyro"
+      src="/blog/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">rstyro</p>
+  <div class="site-description" itemprop="description">人间的饭，吃一碗少一碗，身边的人，见一面少一面，脚下的路，走一天少一天，其实人生就是一个减法，来日并不方长！</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives/">
+        
+          <span class="site-state-item-count">224</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">15</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/blog/tags/">
+          
+        <span class="site-state-item-count">94</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/rstyro" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;rstyro" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/rstyro" title="Gitee → https:&#x2F;&#x2F;gitee.com&#x2F;rstyro" rel="noopener" target="_blank"><i class="fab fa-codiepie fa-fw"></i>Gitee</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.jianshu.com/u/651c15a1758a" title="简书 → https:&#x2F;&#x2F;www.jianshu.com&#x2F;u&#x2F;651c15a1758a" rel="noopener" target="_blank"><i class="fa fa-book fa-fw"></i>简书</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      友链
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://rstyro.github.io/blog/" title="https:&#x2F;&#x2F;rstyro.github.io&#x2F;blog&#x2F;">胖不了小陆</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; Mon Apr 10 2017 08:00:00 GMT+0800 (中国标准时间) – 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">以梦为马，诗酒趁年华</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/muse.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+  <script>
+    (function(){
+      var canonicalURL, curProtocol;
+      //Get the <link> tag
+      var x=document.getElementsByTagName("link");
+		//Find the last canonical URL
+		if(x.length > 0){
+			for (i=0;i<x.length;i++){
+				if(x[i].rel.toLowerCase() == 'canonical' && x[i].href){
+					canonicalURL=x[i].href;
+				}
+			}
+		}
+    //Get protocol
+	    if (!canonicalURL){
+	    	curProtocol = window.location.protocol.split(':')[0];
+	    }
+	    else{
+	    	curProtocol = canonicalURL.split(':')[0];
+	    }
+      //Get current URL if the canonical URL does not exist
+	    if (!canonicalURL) canonicalURL = window.location.href;
+	    //Assign script content. Replace current URL with the canonical URL
+      !function(){var e=/([http|https]:\/\/[a-zA-Z0-9\_\.]+\.baidu\.com)/gi,r=canonicalURL,t=document.referrer;if(!e.test(r)){var n=(String(curProtocol).toLowerCase() === 'https')?"https://sp0.baidu.com/9_Q4simg2RQJ8t7jm9iCKT-xh_/s.gif":"//api.share.baidu.com/s.gif";t?(n+="?r="+encodeURIComponent(document.referrer),r&&(n+="&l="+r)):r&&(n+="?l="+r);var i=new Image;i.src=n}}(window);})();
+  </script>
+
+
+
+
+  
+<script src="/blog/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+<script>
+if (document.querySelectorAll('pre.mermaid').length) {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mermaid@8/dist/mermaid.min.js', () => {
+    mermaid.initialize({
+      theme    : 'default',
+      logLevel : 3,
+      flowchart: { curve     : 'linear' },
+      gantt    : { axisFormat: '%m/%d/%Y' },
+      sequence : { actorMargin: 50 }
+    });
+  }, window.mermaid);
+}
+</script>
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : 'Ov23litYkWaOGM7kAKPD',
+      clientSecret: '43bd3cf99bfcb9d05d16627c97a9f7a0200df04a',
+      repo        : 'blog',
+      owner       : 'rstyro',
+      admin       : ['rstyro'],
+      id          : 'cdeb9842513d18d25017b5166105836b',
+        language: '',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>
