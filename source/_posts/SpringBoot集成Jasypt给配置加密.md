@@ -14,7 +14,7 @@ updated: 2025-11-26 09:45:46
 
 Jasypt（Java Simplified Encryption）是一个强大的Java加密库，专门用于简化应用程序中的加密操作。在Spring Boot项目中，我们经常需要处理敏感配置信息（如数据库密码、API密钥等），Jasypt可以帮助我们**加密这些敏感配置**，避免明文存储的安全风险。
 
-
+<!--more-->
 
 ## 二、为什么需要Jasypt？
 
