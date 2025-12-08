@@ -89,3 +89,106 @@ categories: Linux
                                            
    
 ```
+
+### 三、动态MOTD实现详解
+
+动态MOTD可以在用户登录时显示实时系统信息、个性化问候等动态内容，让登录界面更加实用和有趣。
+
+
+
+#### 1、动态MOTD工作原理
+
+Linux系统主要通过以下几种方式实现动态MOTD：
+
+1. **`/etc/update-motd.d/` 目录**（Ubuntu/Debian等发行版）
+2. **`/etc/motd` 脚本执行**（通用方法）
+3. **PAM模块 `pam_motd`**（系统级集成）
+
+
+
+#### 2. 创建自定义动态MOTD脚本
+
+- 在 CentOS 上实现动态 MOTD，核心是通过创建 `/etc/update-motd.d/` 目录下的脚本来动态生成登录欢迎信息
+
+- CentOS 默认可能没有 /etc/update-motd.d/ 目录，需要手动创建并设置权限
+
+
+
+```bash
+sudo mkdir -p /etc/update-motd.d
+```
+
+- **验证PAM配置**：动态 MOTD 依赖 PAM 模块。检查 `/etc/pam.d/sshd` 文件，确保包含如下行且未被注释（行首没有 `#`）
+
+```bash
+session    optional     pam_motd.so  motd=/run/motd.dynamic noupdate
+```
+
+- 如果不存在，请添加。此配置会确保 SSH 登录时执行动态脚本。
+- 在 `/etc/update-motd.d/` 目录下创建可执行脚本。文件名以数字开头（如 `00-`， `01-`），系统会按数字顺序执行
+- 例如，创建显示系统基本状态的脚本：`01-system-info`
+
+```bash
+#!/bin/bash
+# 01-system-info: 显示系统状态
+echo "=============== 系统状态 ==============="
+printf "主机名    : %s\n" "$(hostname)"
+printf "运行时间  : %s\n" "$(uptime -p)"
+printf "系统负载  : %s\n" "$(uptime | awk -F'load average:' '{print $2}')"
+printf "内存使用  : %s\n" "$(free -h | awk '/^Mem:/ {print $3" / "$2}')"
+printf "磁盘使用(/) : %s\n" "$(df -h / | awk 'NR==2 {print $3" / "$2 " (" $5 ")"}')"
+echo "========================================"
+```
+
+- 保存后，赋予执行权限：`sudo chmod +x /etc/update-motd.d/01-system-info`
+- 也可以创建一个banner脚本，例：`00-static-banner`
+
+
+
+```bash
+sudo vim /etc/update-motd.d/00-static-banner
+```
+
+- 编辑如下：
+
+```bash
+#!/bin/bash
+# 00-static-banner: 显示静态欢迎图案
+cat << 'EOF'
+          .     .  .      +     .      .          .         
+     .       .      .     #       .           .             
+        .      .         ###            .      .      .     
+      .      .   "#:. .:##"##:. .:#"  .      .              
+          .      . "####"###"####"  .                       
+       .     "#:.    .:#"###"#:.    .:#"  .        .       .
+  .             "#########"#########"        .        .     
+        .    "#:.  "####"###"####"  .:#"   .       .        
+     .     .  "#######""##"##""#######"                  .  
+                ."##"#####"#####"##"           .      .     
+    .   "#:. ...  .:##"###"###"##:.  ... .:#"     .         
+      .     "#######"##"#####"##"#######"      .     .      
+    .    .     "#####""#######""#####"    .      .          
+            .     "      000      "    .     .              
+       .         .   .   000     .        .       .         
+.. .. ..................O000O........................ ......
+
+EOF
+```
+- 2个脚本都要赋予执行权限：
+
+```bash
+sudo chmod +x /etc/update-motd.d/00-static-banner
+sudo chmod +x /etc/update-motd.d/01-system-info
+```
+
+
+
+- **测试与生效:**
+    - **手动测试**执行：`sudo run-parts /etc/update-motd.d`
+    - **登录验证**:打开一个新的 SSH 终端或直接重新登录当前服务器，即可看到最终的动态欢迎信息。
+
+
+
+
+
+
