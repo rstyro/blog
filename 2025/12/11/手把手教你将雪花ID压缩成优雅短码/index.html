@@ -29,14 +29,14 @@
 <meta property="og:site_name" content="胖不了小陆">
 <meta property="og:description" content="在分布式系统中，雪花算法（Snowflake）生成的ID无疑是我们的得力助手。但当我们面对这样一长串数字时：1234567890123456789，是否曾感到它在URL、二维码或用户界面中显得过于“臃肿”？ 我们如何在保持其分布式优势的同时，让它变得短小精悍？本文将带你深入Base62编码的奇妙世界。">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://rstyro.github.io/blog/2020/08/21/AQS%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90(%E4%B8%80)/%E7%BC%A9%E6%88%90%E4%BC%98%E9%9B%85%E7%9F%AD%E7%A0%81/s1.png">
-<meta property="og:image" content="https://rstyro.github.io/blog/2020/08/21/AQS%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90(%E4%B8%80)/%E7%BC%A9%E6%88%90%E4%BC%98%E9%9B%85%E7%9F%AD%E7%A0%81/s2.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2025/12/11/%E6%89%8B%E6%8A%8A%E6%89%8B%E6%95%99%E4%BD%A0%E5%B0%86%E9%9B%AA%E8%8A%B1ID%E5%8E%8B%E7%BC%A9%E6%88%90%E4%BC%98%E9%9B%85%E7%9F%AD%E7%A0%81/s1.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2025/12/11/%E6%89%8B%E6%8A%8A%E6%89%8B%E6%95%99%E4%BD%A0%E5%B0%86%E9%9B%AA%E8%8A%B1ID%E5%8E%8B%E7%BC%A9%E6%88%90%E4%BC%98%E9%9B%85%E7%9F%AD%E7%A0%81/s2.png">
 <meta property="article:published_time" content="2025-12-11T08:13:35.000Z">
 <meta property="article:modified_time" content="2025-12-11T08:13:35.000Z">
 <meta property="article:author" content="rstyro">
 <meta property="article:tag" content="算法">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://rstyro.github.io/blog/2020/08/21/AQS%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90(%E4%B8%80)/%E7%BC%A9%E6%88%90%E4%BC%98%E9%9B%85%E7%9F%AD%E7%A0%81/s1.png">
+<meta name="twitter:image" content="https://rstyro.github.io/blog/2025/12/11/%E6%89%8B%E6%8A%8A%E6%89%8B%E6%95%99%E4%BD%A0%E5%B0%86%E9%9B%AA%E8%8A%B1ID%E5%8E%8B%E7%BC%A9%E6%88%90%E4%BC%98%E9%9B%85%E7%9F%AD%E7%A0%81/s1.png">
 
 <link rel="canonical" href="https://rstyro.github.io/blog/2025/12/11/%E6%89%8B%E6%8A%8A%E6%89%8B%E6%95%99%E4%BD%A0%E5%B0%86%E9%9B%AA%E8%8A%B1ID%E5%8E%8B%E7%BC%A9%E6%88%90%E4%BC%98%E9%9B%85%E7%9F%AD%E7%A0%81/">
 
@@ -295,7 +295,7 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 填充字符（使用字符集中第一个字符）</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">char</span> <span class="variable">PADDING_CHAR</span> <span class="operator">=</span> CHAR_SET[<span class="number">0</span>];</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> String <span class="title function_">encodeFixed</span><span class="params">(<span class="type">long</span> id, <span class="type">int</span> minLength)</span> &#123;</span><br><span class="line">    <span class="type">String</span> <span class="variable">encoded</span> <span class="operator">=</span> encode(id);</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> (encoded.length() &lt; minLength) &#123;</span><br><span class="line">        <span class="type">StringBuilder</span> <span class="variable">sb</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">StringBuilder</span>();</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; minLength - encoded.length(); i++) &#123;</span><br><span class="line">            <span class="comment">// 不够长度就填充</span></span><br><span class="line">            sb.append(PADDING_CHAR);  </span><br><span class="line">        &#125;</span><br><span class="line">        sb.append(encoded);</span><br><span class="line">        <span class="keyword">return</span> sb.toString();</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> encoded;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>例如，ID<code>123</code>转换为固定8位：<code>rrrrrrsZ</code>。</p>
-<p><img src="/blog/2020/08/21/AQS%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90(%E4%B8%80)/%E7%BC%A9%E6%88%90%E4%BC%98%E9%9B%85%E7%9F%AD%E7%A0%81/s1.png"></p>
+<p><img src="/blog/2025/12/11/%E6%89%8B%E6%8A%8A%E6%89%8B%E6%95%99%E4%BD%A0%E5%B0%86%E9%9B%AA%E8%8A%B1ID%E5%8E%8B%E7%BC%A9%E6%88%90%E4%BC%98%E9%9B%85%E7%9F%AD%E7%A0%81/s1.png"></p>
 <h4 id="3、解码：从短字符串还原长整型"><a href="#3、解码：从短字符串还原长整型" class="headerlink" title="3、解码：从短字符串还原长整型"></a>3、解码：从短字符串还原长整型</h4><p>解码是编码的逆过程，核心是<strong>加权求和</strong>：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> Map&lt;Character, Integer&gt; CHAR_INDEX_MAP = <span class="keyword">new</span> <span class="title class_">HashMap</span>&lt;&gt;();</span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span> &#123;</span><br><span class="line">    <span class="comment">// 初始化字符索引映射，用于快速查找</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; BASE; i++) &#123;</span><br><span class="line">        CHAR_INDEX_MAP.put(CHAR_SET[i], i);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="type">long</span> <span class="title function_">decode</span><span class="params">(String shortId)</span> &#123;</span><br><span class="line">    <span class="type">long</span> <span class="variable">id</span> <span class="operator">=</span> <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; shortId.length(); i++) &#123;</span><br><span class="line">        <span class="type">char</span> <span class="variable">c</span> <span class="operator">=</span> shortId.charAt(i);</span><br><span class="line">        <span class="type">int</span> <span class="variable">digit</span> <span class="operator">=</span> CHAR_INDEX_MAP.get(c);  <span class="comment">// 字符→数字</span></span><br><span class="line">        id = id * BASE + digit;             <span class="comment">// 进位累加</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> id;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
@@ -305,7 +305,7 @@
 <ul>
 <li>我们main方法的执行结果如下：</li>
 </ul>
-<p><img src="/blog/2020/08/21/AQS%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90(%E4%B8%80)/%E7%BC%A9%E6%88%90%E4%BC%98%E9%9B%85%E7%9F%AD%E7%A0%81/s2.png"></p>
+<p><img src="/blog/2025/12/11/%E6%89%8B%E6%8A%8A%E6%89%8B%E6%95%99%E4%BD%A0%E5%B0%86%E9%9B%AA%E8%8A%B1ID%E5%8E%8B%E7%BC%A9%E6%88%90%E4%BC%98%E9%9B%85%E7%9F%AD%E7%A0%81/s2.png"></p>
 <h2 id="四、应用场景"><a href="#四、应用场景" class="headerlink" title="四、应用场景"></a>四、应用场景</h2><ul>
 <li>我们前面的痛点也就是我们的应用场景了，</li>
 </ul>
@@ -388,7 +388,10 @@
     <a href="/blog/2025/11/26/SpringBoot%E9%9B%86%E6%88%90Jasypt%E7%BB%99%E9%85%8D%E7%BD%AE%E5%8A%A0%E5%AF%86/" rel="prev" title="SpringBoot集成Jasypt给配置加密">
       <i class="fa fa-chevron-left"></i> SpringBoot集成Jasypt给配置加密
     </a></div>
-      <div class="post-nav-item"></div>
+      <div class="post-nav-item">
+    <a href="/blog/2025/12/16/%E5%91%8A%E5%88%AB%E5%8F%82%E6%95%B0%E4%B9%B1%E4%BC%A0%EF%BC%81%E5%9C%A8SpringBoot%E4%B8%AD%E4%BC%98%E9%9B%85%E4%BC%A0%E9%80%92%E5%8F%82%E6%95%B0%E8%AF%A6%E8%A7%A3/" rel="next" title="告别参数乱传！在SpringBoot中优雅传递参数详解">
+      告别参数乱传！在SpringBoot中优雅传递参数详解 <i class="fa fa-chevron-right"></i>
+    </a></div>
     </div>
       </footer>
     
@@ -464,7 +467,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/blog/archives/">
         
-          <span class="site-state-item-count">229</span>
+          <span class="site-state-item-count">230</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
