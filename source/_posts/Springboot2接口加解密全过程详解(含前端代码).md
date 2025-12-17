@@ -5,63 +5,217 @@ updated: 2020-10-22 14:25:11
 tags: [Spring Boot]
 categories: Java
 ---
-### 一、接口为什么要加密
 
-接口加密传输，主要作用：
-+ 敏感数据防止泄漏、
-+ 保护隐私、
-+ 防伪装攻击、
-+ 防篡改攻击、
-+ 防重放攻击 
-+ 等等...
-+ 4个字概括：**保护数据！**
+### 前言
+
+在数据安全日益重要的今天，仅靠HTTPS就够了吗？对于敏感业务接口，我们往往需要额外一层的应用级加密。今天，就和大家深入聊聊接口加密的**核心思路**与**SpringBoot一站式实现方案**。
 
 <!--more-->
 
-当然不是说接口加密后，就能完完全全的保护我们的数据，但至少能防一部分人拿到我们的数据。
-而且接口加密感觉逼格是不是高过一点！！！
+## 一、接口为什么要加密
 
-### 二、加密思路
+接口加密的核心目的，用四个字概括就是：**保护数据**。具体体现在：
+- **防泄漏**：防止敏感数据（如用户身份、交易信息）在传输过程中被截获。
+- **防篡改**：确保接收到的数据就是发送方发出的原始数据，未被中间人修改。
+- **防重放**：防止攻击者截获合法请求后，重复发送进行恶意操作。
+- **抗伪装**：为客户端与服务端的双向身份验证提供基础。
 
-#### 1、加密简介
+
+
+当然不是说接口加密后，就能完完全全的保护我们的数据，但至少能防一部分人拿到我们的数据。而且接口加密在提升数据安全性的同时，也让系统的安全层级更上一层。而且接口加密感觉逼格是不是高过一点！！！
+
+
+
+## 二、加密思路
+
+### 1、加密简介
 加密算法有很多，在能加密又能解密的算法可分为：
-+ 非对称加密算法，常见：`RSA`、`DSA`、`ECC`
-特点：算法复杂，加解密速度慢，但安全性高，一般与对称加密结合使用(对称加密对内容加密，非对称对对称所使用的密钥加密)
-+ 对称加密算法，常见：`DES`、`3DES`、`AES`、`Blowfish`、`IDEA`、`RC5`、`RC6`
-特点：加密解密效率高，速度快，适合进行大数据量的加解密
+- 非对称加密算法，常见：`RSA`、`DSA`、`SM2`、`ECC`
+    - 非对称加密：加密和解密用 **一对不同但配对的密钥**（公钥 + 私钥），两者是 “唯一绑定” 的
+    - 特点：算法复杂，加解密速度慢，但安全性高。
+    - 一般与对称加密结合使用(对称加密对内容加密，非对称对对称所使用的密钥加密)
 
-
-#### 2、加密流程
-**思路：**
-假设现在客户端是A，服务端是B，现在A要去B请求接口
-+ 1、A要向B发送信息，A和B都要产生一对用于加密的非对称加密公私钥（AB各自生成自己的公私钥）
-+ 2、A的私钥保密，A的公钥告诉B；B的私钥保密，B的公钥告诉A。(AB互换公钥)
-+ 3、A要给B发送信息时，A用B的公钥加密信息，因为A知道B的公钥。(公钥加密只有私钥能解)
-+ 4、A将这个消息发给B（已经用B的公钥加密消息）。
-+ 5、B收到这个消息后，B用自己的私钥解密A的消息。其他人收到这个报文都无法解密，因为只有B才有B的私钥。
-
-虽然这样就实现了接口的加密方式，但是呢，非对称加密的加解密速度相比对称加密速度很慢，当传输的数据很大时就更加明显了。
-所以我们对称与非对称一起用，理解上面的流程之后，我们在其基础稍微改下：
-+ 在A给B发信息的时候，随机生成一个对称加密的密钥，然后用刚生成的密钥加密信息，然后用B的公钥加密刚生成的对称密钥。
-+ A把加密的两个信息发送给B。B收到数据之后，先用自己的私钥解开得到对称密钥，然后再用解开的对称密钥解开对称加密的信息，最终得到A传来的信息。
+- 对称加密算法，常见：`AES`、`DES`、`3DES`、`SM4`、`Blowfish`
+    - 对称加密(也叫私钥加密)指加密和解密使用相同密钥的加密算法。有时又叫传统密码算法。
+    - 特点：加密解密效率高，速度快，适合进行大数据量的加解密
 
 
 
-### 三、代码实现
-+ 在当下Java还是SpringBoot为主流框架工作面试必备，今天还是以它来举例。
-+ 加解密代码怎么写，这个时候网上已经有很多现成的库了，不用我们操心，我们想的是如何在接口加解密的时候不影响我们自己的业务，也就是不用更改我们已经写好的代码。
-+ 很多人的第一反应应该就是AOP吧，对的没错可以使用AOP进行环绕增强。也可以使用`@ControllerAdvice` 对Controller进行增强（本文以它来做为例子）。
-+ Spring 提供两个接口`RequestBodyAdvice`、`ResponseBodyAdvice`。实现它们，即可对`Controller`进行增强，第一个是在controller之前增强，第二个就是对controller 的返回值进行增强。
-+ 在spring启动的时候会对`RequestMappingHandlerAdapter`的`initControllerAdviceCache()`方法进行初始化。会去把有`@ControllerAdvice`的类进行注入。
+单独用都有短板，混合使用才能扬长避短，我们选用混合加密：**RSA+AES**
 
-#### 1、自定义类
-下面就来实现上面的两个接口实现类代码
-##### EncryptRequestAdvice.java
+**混合加密思路**：用AES加密业务数据（速度快），用RSA加密AES的密钥（安全性高），既保证效率又解决密钥传输问题。
 
-+ 这个类的功能就是在请求到controller之前就把前端传上来的数据解密好
-+ 我们还要校验是否有必要解密
+
+
+### 2、加密流程
+**思路**： 假设现在客户端是A，服务端是B，现在A要去B请求接口
+
+**第一步：密钥交换**
+
+- A生成RSA公私钥对，B也生成RSA公私钥对
+- A和B互换公钥（公钥公开，私钥自己保存）
+
+
+
+**第二步：数据传输**
+
+- 客户端随机生成一个`AES密钥`。
+- 客户端用服务端的`RSA公钥`加密这个`AES密钥`，并放在请求头（如key字段）中。
+- 客户端用`AES密钥`加密业务报文，放在请求体。
+- 服务端收到请求后，用自己的`RSA私钥`解开头部的key，得到`AES密钥`。
+- 服务端用`AES密钥`解密请求体，得到明文数据，处理业务。
+- 服务端返回响应时，用客户端的`RSA公钥`加密一个新的随机`AES密钥`，并用来加密响应体，流程同理。
+
+
+
+这样做，既利用了非对称加密的安全性来完成最关键的密钥交换，又享受了对称加密处理业务数据时的高性能。
+
+
+
+
+
+## 三、SpringBoot代码实现
+
+
+
+**灵魂拷问**：如何在不改动既有业务代码的前提下，为接口统一加上加解密能力？
+
+**答案是**：
+
+- **方案一**：**使用 `@ControllerAdvice`配合 `RequestBodyAdvice`和 `ResponseBodyAdvice`**。这相当于在请求进入Controller之前和离开Controller之后，安插了两个“关卡”，进行自动化的解密/加密。
+- **方案二**：**使用AOP通过 “环绕通知” 拦截目标接口**，在接口执行前解密请求参数，接口执行后加密返回值，全程不侵入业务代码。
+
+
+
+用什么方案都行，如果没有特殊要求，其实用`方案一`更方便，因为它和SpringMVC 生命周期深度融合，兼容性更好。下面我们以`方案一`为例展开实现过程。
+
+
+
+### 1、项目依赖准备
+
+```xml
+<!-- 用于加密处理 -->
+<dependency>
+    <groupId>top.lrshuai.encryption</groupId>
+    <artifactId>encryption-tools</artifactId>
+    <version>1.0.3</version>
+</dependency>
+<!-- 用于JSON处理 -->
+<dependency>
+    <groupId>com.alibaba</groupId>
+    <artifactId>fastjson</artifactId>
+    <version>1.2.83</version>
+</dependency>
+```
+
+- encryption-tools 是自己搞的demo,可以用其他的第三方工具加密如：`hutool`也行
+
+
+
+### 2、核心配置：密钥管理
 
 ```java
+@Configuration
+@Data
+public class KeyConfig {
+
+    /**
+     * 服务端RSA公钥(给前端的)
+     */
+    @Value("${api.encrypt.rsa.publicKey}")
+    private String rsaPublicKey;
+
+    /**
+     * 服务端RSA私钥（自己留存）
+     */
+    @Value("${api.encrypt.rsa.privateKey}")
+    private String rsaPrivateKey;
+
+    /**
+     * 前端RSA公钥（客户端传给服务端的)
+     */
+    @Value("${api.encrypt.rsa.frontPublicKey}")
+    private String frontRsaPublicKey;
+
+    /**
+     * aes向量 16位
+     */
+    @Value("${api.encrypt.aes.iv}")
+    private String aesIv;
+
+}
+```
+
+配置文件`application.yml`中添加密钥配置：
+
+```yaml
+api:
+  encrypt:
+    rsa:
+      publicKey: MIGfMA0GCSqGSIb3DQEBAQUAA4GN...
+      privateKey: MIICdgIBADANBgkqhkiG9w0BAQEFAASCAmAwggJc...
+      frontPublicKey: MIGfMA0GCSqGSIb3DQEBA...
+    aes:
+      iv: 123456789abcdefh
+```
+
+
+
+### 3、自定义注解：控制接口是否加密
+
+不是所有接口都需要加密（比如公开的查询接口），用注解标记需要加密的接口：
+
+
+
+```java
+/**
+ * 返回数据是否加密
+ * @author rstyro
+ */
+@Documented
+@Inherited
+@Target({ElementType.METHOD,ElementType.TYPE})
+@Retention(RetentionPolicy.RUNTIME)
+public @interface Encode {
+}
+
+
+/**
+ * 接受参数是否需要解密
+ * @author rstyro
+ */
+@Documented
+@Inherited
+@Target({ElementType.METHOD,ElementType.TYPE})
+@Retention(RetentionPolicy.RUNTIME)
+public @interface Decode {
+}
+
+/**
+ * 组合注解，接受解密，返回加密
+ * @author rstyro
+ */
+@Documented
+@Inherited
+@Target({ElementType.METHOD,ElementType.TYPE})
+@Retention(RetentionPolicy.RUNTIME)
+@Decode
+@Encode
+public @interface Encrypt {
+}
+```
+
+
+
+### 4、 请求解密：RequestBodyAdvice实现
+
+EncryptRequestAdvice类：在请求到达Controller前，自动解密前端传的加密数据，业务代码拿到的是原始数据。
+
+```java
+/**
+ * 请求参数到controller之前的处理
+ * @author rstyro
+ */
 @ControllerAdvice(basePackages = {"top.lrshuai.encrypt.controller"})
 public class EncryptRequestAdvice implements RequestBodyAdvice {
 
@@ -106,44 +260,48 @@ public class EncryptRequestAdvice implements RequestBodyAdvice {
 
 }
 ```
-+ 在上面实现类中需要重写：`supports()`、`beforeBodyRead()`、`afterBodyRead()`、`handleEmptyBody()` 方法
-+ 只有在`supports()` 返回`true` 后面的方法才会支持执行。在`RequestResponseBodyAdviceChain`有判断
-+ 我们可以在`beforeBodyRead()`这个方法进行解密处理。
-+ 在上面的代码中，我加了自定义注解，因为可能需求是这样的，有些接口加密有些接口不加密，用自定义注解比较方便。
-+ 然后`DecodeInputMessage` 这个类是自定义实现了`HttpInputMessage`接口，解码逻辑都在里面。如下：
 
+#### 解密工具类：DecodeInputMessage
 
-##### DecodeInputMessage.java
-这个类就是具体的解码逻辑了
+具体的解密逻辑封装在这里，负责从请求头拿加密的AES密钥，解密后得到原始业务数据：
 
 ```java
 public class DecodeInputMessage implements HttpInputMessage {
 
     private HttpHeaders headers;
-
     private InputStream body;
 
     public DecodeInputMessage(HttpInputMessage httpInputMessage, KeyConfig keyConfig) {
-        // 这里是body 读取之前的处理
         this.headers = httpInputMessage.getHeaders();
-        String encodeAesKey = "";
-        List<String> keys = this.headers.get(Result.KEY);
-        if (keys != null && keys.size() > 0) {
-            encodeAesKey = keys.get(0);
-        }
         try {
-            // 1、解码得到aes 密钥
-            String decodeAesKey = RsaUtils.decodeBase64ByPrivate(keyConfig.getRsaPrivateKey(), encodeAesKey);
-            // 2、从inputStreamReader 得到aes 加密的内容
-            String encodeAesContent = new BufferedReader(new InputStreamReader(httpInputMessage.getBody())).lines().collect(Collectors.joining(System.lineSeparator()));
-            // 3、AES通过密钥CBC解码
-            String aesDecode = AesUtils.decodeBase64(encodeAesContent, decodeAesKey, keyConfig.getAesIv().getBytes(), AesUtils.CIPHER_MODE_CBC_PKCS5PADDING);
-            if (!StringUtils.isEmpty(aesDecode)) {
-                // 4、重新写入到controller
-                this.body = new ByteArrayInputStream(aesDecode.getBytes());
+            // 1. 从请求头获取加密后的AES密钥
+            String encodeAesKey = headers.getFirst("key");
+            if (StringUtils.isEmpty(encodeAesKey)) {
+                throw new RuntimeException("请求头缺少加密密钥key");
             }
+
+            // 2. 用服务端RSA私钥解密AES密钥
+            String decodeAesKey = RsaUtils.decodeBase64ByPrivate(keyConfig.getRsaPrivateKey(), encodeAesKey);
+
+            // 3. 读取请求体中的AES加密数据
+            String encodeContent = new BufferedReader(
+                    new InputStreamReader(httpInputMessage.getBody(), StandardCharsets.UTF_8)
+            ).lines().collect(Collectors.joining());
+
+            // 4. 用AES密钥解密业务数据
+            String aesDecode = AesUtils.decodeBase64(
+                    encodeContent,
+                    decodeAesKey,
+                    keyConfig.getAesIv().getBytes(),
+                    AesUtils.CIPHER_MODE_CBC_PKCS5PADDING
+            );
+
+            // 5. 把解密后的原始数据转为InputStream，供Controller读取
+            this.body = new ByteArrayInputStream(aesDecode.getBytes(StandardCharsets.UTF_8));
         } catch (Exception e) {
-            e.printStackTrace();
+            // 生产环境建议用日志框架，不要直接打印堆栈
+            log.error("请求解密失败", e);
+            throw new RuntimeException("接口解密异常");
         }
     }
 
@@ -158,14 +316,10 @@ public class DecodeInputMessage implements HttpInputMessage {
     }
 }
 ```
-+ 上面的代码注释我觉得都写的清楚了，不多介绍。
 
-##### EncryptResponseAdvice.java
+### 5、 响应加密：ResponseBodyAdvice实现
 
-+ 这个类的主要功能就是对返回值进行加密操作
-+ 直接在`beforeBodyWrite()`里面执行具体的加密操作即可
-+ `supports()`方法也是需要返回`true`,在`RequestResponseBodyAdviceChain.processBody()`中有个判断只有`supports()`返回`true`才会执行`beforeBodyWrite()`
-
+EncryptResponseAdvice类：对Controller的返回值自动加密，前端拿到的是加密后的数据：
 
 ```java
 @Slf4j
@@ -177,43 +331,41 @@ public class EncryptResponseAdvice implements ResponseBodyAdvice<Object> {
 
     @Override
     public boolean supports(MethodParameter methodParameter, Class<? extends HttpMessageConverter<?>> aClass) {
-        // return true 有效
-        return true;
+        return true; // 统一拦截，后续再判断是否需要加密
     }
 
     /**
-     * 返回结果加密
-     * @param obj 接口返回的对象
-     * @param methodParameter method
-     * @param mediaType  mediaType
-     * @param aClass HttpMessageConverter class
-     * @param serverHttpRequest request
-     * @param serverHttpResponse response
-     * @return obj
+     * 核心加密逻辑：在返回响应前执行
      */
     @Override
     public Object beforeBodyWrite(Object obj, MethodParameter methodParameter, MediaType mediaType, Class<? extends HttpMessageConverter<?>> aClass, ServerHttpRequest serverHttpRequest, ServerHttpResponse serverHttpResponse) {
-        // 方法或类上有注解
-        if (Utils.hasMethodAnnotation(methodParameter,new Class[]{Encrypt.class, Encode.class})) {
-            // 这里假设已经定义好返回的model就是Result
+        // 只有标记了@Encrypt的接口才加密
+        if (Utils.hasMethodAnnotation(methodParameter, new Class[]{Encrypt.class})) {
             if (obj instanceof Result) {
                 try {
-                    // 1、随机aes密钥
+                    // 1. 随机生成AES密钥（每次请求都不一样，更安全）
                     String randomAesKey = AesUtils.generateSecret(256);
-                    // 2、数据体
+
+                    // 2. 取出响应数据体，转为JSON字符串
                     Object data = ((Result) obj).getData();
-                    // 3、转json字符串
-                    String jsonString = JSON.toJSONString(data);
-                    // 4、aes加密数据体
-                    String aesEncode = AesUtils.encodeBase64(jsonString, randomAesKey,keyConfig.getAesIv().getBytes(),AesUtils.CIPHER_MODE_CBC_PKCS5PADDING);
-                    // 5、重新设置数据体
-                    ((Result) obj).put(Result.DATA,aesEncode);
-                    // 6、使用前端的rsa公钥加密 aes密钥 返回给前端
-                    ((Result) obj).put(Result.KEY,RsaUtils.encodeBase64PublicKey(keyConfig.getFrontRsaPublicKey(),randomAesKey));
-                    // 7、返回
-                    return obj;
+                    String jsonData = JSON.toJSONString(data);
+
+                    // 3. 用AES密钥加密业务数据
+                    String aesEncryptData = AesUtils.encodeBase64(
+                            jsonData,
+                            randomAesKey,
+                            keyConfig.getAesIv().getBytes(),
+                            AesUtils.CIPHER_MODE_CBC_PKCS5PADDING
+                    );
+
+                    // 4. 用前端RSA公钥加密AES密钥（前端用自己的私钥解密）
+                    String encryptAesKey = RsaUtils.encodeBase64PublicKey(keyConfig.getFrontRsaPublicKey(), randomAesKey);
+
+                    // 5. 重新设置响应数据：加密后的业务数据+加密后的AES密钥
+                    ((Result) obj).setData(aesEncryptData);
+                    ((Result) obj).setKey(encryptAesKey);
                 } catch (Exception e) {
-                   log.error("加密失败：",e);
+                    log.error("响应加密失败", e);
                 }
             }
         }
@@ -221,31 +373,20 @@ public class EncryptResponseAdvice implements ResponseBodyAdvice<Object> {
     }
 }
 ```
-看代码注释，不说了。
 
-#### 2、加密工具类
-加密工具类，我在网上收集整理了一下，搞了个jar。直接在pom.xml 引入即可。如下：
-```
-<dependency>
-	<groupId>top.lrshuai.encryption</groupId>
-	<artifactId>encryption-tools</artifactId>
-	<version>1.0.3</version>
-</dependency>
-```
 
-自此核心代码都讲完了，这里只是给出了个demo，可以参考一下（代码写的也不是很好，很多地方也没有封装），加密方式多种多样，都是可以自由更改，这种加密方式不喜欢就改。
-差点忘记了，前端代码呢。
 
-#### 3、前端代码
-前端也是在Github分别找了两个库：
-+ [jsencrypt](https://github.com/lsxlsxxslxsl/encryptlong)
-这个是RSA加密库，这个是在原版的`jsencrypt`进行增强修改，原版的我用过太长数据加密失败，多此加密解密失败，所以就用了这个库。
-+ [CryptoJS](https://github.com/sytelus/CryptoJS)
-AES加密库，这个库是Google开源的，有AES、MD5、SHA 等加密方法
+
+
+## 四、前端配套实现（Vue示例）
+前端需要配合完成“加密请求→解密响应”的流程，核心依赖两个库：
+- `jsencrypt`：处理RSA加密（推荐增强版，支持长数据加密）
+- `CryptoJS`：处理AES加密（Google开源，稳定可靠）
 
 然后我使用的是Vue写的简单页面（业余前端）
 
-##### html
+
+### 1、核心代码实现
 ```html
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
@@ -465,10 +606,12 @@ AES加密库，这个库是Google开源的，有AES、MD5、SHA 等加密方法
 </body>
 </html>
 ```
-主要看`testRequest()` 这个方法就行了，都有代码注释。
+核心逻辑集中在`testRequest()`方法，完成“生成AES密钥→加密业务数据→加密AES密钥→发送请求→解密响应”的全流程，代码注释已清晰标注关键步骤。
 
-##### 注意点
-+ 后端需要注意的就是，controller参数需要用`@RequestBody`包起来,如下：
+
+
+### 2、注意点
+- 后端需要注意的就是，controller参数需要用`@RequestBody`包起来,如下：
 ```
 @PostMapping("/test1")
 @ResponseBody
@@ -477,9 +620,11 @@ public Object test1(@RequestBody(required = false) TestDto dto){
 	return Result.ok(dto);
 }
 ```
-+ 而前端传上来的时候`header`需要设置`"Content-Type": "application/json;charset=utf-8"`
+-  而前端传上来的时候`header`需要设置`"Content-Type": "application/json;charset=utf-8"`，确保请求体格式与后端解析方式一致。
 
-##### 最终效果
+
+
+### 3、最终效果
 
 ![](test.png)
 
@@ -490,8 +635,42 @@ public Object test1(@RequestBody(required = false) TestDto dto){
 + `key`：里面就是前端RSA公钥加密后的AES密钥(前端需要用私钥解密得到aes密钥，然后再用密钥解开data里面的数据)
 + `status`：这个是状态码，如果报错了就不是200，不然报错了返回的数据，前端解几百年都解不开。
 
-#### 4、Github地址
-很多细节，可能我没讲明白，所以我把项目放在Github了，有兴趣的同学可以下载运行一波就知道了。
 
-+ [Github](https://github.com/rstyro/Springboot/tree/master/Springboot2-api-encrypt)
-+ [Gitee](https://gitee.com/rstyro/spring-boot/tree/master/Springboot2-api-encrypt)
+
+
+
+## 五、最后
+
+
+
+接口加密不仅是技术需求，更是对用户数据负责的体现。希望本文提供的**核心思路**与**完整实现**，能帮助你快速在项目中落地应用级加密，筑牢数据安全的第一道防线。
+
+
+
+#### 扩展价值
+
+本文方案具备良好的可扩展性，可根据业务需求快速迭代：
+
+- **国密算法替换**：将RSA替换为SM2、AES替换为SM4，满足金融、政务等领域的国产化合规要求。
+- **分布式场景适配**：密钥配置存入分布式配置中心，确保集群中所有节点密钥一致，支持水平扩展。
+- **全链路加密**：结合网关（如Spring Cloud Gateway）实现入口层统一加密，搭配服务间调用加密（如Dubbo接口加密），构建全链路数据安全体系。
+
+
+
+
+#### 源码地址
+
+- 文中所有代码都已整理成可运行的Demo，包含SpringBoot后端、Vue前端、密钥生成工具，直接下载即可运行。
+- 欢迎 Star ⭐ 和 Fork：：
+    - Github地址：https://github.com/rstyro/Springboot/tree/master/Springboot2-api-encrypt
+    - Gitee地址（国内快）：https://gitee.com/rstyro/spring-boot/tree/master/Springboot2-api-encrypt
+
+
+
+
+
+**✨ 一个小小的邀请**
+
+如果这篇文章帮你理清了思路，**不妨点个「赞&关注」**。
+
+**期待在评论区，看到你的故事。** 我们一起，把代码写得更明白。
