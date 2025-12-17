@@ -250,7 +250,7 @@
 <p><strong>这不是优雅，这是“参数包袱”</strong>。它让代码臃肿、难以测试，更在异步编程时直接“瘫痪”。</p>
 <span id="more"></span>
 
-<p>本文为你彻底梳理：在Spring Boot的请求旅途中，如何告别这种原始而脆弱的传参方式。我们将从最经典的 <strong>ThreadLocal</strong> 出发，揭秘其内存泄漏的坑与异步传递的痛；再深入阿里开源的 <strong>TransmittableThreadLocal</strong>，看它如何征服线程池；最终，前瞻Java 21的 <strong>Scoped Values</strong>，探索下一代线程上下文管理的终极形态。</p>
+<p>本文为你彻底梳理：在Spring Boot的请求旅途中，如何告别这种原始而脆弱的传参方式。我们将从最经典的 <strong>ThreadLocal</strong> 出发，揭秘其内存泄漏的坑与异步传递的痛；再深入阿里开源的 <strong>TransmittableThreadLocal</strong>，看它如何征服线程池；最终，前瞻JDK 21的 <strong>Scoped Values</strong>，探索下一代线程上下文管理的终极形态。</p>
 <p>不止于用法，更深入原理与选型。无论你的项目处于哪个阶段，这里都有你需要的“优雅之道”。</p>
 <h2 id="一、提问：Spring-Boot如何处理你的请求？"><a href="#一、提问：Spring-Boot如何处理你的请求？" class="headerlink" title="一、提问：Spring Boot如何处理你的请求？"></a>一、提问：Spring Boot如何处理你的请求？</h2><p>要理解上下文传递，首先要明白Spring Boot的<strong>线程模型</strong>。</p>
 <p>当一个HTTP请求到达你的Spring Boot应用时，它并不会“奢侈地”为你创建一个全新线程。相反，它依赖于一个<strong>线程池</strong>（通常是Tomcat的<code>ThreadPoolExecutor</code>）。</p>
@@ -326,7 +326,7 @@
 
 <h4 id="4、在Spring-Boot的异步任务中使用："><a href="#4、在Spring-Boot的异步任务中使用：" class="headerlink" title="4、在Spring Boot的异步任务中使用："></a>4、在Spring Boot的异步任务中使用：</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">AsyncConfig</span> <span class="keyword">implements</span> <span class="title class_">AsyncConfigurer</span> &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> Executor <span class="title function_">getAsyncExecutor</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="type">ThreadPoolTaskExecutor</span> <span class="variable">executor</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ThreadPoolTaskExecutor</span>();</span><br><span class="line">        executor.setCorePoolSize(<span class="number">10</span>);</span><br><span class="line">        executor.setMaxPoolSize(<span class="number">100</span>);</span><br><span class="line">        executor.setQueueCapacity(<span class="number">100</span>);</span><br><span class="line">        executor.initialize();</span><br><span class="line">        <span class="comment">// 使用TransmittableThreadLocal装饰异步任务</span></span><br><span class="line">        <span class="keyword">return</span> TtlExecutors.getTtlExecutor(executor);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<h2 id="四、Scoped-Values"><a href="#四、Scoped-Values" class="headerlink" title="四、Scoped Values"></a>四、Scoped Values</h2><p>Scoped Values是Java 21中引入的一个新特性，它提供了一种更安全、更便捷的线程局部变量管理方式。Scoped Values与ThreadLocal类似，但它的设计目标是解决ThreadLocal的内存泄漏问题，并且更适合虚拟线程（Virtual Threads）的使用场景。</p>
+<h2 id="四、Scoped-Values"><a href="#四、Scoped-Values" class="headerlink" title="四、Scoped Values"></a>四、Scoped Values</h2><p>Scoped Values是JDK 21中引入的一个新特性，它提供了一种更安全、更便捷的线程局部变量管理方式。Scoped Values与ThreadLocal类似，但它的设计目标是解决ThreadLocal的内存泄漏问题，并且更适合虚拟线程（Virtual Threads）的使用场景。</p>
 <p>Scoped Values的主要特点：</p>
 <ul>
 <li><strong>不可变</strong>：一旦绑定，在作用域内不可改变。</li>
@@ -375,11 +375,11 @@
 <h2 id="五、总结"><a href="#五、总结" class="headerlink" title="五、总结"></a>五、总结</h2><ul>
 <li><strong>ThreadLocal</strong>：适用于简单的线程局部变量管理，但在异步场景下需要额外处理，且需注意内存泄漏。</li>
 <li><strong>TransmittableThreadLocal</strong>：解决了线程池中ThreadLocal传递问题，适合异步场景，但需要第三方依赖。</li>
-<li><strong>Scoped Values</strong>：Java 21的新特性，解决了ThreadLocal的内存泄漏问题，更适合虚拟线程，但需要Java 21及以上版本。</li>
+<li><strong>Scoped Values</strong>：JDK 21的新特性，解决了ThreadLocal的内存泄漏问题，更适合虚拟线程，但需要JDK 21及以上版本。</li>
 </ul>
 <p>在实际项目中，我们可以根据具体情况选择：</p>
 <ul>
-<li>如果项目使用Java 21+，并且大量使用虚拟线程，可以考虑使用Scoped Values。</li>
+<li>如果项目使用JDK 21+，并且大量使用虚拟线程，可以考虑使用Scoped Values。</li>
 <li>如果项目使用线程池进行异步处理，并且需要上下文传递，可以使用TransmittableThreadLocal。</li>
 <li>如果只是简单的同步请求处理，使用ThreadLocal并注意清理即可。</li>
 </ul>
