@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/favicon.jpg">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon.jpg">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon.jpg">
+  <link rel="mask-icon" href="/blog/images/favicon.jpg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="/blog/lib/pace/pace-theme-flash.min.css">
+  <script src="/blog/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"rstyro.github.io","root":"/blog/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":true},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.json"};
+  </script>
+
+  <meta name="description" content="概述在日常的 Kubernetes 开发和运维工作中，频繁查看容器日志是必不可少的一环。然而，原生的 kubectl logs命令在实际使用中存在诸多不便：  Pod 标识不稳定：Pod 重启后名称会变化，需要重新查找 命令冗长繁琐：每次都需要指定命名空间、Pod 名称等参数 缺乏交互体验：多实例情况下需要手动选择，无颜色高亮 功能受限：简单的日志查看，缺乏过滤、分页等高级功能  为此，我封装了一">
+<meta property="og:type" content="article">
+<meta property="og:title" content="别再手动敲kubectl_logs了！运维大佬封装高效查日志脚本，解放你的双手">
+<meta property="og:url" content="https://rstyro.github.io/blog/2025/12/29/%E5%88%AB%E5%86%8D%E6%89%8B%E5%8A%A8%E6%95%B2kubectl-logs%E4%BA%86%EF%BC%81%E8%BF%90%E7%BB%B4%E5%A4%A7%E4%BD%AC%E5%B0%81%E8%A3%85%E9%AB%98%E6%95%88%E6%9F%A5%E6%97%A5%E5%BF%97%E8%84%9A%E6%9C%AC%EF%BC%8C%E8%A7%A3%E6%94%BE%E4%BD%A0%E7%9A%84%E5%8F%8C%E6%89%8B/index.html">
+<meta property="og:site_name" content="胖不了小陆">
+<meta property="og:description" content="概述在日常的 Kubernetes 开发和运维工作中，频繁查看容器日志是必不可少的一环。然而，原生的 kubectl logs命令在实际使用中存在诸多不便：  Pod 标识不稳定：Pod 重启后名称会变化，需要重新查找 命令冗长繁琐：每次都需要指定命名空间、Pod 名称等参数 缺乏交互体验：多实例情况下需要手动选择，无颜色高亮 功能受限：简单的日志查看，缺乏过滤、分页等高级功能  为此，我封装了一">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://rstyro.github.io/blog/klog0.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/klog1.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/klog2.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/klog3.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/klog4.png">
+<meta property="article:published_time" content="2025-12-29T08:35:52.000Z">
+<meta property="article:modified_time" content="2025-12-29T08:37:53.449Z">
+<meta property="article:author" content="rstyro">
+<meta property="article:tag" content="Kubernetes">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://rstyro.github.io/blog/klog0.png">
+
+<link rel="canonical" href="https://rstyro.github.io/blog/2025/12/29/%E5%88%AB%E5%86%8D%E6%89%8B%E5%8A%A8%E6%95%B2kubectl-logs%E4%BA%86%EF%BC%81%E8%BF%90%E7%BB%B4%E5%A4%A7%E4%BD%AC%E5%B0%81%E8%A3%85%E9%AB%98%E6%95%88%E6%9F%A5%E6%97%A5%E5%BF%97%E8%84%9A%E6%9C%AC%EF%BC%8C%E8%A7%A3%E6%94%BE%E4%BD%A0%E7%9A%84%E5%8F%8C%E6%89%8B/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>别再手动敲kubectl_logs了！运维大佬封装高效查日志脚本，解放你的双手 | 胖不了小陆</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">胖不了小陆</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">信你所信，为你所见</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/blog/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/blog/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/blog/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/rstyro" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://rstyro.github.io/blog/2025/12/29/%E5%88%AB%E5%86%8D%E6%89%8B%E5%8A%A8%E6%95%B2kubectl-logs%E4%BA%86%EF%BC%81%E8%BF%90%E7%BB%B4%E5%A4%A7%E4%BD%AC%E5%B0%81%E8%A3%85%E9%AB%98%E6%95%88%E6%9F%A5%E6%97%A5%E5%BF%97%E8%84%9A%E6%9C%AC%EF%BC%8C%E8%A7%A3%E6%94%BE%E4%BD%A0%E7%9A%84%E5%8F%8C%E6%89%8B/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/avatar.jpg">
+      <meta itemprop="name" content="rstyro">
+      <meta itemprop="description" content="人间的饭，吃一碗少一碗，身边的人，见一面少一面，脚下的路，走一天少一天，其实人生就是一个减法，来日并不方长！">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="胖不了小陆">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          别再手动敲kubectl_logs了！运维大佬封装高效查日志脚本，解放你的双手
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2025-12-29 16:35:52 / 修改时间：16:37:53" itemprop="dateCreated datePublished" datetime="2025-12-29T16:35:52+08:00">2025-12-29</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E7%BD%91%E7%BB%9C%E8%BF%90%E7%BB%B4/" itemprop="url" rel="index"><span itemprop="name">网络运维</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>在日常的 Kubernetes 开发和运维工作中，频繁查看容器日志是必不可少的一环。然而，原生的 <code>kubectl logs</code>命令在实际使用中存在诸多不便：</p>
+<ul>
+<li><strong>Pod 标识不稳定</strong>：Pod 重启后名称会变化，需要重新查找</li>
+<li><strong>命令冗长繁琐</strong>：每次都需要指定命名空间、Pod 名称等参数</li>
+<li><strong>缺乏交互体验</strong>：多实例情况下需要手动选择，无颜色高亮</li>
+<li><strong>功能受限</strong>：简单的日志查看，缺乏过滤、分页等高级功能</li>
+</ul>
+<p>为此，我封装了一个 <code>klog.sh</code>工具，极大提升了 Kubernetes 日志查询的效率和体验。</p>
+<span id="more"></span>
+
+
+<h4 id="设计理念"><a href="#设计理念" class="headerlink" title="设计理念"></a>设计理念</h4><p>这个脚本的核心设计理念是：<strong>让简单的事情更简单，让复杂的事情成为可能</strong>。通过封装常见查询模式，提供一致的用户体验。</p>
+<h4 id="解决的痛点"><a href="#解决的痛点" class="headerlink" title="解决的痛点"></a>解决的痛点</h4><ul>
+<li><p>现在查询日志比较麻烦的就是拿到pod的唯一标识，因为只要Pod重启，它的唯一标识就会变化</p>
+</li>
+<li><p>对于Deployment创建的Pod，命名格式是：<code>[Deployment名称]-[随机字符串]-[随机字符串]</code></p>
+<ul>
+<li>例如：<code>user-service-7d8f6c5b4b-abc12</code></li>
+</ul>
+</li>
+<li><p>只要重启Pod之前精心敲下的命令又得重写</p>
+</li>
+</ul>
+<h2 id="一、klog-sh-工具详解"><a href="#一、klog-sh-工具详解" class="headerlink" title="一、klog.sh 工具详解"></a>一、klog.sh 工具详解</h2><h3 id="1、工具特性"><a href="#1、工具特性" class="headerlink" title="1、工具特性"></a>1、工具特性</h3><ul>
+<li><strong>智能 Pod 发现</strong>：通过服务名模糊匹配，自动识别相关 Pod</li>
+<li><strong>交互式选择</strong>：多实例时提供序号选择界面</li>
+<li><strong>丰富参数支持</strong>：支持实时跟踪、grep 过滤、上下文查看等</li>
+<li><strong>分页功能</strong>：支持 Pod 列表分页显示</li>
+<li><strong>颜色高亮</strong>：终端输出彩色标识，提升可读性</li>
+<li><strong>默认配置</strong>：支持默认命名空间、行数等配置</li>
+</ul>
+<p><img src="/blog/klog0.png"></p>
+<h3 id="2、脚本部署"><a href="#2、脚本部署" class="headerlink" title="2、脚本部署"></a>2、脚本部署</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 创建脚本文件</span></span><br><span class="line">vim ~/klog.sh</span><br><span class="line"></span><br><span class="line"><span class="comment"># 添加执行权限</span></span><br><span class="line"><span class="built_in">chmod</span> +x ~/klog.sh</span><br><span class="line"></span><br><span class="line"><span class="comment"># 建议创建软链接到 PATH 路径</span></span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">ln</span> -s ~/klog.sh /usr/local/bin/klog</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="3、完整脚本内容"><a href="#3、完整脚本内容" class="headerlink" title="3、完整脚本内容"></a>3、完整脚本内容</h3><ul>
+<li>在<code>klog.sh</code>,编辑内容如下：</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br><span class="line">228</span><br><span class="line">229</span><br><span class="line">230</span><br><span class="line">231</span><br><span class="line">232</span><br><span class="line">233</span><br><span class="line">234</span><br><span class="line">235</span><br><span class="line">236</span><br><span class="line">237</span><br><span class="line">238</span><br><span class="line">239</span><br><span class="line">240</span><br><span class="line">241</span><br><span class="line">242</span><br><span class="line">243</span><br><span class="line">244</span><br><span class="line">245</span><br><span class="line">246</span><br><span class="line">247</span><br><span class="line">248</span><br><span class="line">249</span><br><span class="line">250</span><br><span class="line">251</span><br><span class="line">252</span><br><span class="line">253</span><br><span class="line">254</span><br><span class="line">255</span><br><span class="line">256</span><br><span class="line">257</span><br><span class="line">258</span><br><span class="line">259</span><br><span class="line">260</span><br><span class="line">261</span><br><span class="line">262</span><br><span class="line">263</span><br><span class="line">264</span><br><span class="line">265</span><br><span class="line">266</span><br><span class="line">267</span><br><span class="line">268</span><br><span class="line">269</span><br><span class="line">270</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#!/bin/bash</span></span><br><span class="line"><span class="comment"># 文件名: klog.sh</span></span><br><span class="line"><span class="comment"># 描述: Kubernetes 日志查询增强工具</span></span><br><span class="line"><span class="comment"># 版本: 1.0</span></span><br><span class="line"><span class="comment"># 作者: rstyro</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 默认配置</span></span><br><span class="line"><span class="comment"># 默认的pod命名空间</span></span><br><span class="line">DEFAULT_NAMESPACE=<span class="string">&quot;test&quot;</span></span><br><span class="line">DEFAULT_TAIL=200</span><br><span class="line">DEFAULT_CONTEXT=50</span><br><span class="line">DEFAULT_PAGE_SIZE=20  <span class="comment"># 分页默认每页显示数量</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 颜色定义</span></span><br><span class="line">RED=<span class="string">&#x27;\033[0;31m&#x27;</span></span><br><span class="line">GREEN=<span class="string">&#x27;\033[0;32m&#x27;</span></span><br><span class="line">YELLOW=<span class="string">&#x27;\033[1;33m&#x27;</span></span><br><span class="line">BLUE=<span class="string">&#x27;\033[0;34m&#x27;</span></span><br><span class="line">PURPLE=<span class="string">&#x27;\033[0;35m&#x27;</span></span><br><span class="line">CYAN=<span class="string">&#x27;\033[0;36m&#x27;</span></span><br><span class="line">NC=<span class="string">&#x27;\033[0m&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 显示帮助</span></span><br><span class="line"><span class="function"><span class="title">show_help</span></span>() &#123;</span><br><span class="line">    <span class="built_in">echo</span> -e <span class="string">&quot;<span class="variable">$&#123;GREEN&#125;</span>Kubernetes 日志查询工具<span class="variable">$&#123;NC&#125;</span>&quot;</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;用法: <span class="variable">$0</span> [选项] [服务名]&quot;</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;&quot;</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;选项:&quot;</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;  -n NAMESPACE   命名空间 (默认: <span class="variable">$DEFAULT_NAMESPACE</span>)&quot;</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;  -t LINES       显示最后N行 (默认: <span class="variable">$DEFAULT_TAIL</span>)&quot;</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;  -f             实时跟踪日志&quot;</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;  -g PATTERN     grep过滤模式&quot;</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;  -c CONTEXT     grep上下文行数 (默认: <span class="variable">$DEFAULT_CONTEXT</span>)&quot;</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;  -l             列出包含指定名称的pod&quot;</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;  -a             列出所有pod（支持分页）&quot;</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;  -p PAGE_SIZE   分页大小，与 -a 一起使用 (默认: <span class="variable">$DEFAULT_PAGE_SIZE</span>)&quot;</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;  -s PAGE_NUM    指定页码，与 -a 一起使用 (默认: 1)&quot;</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;  -h             显示帮助&quot;</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;&quot;</span></span><br><span class="line">    <span class="built_in">echo</span> -e <span class="string">&quot;<span class="variable">$&#123;BOLD&#125;</span>使用示例:<span class="variable">$&#123;NC&#125;</span>&quot;</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;  <span class="variable">$&#123;CYAN&#125;</span># 基本使用<span class="variable">$&#123;NC&#125;</span>&quot;</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;  klog user-service              # 查看 user-service 日志&quot;</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;  klog -n prod api-gateway       # 查看生产环境 api-gateway 日志&quot;</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;&quot;</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;  <span class="variable">$&#123;CYAN&#125;</span># 实时日志<span class="variable">$&#123;NC&#125;</span>&quot;</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;  klog -f auth-service           # 实时跟踪日志&quot;</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;  klog -f -t 50 payment-service  # 实时跟踪最后50行&quot;</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;&quot;</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;  <span class="variable">$&#123;CYAN&#125;</span># 日志过滤<span class="variable">$&#123;NC&#125;</span>&quot;</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;  klog -g ERROR order-service    # 过滤 ERROR 日志&quot;</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;  klog -g &#x27;payment.*fail&#x27; -c 20  # 过滤并显示20行上下文&quot;</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;&quot;</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;  <span class="variable">$&#123;CYAN&#125;</span># Pod 管理<span class="variable">$&#123;NC&#125;</span>&quot;</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;  klog -l user                    # 列出包含 &#x27;user&#x27; 的 Pod&quot;</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;  klog -a -n default              # 列出 default 命名空间所有 Pod&quot;</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;  klog -a -p 10 -s 2              # 分页查看，每页10条，第2页&quot;</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;&quot;</span></span><br><span class="line">    <span class="built_in">exit</span> 0</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 列出所有pod（分页功能）</span></span><br><span class="line"><span class="function"><span class="title">list_all_pods</span></span>() &#123;</span><br><span class="line">    <span class="built_in">local</span> namespace=<span class="string">&quot;<span class="variable">$1</span>&quot;</span></span><br><span class="line">    <span class="built_in">local</span> page_size=<span class="string">&quot;<span class="variable">$2</span>&quot;</span></span><br><span class="line">    <span class="built_in">local</span> page_num=<span class="string">&quot;<span class="variable">$3</span>&quot;</span></span><br><span class="line">    </span><br><span class="line">    <span class="built_in">echo</span> -e <span class="string">&quot;<span class="variable">$&#123;GREEN&#125;</span>获取命名空间 &#x27;<span class="variable">$namespace</span>&#x27; 中的所有pod...<span class="variable">$&#123;NC&#125;</span>&quot;</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 获取所有pod</span></span><br><span class="line">    <span class="built_in">local</span> all_pods=$(kubectl get pods -n <span class="string">&quot;<span class="variable">$namespace</span>&quot;</span> 2&gt;/dev/null | <span class="built_in">tail</span> -n +2)</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> [ -z <span class="string">&quot;<span class="variable">$all_pods</span>&quot;</span> ]; <span class="keyword">then</span></span><br><span class="line">        <span class="built_in">echo</span> -e <span class="string">&quot;<span class="variable">$&#123;YELLOW&#125;</span>命名空间 &#x27;<span class="variable">$namespace</span>&#x27; 中没有找到pod<span class="variable">$&#123;NC&#125;</span>&quot;</span></span><br><span class="line">        <span class="built_in">return</span> 0</span><br><span class="line">    <span class="keyword">fi</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 计算总数和总页数</span></span><br><span class="line">    <span class="built_in">local</span> total_pods=$(<span class="built_in">echo</span> <span class="string">&quot;<span class="variable">$all_pods</span>&quot;</span> | <span class="built_in">wc</span> -l)</span><br><span class="line">    <span class="built_in">local</span> total_pages=$(( (total_pods + page_size - <span class="number">1</span>) / page_size ))</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 检查页码是否有效</span></span><br><span class="line">    <span class="keyword">if</span> [ <span class="string">&quot;<span class="variable">$page_num</span>&quot;</span> -lt 1 ] || [ <span class="string">&quot;<span class="variable">$page_num</span>&quot;</span> -gt <span class="string">&quot;<span class="variable">$total_pages</span>&quot;</span> ]; <span class="keyword">then</span></span><br><span class="line">        <span class="built_in">echo</span> -e <span class="string">&quot;<span class="variable">$&#123;RED&#125;</span>错误: 页码 <span class="variable">$page_num</span> 无效，有效范围: 1-$total_pages<span class="variable">$&#123;NC&#125;</span>&quot;</span></span><br><span class="line">        <span class="built_in">return</span> 1</span><br><span class="line">    <span class="keyword">fi</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 计算起始和结束行</span></span><br><span class="line">    <span class="built_in">local</span> start_line=$(( (page_num - <span class="number">1</span>) * page_size + <span class="number">1</span> ))</span><br><span class="line">    <span class="built_in">local</span> end_line=$(( start_line + page_size - <span class="number">1</span> ))</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 如果结束行超过总数，则调整</span></span><br><span class="line">    <span class="keyword">if</span> [ <span class="string">&quot;<span class="variable">$end_line</span>&quot;</span> -gt <span class="string">&quot;<span class="variable">$total_pods</span>&quot;</span> ]; <span class="keyword">then</span></span><br><span class="line">        end_line=<span class="variable">$total_pods</span></span><br><span class="line">    <span class="keyword">fi</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 显示分页信息</span></span><br><span class="line">    <span class="built_in">echo</span> -e <span class="string">&quot;<span class="variable">$&#123;BLUE&#125;</span>==============================<span class="variable">$&#123;NC&#125;</span>&quot;</span></span><br><span class="line">    <span class="built_in">echo</span> -e <span class="string">&quot;<span class="variable">$&#123;CYAN&#125;</span>命名空间:    <span class="variable">$&#123;NC&#125;</span><span class="variable">$namespace</span>&quot;</span></span><br><span class="line">    <span class="built_in">echo</span> -e <span class="string">&quot;<span class="variable">$&#123;CYAN&#125;</span>总pod数:     <span class="variable">$&#123;NC&#125;</span><span class="variable">$total_pods</span>&quot;</span></span><br><span class="line">    <span class="built_in">echo</span> -e <span class="string">&quot;<span class="variable">$&#123;CYAN&#125;</span>当前页码:    <span class="variable">$&#123;NC&#125;</span><span class="variable">$page_num</span>/<span class="variable">$total_pages</span>&quot;</span></span><br><span class="line">    <span class="built_in">echo</span> -e <span class="string">&quot;<span class="variable">$&#123;CYAN&#125;</span>本页显示:    <span class="variable">$&#123;NC&#125;</span><span class="variable">$start_line</span>-<span class="variable">$end_line</span>&quot;</span></span><br><span class="line">    <span class="built_in">echo</span> -e <span class="string">&quot;<span class="variable">$&#123;BLUE&#125;</span>==============================<span class="variable">$&#123;NC&#125;</span>&quot;</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 显示表头</span></span><br><span class="line">    <span class="built_in">echo</span> -e <span class="string">&quot;<span class="variable">$&#123;PURPLE&#125;</span><span class="subst">$(kubectl get pods -n <span class="string">&quot;<span class="variable">$namespace</span>&quot;</span> 2&gt;/dev/null | head -n 1)</span><span class="variable">$&#123;NC&#125;</span>&quot;</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;----------------------------------------&quot;</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 显示当前页的pod</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;<span class="variable">$all_pods</span>&quot;</span> | sed -n <span class="string">&quot;<span class="variable">$&#123;start_line&#125;</span>,<span class="variable">$&#123;end_line&#125;</span>p&quot;</span></span><br><span class="line">    </span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;----------------------------------------&quot;</span></span><br><span class="line">    <span class="built_in">echo</span> -e <span class="string">&quot;<span class="variable">$&#123;YELLOW&#125;</span>使用 -s 参数切换页码，如: -s <span class="subst">$((page_num + 1)</span>)<span class="variable">$&#123;NC&#125;</span>&quot;</span></span><br><span class="line">    <span class="built_in">echo</span> -e <span class="string">&quot;<span class="variable">$&#123;YELLOW&#125;</span>使用 -p 参数调整每页数量，如: -p 30<span class="variable">$&#123;NC&#125;</span>&quot;</span></span><br><span class="line">    </span><br><span class="line">    <span class="built_in">return</span> 0</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 主函数</span></span><br><span class="line"><span class="function"><span class="title">main</span></span>() &#123;</span><br><span class="line">    <span class="comment"># 参数初始化</span></span><br><span class="line">    <span class="built_in">local</span> namespace=<span class="string">&quot;<span class="variable">$DEFAULT_NAMESPACE</span>&quot;</span></span><br><span class="line">    <span class="built_in">local</span> tail_lines=<span class="string">&quot;<span class="variable">$DEFAULT_TAIL</span>&quot;</span></span><br><span class="line">    <span class="built_in">local</span> follow=<span class="string">&quot;&quot;</span></span><br><span class="line">    <span class="built_in">local</span> grep_pattern=<span class="string">&quot;&quot;</span></span><br><span class="line">    <span class="built_in">local</span> context_lines=<span class="string">&quot;<span class="variable">$DEFAULT_CONTEXT</span>&quot;</span></span><br><span class="line">    <span class="built_in">local</span> list_only=<span class="literal">false</span></span><br><span class="line">    <span class="built_in">local</span> list_all=<span class="literal">false</span></span><br><span class="line">    <span class="built_in">local</span> page_size=<span class="string">&quot;<span class="variable">$DEFAULT_PAGE_SIZE</span>&quot;</span></span><br><span class="line">    <span class="built_in">local</span> page_num=1</span><br><span class="line">    <span class="built_in">local</span> service_name=<span class="string">&quot;&quot;</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment"># getopts是 Linux/Unix 系统内置的 shell 命令，用于解析命令行参数</span></span><br><span class="line">    <span class="keyword">while</span> <span class="built_in">getopts</span> <span class="string">&quot;n:t:fg:c:lap:s:h&quot;</span> opt; <span class="keyword">do</span></span><br><span class="line">        <span class="keyword">case</span> <span class="variable">$opt</span> <span class="keyword">in</span></span><br><span class="line">            n) namespace=<span class="string">&quot;<span class="variable">$OPTARG</span>&quot;</span> ;;</span><br><span class="line">            t) tail_lines=<span class="string">&quot;<span class="variable">$OPTARG</span>&quot;</span> ;;</span><br><span class="line">            f) follow=<span class="string">&quot;-f&quot;</span> ;;</span><br><span class="line">            g) grep_pattern=<span class="string">&quot;<span class="variable">$OPTARG</span>&quot;</span> ;;</span><br><span class="line">            c) context_lines=<span class="string">&quot;<span class="variable">$OPTARG</span>&quot;</span> ;;</span><br><span class="line">            l) list_only=<span class="literal">true</span> ;;</span><br><span class="line">            a) list_all=<span class="literal">true</span> ;;</span><br><span class="line">            p) page_size=<span class="string">&quot;<span class="variable">$OPTARG</span>&quot;</span> ;;</span><br><span class="line">            s) page_num=<span class="string">&quot;<span class="variable">$OPTARG</span>&quot;</span> ;;</span><br><span class="line">            h) show_help ;;</span><br><span class="line">            *) show_help ;;</span><br><span class="line">        <span class="keyword">esac</span></span><br><span class="line">    <span class="keyword">done</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 检查list_all模式</span></span><br><span class="line">    <span class="keyword">if</span> [ <span class="string">&quot;<span class="variable">$list_all</span>&quot;</span> = <span class="literal">true</span> ]; <span class="keyword">then</span></span><br><span class="line">        <span class="comment"># 列出所有pod（分页）</span></span><br><span class="line">        list_all_pods <span class="string">&quot;<span class="variable">$namespace</span>&quot;</span> <span class="string">&quot;<span class="variable">$page_size</span>&quot;</span> <span class="string">&quot;<span class="variable">$page_num</span>&quot;</span></span><br><span class="line">        <span class="built_in">exit</span> 0</span><br><span class="line">    <span class="keyword">fi</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 获取服务名（最后一个非选项参数）</span></span><br><span class="line">    <span class="built_in">shift</span> $((OPTIND-<span class="number">1</span>))</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> [ <span class="variable">$#</span> -eq 0 ]; <span class="keyword">then</span></span><br><span class="line">        <span class="built_in">echo</span> -e <span class="string">&quot;<span class="variable">$&#123;RED&#125;</span>错误: 请指定服务名或使用 -a 选项列出所有pod<span class="variable">$&#123;NC&#125;</span>&quot;</span></span><br><span class="line">        show_help</span><br><span class="line">    <span class="keyword">fi</span></span><br><span class="line">    </span><br><span class="line">    service_name=<span class="string">&quot;<span class="variable">$1</span>&quot;</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 列出pod模式</span></span><br><span class="line">    <span class="keyword">if</span> [ <span class="string">&quot;<span class="variable">$list_only</span>&quot;</span> = <span class="literal">true</span> ]; <span class="keyword">then</span></span><br><span class="line">        <span class="built_in">echo</span> -e <span class="string">&quot;<span class="variable">$&#123;GREEN&#125;</span>搜索命名空间 &#x27;<span class="variable">$namespace</span>&#x27; 中包含 &#x27;<span class="variable">$service_name</span>&#x27; 的pod...<span class="variable">$&#123;NC&#125;</span>&quot;</span></span><br><span class="line">        </span><br><span class="line">        <span class="comment"># 获取匹配的pod</span></span><br><span class="line">        <span class="built_in">local</span> pods=$(kubectl get pods -n <span class="string">&quot;<span class="variable">$namespace</span>&quot;</span> 2&gt;/dev/null | grep <span class="string">&quot;<span class="variable">$service_name</span>&quot;</span> || <span class="literal">true</span>)</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">if</span> [ -z <span class="string">&quot;<span class="variable">$pods</span>&quot;</span> ]; <span class="keyword">then</span></span><br><span class="line">            <span class="built_in">echo</span> -e <span class="string">&quot;<span class="variable">$&#123;YELLOW&#125;</span>未找到包含 &#x27;<span class="variable">$service_name</span>&#x27; 的pod<span class="variable">$&#123;NC&#125;</span>&quot;</span></span><br><span class="line">            </span><br><span class="line">            <span class="comment"># 提供建议</span></span><br><span class="line">            <span class="built_in">echo</span> -e <span class="string">&quot;<span class="variable">$&#123;CYAN&#125;</span>尝试使用 -a 选项查看所有pod:<span class="variable">$&#123;NC&#125;</span>&quot;</span></span><br><span class="line">            <span class="built_in">echo</span> <span class="string">&quot;  <span class="variable">$0</span> -a -n <span class="variable">$namespace</span>&quot;</span></span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">            <span class="built_in">echo</span> -e <span class="string">&quot;<span class="variable">$&#123;GREEN&#125;</span>找到以下pod:<span class="variable">$&#123;NC&#125;</span>&quot;</span></span><br><span class="line">            <span class="built_in">echo</span> <span class="string">&quot;----------------------------------------&quot;</span></span><br><span class="line">            <span class="built_in">echo</span> <span class="string">&quot;<span class="variable">$pods</span>&quot;</span></span><br><span class="line">            <span class="built_in">echo</span> <span class="string">&quot;----------------------------------------&quot;</span></span><br><span class="line">            </span><br><span class="line">            <span class="built_in">local</span> pod_count=$(<span class="built_in">echo</span> <span class="string">&quot;<span class="variable">$pods</span>&quot;</span> | <span class="built_in">wc</span> -l)</span><br><span class="line">            <span class="built_in">echo</span> -e <span class="string">&quot;<span class="variable">$&#123;CYAN&#125;</span>总计: <span class="variable">$pod_count</span> 个pod<span class="variable">$&#123;NC&#125;</span>&quot;</span></span><br><span class="line">        <span class="keyword">fi</span></span><br><span class="line">        <span class="built_in">exit</span> 0</span><br><span class="line">    <span class="keyword">fi</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 查找pod</span></span><br><span class="line">    <span class="built_in">echo</span> -e <span class="string">&quot;<span class="variable">$&#123;BLUE&#125;</span>在命名空间 &#x27;<span class="variable">$namespace</span>&#x27; 中查找包含 &#x27;<span class="variable">$service_name</span>&#x27; 的pod...<span class="variable">$&#123;NC&#125;</span>&quot;</span></span><br><span class="line">    <span class="built_in">local</span> pods=$(kubectl get pods -n <span class="string">&quot;<span class="variable">$namespace</span>&quot;</span> 2&gt;/dev/null | grep <span class="string">&quot;<span class="variable">$service_name</span>&quot;</span> | <span class="built_in">head</span> -20)</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> [ -z <span class="string">&quot;<span class="variable">$pods</span>&quot;</span> ]; <span class="keyword">then</span></span><br><span class="line">        <span class="built_in">echo</span> -e <span class="string">&quot;<span class="variable">$&#123;RED&#125;</span>错误: 未找到包含 &#x27;<span class="variable">$service_name</span>&#x27; 的pod<span class="variable">$&#123;NC&#125;</span>&quot;</span></span><br><span class="line">        <span class="built_in">echo</span> -e <span class="string">&quot;<span class="variable">$&#123;YELLOW&#125;</span>建议:<span class="variable">$&#123;NC&#125;</span>&quot;</span></span><br><span class="line">        <span class="built_in">echo</span> <span class="string">&quot;  1. 检查服务名是否正确&quot;</span></span><br><span class="line">        <span class="built_in">echo</span> <span class="string">&quot;  2. 使用 -a 选项查看所有pod: <span class="variable">$0</span> -a -n <span class="variable">$namespace</span>&quot;</span></span><br><span class="line">        <span class="built_in">echo</span> <span class="string">&quot;  3. 使用 -l 选项只列出pod: <span class="variable">$0</span> -l <span class="variable">$service_name</span>&quot;</span></span><br><span class="line">        <span class="built_in">exit</span> 1</span><br><span class="line">    <span class="keyword">fi</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 处理pod选择</span></span><br><span class="line">    <span class="built_in">local</span> pod_count=$(<span class="built_in">echo</span> <span class="string">&quot;<span class="variable">$pods</span>&quot;</span> | <span class="built_in">wc</span> -l)</span><br><span class="line">    <span class="built_in">local</span> pod_name=<span class="string">&quot;&quot;</span></span><br><span class="line">    <span class="built_in">local</span> pod_namespace=<span class="string">&quot;<span class="variable">$namespace</span>&quot;</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> [ <span class="string">&quot;<span class="variable">$pod_count</span>&quot;</span> -eq 1 ]; <span class="keyword">then</span></span><br><span class="line">        <span class="comment"># 只有一个pod</span></span><br><span class="line">        pod_name=$(<span class="built_in">echo</span> <span class="string">&quot;<span class="variable">$pods</span>&quot;</span> | awk <span class="string">&#x27;&#123;print $1&#125;&#x27;</span>)</span><br><span class="line">        <span class="built_in">echo</span> -e <span class="string">&quot;<span class="variable">$&#123;GREEN&#125;</span>找到pod: $pod_name<span class="variable">$&#123;NC&#125;</span>&quot;</span></span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        <span class="comment"># 多个pod，让用户选择</span></span><br><span class="line">        <span class="built_in">echo</span> -e <span class="string">&quot;<span class="variable">$&#123;YELLOW&#125;</span>找到多个pod:<span class="variable">$&#123;NC&#125;</span>&quot;</span></span><br><span class="line">        <span class="built_in">echo</span> <span class="string">&quot;----------------------------------------&quot;</span></span><br><span class="line">        <span class="built_in">echo</span> <span class="string">&quot;<span class="variable">$pods</span>&quot;</span></span><br><span class="line">        <span class="built_in">echo</span> <span class="string">&quot;----------------------------------------&quot;</span></span><br><span class="line">        </span><br><span class="line">        <span class="built_in">local</span> idx=1</span><br><span class="line">        <span class="built_in">local</span> pod_list=()</span><br><span class="line">        <span class="keyword">while</span> IFS= <span class="built_in">read</span> -r line; <span class="keyword">do</span></span><br><span class="line">            <span class="keyword">if</span> [ -n <span class="string">&quot;<span class="variable">$line</span>&quot;</span> ]; <span class="keyword">then</span></span><br><span class="line">                pod_list[<span class="variable">$idx</span>]=$(<span class="built_in">echo</span> <span class="string">&quot;<span class="variable">$line</span>&quot;</span> | awk <span class="string">&#x27;&#123;print $1&#125;&#x27;</span>)</span><br><span class="line">                <span class="built_in">echo</span> <span class="string">&quot;<span class="variable">$idx</span>) <span class="variable">$&#123;pod_list[$idx]&#125;</span>&quot;</span></span><br><span class="line">                idx=$((idx + <span class="number">1</span>))</span><br><span class="line">            <span class="keyword">fi</span></span><br><span class="line">        <span class="comment"># 将pods变量的内容作为while的输入</span></span><br><span class="line">        <span class="keyword">done</span> &lt;&lt;&lt; <span class="string">&quot;<span class="variable">$pods</span>&quot;</span></span><br><span class="line">        </span><br><span class="line">        <span class="built_in">echo</span> -e <span class="string">&quot;<span class="variable">$&#123;YELLOW&#125;</span>请选择pod (1-<span class="subst">$((pod_count)</span>)): <span class="variable">$&#123;NC&#125;</span>&quot;</span></span><br><span class="line">        <span class="comment"># 读取用户输入</span></span><br><span class="line">        <span class="built_in">read</span> -r choice</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">if</span> [[ <span class="string">&quot;<span class="variable">$choice</span>&quot;</span> =~ ^[0-9]+$ ]] &amp;&amp; [ <span class="string">&quot;<span class="variable">$choice</span>&quot;</span> -ge 1 ] &amp;&amp; [ <span class="string">&quot;<span class="variable">$choice</span>&quot;</span> -le <span class="string">&quot;<span class="variable">$pod_count</span>&quot;</span> ]; <span class="keyword">then</span></span><br><span class="line">            pod_name=<span class="string">&quot;<span class="variable">$&#123;pod_list[$choice]&#125;</span>&quot;</span></span><br><span class="line">            <span class="built_in">echo</span> -e <span class="string">&quot;<span class="variable">$&#123;GREEN&#125;</span>已选择: $pod_name<span class="variable">$&#123;NC&#125;</span>&quot;</span></span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">            <span class="built_in">echo</span> -e <span class="string">&quot;<span class="variable">$&#123;RED&#125;</span>无效的选择<span class="variable">$&#123;NC&#125;</span>&quot;</span></span><br><span class="line">            <span class="built_in">exit</span> 1</span><br><span class="line">        <span class="keyword">fi</span></span><br><span class="line">    <span class="keyword">fi</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 构建命令</span></span><br><span class="line">    <span class="built_in">echo</span> -e <span class="string">&quot;<span class="variable">$&#123;BLUE&#125;</span>==============================<span class="variable">$&#123;NC&#125;</span>&quot;</span></span><br><span class="line">    <span class="built_in">echo</span> -e <span class="string">&quot;<span class="variable">$&#123;GREEN&#125;</span>开始查看日志<span class="variable">$&#123;NC&#125;</span>&quot;</span></span><br><span class="line">    <span class="built_in">echo</span> -e <span class="string">&quot;<span class="variable">$&#123;BLUE&#125;</span>Pod:      <span class="variable">$&#123;NC&#125;</span><span class="variable">$pod_name</span>&quot;</span></span><br><span class="line">    <span class="built_in">echo</span> -e <span class="string">&quot;<span class="variable">$&#123;BLUE&#125;</span>命名空间: <span class="variable">$&#123;NC&#125;</span><span class="variable">$namespace</span>&quot;</span></span><br><span class="line">    <span class="built_in">echo</span> -e <span class="string">&quot;<span class="variable">$&#123;BLUE&#125;</span>显示行数: <span class="variable">$&#123;NC&#125;</span><span class="variable">$tail_lines</span>&quot;</span></span><br><span class="line">    [ -n <span class="string">&quot;<span class="variable">$follow</span>&quot;</span> ] &amp;&amp; <span class="built_in">echo</span> -e <span class="string">&quot;<span class="variable">$&#123;BLUE&#125;</span>模式:     <span class="variable">$&#123;NC&#125;</span>实时跟踪&quot;</span></span><br><span class="line">    [ -n <span class="string">&quot;<span class="variable">$grep_pattern</span>&quot;</span> ] &amp;&amp; <span class="built_in">echo</span> -e <span class="string">&quot;<span class="variable">$&#123;BLUE&#125;</span>过滤:     <span class="variable">$&#123;NC&#125;</span>grep &#x27;<span class="variable">$grep_pattern</span>&#x27;&quot;</span></span><br><span class="line">    [ -n <span class="string">&quot;<span class="variable">$grep_pattern</span>&quot;</span> ] &amp;&amp; <span class="built_in">echo</span> -e <span class="string">&quot;<span class="variable">$&#123;BLUE&#125;</span>上下文:   <span class="variable">$&#123;NC&#125;</span><span class="variable">$context_lines</span> 行&quot;</span></span><br><span class="line">    <span class="built_in">echo</span> -e <span class="string">&quot;<span class="variable">$&#123;BLUE&#125;</span>==============================<span class="variable">$&#123;NC&#125;</span>&quot;</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 执行命令</span></span><br><span class="line">    <span class="built_in">local</span> cmd=<span class="string">&quot;kubectl logs -n <span class="variable">$namespace</span> <span class="variable">$pod_name</span> --tail=<span class="variable">$tail_lines</span>&quot;</span></span><br><span class="line">    [ -n <span class="string">&quot;<span class="variable">$follow</span>&quot;</span> ] &amp;&amp; cmd=<span class="string">&quot;<span class="variable">$cmd</span> -f&quot;</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> [ -n <span class="string">&quot;<span class="variable">$grep_pattern</span>&quot;</span> ]; <span class="keyword">then</span></span><br><span class="line">        cmd=<span class="string">&quot;<span class="variable">$cmd</span> | grep --color=always -C <span class="variable">$context_lines</span> &#x27;<span class="variable">$grep_pattern</span>&#x27;&quot;</span></span><br><span class="line">    <span class="keyword">fi</span></span><br><span class="line">    </span><br><span class="line">    <span class="built_in">echo</span> -e <span class="string">&quot;<span class="variable">$&#123;YELLOW&#125;</span>执行命令: $cmd<span class="variable">$&#123;NC&#125;</span>&quot;</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;&quot;</span></span><br><span class="line">    </span><br><span class="line">    <span class="built_in">eval</span> <span class="string">&quot;<span class="variable">$cmd</span>&quot;</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 运行主函数</span></span><br><span class="line">main <span class="string">&quot;<span class="variable">$@</span>&quot;</span></span><br></pre></td></tr></table></figure>
+
+
+<h3 id="4、脚本部分代码解释"><a href="#4、脚本部分代码解释" class="headerlink" title="4、脚本部分代码解释"></a>4、脚本部分代码解释</h3><ul>
+<li><p><code>$&#123;NC&#125;</code>是 No Color 的缩写，用于重置终端的文本颜色和样式，避免后面的文本继续使用之前的颜色。</p>
+</li>
+<li><p>getopts是 Linux&#x2F;Unix 系统内置的 shell 命令，用于解析命令行参数。它是 Bash shell 的一部分，所以不需要额外安装。</p>
+</li>
+<li><p>基本语法:</p>
+</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">while</span> <span class="built_in">getopts</span> <span class="string">&quot;选项字符串&quot;</span> 选项变量; <span class="keyword">do</span></span><br><span class="line">    <span class="keyword">case</span> $选项变量 <span class="keyword">in</span></span><br><span class="line">        选项1) 处理代码 ;;</span><br><span class="line">        选项2) 处理代码 ;;</span><br><span class="line">        \?) 无效选项处理 ;;</span><br><span class="line">    <span class="keyword">esac</span></span><br><span class="line"><span class="keyword">done</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 我们的脚本示例：</span></span><br><span class="line"><span class="comment"># 选项字符串定义了哪些选项需要参数：</span></span><br><span class="line"><span class="comment"># n: 需要参数 (命名空间)</span></span><br><span class="line"><span class="comment"># t: 需要参数 (行数)</span></span><br><span class="line"><span class="comment"># g: 需要参数 (grep模式)</span></span><br><span class="line"><span class="comment"># c: 需要参数 (上下文行数)</span></span><br><span class="line"><span class="comment"># f,l,a,h 不需要参数,后面没有冒号，f参数特殊处理</span></span><br><span class="line"><span class="keyword">while</span> <span class="built_in">getopts</span> <span class="string">&quot;n:t:fg:c:lap:s:h&quot;</span> opt; <span class="keyword">do</span></span><br><span class="line">    <span class="keyword">case</span> <span class="variable">$opt</span> <span class="keyword">in</span></span><br><span class="line">        n) namespace=<span class="string">&quot;<span class="variable">$OPTARG</span>&quot;</span> ;;</span><br><span class="line">        t) tail_lines=<span class="string">&quot;<span class="variable">$OPTARG</span>&quot;</span> ;;</span><br><span class="line">        f) follow=<span class="string">&quot;-f&quot;</span> ;;</span><br><span class="line">        g) grep_pattern=<span class="string">&quot;<span class="variable">$OPTARG</span>&quot;</span> ;;</span><br><span class="line">        c) context_lines=<span class="string">&quot;<span class="variable">$OPTARG</span>&quot;</span> ;;</span><br><span class="line">        l) list_only=<span class="literal">true</span> ;;</span><br><span class="line">        a) list_all=<span class="literal">true</span> ;;</span><br><span class="line">        p) page_size=<span class="string">&quot;<span class="variable">$OPTARG</span>&quot;</span> ;;</span><br><span class="line">        s) page_num=<span class="string">&quot;<span class="variable">$OPTARG</span>&quot;</span> ;;</span><br><span class="line">        h) show_help ;;</span><br><span class="line">        *) show_help ;;</span><br><span class="line">    <span class="keyword">esac</span></span><br><span class="line"><span class="keyword">done</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>选项字符串 <code>&quot;n:t:fg:c:lap:s:h&quot;</code>的解释：</strong></p>
+<ul>
+<li><p><code>$OPTARG</code>是<code>getopts</code>内置的一个<strong>特殊变量</strong>，用于存储<strong>选项的参数值</strong>。</p>
+</li>
+<li><p><code>n:</code>- 冒号表示这个选项需要参数（<code>-n test</code>）</p>
+</li>
+<li><p><code>t:</code>- 需要参数（<code>-t 100</code>）</p>
+</li>
+<li><p><code>f</code>- 没有冒号，表示不需要参数（<code>-f</code>）</p>
+</li>
+<li><p><code>g:</code>- 需要参数（<code>-g ERROR</code>）</p>
+</li>
+<li><p><code>c:</code>- 需要参数（<code>-c 50</code>）</p>
+</li>
+<li><p><code>l</code>- 不需要参数</p>
+</li>
+<li><p><code>h</code>- 不需要参数</p>
+</li>
+</ul>
+<h2 id="二、功能详解"><a href="#二、功能详解" class="headerlink" title="二、功能详解"></a>二、功能详解</h2><h3 id="1、智能-Pod-发现机制"><a href="#1、智能-Pod-发现机制" class="headerlink" title="1、智能 Pod 发现机制"></a>1、智能 Pod 发现机制</h3><ul>
+<li>工具的核心功能之一是智能 Pod 发现。传统的 <code>kubectl logs</code>需要完整的 Pod 名称，而我们的工具支持模糊匹配：</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 传统方式（需要完整名称）</span></span><br><span class="line">kubectl logs -n <span class="built_in">test</span> user-service-7d8f6c5b4b-abc12</span><br><span class="line"></span><br><span class="line"><span class="comment"># 使用 klog（智能匹配）</span></span><br><span class="line">klog user-service</span><br></pre></td></tr></table></figure>
+
+<p><strong>工作原理</strong>：</p>
+<ul>
+<li>在指定命名空间中查找包含 “user-service” 的所有 Pod</li>
+<li>如果找到多个，提供交互式选择界面</li>
+<li>自动获取完整的 Pod 名称并执行日志查看</li>
+</ul>
+<h3 id="2、参数详解"><a href="#2、参数详解" class="headerlink" title="2、参数详解"></a>2、参数详解</h3><h4 id="基本参数"><a href="#基本参数" class="headerlink" title="基本参数"></a>基本参数</h4><ul>
+<li><code>-n, --namespace</code>：指定 Kubernetes 命名空间</li>
+<li><code>-t, --tail</code>：显示最后 N 行日志</li>
+<li><code>-f, --follow</code>：实时跟踪日志（类似 <code>tail -f</code>）</li>
+</ul>
+<h4 id="高级过滤"><a href="#高级过滤" class="headerlink" title="高级过滤"></a>高级过滤</h4><ul>
+<li><code>-g, --grep</code>：使用 grep 过滤日志内容</li>
+<li><code>-c, --context</code>：grep 上下文行数（默认 50 行）</li>
+</ul>
+<h4 id="Pod-管理"><a href="#Pod-管理" class="headerlink" title="Pod 管理"></a>Pod 管理</h4><ul>
+<li><p><code>-l, --list</code>：列出匹配的 Pod（不查看日志）</p>
+</li>
+<li><p><code>-a, --all</code>：列出所有 Pod（支持分页）</p>
+</li>
+<li><p><code>-p, --page-size</code>：分页大小</p>
+</li>
+<li><p><code>-s, --page</code>：指定页码</p>
+</li>
+<li><p>命令：<code>klog.sh -a -n 命名空间</code>，-a 是获取所有pod列表</p>
+</li>
+</ul>
+<p><img src="/blog/klog1.png"></p>
+<ul>
+<li>默认的命名空间是<code>test</code>,如果你的命名空间刚好是test 那就不需要加<code>-n</code>参数，还有如果pod太多，可以使用 <code>-s 或 -p 进行分页调整</code></li>
+</ul>
+<h3 id="3、常用命令"><a href="#3、常用命令" class="headerlink" title="3、常用命令"></a>3、常用命令</h3><ul>
+<li>快速上手命令</li>
+</ul>
+<h4 id="3-1、最简单日志查询"><a href="#3-1、最简单日志查询" class="headerlink" title="3.1、最简单日志查询"></a>3.1、最简单日志查询</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 最简单的用法：查看服务最新200行日志</span></span><br><span class="line">klog user-service</span><br><span class="line"></span><br><span class="line"><span class="comment"># 指定行数，就加`-t 100` 参数</span></span><br><span class="line">klog -t 100 user-service  <span class="comment"># 只看最后100行</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 指定命名空间为：kube-system</span></span><br><span class="line">klog -n kube-system -t 50 user-service</span><br></pre></td></tr></table></figure>
+
+
+
+
+<p><img src="/blog/klog2.png" alt="简单命令示例"></p>
+<h4 id="3-2、实时日志"><a href="#3-2、实时日志" class="headerlink" title="3.2、实时日志"></a>3.2、实时日志</h4><ul>
+<li>如果想要查询实时日志，那就加上 <code>-f</code> 参数，<code>-t 和 -f</code> 都是可以一起使用的</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 实时跟踪日志（类似tail -f）</span></span><br><span class="line">klog -f api-gateway</span><br><span class="line"></span><br><span class="line"><span class="comment"># 组合使用：实时跟踪并限制行数</span></span><br><span class="line">klog -f -t 500 api-gateway</span><br><span class="line"></span><br><span class="line"><span class="comment"># 生产环境调试（指定命名空间）</span></span><br><span class="line">klog -n prod -f -t 1000 api-gateway</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+
+<p><img src="/blog/klog3.png" alt="实时日志示例"></p>
+<h4 id="3-3、智能日志过滤"><a href="#3-3、智能日志过滤" class="headerlink" title="3.3、智能日志过滤"></a>3.3、智能日志过滤</h4><ul>
+<li>我们经常会用到过滤参数，因为正常服务的实时日志有些日志刷太快了，可能我们没看到都被其他日志刷上去了。</li>
+<li>我们就可以使用grep管道符进行过滤，我们可以使用 <code>-g</code>,-g后面接 需要过滤的字符串，比如要过滤日期：<code>-g 2025-12-29</code></li>
+</ul>
+<p><img src="/blog/klog4.png" alt="日志过滤示例"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 基本过滤：查找错误日志</span></span><br><span class="line">klog -g <span class="string">&quot;ERROR&quot;</span> -c 10 user-service</span><br><span class="line"></span><br><span class="line"><span class="comment"># 多条件过滤（通过管道组合）</span></span><br><span class="line">klog user-service | grep -E <span class="string">&quot;ERROR|WARN&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 时间范围过滤</span></span><br><span class="line">klog -g <span class="string">&quot;2025-12-29&quot;</span> user-service</span><br><span class="line"></span><br><span class="line"><span class="comment"># 实时跟踪特定错误模式</span></span><br><span class="line">klog -f -g <span class="string">&quot;OutOfMemory&quot;</span> user-service</span><br><span class="line"></span><br><span class="line"><span class="comment"># 组合使用：实时跟踪 + 过滤 + 指定命名空间</span></span><br><span class="line">klog -f -g <span class="string">&quot;timeout&quot;</span> -n prd user-service</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看最后 500 行，过滤包含 &quot;exception&quot; 的行</span></span><br><span class="line">klog -t 500 -g exception -c 10 user-service</span><br><span class="line"></span><br><span class="line"><span class="comment"># 复杂模式匹配</span></span><br><span class="line">klog -g <span class="string">&quot;Exception.*NullPointer&quot;</span> -c 20 user-service</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="4、扩展"><a href="#4、扩展" class="headerlink" title="4、扩展"></a>4、扩展</h3><p>将常用命令设为别名，进一步提升效率：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 添加到 ~/.bashrc 或 ~/.zshrc</span></span><br><span class="line"><span class="built_in">alias</span> klog=<span class="string">&#x27;~/klog.sh&#x27;</span></span><br><span class="line"><span class="built_in">alias</span> kl=<span class="string">&#x27;klog -f&#x27;</span>          <span class="comment"># 实时日志</span></span><br><span class="line"><span class="built_in">alias</span> klg=<span class="string">&#x27;klog -g ERROR&#x27;</span>   <span class="comment"># 只看错误</span></span><br><span class="line"><span class="built_in">alias</span> klp=<span class="string">&#x27;klog -a&#x27;</span>         <span class="comment"># 列出所有 Pod</span></span><br></pre></td></tr></table></figure>
+
+
+
+
+
+
+
+<h2 id="三、最后"><a href="#三、最后" class="headerlink" title="三、最后"></a>三、最后</h2><h4 id="优势对比"><a href="#优势对比" class="headerlink" title="优势对比"></a>优势对比</h4><table>
+<thead>
+<tr>
+<th>功能</th>
+<th>原生 kubectl</th>
+<th>klog 工具</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Pod 名称输入</td>
+<td>需要完整名称</td>
+<td>支持模糊匹配</td>
+</tr>
+<tr>
+<td>多实例处理</td>
+<td>需要手动复制名称</td>
+<td>交互式选择</td>
+</tr>
+<tr>
+<td>命名空间</td>
+<td>每次需指定</td>
+<td>支持默认配置</td>
+</tr>
+<tr>
+<td>实时跟踪</td>
+<td>需要 -f 参数</td>
+<td>支持 -f 参数</td>
+</tr>
+<tr>
+<td>日志过滤</td>
+<td>需要管道组合</td>
+<td>内置 -g 参数</td>
+</tr>
+<tr>
+<td>Pod 浏览</td>
+<td>需要完整命令</td>
+<td>内置 -l&#x2F;-a 参数</td>
+</tr>
+<tr>
+<td>输出美化</td>
+<td>无</td>
+<td>彩色高亮</td>
+</tr>
+</tbody></table>
+<ul>
+<li>感兴趣的同学可自行扩展脚本，好的工具都是基于懒惰产生的。</li>
+<li><strong>技术工作的价值不在于解决了多少复杂问题，而在于让复杂问题不再出现</strong>。希望这个脚本能帮你和你的团队从繁琐的日志查询中解放出来，将精力投入到更有价值的工作中。</li>
+</ul>
+<p><strong>如果这个工具也对你有帮助：</strong></p>
+<ul>
+<li><strong>点赞</strong> 👉 让更多被 K8s 日志困扰的伙伴看到这个解决方案</li>
+<li><strong>关注</strong> 👉 获取后续更多提升研发效能的工具与技巧</li>
+<li><strong>收藏</strong> ⭐️ 下次查日志时，你会回来感谢现在的自己</li>
+<li><strong>转发</strong> 🔄 帮助更多被日志查询困扰的同事</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>您的打赏，是我创作的动力！不给钱？那我只能靠想象力充饥了。</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/wechat_pay.jpg" alt="rstyro 微信支付">
+        <p>微信支付</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/alipay.jpg" alt="rstyro 支付宝">
+        <p>支付宝</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/blog/tags/Kubernetes/" rel="tag"><i class="fa fa-tag"></i> Kubernetes</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2025/12/16/%E5%91%8A%E5%88%AB%E5%8F%82%E6%95%B0%E4%B9%B1%E4%BC%A0%EF%BC%81%E5%9C%A8SpringBoot%E4%B8%AD%E4%BC%98%E9%9B%85%E4%BC%A0%E9%80%92%E5%8F%82%E6%95%B0%E8%AF%A6%E8%A7%A3/" rel="prev" title="告别参数乱传！在SpringBoot中优雅传递参数详解">
+      <i class="fa fa-chevron-left"></i> 告别参数乱传！在SpringBoot中优雅传递参数详解
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A6%82%E8%BF%B0"><span class="nav-number">1.</span> <span class="nav-text">概述</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%AE%BE%E8%AE%A1%E7%90%86%E5%BF%B5"><span class="nav-number">1.0.1.</span> <span class="nav-text">设计理念</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%A7%A3%E5%86%B3%E7%9A%84%E7%97%9B%E7%82%B9"><span class="nav-number">1.0.2.</span> <span class="nav-text">解决的痛点</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81klog-sh-%E5%B7%A5%E5%85%B7%E8%AF%A6%E8%A7%A3"><span class="nav-number">2.</span> <span class="nav-text">一、klog.sh 工具详解</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1%E3%80%81%E5%B7%A5%E5%85%B7%E7%89%B9%E6%80%A7"><span class="nav-number">2.1.</span> <span class="nav-text">1、工具特性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2%E3%80%81%E8%84%9A%E6%9C%AC%E9%83%A8%E7%BD%B2"><span class="nav-number">2.2.</span> <span class="nav-text">2、脚本部署</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3%E3%80%81%E5%AE%8C%E6%95%B4%E8%84%9A%E6%9C%AC%E5%86%85%E5%AE%B9"><span class="nav-number">2.3.</span> <span class="nav-text">3、完整脚本内容</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4%E3%80%81%E8%84%9A%E6%9C%AC%E9%83%A8%E5%88%86%E4%BB%A3%E7%A0%81%E8%A7%A3%E9%87%8A"><span class="nav-number">2.4.</span> <span class="nav-text">4、脚本部分代码解释</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E5%8A%9F%E8%83%BD%E8%AF%A6%E8%A7%A3"><span class="nav-number">3.</span> <span class="nav-text">二、功能详解</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1%E3%80%81%E6%99%BA%E8%83%BD-Pod-%E5%8F%91%E7%8E%B0%E6%9C%BA%E5%88%B6"><span class="nav-number">3.1.</span> <span class="nav-text">1、智能 Pod 发现机制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2%E3%80%81%E5%8F%82%E6%95%B0%E8%AF%A6%E8%A7%A3"><span class="nav-number">3.2.</span> <span class="nav-text">2、参数详解</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E5%8F%82%E6%95%B0"><span class="nav-number">3.2.1.</span> <span class="nav-text">基本参数</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%AB%98%E7%BA%A7%E8%BF%87%E6%BB%A4"><span class="nav-number">3.2.2.</span> <span class="nav-text">高级过滤</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Pod-%E7%AE%A1%E7%90%86"><span class="nav-number">3.2.3.</span> <span class="nav-text">Pod 管理</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3%E3%80%81%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4"><span class="nav-number">3.3.</span> <span class="nav-text">3、常用命令</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#3-1%E3%80%81%E6%9C%80%E7%AE%80%E5%8D%95%E6%97%A5%E5%BF%97%E6%9F%A5%E8%AF%A2"><span class="nav-number">3.3.1.</span> <span class="nav-text">3.1、最简单日志查询</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-2%E3%80%81%E5%AE%9E%E6%97%B6%E6%97%A5%E5%BF%97"><span class="nav-number">3.3.2.</span> <span class="nav-text">3.2、实时日志</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-3%E3%80%81%E6%99%BA%E8%83%BD%E6%97%A5%E5%BF%97%E8%BF%87%E6%BB%A4"><span class="nav-number">3.3.3.</span> <span class="nav-text">3.3、智能日志过滤</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4%E3%80%81%E6%89%A9%E5%B1%95"><span class="nav-number">3.4.</span> <span class="nav-text">4、扩展</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E6%9C%80%E5%90%8E"><span class="nav-number">4.</span> <span class="nav-text">三、最后</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BC%98%E5%8A%BF%E5%AF%B9%E6%AF%94"><span class="nav-number">4.0.1.</span> <span class="nav-text">优势对比</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="rstyro"
+      src="/blog/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">rstyro</p>
+  <div class="site-description" itemprop="description">人间的饭，吃一碗少一碗，身边的人，见一面少一面，脚下的路，走一天少一天，其实人生就是一个减法，来日并不方长！</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives/">
+        
+          <span class="site-state-item-count">231</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">15</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/blog/tags/">
+          
+        <span class="site-state-item-count">95</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/rstyro" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;rstyro" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/rstyro" title="Gitee → https:&#x2F;&#x2F;gitee.com&#x2F;rstyro" rel="noopener" target="_blank"><i class="fab fa-codiepie fa-fw"></i>Gitee</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.jianshu.com/u/651c15a1758a" title="简书 → https:&#x2F;&#x2F;www.jianshu.com&#x2F;u&#x2F;651c15a1758a" rel="noopener" target="_blank"><i class="fa fa-book fa-fw"></i>简书</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      友链
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://rstyro.github.io/blog/" title="https:&#x2F;&#x2F;rstyro.github.io&#x2F;blog&#x2F;">胖不了小陆</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; Mon Apr 10 2017 08:00:00 GMT+0800 (中国标准时间) – 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">以梦为马，诗酒趁年华</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/muse.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+  <script>
+    (function(){
+      var canonicalURL, curProtocol;
+      //Get the <link> tag
+      var x=document.getElementsByTagName("link");
+		//Find the last canonical URL
+		if(x.length > 0){
+			for (i=0;i<x.length;i++){
+				if(x[i].rel.toLowerCase() == 'canonical' && x[i].href){
+					canonicalURL=x[i].href;
+				}
+			}
+		}
+    //Get protocol
+	    if (!canonicalURL){
+	    	curProtocol = window.location.protocol.split(':')[0];
+	    }
+	    else{
+	    	curProtocol = canonicalURL.split(':')[0];
+	    }
+      //Get current URL if the canonical URL does not exist
+	    if (!canonicalURL) canonicalURL = window.location.href;
+	    //Assign script content. Replace current URL with the canonical URL
+      !function(){var e=/([http|https]:\/\/[a-zA-Z0-9\_\.]+\.baidu\.com)/gi,r=canonicalURL,t=document.referrer;if(!e.test(r)){var n=(String(curProtocol).toLowerCase() === 'https')?"https://sp0.baidu.com/9_Q4simg2RQJ8t7jm9iCKT-xh_/s.gif":"//api.share.baidu.com/s.gif";t?(n+="?r="+encodeURIComponent(document.referrer),r&&(n+="&l="+r)):r&&(n+="?l="+r);var i=new Image;i.src=n}}(window);})();
+  </script>
+
+
+
+
+  
+<script src="/blog/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+<script>
+if (document.querySelectorAll('pre.mermaid').length) {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mermaid@8/dist/mermaid.min.js', () => {
+    mermaid.initialize({
+      theme    : 'default',
+      logLevel : 3,
+      flowchart: { curve     : 'linear' },
+      gantt    : { axisFormat: '%m/%d/%Y' },
+      sequence : { actorMargin: 50 }
+    });
+  }, window.mermaid);
+}
+</script>
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : 'Ov23litYkWaOGM7kAKPD',
+      clientSecret: '43bd3cf99bfcb9d05d16627c97a9f7a0200df04a',
+      repo        : 'blog',
+      owner       : 'rstyro',
+      admin       : ['rstyro'],
+      id          : '72a695070e28d13b73c32675e12b279e',
+        language: '',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>
