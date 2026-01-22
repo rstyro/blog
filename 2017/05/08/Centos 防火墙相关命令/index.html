@@ -33,8 +33,8 @@
 <meta property="article:published_time" content="2017-05-08T13:39:55.000Z">
 <meta property="article:modified_time" content="2017-05-08T13:39:55.000Z">
 <meta property="article:author" content="rstyro">
-<meta property="article:tag" content="Linux">
 <meta property="article:tag" content="干货">
+<meta property="article:tag" content="Linux">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://rstyro.github.io/blog/2017/05/08/Centos%20%E9%98%B2%E7%81%AB%E5%A2%99%E7%9B%B8%E5%85%B3%E5%91%BD%E4%BB%A4/1503627585949070215.png">
 
@@ -254,7 +254,7 @@
 <h2 id="一、CentOS-6：经典-iptables-防火墙操作"><a href="#一、CentOS-6：经典-iptables-防火墙操作" class="headerlink" title="一、CentOS 6：经典 iptables 防火墙操作"></a>一、CentOS 6：经典 iptables 防火墙操作</h2><p>CentOS 6 采用 iptables 作为默认防火墙，以下是日常运维最常用的命令及异常处理方案，命令可直接复制执行。</p>
 <h3 id="1-核心端口操作命令"><a href="#1-核心端口操作命令" class="headerlink" title="1. 核心端口操作命令"></a>1. 核心端口操作命令</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看防火墙状态（含已开放端口）</span></span><br><span class="line">service iptables status</span><br><span class="line"></span><br><span class="line"><span class="comment"># 临时开放 8080 端口（重启防火墙失效）</span></span><br><span class="line">/sbin/iptables -I INPUT -p tcp --dport 8080 -j ACCEPT</span><br><span class="line"></span><br><span class="line"><span class="comment"># 永久开放 8080 端口（推荐，修改配置文件）</span></span><br><span class="line"><span class="comment"># 编辑配置文件</span></span><br><span class="line">vi /etc/sysconfig/iptables</span><br><span class="line"><span class="comment"># 在文件中添加一行（建议放在 ACCEPT 相关规则后）</span></span><br><span class="line">-A INPUT -p tcp -m tcp --dport 8080 -j ACCEPT</span><br><span class="line"><span class="comment"># 保存后重启防火墙生效</span></span><br><span class="line">service iptables restart</span><br></pre></td></tr></table></figure>
 
-
+<span id="more"></span>
 
 <h3 id="2-防火墙启停与开机自启配置"><a href="#2-防火墙启停与开机自启配置" class="headerlink" title="2. 防火墙启停与开机自启配置"></a>2. 防火墙启停与开机自启配置</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 启动防火墙</span></span><br><span class="line">service iptables start</span><br><span class="line"></span><br><span class="line"><span class="comment"># 关闭防火墙</span></span><br><span class="line">service iptables stop </span><br><span class="line"></span><br><span class="line"><span class="comment"># 永久关闭防火墙（禁止开机启动）</span></span><br><span class="line">chkconfig iptables off</span><br><span class="line"></span><br><span class="line"><span class="comment"># 永久开启防火墙（开机自启）</span></span><br><span class="line">chkconfig iptables on</span><br></pre></td></tr></table></figure>
 
@@ -354,8 +354,8 @@
       <footer class="post-footer">
           
           <div class="post-tags">
-              <a href="/blog/tags/Linux/" rel="tag"><i class="fa fa-tag"></i> Linux</a>
               <a href="/blog/tags/%E5%B9%B2%E8%B4%A7/" rel="tag"><i class="fa fa-tag"></i> 干货</a>
+              <a href="/blog/tags/Linux/" rel="tag"><i class="fa fa-tag"></i> Linux</a>
           </div>
 
         
