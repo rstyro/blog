@@ -35,7 +35,7 @@ vi /etc/sysconfig/iptables
 service iptables restart
 ```
 
-
+<!--more-->
 
 ### 2. 防火墙启停与开机自启配置
 
