@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/favicon.jpg">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon.jpg">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon.jpg">
+  <link rel="mask-icon" href="/blog/images/favicon.jpg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="/blog/lib/pace/pace-theme-flash.min.css">
+  <script src="/blog/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"rstyro.github.io","root":"/blog/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":true},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.json"};
+  </script>
+
+  <meta name="description" content="SpringBoot集成Keycloak示例本文将全面讲解Keycloak的核心概念、服务器搭建配置，以及Spring Boot与Keycloak的完整集成流程，同时覆盖OAuth2.0、OIDC协议原理、多租户多客户端实现、常见问题排查等内容，打造一份可直接落地的实操指南，适用于微服务、企业应用、SaaS平台的身份认证与授权场景。 一、Keycloak 是什么Keycloak 是一个开源的身份和">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SpringBoot集成Keycloak完整实操教程">
+<meta property="og:url" content="https://rstyro.github.io/blog/2026/03/05/SpringBoot%E9%9B%86%E6%88%90Keycloak%E5%AE%8C%E6%95%B4%E5%AE%9E%E6%93%8D%E6%95%99%E7%A8%8B/index.html">
+<meta property="og:site_name" content="胖不了小陆">
+<meta property="og:description" content="SpringBoot集成Keycloak示例本文将全面讲解Keycloak的核心概念、服务器搭建配置，以及Spring Boot与Keycloak的完整集成流程，同时覆盖OAuth2.0、OIDC协议原理、多租户多客户端实现、常见问题排查等内容，打造一份可直接落地的实操指南，适用于微服务、企业应用、SaaS平台的身份认证与授权场景。 一、Keycloak 是什么Keycloak 是一个开源的身份和">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://rstyro.github.io/blog/2026/03/05/SpringBoot%E9%9B%86%E6%88%90Keycloak%E5%AE%8C%E6%95%B4%E5%AE%9E%E6%93%8D%E6%95%99%E7%A8%8B/init.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2026/03/05/SpringBoot%E9%9B%86%E6%88%90Keycloak%E5%AE%8C%E6%95%B4%E5%AE%9E%E6%93%8D%E6%95%99%E7%A8%8B/my-realm.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2026/03/05/SpringBoot%E9%9B%86%E6%88%90Keycloak%E5%AE%8C%E6%95%B4%E5%AE%9E%E6%93%8D%E6%95%99%E7%A8%8B/client1.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2026/03/05/SpringBoot%E9%9B%86%E6%88%90Keycloak%E5%AE%8C%E6%95%B4%E5%AE%9E%E6%93%8D%E6%95%99%E7%A8%8B/client2.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2026/03/05/SpringBoot%E9%9B%86%E6%88%90Keycloak%E5%AE%8C%E6%95%B4%E5%AE%9E%E6%93%8D%E6%95%99%E7%A8%8B/client3.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2026/03/05/SpringBoot%E9%9B%86%E6%88%90Keycloak%E5%AE%8C%E6%95%B4%E5%AE%9E%E6%93%8D%E6%95%99%E7%A8%8B/client4.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2026/03/05/SpringBoot%E9%9B%86%E6%88%90Keycloak%E5%AE%8C%E6%95%B4%E5%AE%9E%E6%93%8D%E6%95%99%E7%A8%8B/client5.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2026/03/05/SpringBoot%E9%9B%86%E6%88%90Keycloak%E5%AE%8C%E6%95%B4%E5%AE%9E%E6%93%8D%E6%95%99%E7%A8%8B/home.png">
+<meta property="article:published_time" content="2026-03-05T07:13:24.000Z">
+<meta property="article:modified_time" content="2026-03-05T07:17:50.529Z">
+<meta property="article:author" content="rstyro">
+<meta property="article:tag" content="Spring Boot">
+<meta property="article:tag" content="Java">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://rstyro.github.io/blog/2026/03/05/SpringBoot%E9%9B%86%E6%88%90Keycloak%E5%AE%8C%E6%95%B4%E5%AE%9E%E6%93%8D%E6%95%99%E7%A8%8B/init.png">
+
+<link rel="canonical" href="https://rstyro.github.io/blog/2026/03/05/SpringBoot%E9%9B%86%E6%88%90Keycloak%E5%AE%8C%E6%95%B4%E5%AE%9E%E6%93%8D%E6%95%99%E7%A8%8B/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>SpringBoot集成Keycloak完整实操教程 | 胖不了小陆</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">胖不了小陆</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">信你所信，为你所见</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/blog/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/blog/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/blog/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/rstyro" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://rstyro.github.io/blog/2026/03/05/SpringBoot%E9%9B%86%E6%88%90Keycloak%E5%AE%8C%E6%95%B4%E5%AE%9E%E6%93%8D%E6%95%99%E7%A8%8B/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/avatar.jpg">
+      <meta itemprop="name" content="rstyro">
+      <meta itemprop="description" content="人间的饭，吃一碗少一碗，身边的人，见一面少一面，脚下的路，走一天少一天，其实人生就是一个减法，来日并不方长！">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="胖不了小陆">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          SpringBoot集成Keycloak完整实操教程
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2026-03-05 15:13:24 / 修改时间：15:17:50" itemprop="dateCreated datePublished" datetime="2026-03-05T15:13:24+08:00">2026-03-05</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/Java/" itemprop="url" rel="index"><span itemprop="name">Java</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="SpringBoot集成Keycloak示例"><a href="#SpringBoot集成Keycloak示例" class="headerlink" title="SpringBoot集成Keycloak示例"></a>SpringBoot集成Keycloak示例</h1><p>本文将全面讲解Keycloak的核心概念、服务器搭建配置，以及Spring Boot与Keycloak的完整集成流程，同时覆盖OAuth2.0、OIDC协议原理、多租户多客户端实现、常见问题排查等内容，打造一份可直接落地的实操指南，适用于微服务、企业应用、SaaS平台的身份认证与授权场景。</p>
+<h2 id="一、Keycloak-是什么"><a href="#一、Keycloak-是什么" class="headerlink" title="一、Keycloak 是什么"></a>一、Keycloak 是什么</h2><p>Keycloak 是一个开源的身份和访问管理（IAM）解决方案，专为现代应用程序和服务设计。它由 Red Hat 开发和维护，提供了完整的身份管理功能，使开发者能够轻松实现安全的用户认证和授权。</p>
+<span id="more"></span>
+
+<h3 id="1-1-Keycloak-的核心功能"><a href="#1-1-Keycloak-的核心功能" class="headerlink" title="1.1 Keycloak 的核心功能"></a>1.1 Keycloak 的核心功能</h3><ul>
+<li><strong>单点登录（SSO）</strong>：用户只需登录一次即可访问所有集成的应用，无需在每个应用中重复登录</li>
+<li><strong>身份代理和社交登录</strong>：支持与 Google、Facebook、Twitter 等第三方身份提供商集成，用户可以使用现有社交账号登录</li>
+<li><strong>用户联盟</strong>：可以连接到现有的用户存储，如 LDAP、Active Directory 等</li>
+<li><strong>客户端适配器</strong>：提供与各种应用框架的集成，包括 Spring Boot、Node.js、Angular 等</li>
+<li><strong>管理控制台</strong>：直观的管理界面，用于配置和管理用户、角色、客户端等</li>
+<li><strong>账户管理</strong>：用户可以管理自己的个人资料、密码和授权</li>
+<li><strong>细粒度授权</strong>：基于角色的访问控制（RBAC）和基于资源的权限管理</li>
+<li><strong>多因素认证</strong>：支持短信、电子邮件、TOTP 等多因素认证方式</li>
+<li><strong>会话管理</strong>：管理员可以查看和管理用户会话</li>
+<li><strong>事件记录和审计</strong>：记录用户登录、登出等事件，便于审计和监控</li>
+</ul>
+<h3 id="1-2-Keycloak-的应用场景"><a href="#1-2-Keycloak-的应用场景" class="headerlink" title="1.2 Keycloak 的应用场景"></a>1.2 Keycloak 的应用场景</h3><p>Keycloak 适用于以下场景：</p>
+<ol>
+<li><strong>企业应用集成</strong>：在企业内部，多个应用系统需要统一的身份认证和授权管理</li>
+<li><strong>SaaS 应用</strong>：为 SaaS 应用提供多租户的身份管理解决方案</li>
+<li><strong>微服务架构</strong>：在微服务架构中，为各个服务提供统一的身份验证和授权</li>
+<li><strong>移动应用</strong>：为移动应用提供安全的身份认证机制</li>
+<li><strong>API 安全</strong>：保护 API 接口，确保只有授权用户才能访问</li>
+<li><strong>B2B 集成</strong>：实现企业间的安全身份验证和授权</li>
+<li><strong>客户门户</strong>：为客户提供安全的自助服务门户</li>
+<li><strong>合规要求</strong>：满足 GDPR、HIPAA 等合规要求的身份管理解决方案</li>
+</ol>
+<h3 id="1-3-Keycloak-的优势"><a href="#1-3-Keycloak-的优势" class="headerlink" title="1.3 Keycloak 的优势"></a>1.3 Keycloak 的优势</h3><ul>
+<li><strong>开源免费</strong>：基于 Apache 2.0 许可证，完全免费使用</li>
+<li><strong>功能完整</strong>：提供了企业级身份管理所需的所有核心功能</li>
+<li><strong>易于集成</strong>：提供了丰富的客户端适配器和 API</li>
+<li><strong>可扩展性</strong>：支持集群部署，可处理高并发场景</li>
+<li><strong>安全性</strong>：内置多种安全特性，如多因素认证、密码策略等</li>
+<li><strong>标准化</strong>：实现了 OAuth 2.0、OpenID Connect 等标准协议</li>
+</ul>
+<p>本文使用 Keycloak 的管理控制台，通过 Spring Security OAuth2.0 与 Spring Boot 应用集成。</p>
+<h2 id="二、设置-Keycloak-服务器"><a href="#二、设置-Keycloak-服务器" class="headerlink" title="二、设置 Keycloak 服务器"></a>二、设置 Keycloak 服务器</h2><h3 id="2-1、下载和安装-Keycloak"><a href="#2-1、下载和安装-Keycloak" class="headerlink" title="2.1、下载和安装 Keycloak"></a>2.1、下载和安装 Keycloak</h3><ol>
+<li>从Keycloak 官方网站：<a target="_blank" rel="noopener" href="https://www.keycloak.org/downloads">https://www.keycloak.org/downloads</a> 下载最新版本的 Keycloak</li>
+<li>下载完成后，解压压缩包至本地指定目录</li>
+<li>进入解压根目录，执行对应命令启动服务（开发模式）：</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Linux/Mac系统启动命令</span></span><br><span class="line">bin/kc.sh start-dev</span><br><span class="line"></span><br><span class="line"><span class="comment"># Windows系统默认启动命令</span></span><br><span class="line">bin\kc.bat start-dev</span><br><span class="line"></span><br><span class="line"><span class="comment"># Windows系统指定8880端口启动</span></span><br><span class="line">bin\kc.bat start-dev --http-port=8880</span><br></pre></td></tr></table></figure>
+
+
+<p>启动成功后，Keycloak默认访问地址：<strong><a target="_blank" rel="noopener" href="http://localhost:8080/">http://localhost:8080</a></strong>，自定义端口则替换对应端口即可</p>
+<p><strong>注意</strong>：<code>start-dev</code>为开发模式，仅适用于本地测试；生产环境需改用生产模式启动，配置HTTPS、数据库持久化等参数。</p>
+<h3 id="2-2、创建-Realm（领域）"><a href="#2-2、创建-Realm（领域）" class="headerlink" title="2.2、创建 Realm（领域）"></a>2.2、创建 Realm（领域）</h3><ol>
+<li>打开浏览器，访问 <a target="_blank" rel="noopener" href="http://localhost:8080/">http://localhost:8080</a></li>
+<li>首次访问会提示创建管理员账户，按照提示设置用户名和密码</li>
+<li>登录管理控制台后，点击左侧菜单栏<strong>Realm</strong>下拉菜单</li>
+<li>点击<strong>Create Realm</strong>按钮</li>
+<li>输入Realm名称：<code>my-realm</code>，点击Create完成创建</li>
+</ol>
+<p><img src="/blog/2026/03/05/SpringBoot%E9%9B%86%E6%88%90Keycloak%E5%AE%8C%E6%95%B4%E5%AE%9E%E6%93%8D%E6%95%99%E7%A8%8B/init.png" alt="首次访问需要配置管理员用户"></p>
+<p><img src="/blog/2026/03/05/SpringBoot%E9%9B%86%E6%88%90Keycloak%E5%AE%8C%E6%95%B4%E5%AE%9E%E6%93%8D%E6%95%99%E7%A8%8B/my-realm.png" alt="新建一个Realm为my-realm名称"></p>
+<h3 id="2-3、创建客户端"><a href="#2-3、创建客户端" class="headerlink" title="2.3、创建客户端"></a>2.3、创建客户端</h3><ol>
+<li>左侧菜单栏点击<strong>Clients</strong>，选择<strong>Create client</strong></li>
+<li>填写基础配置信息：<ul>
+<li>Client type：<code>OpenID Connect</code></li>
+<li>Client ID：<code>my-java-app</code></li>
+<li>Name：<code>My Java Application</code></li>
+</ul>
+</li>
+<li>点击Next进入下一步</li>
+<li>Access settings页面核心配置：<ul>
+<li>Root URL：<code>http://localhost:8081</code>（Spring Boot应用地址）</li>
+<li>Valid redirect URIs：<code>http://localhost:8081/login/oauth2/code/keycloak</code>（授权回调地址，必须精准配置）</li>
+<li>Web origins：<code>http://localhost:8081</code>（跨域白名单）</li>
+</ul>
+</li>
+<li>点击Save保存配置</li>
+<li>进入客户端详情页，切换到<strong>Credentials</strong>选项卡，复制生成的<strong>Client secret</strong>，后续Spring Boot配置需用到</li>
+</ol>
+<p><img src="/blog/2026/03/05/SpringBoot%E9%9B%86%E6%88%90Keycloak%E5%AE%8C%E6%95%B4%E5%AE%9E%E6%93%8D%E6%95%99%E7%A8%8B/client1.png" alt="新建客户端步骤1"></p>
+<p><img src="/blog/2026/03/05/SpringBoot%E9%9B%86%E6%88%90Keycloak%E5%AE%8C%E6%95%B4%E5%AE%9E%E6%93%8D%E6%95%99%E7%A8%8B/client2.png" alt="开启客户端验证"></p>
+<p><img src="/blog/2026/03/05/SpringBoot%E9%9B%86%E6%88%90Keycloak%E5%AE%8C%E6%95%B4%E5%AE%9E%E6%93%8D%E6%95%99%E7%A8%8B/client3.png" alt="配置客户端重定向白名单"></p>
+<ul>
+<li>配置客户端的重定向白名单地址</li>
+<li>还有跨越的地址</li>
+</ul>
+<p><img src="/blog/2026/03/05/SpringBoot%E9%9B%86%E6%88%90Keycloak%E5%AE%8C%E6%95%B4%E5%AE%9E%E6%93%8D%E6%95%99%E7%A8%8B/client4.png" alt="查看客户端秘钥"></p>
+<ul>
+<li>查看客户端的秘钥，或者重新生成秘钥</li>
+</ul>
+<h3 id="2-4、创建角色和用户"><a href="#2-4、创建角色和用户" class="headerlink" title="2.4、创建角色和用户"></a>2.4、创建角色和用户</h3><ol>
+<li>创建角色：左侧菜单栏点击<strong>Roles</strong> → <strong>Create role</strong>，输入角色名（如<code>user</code>），点击Save保存</li>
+<li>创建用户：左侧菜单栏点击<strong>Users</strong> → <strong>Add user</strong>，输入用户名（如<code>test</code>），点击Create</li>
+<li>设置用户密码：进入用户详情页，切换到<strong>Credentials</strong>选项卡，设置密码并关闭<strong>Temporary</strong>（临时密码）选项，点击Set password确认</li>
+<li>分配角色：切换到<strong>Role mapping</strong>选项卡，将刚才创建的<code>user</code>角色分配给该用户</li>
+</ol>
+<p><img src="/blog/2026/03/05/SpringBoot%E9%9B%86%E6%88%90Keycloak%E5%AE%8C%E6%95%B4%E5%AE%9E%E6%93%8D%E6%95%99%E7%A8%8B/client5.png" alt="创建用户并设置密码"></p>
+<h2 id="三、Spring-Boot-应用配置"><a href="#三、Spring-Boot-应用配置" class="headerlink" title="三、Spring Boot 应用配置"></a>三、Spring Boot 应用配置</h2><h3 id="3-1、项目依赖"><a href="#3-1、项目依赖" class="headerlink" title="3.1、项目依赖"></a>3.1、项目依赖</h3><p>在 <code>pom.xml</code> 文件中添加以下依赖：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-web<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">     <span class="comment">&lt;!-- Spring Security（安全认证核心） --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-security<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="comment">&lt;!-- OAuth2资源服务器依赖，用于API接口鉴权--&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-oauth2-resource-server<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="comment">&lt;!-- OAuth2客户端依赖，用于对接Keycloak完成登录认证 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-oauth2-client<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="3-2、应用配置"><a href="#3-2、应用配置" class="headerlink" title="3.2、应用配置"></a>3.2、应用配置</h3><p>在<code>application.yml</code>中配置Keycloak相关参数，替换为自己的客户端密钥和Realm地址，端口需与Keycloak客户端配置一致：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">server:</span></span><br><span class="line">  <span class="attr">port:</span> <span class="number">8081</span>  <span class="comment"># 应用端口，与Keycloak客户端回调地址保持一致</span></span><br><span class="line"><span class="attr">spring:</span></span><br><span class="line">  <span class="attr">application:</span></span><br><span class="line">    <span class="attr">name:</span> <span class="string">keycloak-demo</span></span><br><span class="line">  <span class="attr">security:</span></span><br><span class="line">    <span class="attr">oauth2:</span></span><br><span class="line">      <span class="attr">client:</span></span><br><span class="line">        <span class="attr">registration:</span></span><br><span class="line">          <span class="attr">keycloak:</span></span><br><span class="line">            <span class="attr">client-id:</span> <span class="string">my-java-app</span>  <span class="comment"># Keycloak中创建的客户端ID</span></span><br><span class="line">            <span class="attr">client-secret:</span> &#123;<span class="string">your-client-secret</span>&#125;  <span class="comment"># 替换为复制的客户端密钥</span></span><br><span class="line">            <span class="attr">authorization-grant-type:</span> <span class="string">authorization_code</span>  <span class="comment"># 授权码模式</span></span><br><span class="line">            <span class="attr">redirect-uri:</span> <span class="string">&quot;&#123;baseUrl&#125;/login/oauth2/code/keycloak&quot;</span>  <span class="comment"># 回调地址</span></span><br><span class="line">        <span class="attr">provider:</span></span><br><span class="line">          <span class="attr">keycloak:</span></span><br><span class="line">            <span class="attr">issuer-uri:</span> <span class="string">http://localhost:8080/realms/my-realm</span>  <span class="comment"># Keycloak Realm地址</span></span><br><span class="line">            <span class="attr">user-name-attribute:</span> <span class="string">preferred_username</span>  <span class="comment"># 用户名属性</span></span><br><span class="line">      <span class="attr">resourceserver:</span></span><br><span class="line">        <span class="attr">jwt:</span></span><br><span class="line">          <span class="attr">issuer-uri:</span> <span class="string">http://localhost:8080/realms/my-realm</span>  <span class="comment"># JWT签发地址</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="配置核心原理说明"><a href="#配置核心原理说明" class="headerlink" title="配置核心原理说明"></a>配置核心原理说明</h4><ul>
+<li>Spring Security 的 OAuth2 客户端模块（<code>spring-boot-starter-oauth2-client</code>）在启动时会自动注册一系列默认的组件，其中最关键的是一个 <strong>过滤器（Filter）</strong>——<code>OAuth2LoginAuthenticationFilter</code>。</li>
+<li>这个过滤器默认拦截的请求路径正是 <code>/login/oauth2/code/*</code>。我们配置的 <code>redirect-uri</code> 以这个路径结尾时，授权服务器完成用户授权后，会将用户重定向回我们应用的这个地址。</li>
+<li><strong>自动处理回调</strong><br>当请求到达 <code>/login/oauth2/code/keycloak</code> 时，过滤器会自动：<ul>
+<li>从请求中提取 <strong>授权码（authorization code）</strong>。</li>
+<li>根据配置的 <code>provider</code> 信息（如 <code>issuer-uri</code>）发现 Keycloak 的令牌端点。</li>
+<li>携带 <code>client-id</code>、<code>client-secret</code> 和授权码，向 Keycloak 的令牌端点发起请求，换取 <strong>访问令牌（access token）</strong> 和 <strong>ID 令牌（id token）</strong>。</li>
+<li>解析 ID 令牌中的用户信息（如我们指定的 <code>user-name-attribute: preferred_username</code>），创建 Spring Security 的 <code>Authentication</code> 对象，完成用户登录。</li>
+</ul>
+</li>
+</ul>
+<h3 id="3-3、安全配置"><a href="#3-3、安全配置" class="headerlink" title="3.3、安全配置"></a>3.3、安全配置</h3><p>创建 <code>SecurityConfig.java</code> 文件，配置 Spring Security：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> top.lrshuai.keycloak.config;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.springframework.context.annotation.Bean;</span><br><span class="line"><span class="keyword">import</span> org.springframework.context.annotation.Configuration;</span><br><span class="line"><span class="keyword">import</span> org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;</span><br><span class="line"><span class="keyword">import</span> org.springframework.security.config.annotation.web.builders.HttpSecurity;</span><br><span class="line"><span class="keyword">import</span> org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;</span><br><span class="line"><span class="keyword">import</span> org.springframework.security.web.SecurityFilterChain;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="meta">@EnableWebSecurity</span></span><br><span class="line"><span class="meta">@EnableMethodSecurity</span>  <span class="comment">// 开启方法级权限控制</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">SecurityConfig</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="keyword">public</span> SecurityFilterChain <span class="title function_">securityFilterChain</span><span class="params">(HttpSecurity http)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        http</span><br><span class="line">            <span class="comment">// 接口权限配置</span></span><br><span class="line">            .authorizeRequests(authorize -&gt; authorize</span><br><span class="line">                .requestMatchers(<span class="string">&quot;/public/**&quot;</span>).permitAll()  <span class="comment">// 公开接口，无需登录</span></span><br><span class="line">                .anyRequest().authenticated()  <span class="comment">// 其余接口均需登录认证</span></span><br><span class="line">            )</span><br><span class="line">            <span class="comment">// OAuth2登录配置</span></span><br><span class="line">            .oauth2Login(oauth2 -&gt; oauth2</span><br><span class="line">                .defaultSuccessUrl(<span class="string">&quot;/home&quot;</span>, <span class="literal">true</span>)  <span class="comment">// 登录成功跳转地址</span></span><br><span class="line">            )</span><br><span class="line">            <span class="comment">// 资源服务器JWT配置</span></span><br><span class="line">            .oauth2ResourceServer(oauth2 -&gt; oauth2</span><br><span class="line">                .jwt(jwt -&gt; jwt</span><br><span class="line">                    .issuerUri(<span class="string">&quot;http://localhost:8080/realms/my-realm&quot;</span>)</span><br><span class="line">                )</span><br><span class="line">            )</span><br><span class="line">            <span class="comment">// 登出配置</span></span><br><span class="line">            .logout(logout -&gt; logout</span><br><span class="line">                .logoutSuccessUrl(<span class="string">&quot;/public/logout-success&quot;</span>)  # 登出成功跳转地址</span><br><span class="line">            );</span><br><span class="line">        <span class="keyword">return</span> http.build();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-4、控制器实现"><a href="#3-4、控制器实现" class="headerlink" title="3.4、控制器实现"></a>3.4、控制器实现</h3><p>创建 <code>HomeController.java</code> 文件，实现基本的端点：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> top.lrshuai.keycloak.controller;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.springframework.security.core.annotation.AuthenticationPrincipal;</span><br><span class="line"><span class="keyword">import</span> org.springframework.security.oauth2.core.oidc.user.OidcUser;</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.bind.annotation.GetMapping;</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.bind.annotation.RestController;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.util.Map;</span><br><span class="line"></span><br><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">HomeController</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@GetMapping(&quot;/public/hello&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">publicHello</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;Hello from public endpoint!&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@GetMapping(&quot;/home&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> Map&lt;String, Object&gt; <span class="title function_">home</span><span class="params">(<span class="meta">@AuthenticationPrincipal</span> OidcUser user)</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> Map.of(</span><br><span class="line">            <span class="string">&quot;message&quot;</span>, <span class="string">&quot;Hello from secured endpoint!&quot;</span>,</span><br><span class="line">            <span class="string">&quot;userName&quot;</span>, user.getPreferredUsername(),</span><br><span class="line">            <span class="string">&quot;name&quot;</span>, user.getFullName(),</span><br><span class="line">            <span class="string">&quot;email&quot;</span>, user.getEmail(),</span><br><span class="line">            <span class="string">&quot;claims&quot;</span>, user.getClaims()</span><br><span class="line">        );</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@GetMapping(&quot;/public/logout-success&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">logoutSuccess</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;Logout successful!&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p><img src="/blog/2026/03/05/SpringBoot%E9%9B%86%E6%88%90Keycloak%E5%AE%8C%E6%95%B4%E5%AE%9E%E6%93%8D%E6%95%99%E7%A8%8B/home.png" alt="当请求/home接口时返回"></p>
+<ul>
+<li>当请求&#x2F;home接口时会判断，用户是否登录<ul>
+<li>如果没有登录会跳转keycloak登录页面进行登录验证</li>
+<li>如果登录了就直接返回用户信息</li>
+<li>Spring MVC 调用 <code>HomeController.home(...)</code>。</li>
+<li><code>AuthenticationPrincipalArgumentResolver</code> 从 <code>SecurityContext</code> 获取 <code>Authentication</code>，取出 <code>principal</code>（即 <code>OidcUser</code>），注入方法参数。</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight tex"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">浏览器回调 → OAuth2LoginAuthenticationFilter</span><br><span class="line">                 │</span><br><span class="line">                 ├─ 提取 code, state</span><br><span class="line">                 ├─ 从 session 获取 authorizationRequest</span><br><span class="line">                 ├─ 验证 state</span><br><span class="line">                 └─ 创建 OAuth2LoginAuthenticationToken</span><br><span class="line">                      ↓</span><br><span class="line">               AuthenticationManager (ProviderManager)</span><br><span class="line">                      ↓</span><br><span class="line">        OidcAuthorizationCodeAuthenticationProvider</span><br><span class="line">                      ├─ 用 code 换取 token（OAuth2AccessTokenResponseClient）</span><br><span class="line">                      ├─ 验证 ID Token（OidcIdTokenDecoderFactory）</span><br><span class="line">                      ├─ 加载用户信息（OidcUserService）</span><br><span class="line">                      └─ 构建 OidcAuthenticationToken</span><br><span class="line">                      ↓</span><br><span class="line">       返回认证后的 OidcAuthenticationToken 给过滤器</span><br><span class="line">                      ↓</span><br><span class="line">         SecurityContextHolder.getContext().setAuthentication(...)</span><br><span class="line">                      ↓</span><br><span class="line">         认证成功处理器 → 重定向回原请求</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="3-5、测试步骤"><a href="#3-5、测试步骤" class="headerlink" title="3.5、测试步骤"></a>3.5、测试步骤</h3><ol>
+<li><strong>启动 Keycloak 服务器</strong>：确保 Keycloak 在 <a target="_blank" rel="noopener" href="http://localhost:8080/">http://localhost:8080</a> 上运行</li>
+<li><strong>启动 Spring Boot 应用</strong>：运行 <code>mvn spring-boot:run</code> 命令</li>
+<li><strong>访问公开端点</strong>：打开浏览器，访问 <a target="_blank" rel="noopener" href="http://localhost:8081/public/hello%EF%BC%8C%E5%BA%94%E8%AF%A5%E7%9B%B4%E6%8E%A5%E8%BF%94%E5%9B%9E">http://localhost:8081/public/hello，应该直接返回</a> “Hello from public endpoint!”</li>
+<li><strong>访问受保护端点</strong>：访问 <a target="_blank" rel="noopener" href="http://localhost:8081/home%EF%BC%8C%E4%BC%9A%E8%B7%B3%E8%BD%AC%E5%88%B0">http://localhost:8081/home，会跳转到</a> Keycloak 登录页面</li>
+<li><strong>登录</strong>：使用之前创建的用户凭据登录</li>
+<li><strong>验证</strong>：登录成功后，会跳转到 &#x2F;home 端点，显示用户信息</li>
+<li><strong>退出登录</strong>：访问 <a target="_blank" rel="noopener" href="http://localhost:8081/logout%EF%BC%8C%E7%84%B6%E5%90%8E%E8%AE%BF%E9%97%AE">http://localhost:8081/logout，然后访问</a> &#x2F;public&#x2F;logout-success 查看退出成功信息</li>
+</ol>
+<h3 id="3-6、常见问题及解决方案"><a href="#3-6、常见问题及解决方案" class="headerlink" title="3.6、常见问题及解决方案"></a>3.6、常见问题及解决方案</h3><h4 id="1、客户端配置错误"><a href="#1、客户端配置错误" class="headerlink" title="1、客户端配置错误"></a>1、客户端配置错误</h4><p><strong>问题</strong>：登录时出现 “Invalid redirect URI” 错误<br><strong>解决方案</strong>：确保 Keycloak 客户端配置中的 “Valid redirect URIs” 包含 <code>http://localhost:8081/login/oauth2/code/keycloak</code></p>
+<h4 id="2、客户端密钥错误"><a href="#2、客户端密钥错误" class="headerlink" title="2、客户端密钥错误"></a>2、客户端密钥错误</h4><p><strong>问题</strong>：登录时出现 “Bad credentials” 错误<br><strong>解决方案</strong>：确保 <code>application.yml</code> 文件中的 <code>client-secret</code> 与 Keycloak 客户端详情页面中的 “Client secret” 一致</p>
+<h4 id="3、令牌验证失败"><a href="#3、令牌验证失败" class="headerlink" title="3、令牌验证失败"></a>3、令牌验证失败</h4><p><strong>问题</strong>：访问受保护端点时出现 “Invalid token” 错误<br><strong>解决方案</strong>：确保 <code>application.yml</code> 文件中的 <code>issuer-uri</code> 正确，格式为 <code>http://localhost:8080/realms/my-realm</code></p>
+<h2 id="四、Keycloak与OAuth2-0、OIDC协议详解"><a href="#四、Keycloak与OAuth2-0、OIDC协议详解" class="headerlink" title="四、Keycloak与OAuth2.0、OIDC协议详解"></a>四、Keycloak与OAuth2.0、OIDC协议详解</h2><h3 id="4-1、OAuth2-0-简介"><a href="#4-1、OAuth2-0-简介" class="headerlink" title="4.1、OAuth2.0 简介"></a>4.1、OAuth2.0 简介</h3><p>OAuth 2.0 是一个授权框架，允许应用程序在用户授权的情况下访问用户的资源。它定义了以下角色：</p>
+<ul>
+<li><strong>资源所有者</strong>：用户，拥有受保护的资源</li>
+<li><strong>客户端</strong>：需要访问资源的应用程序</li>
+<li><strong>资源服务器</strong>：存储受保护资源的服务器</li>
+<li><strong>授权服务器</strong>：验证用户身份并颁发访问令牌</li>
+</ul>
+<h3 id="4-2、Keycloak-作为-OAuth2-0-授权服务器"><a href="#4-2、Keycloak-作为-OAuth2-0-授权服务器" class="headerlink" title="4.2、Keycloak 作为 OAuth2.0 授权服务器"></a>4.2、Keycloak 作为 OAuth2.0 授权服务器</h3><p>Keycloak 实现了 OAuth 2.0 规范，可以作为授权服务器使用。它提供了以下 OAuth 2.0 流程：</p>
+<ul>
+<li><strong>授权码流程</strong>：最常用的流程，适用于有服务器端的应用</li>
+<li><strong>隐式流程</strong>：适用于纯前端应用</li>
+<li><strong>客户端凭证流程</strong>：适用于服务器间通信</li>
+<li><strong>密码流程</strong>：适用于受信任的应用</li>
+</ul>
+<p>在本示例中，我们使用的是授权码流程。</p>
+<h3 id="4-3、OpenID-Connect-OIDC-协议详解"><a href="#4-3、OpenID-Connect-OIDC-协议详解" class="headerlink" title="4.3、OpenID Connect (OIDC) 协议详解"></a>4.3、OpenID Connect (OIDC) 协议详解</h3><h4 id="4-3-1、OIDC-简介"><a href="#4-3-1、OIDC-简介" class="headerlink" title="4.3.1、OIDC 简介"></a>4.3.1、OIDC 简介</h4><p>OpenID Connect (OIDC) 是建立在 OAuth 2.0 协议之上的身份认证层，它扩展了 OAuth 2.0，添加了身份认证功能。OIDC 允许客户端验证用户的身份，并获取用户的基本配置信息。</p>
+<p>OIDC 定义了以下核心概念：</p>
+<ul>
+<li><strong>ID Token</strong>：包含用户身份信息的 JWT (JSON Web Token)，由授权服务器签名</li>
+<li><strong>UserInfo Endpoint</strong>：客户端可以通过此端点获取用户的详细信息</li>
+<li><strong>Discovery Endpoint</strong>：提供 OIDC 提供商的配置信息</li>
+<li><strong>Client Registration</strong>：客户端注册机制</li>
+</ul>
+<h4 id="4-3-2、OIDC-与-OAuth-2-0-的关系"><a href="#4-3-2、OIDC-与-OAuth-2-0-的关系" class="headerlink" title="4.3.2、OIDC 与 OAuth 2.0 的关系"></a>4.3.2、OIDC 与 OAuth 2.0 的关系</h4><p>OIDC 是 OAuth 2.0 的超集，它在 OAuth 2.0 的基础上添加了身份认证功能。OAuth 2.0 主要解决授权问题，而 OIDC 主要解决身份认证问题。</p>
+<ul>
+<li><strong>OAuth 2.0</strong>：关注”用户是否允许客户端访问其资源”</li>
+<li><strong>OIDC</strong>：关注”用户是谁”以及”用户是否已认证”</li>
+</ul>
+<h4 id="4-3-3、OIDC-的工作流程"><a href="#4-3-3、OIDC-的工作流程" class="headerlink" title="4.3.3、OIDC 的工作流程"></a>4.3.3、OIDC 的工作流程</h4><p>OIDC 的工作流程基于 OAuth 2.0 的授权码流程，主要步骤如下：</p>
+<ol>
+<li><strong>客户端重定向</strong>：客户端将用户重定向到 OIDC 提供商的授权端点</li>
+<li><strong>用户认证</strong>：用户在 OIDC 提供商处进行认证</li>
+<li><strong>授权同意</strong>：用户同意客户端请求的权限</li>
+<li><strong>颁发授权码</strong>：OIDC 提供商向客户端颁发授权码</li>
+<li><strong>交换令牌</strong>：客户端使用授权码向 OIDC 提供商请求令牌（包括 ID Token 和 Access Token）</li>
+<li><strong>验证 ID Token</strong>：客户端验证 ID Token 的签名和内容</li>
+<li><strong>获取用户信息</strong>：客户端可以使用 Access Token 从 UserInfo 端点获取用户详细信息</li>
+</ol>
+<h4 id="4-3-4、OIDC-的应用场景"><a href="#4-3-4、OIDC-的应用场景" class="headerlink" title="4.3.4、OIDC 的应用场景"></a>4.3.4、OIDC 的应用场景</h4><p>OIDC 适用于以下场景：</p>
+<ol>
+<li><strong>单点登录（SSO）</strong>：用户只需登录一次，即可访问多个应用</li>
+<li><strong>跨域身份认证</strong>：在不同域名的应用之间实现统一的身份认证</li>
+<li><strong>移动应用和原生应用</strong>：为移动应用和原生应用提供安全的身份认证机制</li>
+<li><strong>API 网关认证</strong>：在 API 网关中使用 OIDC 进行身份验证和授权</li>
+<li><strong>微服务架构</strong>：在微服务架构中，使用 OIDC 实现服务间的安全通信</li>
+<li><strong>联合身份</strong>：实现不同组织之间的身份联合</li>
+</ol>
+<h4 id="4-3-5、OIDC-的优势"><a href="#4-3-5、OIDC-的优势" class="headerlink" title="4.3.5、OIDC 的优势"></a>4.3.5、OIDC 的优势</h4><ul>
+<li><strong>标准化</strong>：基于开放标准，由 IETF 标准化</li>
+<li><strong>简单易用</strong>：使用 JSON 和 RESTful API，易于实现和集成</li>
+<li><strong>安全可靠</strong>：使用 JWT 进行身份令牌的传输和验证</li>
+<li><strong>灵活可扩展</strong>：支持多种认证方式和扩展声明</li>
+<li><strong>广泛支持</strong>：被众多身份提供商和客户端框架支持</li>
+</ul>
+<h4 id="4-3-6、Keycloak-与-OIDC"><a href="#4-3-6、Keycloak-与-OIDC" class="headerlink" title="4.3.6、Keycloak 与 OIDC"></a>4.3.6、Keycloak 与 OIDC</h4><p>Keycloak 是一个功能完整的 OIDC 提供商，它实现了 OIDC 1.0 规范，提供了以下 OIDC 功能：</p>
+<ul>
+<li><strong>ID Token 颁发</strong>：生成和签名 ID Token</li>
+<li><strong>UserInfo 端点</strong>：提供用户信息</li>
+<li><strong>Discovery 端点</strong>：提供 OIDC 配置信息</li>
+<li><strong>客户端注册</strong>：支持动态客户端注册</li>
+<li><strong>多因素认证</strong>：支持基于 OIDC 的多因素认证</li>
+<li><strong>会话管理</strong>：基于 OIDC 的会话管理</li>
+</ul>
+<p>在本示例中，我们使用 Keycloak 作为 OIDC 提供商，通过 Spring Security OAuth2 客户端集成，实现了基于 OIDC 的身份认证。</p>
+<h2 id="五、多租户多客户端实现"><a href="#五、多租户多客户端实现" class="headerlink" title="五、多租户多客户端实现"></a>五、多租户多客户端实现</h2><h3 id="1、多租户概念"><a href="#1、多租户概念" class="headerlink" title="1、多租户概念"></a>1、多租户概念</h3><p>多租户是指一个应用系统可以同时为多个独立的组织（租户）提供服务，每个租户的数据和配置相互隔离。在 Keycloak 中，多租户通常通过以下方式实现：</p>
+<ul>
+<li><strong>使用多个 Realm</strong>：每个租户使用一个独立的 Realm，完全隔离租户数据</li>
+<li><strong>使用单一 Realm + 客户端隔离</strong>：在一个 Realm 中创建多个客户端，通过客户端权限控制实现隔离</li>
+<li><strong>使用单一 Realm + 组织&#x2F;群组</strong>：在一个 Realm 中使用组织或群组来管理不同租户的用户</li>
+</ul>
+<h3 id="2、多客户端配置"><a href="#2、多客户端配置" class="headerlink" title="2、多客户端配置"></a>2、多客户端配置</h3><p>在 Keycloak 中，每个应用都应该创建一个独立的客户端。以下是多客户端配置的步骤：</p>
+<ol>
+<li><p><strong>创建多个客户端</strong>：</p>
+<ul>
+<li>在 Keycloak 管理控制台中，为每个应用创建一个独立的客户端</li>
+<li>为每个客户端设置不同的 Client ID 和配置</li>
+</ul>
+</li>
+<li><p><strong>客户端配置示例</strong>：</p>
+<ul>
+<li>客户端 1：<code>app-client-1</code>，用于应用 1</li>
+<li>客户端 2：<code>app-client-2</code>，用于应用 2</li>
+</ul>
+</li>
+<li><p><strong>设置客户端权限</strong>：</p>
+<ul>
+<li>为每个客户端设置独立的角色和权限</li>
+<li>配置客户端之间的访问控制</li>
+</ul>
+</li>
+</ol>
+<h3 id="3、Spring-Boot-应用中的多租户多客户端实现"><a href="#3、Spring-Boot-应用中的多租户多客户端实现" class="headerlink" title="3、Spring Boot 应用中的多租户多客户端实现"></a>3、Spring Boot 应用中的多租户多客户端实现</h3><h4 id="3-1、配置多个-OAuth2-客户端"><a href="#3-1、配置多个-OAuth2-客户端" class="headerlink" title="3.1、配置多个 OAuth2 客户端"></a>3.1、配置多个 OAuth2 客户端</h4><p>在 <code>application.yml</code> 文件中配置多个 OAuth2 客户端：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">spring:</span></span><br><span class="line">  <span class="attr">security:</span></span><br><span class="line">    <span class="attr">oauth2:</span></span><br><span class="line">      <span class="attr">client:</span></span><br><span class="line">        <span class="attr">registration:</span></span><br><span class="line">          <span class="attr">keycloak-app1:</span></span><br><span class="line">            <span class="attr">client-id:</span> <span class="string">app-client-1</span></span><br><span class="line">            <span class="attr">client-secret:</span> &#123;<span class="string">client-secret-1</span>&#125;</span><br><span class="line">            <span class="attr">authorization-grant-type:</span> <span class="string">authorization_code</span></span><br><span class="line">            <span class="attr">redirect-uri:</span> <span class="string">&quot;&#123;baseUrl&#125;/login/oauth2/code/keycloak-app1&quot;</span></span><br><span class="line">            <span class="attr">scope:</span> <span class="string">openid,profile,email</span></span><br><span class="line">          <span class="attr">keycloak-app2:</span></span><br><span class="line">            <span class="attr">client-id:</span> <span class="string">app-client-2</span></span><br><span class="line">            <span class="attr">client-secret:</span> &#123;<span class="string">client-secret-2</span>&#125;</span><br><span class="line">            <span class="attr">authorization-grant-type:</span> <span class="string">authorization_code</span></span><br><span class="line">            <span class="attr">redirect-uri:</span> <span class="string">&quot;&#123;baseUrl&#125;/login/oauth2/code/keycloak-app2&quot;</span></span><br><span class="line">            <span class="attr">scope:</span> <span class="string">openid,profile,email</span></span><br><span class="line">        <span class="attr">provider:</span></span><br><span class="line">          <span class="attr">keycloak-app1:</span></span><br><span class="line">            <span class="attr">issuer-uri:</span> <span class="string">http://localhost:8080/realms/my-realm</span></span><br><span class="line">            <span class="attr">user-name-attribute:</span> <span class="string">preferred_username</span></span><br><span class="line">          <span class="attr">keycloak-app2:</span></span><br><span class="line">            <span class="attr">issuer-uri:</span> <span class="string">http://localhost:8080/realms/my-realm</span></span><br><span class="line">            <span class="attr">user-name-attribute:</span> <span class="string">preferred_username</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="3-2、多租户安全配置"><a href="#3-2、多租户安全配置" class="headerlink" title="3.2、多租户安全配置"></a>3.2、多租户安全配置</h4><p>创建 <code>SecurityConfig.java</code> 文件，配置多个客户端的安全规则：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="meta">@EnableWebSecurity</span></span><br><span class="line"><span class="meta">@EnableMethodSecurity</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">SecurityConfig</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="keyword">public</span> SecurityFilterChain <span class="title function_">securityFilterChain</span><span class="params">(HttpSecurity http)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        http</span><br><span class="line">            .authorizeRequests(authorize -&gt; authorize</span><br><span class="line">                .requestMatchers(<span class="string">&quot;/public/**&quot;</span>).permitAll()</span><br><span class="line">                .requestMatchers(<span class="string">&quot;/app1/**&quot;</span>).authenticated()</span><br><span class="line">                .requestMatchers(<span class="string">&quot;/app2/**&quot;</span>).authenticated()</span><br><span class="line">                .anyRequest().authenticated()</span><br><span class="line">            )</span><br><span class="line">            .oauth2Login(oauth2 -&gt; oauth2</span><br><span class="line">                .loginPage(<span class="string">&quot;/login&quot;</span>)</span><br><span class="line">                .defaultSuccessUrl(<span class="string">&quot;/home&quot;</span>, <span class="literal">true</span>)</span><br><span class="line">            )</span><br><span class="line">            .oauth2ResourceServer(oauth2 -&gt; oauth2</span><br><span class="line">                .jwt(jwt -&gt; jwt</span><br><span class="line">                    .issuerUri(<span class="string">&quot;http://localhost:8080/realms/my-realm&quot;</span>)</span><br><span class="line">                )</span><br><span class="line">            )</span><br><span class="line">            .logout(logout -&gt; logout</span><br><span class="line">                .logoutSuccessUrl(<span class="string">&quot;/public/logout-success&quot;</span>)</span><br><span class="line">            );</span><br><span class="line">        <span class="keyword">return</span> http.build();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="3-3、多租户控制器实现"><a href="#3-3、多租户控制器实现" class="headerlink" title="3.3、多租户控制器实现"></a>3.3、多租户控制器实现</h4><p>创建 <code>MultiTenantController.java</code> 文件，实现多租户支持：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> top.lrshuai.keycloak.controller;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.springframework.security.core.annotation.AuthenticationPrincipal;</span><br><span class="line"><span class="keyword">import</span> org.springframework.security.oauth2.core.oidc.user.OidcUser;</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.bind.annotation.GetMapping;</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.bind.annotation.RestController;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.util.Map;</span><br><span class="line"></span><br><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">MultiTenantController</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@GetMapping(&quot;/app1/home&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> Map&lt;String, Object&gt; <span class="title function_">app1Home</span><span class="params">(<span class="meta">@AuthenticationPrincipal</span> OidcUser user)</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> Map.of(</span><br><span class="line">            <span class="string">&quot;message&quot;</span>, <span class="string">&quot;Hello from App 1 secured endpoint!&quot;</span>,</span><br><span class="line">            <span class="string">&quot;userName&quot;</span>, user.getPreferredUsername(),</span><br><span class="line">            <span class="string">&quot;name&quot;</span>, user.getFullName(),</span><br><span class="line">            <span class="string">&quot;email&quot;</span>, user.getEmail(),</span><br><span class="line">            <span class="string">&quot;claims&quot;</span>, user.getClaims()</span><br><span class="line">        );</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@GetMapping(&quot;/app2/home&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> Map&lt;String, Object&gt; <span class="title function_">app2Home</span><span class="params">(<span class="meta">@AuthenticationPrincipal</span> OidcUser user)</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> Map.of(</span><br><span class="line">            <span class="string">&quot;message&quot;</span>, <span class="string">&quot;Hello from App 2 secured endpoint!&quot;</span>,</span><br><span class="line">            <span class="string">&quot;userName&quot;</span>, user.getPreferredUsername(),</span><br><span class="line">            <span class="string">&quot;name&quot;</span>, user.getFullName(),</span><br><span class="line">            <span class="string">&quot;email&quot;</span>, user.getEmail(),</span><br><span class="line">            <span class="string">&quot;claims&quot;</span>, user.getClaims()</span><br><span class="line">        );</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="4、多-Realm-实现（高级多租户）"><a href="#4、多-Realm-实现（高级多租户）" class="headerlink" title="4、多 Realm 实现（高级多租户）"></a>4、多 Realm 实现（高级多租户）</h3><p>对于需要完全隔离的多租户场景，可以使用多个 Realm：</p>
+<ol>
+<li><p><strong>创建多个 Realm</strong>：</p>
+<ul>
+<li>在 Keycloak 管理控制台中创建多个 Realm，每个租户一个</li>
+<li>例如：<code>tenant1-realm</code>、<code>tenant2-realm</code></li>
+</ul>
+</li>
+<li><p><strong>配置多个 Realm 的客户端</strong>：</p>
+<ul>
+<li>在每个 Realm 中创建相应的客户端</li>
+<li>为每个 Realm 配置独立的用户和角色</li>
+</ul>
+</li>
+<li><p><strong>Spring Boot 应用配置</strong>：</p>
+</li>
+</ol>
+<h4 id="4-1、application-yml-配置"><a href="#4-1、application-yml-配置" class="headerlink" title="4.1、application.yml 配置"></a>4.1、application.yml 配置</h4><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">keycloak:</span></span><br><span class="line">  <span class="attr">base-uri:</span> <span class="string">http://localhost:8080</span></span><br><span class="line">  <span class="comment"># 多租户多客户端配置</span></span><br><span class="line">  <span class="attr">realms:</span></span><br><span class="line">    <span class="attr">my-realm:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">clientId:</span> <span class="string">my-java-app</span></span><br><span class="line">        <span class="attr">clientSecret:</span> <span class="string">hmzuyDYTEaQOZQgdwHnc14TGiqR1GBHL</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">clientId:</span> <span class="string">test-app</span></span><br><span class="line">        <span class="attr">clientSecret:</span> <span class="string">aHyjJICU1MgYWz2BgKiRFBnn9ExAfkPA</span></span><br><span class="line">    <span class="attr">app:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">client-id:</span> <span class="string">app</span></span><br><span class="line">        <span class="attr">client-secret:</span> <span class="string">QNie8ATbJoUwaP35bkXRQNfuTQYmYf7Q</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="4-2、DynamicRealmsController配置"><a href="#4-2、DynamicRealmsController配置" class="headerlink" title="4.2、DynamicRealmsController配置"></a>4.2、DynamicRealmsController配置</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 多租户多客户端</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="meta">@RequestMapping(&quot;/realms&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">DynamicRealmsController</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Resource</span></span><br><span class="line">    <span class="keyword">private</span> KeyCloakProperties keyCloakProperties;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Resource</span></span><br><span class="line">    <span class="keyword">private</span> RestTemplate restTemplate;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="type">ObjectMapper</span> <span class="variable">objectMapper</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ObjectMapper</span>();</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 发起认证请求</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> realm        Keycloak realm</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> clientId     客户端ID</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> redirect_uri 前端回调地址（必须与Keycloak客户端配置一致）</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> scope        权限范围：openid profile email</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> state        防CSRF状态值（前端生成并保存）</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> nonce        随机数</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> access_type  访问类型（online/offline）</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> response     HttpServletResponse</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@GetMapping(&quot;/&#123;realm&#125;/protocol/openid-connect/auth&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">auth</span><span class="params">(</span></span><br><span class="line"><span class="params">            <span class="meta">@PathVariable</span> String realm,</span></span><br><span class="line"><span class="params">            <span class="meta">@RequestParam</span> String clientId,</span></span><br><span class="line"><span class="params">            <span class="meta">@RequestParam</span> String redirect_uri,</span></span><br><span class="line"><span class="params">            <span class="meta">@RequestParam</span> String scope,</span></span><br><span class="line"><span class="params">            <span class="meta">@RequestParam(required = false)</span> String state,</span></span><br><span class="line"><span class="params">            <span class="meta">@RequestParam(required = false)</span> String nonce,</span></span><br><span class="line"><span class="params">            <span class="meta">@RequestParam(required = false)</span> String access_type,</span></span><br><span class="line"><span class="params">            HttpServletResponse response)</span> <span class="keyword">throws</span> IOException &#123;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 验证 clientId 是否存在</span></span><br><span class="line">        <span class="type">boolean</span> <span class="variable">clientValid</span> <span class="operator">=</span> keyCloakProperties.getRealms()</span><br><span class="line">                .getOrDefault(realm,<span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;())</span><br><span class="line">                .stream()</span><br><span class="line">                .anyMatch(k -&gt; k.getClientId().equals(clientId));</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (!clientValid) &#123;</span><br><span class="line">            log.warn(<span class="string">&quot;Invalid client_id: &#123;&#125;&quot;</span>, clientId);</span><br><span class="line">            sendErrorRedirect(response, redirect_uri, <span class="string">&quot;unauthorized_client&quot;</span>, <span class="string">&quot;Invalid client_id&quot;</span>, state);</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (state == <span class="literal">null</span>) &#123;</span><br><span class="line">            state = UUID.randomUUID().toString(); <span class="comment">// 建议前端生成，此处仅为后备</span></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="type">String</span> <span class="variable">issuer</span> <span class="operator">=</span> keyCloakProperties.getBaseUri() + <span class="string">&quot;/realms/&quot;</span> + realm;</span><br><span class="line">        <span class="type">String</span> <span class="variable">keycloakAuthUrl</span> <span class="operator">=</span> UriComponentsBuilder</span><br><span class="line">                .fromHttpUrl(issuer + <span class="string">&quot;/protocol/openid-connect/auth&quot;</span>)</span><br><span class="line">                .queryParam(<span class="string">&quot;response_type&quot;</span>, <span class="string">&quot;code&quot;</span>)</span><br><span class="line">                .queryParam(<span class="string">&quot;client_id&quot;</span>, clientId)</span><br><span class="line">                .queryParam(<span class="string">&quot;redirect_uri&quot;</span>, redirect_uri)</span><br><span class="line">                .queryParam(<span class="string">&quot;scope&quot;</span>, scope)</span><br><span class="line">                .queryParam(<span class="string">&quot;state&quot;</span>, state)</span><br><span class="line">                .queryParam(<span class="string">&quot;nonce&quot;</span>, nonce != <span class="literal">null</span> ? nonce : UUID.randomUUID().toString())</span><br><span class="line">                .queryParam(<span class="string">&quot;access_type&quot;</span>, access_type != <span class="literal">null</span> ? access_type : <span class="string">&quot;online&quot;</span>)</span><br><span class="line">                .build()</span><br><span class="line">                .toUriString();</span><br><span class="line"></span><br><span class="line">        log.debug(<span class="string">&quot;Redirecting to Keycloak auth URL: &#123;&#125;&quot;</span>, keycloakAuthUrl);</span><br><span class="line">        response.sendRedirect(keycloakAuthUrl);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 令牌获取</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> realm Keycloak realm</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> grant_type 授权类型：authorization_code=授权码模式</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> code 授权码</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> redirect_uri 回调地址</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> clientId 客户端ID</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> code_verifier 授权码 校验</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@PostMapping(value = &quot;/&#123;realm&#125;/protocol/openid-connect/token&quot;, consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)</span></span><br><span class="line">    <span class="keyword">public</span> R&lt;?&gt; token(</span><br><span class="line">            <span class="meta">@PathVariable</span> String realm,</span><br><span class="line">            <span class="meta">@RequestParam</span> String grant_type,</span><br><span class="line">            <span class="meta">@RequestParam</span> String code,</span><br><span class="line">            <span class="meta">@RequestParam</span> String redirect_uri,</span><br><span class="line">            <span class="meta">@RequestParam</span> String clientId,</span><br><span class="line">            <span class="meta">@RequestParam(required = false)</span> String code_verifier) &#123;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (!<span class="string">&quot;authorization_code&quot;</span>.equals(grant_type)) &#123;</span><br><span class="line">            <span class="keyword">return</span> buildError(<span class="string">&quot;unsupported_grant_type&quot;</span>, <span class="string">&quot;Only authorization_code is supported&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        KeyCloakProperties.<span class="type">AppKey</span> <span class="variable">appKey</span> <span class="operator">=</span> keyCloakProperties.getRealms()</span><br><span class="line">                .getOrDefault(realm,<span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;())</span><br><span class="line">                .stream()</span><br><span class="line">                .filter(k -&gt; k.getClientId().equals(clientId))</span><br><span class="line">                .findFirst()</span><br><span class="line">                .orElse(<span class="literal">null</span>);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (appKey == <span class="literal">null</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> buildError(<span class="string">&quot;invalid_client&quot;</span>, <span class="string">&quot;Client not found&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        MultiValueMap&lt;String, String&gt; params = <span class="keyword">new</span> <span class="title class_">LinkedMultiValueMap</span>&lt;&gt;();</span><br><span class="line">        params.add(<span class="string">&quot;grant_type&quot;</span>, <span class="string">&quot;authorization_code&quot;</span>);</span><br><span class="line">        params.add(<span class="string">&quot;client_id&quot;</span>, clientId);</span><br><span class="line">        params.add(<span class="string">&quot;client_secret&quot;</span>, appKey.getClientSecret());</span><br><span class="line">        params.add(<span class="string">&quot;code&quot;</span>, code);</span><br><span class="line">        params.add(<span class="string">&quot;redirect_uri&quot;</span>, redirect_uri);</span><br><span class="line">        <span class="keyword">if</span> (code_verifier != <span class="literal">null</span>) &#123;</span><br><span class="line">            params.add(<span class="string">&quot;code_verifier&quot;</span>, code_verifier);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="type">HttpHeaders</span> <span class="variable">headers</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">HttpHeaders</span>();</span><br><span class="line">        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);</span><br><span class="line">        HttpEntity&lt;MultiValueMap&lt;String, String&gt;&gt; request = <span class="keyword">new</span> <span class="title class_">HttpEntity</span>&lt;&gt;(params, headers);</span><br><span class="line"></span><br><span class="line">        <span class="type">String</span> <span class="variable">issuer</span> <span class="operator">=</span> keyCloakProperties.getBaseUri() + <span class="string">&quot;/realms/&quot;</span> + realm;</span><br><span class="line">        <span class="type">String</span> <span class="variable">keycloakTokenUri</span> <span class="operator">=</span> issuer + <span class="string">&quot;/protocol/openid-connect/token&quot;</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            ResponseEntity&lt;Map&gt; response = restTemplate.exchange(</span><br><span class="line">                    keycloakTokenUri,</span><br><span class="line">                    HttpMethod.POST,</span><br><span class="line">                    request,</span><br><span class="line">                    Map.class</span><br><span class="line">            );</span><br><span class="line">            <span class="keyword">return</span> R.ok(response.getBody());</span><br><span class="line">        &#125;<span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            log.error(<span class="string">&quot;Unexpected error during token exchange&quot;</span>, e);</span><br><span class="line">            <span class="keyword">return</span> buildError(<span class="string">&quot;server_error&quot;</span>, e.getMessage());</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 用户信息获取</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@GetMapping(&quot;/&#123;realm&#125;/protocol/openid-connect/userinfo&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> R&lt;?&gt; userinfo(<span class="meta">@AuthenticationPrincipal</span> Jwt user,</span><br><span class="line">                         <span class="meta">@RequestHeader(&quot;Authorization&quot;)</span> String authHeader,<span class="meta">@PathVariable</span> String realm) &#123;</span><br><span class="line">        log.info(<span class="string">&quot;Authorization header: &#123;&#125;&quot;</span>,authHeader);</span><br><span class="line">         <span class="keyword">if</span> (user != <span class="literal">null</span>) &#123;</span><br><span class="line">            System.out.println(<span class="string">&quot;===JwtAuthenticationToken===&quot;</span>);</span><br><span class="line">            <span class="keyword">return</span> R.ok(user);</span><br><span class="line">        &#125;</span><br><span class="line">        System.out.println(<span class="string">&quot;===Keycloak-API===&quot;</span>);</span><br><span class="line">        <span class="keyword">if</span> (authHeader == <span class="literal">null</span> || !authHeader.startsWith(<span class="string">&quot;Bearer &quot;</span>)) &#123;</span><br><span class="line">            <span class="keyword">return</span> R.fail(<span class="number">401</span>, <span class="string">&quot;Access token missing or invalid&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// 提取 access token</span></span><br><span class="line">        <span class="type">String</span> <span class="variable">accessToken</span> <span class="operator">=</span> authHeader.substring(<span class="number">7</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 调用 Keycloak 的 userinfo 端点</span></span><br><span class="line">        <span class="type">String</span> <span class="variable">issuer</span> <span class="operator">=</span> keyCloakProperties.getBaseUri() + <span class="string">&quot;/realms/&quot;</span> + realm;</span><br><span class="line">        <span class="type">String</span> <span class="variable">userinfoUri</span> <span class="operator">=</span> issuer + <span class="string">&quot;/protocol/openid-connect/userinfo&quot;</span>;</span><br><span class="line"></span><br><span class="line">        <span class="type">HttpHeaders</span> <span class="variable">headers</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">HttpHeaders</span>();</span><br><span class="line">        headers.set(<span class="string">&quot;Authorization&quot;</span>, authHeader);</span><br><span class="line">        HttpEntity&lt;?&gt; request = <span class="keyword">new</span> <span class="title class_">HttpEntity</span>&lt;&gt;(headers);</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            ResponseEntity&lt;Map&gt; response = restTemplate.exchange(</span><br><span class="line">                    userinfoUri,</span><br><span class="line">                    HttpMethod.GET,</span><br><span class="line">                    request,</span><br><span class="line">                    Map.class</span><br><span class="line">            );</span><br><span class="line">            <span class="keyword">return</span> R.ok(response.getBody());</span><br><span class="line">        &#125; <span class="keyword">catch</span> (HttpClientErrorException e) &#123;</span><br><span class="line">            log.error(<span class="string">&quot;Userinfo request failed: &#123;&#125;&quot;</span>, e.getResponseBodyAsString(), e);</span><br><span class="line">            Map&lt;String, Object&gt; errorBody = extractErrorBody(e);</span><br><span class="line">            <span class="keyword">return</span> R.fail(errorBody);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            log.error(<span class="string">&quot;Unexpected error during userinfo request&quot;</span>, e);</span><br><span class="line">            <span class="keyword">return</span> buildError(<span class="string">&quot;server_error&quot;</span>, e.getMessage());</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 可以扩展OIDC协议的其他接口.....</span></span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="六、总结"><a href="#六、总结" class="headerlink" title="六、总结"></a>六、总结</h2><p>通过本示例，我们实现了：</p>
+<ol>
+<li>Keycloak 服务器的搭建和配置</li>
+<li>Spring Boot 应用与 Keycloak 的集成</li>
+<li>使用 Spring Security OAuth2 实现身份验证和授权</li>
+<li>理解了 Keycloak 与 OAuth2.0 的关系</li>
+<li>了解了 OpenID Connect (OIDC) 协议的工作原理和应用场景</li>
+<li>实现了用户身份验证、令牌获取、用户信息获取和退出等接口</li>
+<li>实现了多租户多客户端支持</li>
+</ol>
+<p>这种集成方式提供了一种安全、标准的身份管理解决方案，适用于各种企业应用场景，特别是需要多租户支持的 SaaS 应用。</p>
+<h4 id="资源获取："><a href="#资源获取：" class="headerlink" title="资源获取："></a>资源获取：</h4><p>本文完整代码已上传至 GitHub，欢迎 Star ⭐ 和 Fork</p>
+<ul>
+<li>Github地址：<a target="_blank" rel="noopener" href="https://github.com/rstyro/Springboot/tree/master/springboot-keycloak">https://github.com/rstyro/Springboot/tree/master/springboot-keycloak</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>您的打赏，是我创作的动力！不给钱？那我只能靠想象力充饥了。</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/wechat_pay.jpg" alt="rstyro 微信支付">
+        <p>微信支付</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/alipay.jpg" alt="rstyro 支付宝">
+        <p>支付宝</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/blog/tags/Spring-Boot/" rel="tag"><i class="fa fa-tag"></i> Spring Boot</a>
+              <a href="/blog/tags/Java/" rel="tag"><i class="fa fa-tag"></i> Java</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2026/02/26/%E5%90%83%E9%80%8FRedis%E4%B8%8D%E7%94%A8%E6%84%81%EF%BC%81String%E5%88%B0Stream%E5%85%A8%E7%B1%BB%E5%9E%8B%E5%AE%9E%E6%88%98%E5%91%BD%E4%BB%A4%E6%89%8B%E5%86%8C/" rel="prev" title="吃透Redis不用愁！String到Stream全类型实战命令手册">
+      <i class="fa fa-chevron-left"></i> 吃透Redis不用愁！String到Stream全类型实战命令手册
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#SpringBoot%E9%9B%86%E6%88%90Keycloak%E7%A4%BA%E4%BE%8B"><span class="nav-number">1.</span> <span class="nav-text">SpringBoot集成Keycloak示例</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81Keycloak-%E6%98%AF%E4%BB%80%E4%B9%88"><span class="nav-number">1.1.</span> <span class="nav-text">一、Keycloak 是什么</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-Keycloak-%E7%9A%84%E6%A0%B8%E5%BF%83%E5%8A%9F%E8%83%BD"><span class="nav-number">1.1.1.</span> <span class="nav-text">1.1 Keycloak 的核心功能</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2-Keycloak-%E7%9A%84%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-number">1.1.2.</span> <span class="nav-text">1.2 Keycloak 的应用场景</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-3-Keycloak-%E7%9A%84%E4%BC%98%E5%8A%BF"><span class="nav-number">1.1.3.</span> <span class="nav-text">1.3 Keycloak 的优势</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E8%AE%BE%E7%BD%AE-Keycloak-%E6%9C%8D%E5%8A%A1%E5%99%A8"><span class="nav-number">1.2.</span> <span class="nav-text">二、设置 Keycloak 服务器</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1%E3%80%81%E4%B8%8B%E8%BD%BD%E5%92%8C%E5%AE%89%E8%A3%85-Keycloak"><span class="nav-number">1.2.1.</span> <span class="nav-text">2.1、下载和安装 Keycloak</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2%E3%80%81%E5%88%9B%E5%BB%BA-Realm%EF%BC%88%E9%A2%86%E5%9F%9F%EF%BC%89"><span class="nav-number">1.2.2.</span> <span class="nav-text">2.2、创建 Realm（领域）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3%E3%80%81%E5%88%9B%E5%BB%BA%E5%AE%A2%E6%88%B7%E7%AB%AF"><span class="nav-number">1.2.3.</span> <span class="nav-text">2.3、创建客户端</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-4%E3%80%81%E5%88%9B%E5%BB%BA%E8%A7%92%E8%89%B2%E5%92%8C%E7%94%A8%E6%88%B7"><span class="nav-number">1.2.4.</span> <span class="nav-text">2.4、创建角色和用户</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81Spring-Boot-%E5%BA%94%E7%94%A8%E9%85%8D%E7%BD%AE"><span class="nav-number">1.3.</span> <span class="nav-text">三、Spring Boot 应用配置</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1%E3%80%81%E9%A1%B9%E7%9B%AE%E4%BE%9D%E8%B5%96"><span class="nav-number">1.3.1.</span> <span class="nav-text">3.1、项目依赖</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2%E3%80%81%E5%BA%94%E7%94%A8%E9%85%8D%E7%BD%AE"><span class="nav-number">1.3.2.</span> <span class="nav-text">3.2、应用配置</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%85%8D%E7%BD%AE%E6%A0%B8%E5%BF%83%E5%8E%9F%E7%90%86%E8%AF%B4%E6%98%8E"><span class="nav-number">1.3.2.1.</span> <span class="nav-text">配置核心原理说明</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-3%E3%80%81%E5%AE%89%E5%85%A8%E9%85%8D%E7%BD%AE"><span class="nav-number">1.3.3.</span> <span class="nav-text">3.3、安全配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-4%E3%80%81%E6%8E%A7%E5%88%B6%E5%99%A8%E5%AE%9E%E7%8E%B0"><span class="nav-number">1.3.4.</span> <span class="nav-text">3.4、控制器实现</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-5%E3%80%81%E6%B5%8B%E8%AF%95%E6%AD%A5%E9%AA%A4"><span class="nav-number">1.3.5.</span> <span class="nav-text">3.5、测试步骤</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-6%E3%80%81%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98%E5%8F%8A%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88"><span class="nav-number">1.3.6.</span> <span class="nav-text">3.6、常见问题及解决方案</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1%E3%80%81%E5%AE%A2%E6%88%B7%E7%AB%AF%E9%85%8D%E7%BD%AE%E9%94%99%E8%AF%AF"><span class="nav-number">1.3.6.1.</span> <span class="nav-text">1、客户端配置错误</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2%E3%80%81%E5%AE%A2%E6%88%B7%E7%AB%AF%E5%AF%86%E9%92%A5%E9%94%99%E8%AF%AF"><span class="nav-number">1.3.6.2.</span> <span class="nav-text">2、客户端密钥错误</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3%E3%80%81%E4%BB%A4%E7%89%8C%E9%AA%8C%E8%AF%81%E5%A4%B1%E8%B4%A5"><span class="nav-number">1.3.6.3.</span> <span class="nav-text">3、令牌验证失败</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81Keycloak%E4%B8%8EOAuth2-0%E3%80%81OIDC%E5%8D%8F%E8%AE%AE%E8%AF%A6%E8%A7%A3"><span class="nav-number">1.4.</span> <span class="nav-text">四、Keycloak与OAuth2.0、OIDC协议详解</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-1%E3%80%81OAuth2-0-%E7%AE%80%E4%BB%8B"><span class="nav-number">1.4.1.</span> <span class="nav-text">4.1、OAuth2.0 简介</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2%E3%80%81Keycloak-%E4%BD%9C%E4%B8%BA-OAuth2-0-%E6%8E%88%E6%9D%83%E6%9C%8D%E5%8A%A1%E5%99%A8"><span class="nav-number">1.4.2.</span> <span class="nav-text">4.2、Keycloak 作为 OAuth2.0 授权服务器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-3%E3%80%81OpenID-Connect-OIDC-%E5%8D%8F%E8%AE%AE%E8%AF%A6%E8%A7%A3"><span class="nav-number">1.4.3.</span> <span class="nav-text">4.3、OpenID Connect (OIDC) 协议详解</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#4-3-1%E3%80%81OIDC-%E7%AE%80%E4%BB%8B"><span class="nav-number">1.4.3.1.</span> <span class="nav-text">4.3.1、OIDC 简介</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-3-2%E3%80%81OIDC-%E4%B8%8E-OAuth-2-0-%E7%9A%84%E5%85%B3%E7%B3%BB"><span class="nav-number">1.4.3.2.</span> <span class="nav-text">4.3.2、OIDC 与 OAuth 2.0 的关系</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-3-3%E3%80%81OIDC-%E7%9A%84%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%A8%8B"><span class="nav-number">1.4.3.3.</span> <span class="nav-text">4.3.3、OIDC 的工作流程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-3-4%E3%80%81OIDC-%E7%9A%84%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-number">1.4.3.4.</span> <span class="nav-text">4.3.4、OIDC 的应用场景</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-3-5%E3%80%81OIDC-%E7%9A%84%E4%BC%98%E5%8A%BF"><span class="nav-number">1.4.3.5.</span> <span class="nav-text">4.3.5、OIDC 的优势</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-3-6%E3%80%81Keycloak-%E4%B8%8E-OIDC"><span class="nav-number">1.4.3.6.</span> <span class="nav-text">4.3.6、Keycloak 与 OIDC</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%94%E3%80%81%E5%A4%9A%E7%A7%9F%E6%88%B7%E5%A4%9A%E5%AE%A2%E6%88%B7%E7%AB%AF%E5%AE%9E%E7%8E%B0"><span class="nav-number">1.5.</span> <span class="nav-text">五、多租户多客户端实现</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1%E3%80%81%E5%A4%9A%E7%A7%9F%E6%88%B7%E6%A6%82%E5%BF%B5"><span class="nav-number">1.5.1.</span> <span class="nav-text">1、多租户概念</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2%E3%80%81%E5%A4%9A%E5%AE%A2%E6%88%B7%E7%AB%AF%E9%85%8D%E7%BD%AE"><span class="nav-number">1.5.2.</span> <span class="nav-text">2、多客户端配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3%E3%80%81Spring-Boot-%E5%BA%94%E7%94%A8%E4%B8%AD%E7%9A%84%E5%A4%9A%E7%A7%9F%E6%88%B7%E5%A4%9A%E5%AE%A2%E6%88%B7%E7%AB%AF%E5%AE%9E%E7%8E%B0"><span class="nav-number">1.5.3.</span> <span class="nav-text">3、Spring Boot 应用中的多租户多客户端实现</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#3-1%E3%80%81%E9%85%8D%E7%BD%AE%E5%A4%9A%E4%B8%AA-OAuth2-%E5%AE%A2%E6%88%B7%E7%AB%AF"><span class="nav-number">1.5.3.1.</span> <span class="nav-text">3.1、配置多个 OAuth2 客户端</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-2%E3%80%81%E5%A4%9A%E7%A7%9F%E6%88%B7%E5%AE%89%E5%85%A8%E9%85%8D%E7%BD%AE"><span class="nav-number">1.5.3.2.</span> <span class="nav-text">3.2、多租户安全配置</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-3%E3%80%81%E5%A4%9A%E7%A7%9F%E6%88%B7%E6%8E%A7%E5%88%B6%E5%99%A8%E5%AE%9E%E7%8E%B0"><span class="nav-number">1.5.3.3.</span> <span class="nav-text">3.3、多租户控制器实现</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4%E3%80%81%E5%A4%9A-Realm-%E5%AE%9E%E7%8E%B0%EF%BC%88%E9%AB%98%E7%BA%A7%E5%A4%9A%E7%A7%9F%E6%88%B7%EF%BC%89"><span class="nav-number">1.5.4.</span> <span class="nav-text">4、多 Realm 实现（高级多租户）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#4-1%E3%80%81application-yml-%E9%85%8D%E7%BD%AE"><span class="nav-number">1.5.4.1.</span> <span class="nav-text">4.1、application.yml 配置</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-2%E3%80%81DynamicRealmsController%E9%85%8D%E7%BD%AE"><span class="nav-number">1.5.4.2.</span> <span class="nav-text">4.2、DynamicRealmsController配置</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%AD%E3%80%81%E6%80%BB%E7%BB%93"><span class="nav-number">1.6.</span> <span class="nav-text">六、总结</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%B5%84%E6%BA%90%E8%8E%B7%E5%8F%96%EF%BC%9A"><span class="nav-number">1.6.0.1.</span> <span class="nav-text">资源获取：</span></a></li></ol></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="rstyro"
+      src="/blog/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">rstyro</p>
+  <div class="site-description" itemprop="description">人间的饭，吃一碗少一碗，身边的人，见一面少一面，脚下的路，走一天少一天，其实人生就是一个减法，来日并不方长！</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives/">
+        
+          <span class="site-state-item-count">240</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">16</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/blog/tags/">
+          
+        <span class="site-state-item-count">97</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/rstyro" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;rstyro" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/rstyro" title="Gitee → https:&#x2F;&#x2F;gitee.com&#x2F;rstyro" rel="noopener" target="_blank"><i class="fab fa-codiepie fa-fw"></i>Gitee</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.jianshu.com/u/651c15a1758a" title="简书 → https:&#x2F;&#x2F;www.jianshu.com&#x2F;u&#x2F;651c15a1758a" rel="noopener" target="_blank"><i class="fa fa-book fa-fw"></i>简书</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      友链
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://rstyro.github.io/blog/" title="https:&#x2F;&#x2F;rstyro.github.io&#x2F;blog&#x2F;">胖不了小陆</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; Mon Apr 10 2017 08:00:00 GMT+0800 (中国标准时间) – 
+  <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">以梦为马，诗酒趁年华</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/muse.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+  <script>
+    (function(){
+      var canonicalURL, curProtocol;
+      //Get the <link> tag
+      var x=document.getElementsByTagName("link");
+		//Find the last canonical URL
+		if(x.length > 0){
+			for (i=0;i<x.length;i++){
+				if(x[i].rel.toLowerCase() == 'canonical' && x[i].href){
+					canonicalURL=x[i].href;
+				}
+			}
+		}
+    //Get protocol
+	    if (!canonicalURL){
+	    	curProtocol = window.location.protocol.split(':')[0];
+	    }
+	    else{
+	    	curProtocol = canonicalURL.split(':')[0];
+	    }
+      //Get current URL if the canonical URL does not exist
+	    if (!canonicalURL) canonicalURL = window.location.href;
+	    //Assign script content. Replace current URL with the canonical URL
+      !function(){var e=/([http|https]:\/\/[a-zA-Z0-9\_\.]+\.baidu\.com)/gi,r=canonicalURL,t=document.referrer;if(!e.test(r)){var n=(String(curProtocol).toLowerCase() === 'https')?"https://sp0.baidu.com/9_Q4simg2RQJ8t7jm9iCKT-xh_/s.gif":"//api.share.baidu.com/s.gif";t?(n+="?r="+encodeURIComponent(document.referrer),r&&(n+="&l="+r)):r&&(n+="?l="+r);var i=new Image;i.src=n}}(window);})();
+  </script>
+
+
+
+
+  
+<script src="/blog/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+<script>
+if (document.querySelectorAll('pre.mermaid').length) {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mermaid@8/dist/mermaid.min.js', () => {
+    mermaid.initialize({
+      theme    : 'default',
+      logLevel : 3,
+      flowchart: { curve     : 'linear' },
+      gantt    : { axisFormat: '%m/%d/%Y' },
+      sequence : { actorMargin: 50 }
+    });
+  }, window.mermaid);
+}
+</script>
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : 'Ov23litYkWaOGM7kAKPD',
+      clientSecret: '43bd3cf99bfcb9d05d16627c97a9f7a0200df04a',
+      repo        : 'blog',
+      owner       : 'rstyro',
+      admin       : ['rstyro'],
+      id          : '27144c6e460d8de3f96e65eaebcdb586',
+        language: '',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>
