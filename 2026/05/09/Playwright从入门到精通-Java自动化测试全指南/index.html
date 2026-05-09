@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/favicon.jpg">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon.jpg">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon.jpg">
+  <link rel="mask-icon" href="/blog/images/favicon.jpg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="/blog/lib/pace/pace-theme-flash.min.css">
+  <script src="/blog/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"rstyro.github.io","root":"/blog/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":true},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.json"};
+  </script>
+
+  <meta name="description" content="目录 [一、Playwright 简介与优势](# 一-Playwright 简介与优势) [二、 环境搭建与安装](# 二-环境搭建与安装) [三、基础入门](# 三、基础入门) [四、核心功能](# 四、核心功能) [五、高级用法](# 五、高级用法) [六、常见问题与解决方案](# 六、常见问题与解决方案) [七、总结](# 七、总结)   一. Playwright 简介与优势1.1 什么">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Playwright从入门到精通 Java自动化测试全指南">
+<meta property="og:url" content="https://rstyro.github.io/blog/2026/05/09/Playwright%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E7%B2%BE%E9%80%9A-Java%E8%87%AA%E5%8A%A8%E5%8C%96%E6%B5%8B%E8%AF%95%E5%85%A8%E6%8C%87%E5%8D%97/index.html">
+<meta property="og:site_name" content="胖不了小陆">
+<meta property="og:description" content="目录 [一、Playwright 简介与优势](# 一-Playwright 简介与优势) [二、 环境搭建与安装](# 二-环境搭建与安装) [三、基础入门](# 三、基础入门) [四、核心功能](# 四、核心功能) [五、高级用法](# 五、高级用法) [六、常见问题与解决方案](# 六、常见问题与解决方案) [七、总结](# 七、总结)   一. Playwright 简介与优势1.1 什么">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-05-09T05:41:05.000Z">
+<meta property="article:modified_time" content="2026-05-09T05:41:05.000Z">
+<meta property="article:author" content="rstyro">
+<meta property="article:tag" content="自动化测试">
+<meta property="article:tag" content="Playwright">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://rstyro.github.io/blog/2026/05/09/Playwright%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E7%B2%BE%E9%80%9A-Java%E8%87%AA%E5%8A%A8%E5%8C%96%E6%B5%8B%E8%AF%95%E5%85%A8%E6%8C%87%E5%8D%97/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Playwright从入门到精通 Java自动化测试全指南 | 胖不了小陆</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">胖不了小陆</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">信你所信，为你所见</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/blog/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/blog/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/blog/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/rstyro" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://rstyro.github.io/blog/2026/05/09/Playwright%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E7%B2%BE%E9%80%9A-Java%E8%87%AA%E5%8A%A8%E5%8C%96%E6%B5%8B%E8%AF%95%E5%85%A8%E6%8C%87%E5%8D%97/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/avatar.jpg">
+      <meta itemprop="name" content="rstyro">
+      <meta itemprop="description" content="人间的饭，吃一碗少一碗，身边的人，见一面少一面，脚下的路，走一天少一天，其实人生就是一个减法，来日并不方长！">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="胖不了小陆">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Playwright从入门到精通 Java自动化测试全指南
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2026-05-09 13:41:05" itemprop="dateCreated datePublished" datetime="2026-05-09T13:41:05+08:00">2026-05-09</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/Java/" itemprop="url" rel="index"><span itemprop="name">Java</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h2><ul>
+<li>[一、Playwright 简介与优势](# 一-Playwright 简介与优势)</li>
+<li>[二、 环境搭建与安装](# 二-环境搭建与安装)</li>
+<li>[三、基础入门](# 三、基础入门)</li>
+<li>[四、核心功能](# 四、核心功能)</li>
+<li>[五、高级用法](# 五、高级用法)</li>
+<li>[六、常见问题与解决方案](# 六、常见问题与解决方案)</li>
+<li>[七、总结](# 七、总结)</li>
+</ul>
+<hr>
+<h2 id="一-Playwright-简介与优势"><a href="#一-Playwright-简介与优势" class="headerlink" title="一. Playwright 简介与优势"></a>一. Playwright 简介与优势</h2><h3 id="1-1-什么是-Playwright"><a href="#1-1-什么是-Playwright" class="headerlink" title="1.1 什么是 Playwright"></a>1.1 什么是 Playwright</h3><p><strong>Playwright</strong> 是Microsoft（微软）推出的一款现代化的自动化测试框架，支持 Chromium、Firefox 和 WebKit 三大浏览器引擎，并提供 TypeScript&#x2F;JavaScript、Python、Java、.NET快速的端到端测试能力，适用于 Web 应用测试、爬虫开发和自动化任务。</p>
+<h3 id="1-2-核心优势"><a href="#1-2-核心优势" class="headerlink" title="1.2 核心优势"></a>1.2 核心优势</h3><ul>
+<li><strong>多浏览器支持</strong>：一套代码在 Chromium、Firefox、WebKit 上运行</li>
+<li><strong>多语言支持</strong>：支持 TypeScript、JavaScript、Python、.NET、Java</li>
+<li><strong>自动等待机制</strong>：智能等待元素可操作，无需手动添加 sleep</li>
+<li><strong>强大的选择器</strong>：支持文本、CSS、XPath、自定义选择器</li>
+<li><strong>网络拦截</strong>：可以模拟、修改、阻止网络请求</li>
+<li><strong>并行执行</strong>：支持测试并行运行，提高效率</li>
+<li><strong>丰富的调试工具</strong>：Trace Viewer、Codegen、Inspector</li>
+<li><strong>移动端模拟</strong>：支持移动设备视口和触摸事件模拟</li>
+</ul>
+<span id="more"></span>
+
+
+<h3 id="1-3-Playwright-vs-Selenium-vs-Cypress-对比"><a href="#1-3-Playwright-vs-Selenium-vs-Cypress-对比" class="headerlink" title="1.3 Playwright vs Selenium vs Cypress 对比"></a>1.3 Playwright vs Selenium vs Cypress 对比</h3><table>
+<thead>
+<tr>
+<th>特性</th>
+<th>Playwright</th>
+<th>Selenium</th>
+<th>Cypress</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>跨浏览器</td>
+<td>Chromium, Firefox, WebKit</td>
+<td>所有主流浏览器</td>
+<td>Chromium, Firefox (实验性)</td>
+</tr>
+<tr>
+<td>语言支持</td>
+<td>JS&#x2F;TS, Python, Java, .NET</td>
+<td>Java, Python, JS, C#, Ruby</td>
+<td>JS&#x2F;TS</td>
+</tr>
+<tr>
+<td>自动等待</td>
+<td>✅ 内置</td>
+<td>❌ 需手动配置</td>
+<td>✅ 内置</td>
+</tr>
+<tr>
+<td>执行速度</td>
+<td>快</td>
+<td>中等</td>
+<td>快</td>
+</tr>
+<tr>
+<td>网络拦截</td>
+<td>✅ 强大</td>
+<td>⚠️ 有限</td>
+<td>✅ 强大</td>
+</tr>
+<tr>
+<td>多标签页</td>
+<td>✅ 支持</td>
+<td>✅ 支持</td>
+<td>❌ 不支持</td>
+</tr>
+<tr>
+<td>学习曲线</td>
+<td>中等</td>
+<td>陡峭</td>
+<td>平缓</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="二、-环境搭建与安装"><a href="#二、-环境搭建与安装" class="headerlink" title="二、 环境搭建与安装"></a>二、 环境搭建与安装</h2><h3 id="2-1-系统要求"><a href="#2-1-系统要求" class="headerlink" title="2.1 系统要求"></a>2.1 系统要求</h3><ul>
+<li><p><strong>JDK 版本</strong>: JDK 8 或更高（推荐 JDK 11+）</p>
+</li>
+<li><p><strong>构建工具</strong>: Maven 或 Gradle</p>
+</li>
+<li><p><strong>操作系统</strong>: Windows、macOS、Linux</p>
+</li>
+</ul>
+<h3 id="2-2-Maven-依赖配置"><a href="#2-2-Maven-依赖配置" class="headerlink" title="2.2 Maven 依赖配置"></a>2.2 Maven 依赖配置</h3><p>在 <code>pom.xml</code> 中添加 Playwright 依赖：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;UTF-8&quot;</span>?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">project</span> <span class="attr">xmlns</span>=<span class="string">&quot;http://maven.apache.org/POM/4.0.0&quot;</span></span></span><br><span class="line"><span class="tag">         <span class="attr">xmlns:xsi</span>=<span class="string">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span></span></span><br><span class="line"><span class="tag">         <span class="attr">xsi:schemaLocation</span>=<span class="string">&quot;http://maven.apache.org/POM/4.0.0 </span></span></span><br><span class="line"><span class="string"><span class="tag">         http://maven.apache.org/xsd/maven-4.0.0.xsd&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">modelVersion</span>&gt;</span>4.0.0<span class="tag">&lt;/<span class="name">modelVersion</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.example<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>playwright-demo<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.0-SNAPSHOT<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">properties</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">maven.compiler.source</span>&gt;</span>11<span class="tag">&lt;/<span class="name">maven.compiler.source</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">maven.compiler.target</span>&gt;</span>11<span class="tag">&lt;/<span class="name">maven.compiler.target</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">playwright.version</span>&gt;</span>1.59.0<span class="tag">&lt;/<span class="name">playwright.version</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">junit.version</span>&gt;</span>5.10.0<span class="tag">&lt;/<span class="name">junit.version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">properties</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">        <span class="comment">&lt;!-- Playwright 核心依赖 --&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.microsoft.playwright<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>playwright<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>$&#123;playwright.version&#125;<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">&lt;!-- JUnit 5 测试框架 --&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.junit.jupiter<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>junit-jupiter-api<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>$&#123;junit.version&#125;<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">scope</span>&gt;</span>test<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.junit.jupiter<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>junit-jupiter-engine<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>$&#123;junit.version&#125;<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">scope</span>&gt;</span>test<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">build</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">plugins</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">plugin</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.maven.plugins<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>maven-surefire-plugin<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">version</span>&gt;</span>3.2.2<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">plugin</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">plugins</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">build</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">project</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="2-3-Gradle-依赖配置"><a href="#2-3-Gradle-依赖配置" class="headerlink" title="2.3 Gradle 依赖配置"></a>2.3 Gradle 依赖配置</h3><p>在 <code>build.gradle</code> 中配置：</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">plugins &#123;</span><br><span class="line">    id <span class="string">&#x27;java&#x27;</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">group = <span class="string">&#x27;com.example&#x27;</span></span><br><span class="line">version = <span class="string">&#x27;1.0-SNAPSHOT&#x27;</span></span><br><span class="line"></span><br><span class="line">repositories &#123;</span><br><span class="line">    mavenCentral()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">dependencies &#123;</span><br><span class="line">    <span class="comment">// Playwright 核心依赖</span></span><br><span class="line">    implementation <span class="string">&#x27;com.microsoft.playwright:playwright:1.59.0&#x27;</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">// JUnit 5</span></span><br><span class="line">    testImplementation <span class="string">&#x27;org.junit.jupiter:junit-jupiter-api:5.10.0&#x27;</span></span><br><span class="line">    testRuntimeOnly <span class="string">&#x27;org.junit.jupiter:junit-jupiter-engine:5.10.0&#x27;</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">test &#123;</span><br><span class="line">    useJUnitPlatform()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-4-浏览器安装"><a href="#2-4-浏览器安装" class="headerlink" title="2.4 浏览器安装"></a>2.4 浏览器安装</h3><p><strong>首次运行时，Playwright 会自动下载浏览器二进制文件</strong>，无需手动安装。也可以手动执行安装命令：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Maven 项目</span></span><br><span class="line">mvn <span class="built_in">exec</span>:java -e -D exec.mainClass=com.microsoft.playwright.CLI -D exec.args=<span class="string">&quot;install&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Gradle 项目</span></span><br><span class="line">./gradlew run --args=<span class="string">&quot;install&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>安装指定浏览器：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 仅安装 Chromium</span></span><br><span class="line">mvn <span class="built_in">exec</span>:java -e -D exec.mainClass=com.microsoft.playwright.CLI -D exec.args=<span class="string">&quot;install chromium&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 安装系统依赖（Linux）</span></span><br><span class="line">mvn <span class="built_in">exec</span>:java -e -D exec.mainClass=com.microsoft.playwright.CLI -D exec.args=<span class="string">&quot;install-deps&quot;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="2-5-第一个-Playwright-程序"><a href="#2-5-第一个-Playwright-程序" class="headerlink" title="2.5 第一个 Playwright 程序"></a>2.5 第一个 Playwright 程序</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> com.microsoft.playwright.*;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">FirstPlaywright</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="comment">// 1. 创建 Playwright 实例（使用 try-with-resources 自动关闭）</span></span><br><span class="line">        <span class="keyword">try</span> (<span class="type">Playwright</span> <span class="variable">playwright</span> <span class="operator">=</span> Playwright.create()) &#123;</span><br><span class="line">            </span><br><span class="line">            <span class="comment">// 2. 启动浏览器（Chromium/Firefox/WebKit 三选一）</span></span><br><span class="line">            <span class="type">Browser</span> <span class="variable">browser</span> <span class="operator">=</span> playwright.chromium().launch(</span><br><span class="line">                <span class="keyword">new</span> <span class="title class_">BrowserType</span>.LaunchOptions()</span><br><span class="line">                    .setHeadless(<span class="literal">false</span>)  <span class="comment">// 有头模式，可看到浏览器</span></span><br><span class="line">                    .setSlowMo(<span class="number">100</span>)      <span class="comment">// 减慢操作速度，便于观察</span></span><br><span class="line">            );</span><br><span class="line">            </span><br><span class="line">            <span class="comment">// 3. 创建新页面</span></span><br><span class="line">            <span class="type">Page</span> <span class="variable">page</span> <span class="operator">=</span> browser.newPage();</span><br><span class="line">            </span><br><span class="line">            <span class="comment">// 4. 导航到目标网址</span></span><br><span class="line">            page.navigate(<span class="string">&quot;https://www.example.com&quot;</span>);</span><br><span class="line">            </span><br><span class="line">            <span class="comment">// 5. 获取页面信息</span></span><br><span class="line">            System.out.println(<span class="string">&quot;页面标题: &quot;</span> + page.title());</span><br><span class="line">            System.out.println(<span class="string">&quot;当前URL: &quot;</span> + page.url());</span><br><span class="line">            </span><br><span class="line">            <span class="comment">// 6. 截图保存</span></span><br><span class="line">            page.screenshot(<span class="keyword">new</span> <span class="title class_">Page</span>.ScreenshotOptions()</span><br><span class="line">                .setPath(java.nio.file.Paths.get(<span class="string">&quot;example.png&quot;</span>))</span><br><span class="line">                .setFullPage(<span class="literal">true</span>));</span><br><span class="line">            </span><br><span class="line">            <span class="comment">// 7. 关闭浏览器</span></span><br><span class="line">            browser.close();</span><br><span class="line">            </span><br><span class="line">            System.out.println(<span class="string">&quot;执行完成！&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="三、基础入门"><a href="#三、基础入门" class="headerlink" title="三、基础入门"></a>三、基础入门</h2><h3 id="3-1-核心对象模型"><a href="#3-1-核心对象模型" class="headerlink" title="3.1 核心对象模型"></a>3.1 核心对象模型</h3><p>Playwright Java 的核心对象层级：</p>
+<figure class="highlight plaintext"><figcaption><span>Text</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Playwright</span><br><span class="line">└── Browser (浏览器实例)</span><br><span class="line">    └── BrowserContext (浏览器上下文，隔离环境)</span><br><span class="line">        └── Page (页面/标签页)</span><br><span class="line">            └── Locator (元素定位器)</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-2-浏览器启动配置"><a href="#3-2-浏览器启动配置" class="headerlink" title="3.2 浏览器启动配置"></a>3.2 浏览器启动配置</h3><h4 id="3-2-1-启动不同浏览器"><a href="#3-2-1-启动不同浏览器" class="headerlink" title="3.2.1 启动不同浏览器"></a>3.2.1 启动不同浏览器</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> com.microsoft.playwright.*;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">BrowserLaunchExample</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="keyword">try</span> (<span class="type">Playwright</span> <span class="variable">playwright</span> <span class="operator">=</span> Playwright.create()) &#123;</span><br><span class="line">            </span><br><span class="line">            <span class="comment">// 启动 Chromium (Chrome/Edge)</span></span><br><span class="line">            <span class="type">Browser</span> <span class="variable">chromium</span> <span class="operator">=</span> playwright.chromium().launch(</span><br><span class="line">                <span class="keyword">new</span> <span class="title class_">BrowserType</span>.LaunchOptions().setHeadless(<span class="literal">false</span>)</span><br><span class="line">            );</span><br><span class="line">            </span><br><span class="line">            <span class="comment">// 启动 Firefox</span></span><br><span class="line">            <span class="type">Browser</span> <span class="variable">firefox</span> <span class="operator">=</span> playwright.firefox().launch(</span><br><span class="line">                <span class="keyword">new</span> <span class="title class_">BrowserType</span>.LaunchOptions().setHeadless(<span class="literal">false</span>)</span><br><span class="line">            );</span><br><span class="line">            </span><br><span class="line">            <span class="comment">// 启动 WebKit (Safari)</span></span><br><span class="line">            <span class="type">Browser</span> <span class="variable">webkit</span> <span class="operator">=</span> playwright.webkit().launch(</span><br><span class="line">                <span class="keyword">new</span> <span class="title class_">BrowserType</span>.LaunchOptions().setHeadless(<span class="literal">false</span>)</span><br><span class="line">            );</span><br><span class="line">            </span><br><span class="line">            System.out.println(<span class="string">&quot;Chromium 版本: &quot;</span> + chromium.version());</span><br><span class="line">            System.out.println(<span class="string">&quot;Firefox 版本: &quot;</span> + firefox.version());</span><br><span class="line">            System.out.println(<span class="string">&quot;WebKit 版本: &quot;</span> + webkit.version());</span><br><span class="line">            </span><br><span class="line">            chromium.close();</span><br><span class="line">            firefox.close();</span><br><span class="line">            webkit.close();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="3-2-2-高级启动选项"><a href="#3-2-2-高级启动选项" class="headerlink" title="3.2.2 高级启动选项"></a>3.2.2 高级启动选项</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">Browser</span> <span class="variable">browser</span> <span class="operator">=</span> playwright.chromium().launch(</span><br><span class="line">    <span class="keyword">new</span> <span class="title class_">BrowserType</span>.LaunchOptions()</span><br><span class="line">        .setHeadless(<span class="literal">false</span>)                    <span class="comment">// 有头模式</span></span><br><span class="line">        .setSlowMo(<span class="number">50</span>)                         <span class="comment">// 每个操作延迟50ms</span></span><br><span class="line">        .setTimeout(<span class="number">60000</span>)                     <span class="comment">// 启动超时60秒</span></span><br><span class="line">        .setArgs(java.util.Arrays.asList(      <span class="comment">// 浏览器启动参数</span></span><br><span class="line">            <span class="string">&quot;--start-maximized&quot;</span>,               <span class="comment">// 窗口最大化</span></span><br><span class="line">            <span class="string">&quot;--disable-blink-features=AutomationControlled&quot;</span>  <span class="comment">// 隐藏自动化特征</span></span><br><span class="line">        ))</span><br><span class="line">        .setChannel(<span class="string">&quot;chrome&quot;</span>)                  <span class="comment">// 使用系统安装的 Chrome</span></span><br><span class="line">        <span class="comment">// .setChannel(&quot;msedge&quot;)               // 使用系统安装的 Edge</span></span><br><span class="line">        .setDevtools(<span class="literal">true</span>)                     <span class="comment">// 自动打开开发者工具</span></span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-3-BrowserContext-浏览器上下文"><a href="#3-3-BrowserContext-浏览器上下文" class="headerlink" title="3.3 BrowserContext 浏览器上下文"></a>3.3 BrowserContext 浏览器上下文</h3><p><strong>BrowserContext 提供了独立的浏览器会话环境</strong>，每个上下文有独立的 Cookie、LocalStorage、缓存。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 创建独立的浏览器上下文</span></span><br><span class="line"><span class="type">BrowserContext</span> <span class="variable">context1</span> <span class="operator">=</span> browser.newContext();</span><br><span class="line"><span class="type">BrowserContext</span> <span class="variable">context2</span> <span class="operator">=</span> browser.newContext();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 每个上下文创建独立的页面</span></span><br><span class="line"><span class="type">Page</span> <span class="variable">page1</span> <span class="operator">=</span> context1.newPage();</span><br><span class="line"><span class="type">Page</span> <span class="variable">page2</span> <span class="operator">=</span> context2.newPage();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 两个页面完全隔离，Cookie 不共享</span></span><br><span class="line">page1.navigate(<span class="string">&quot;https://example.com&quot;</span>);</span><br><span class="line">page2.navigate(<span class="string">&quot;https://example.com&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+<h4 id="上下文配置选项"><a href="#上下文配置选项" class="headerlink" title="上下文配置选项"></a>上下文配置选项</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">BrowserContext</span> <span class="variable">context</span> <span class="operator">=</span> browser.newContext(</span><br><span class="line">    <span class="keyword">new</span> <span class="title class_">Browser</span>.NewContextOptions()</span><br><span class="line">        .setViewportSize(<span class="number">1920</span>, <span class="number">1080</span>)          <span class="comment">// 视口大小</span></span><br><span class="line">        .setUserAgent(<span class="string">&quot;Custom User Agent&quot;</span>)    <span class="comment">// 自定义 User-Agent</span></span><br><span class="line">        .setLocale(<span class="string">&quot;zh-CN&quot;</span>)                   <span class="comment">// 语言设置</span></span><br><span class="line">        .setTimezoneId(<span class="string">&quot;Asia/Shanghai&quot;</span>)       <span class="comment">// 时区</span></span><br><span class="line">        .setPermissions(java.util.Arrays.asList(  <span class="comment">// 授权权限</span></span><br><span class="line">            <span class="string">&quot;geolocation&quot;</span>, <span class="string">&quot;notifications&quot;</span></span><br><span class="line">        ))</span><br><span class="line">        .setGeolocation(<span class="number">31.2304</span>, <span class="number">121.4737</span>)    <span class="comment">// 地理位置（上海）</span></span><br><span class="line">        .setAcceptDownloads(<span class="literal">true</span>)              <span class="comment">// 允许下载</span></span><br><span class="line">        .setIgnoreHTTPSErrors(<span class="literal">true</span>)            <span class="comment">// 忽略 HTTPS 错误</span></span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-4-页面导航"><a href="#3-4-页面导航" class="headerlink" title="3.4 页面导航"></a>3.4 页面导航</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> com.microsoft.playwright.*;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">NavigationExample</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="keyword">try</span> (<span class="type">Playwright</span> <span class="variable">playwright</span> <span class="operator">=</span> Playwright.create()) &#123;</span><br><span class="line">            <span class="type">Browser</span> <span class="variable">browser</span> <span class="operator">=</span> playwright.chromium().launch(</span><br><span class="line">                <span class="keyword">new</span> <span class="title class_">BrowserType</span>.LaunchOptions().setHeadless(<span class="literal">false</span>)</span><br><span class="line">            );</span><br><span class="line">            <span class="type">Page</span> <span class="variable">page</span> <span class="operator">=</span> browser.newPage();</span><br><span class="line">            </span><br><span class="line">            <span class="comment">// 1. 基础导航</span></span><br><span class="line">            page.navigate(<span class="string">&quot;https://www.example.com&quot;</span>);</span><br><span class="line">            </span><br><span class="line">            <span class="comment">// 2. 带超时的导航</span></span><br><span class="line">            page.navigate(<span class="string">&quot;https://www.example.com&quot;</span>, </span><br><span class="line">                <span class="keyword">new</span> <span class="title class_">Page</span>.NavigateOptions()</span><br><span class="line">                    .setTimeout(<span class="number">30000</span>)  <span class="comment">// 30秒超时</span></span><br><span class="line">                    .setWaitUntil(WaitUntilState.NETWORKIDLE)  <span class="comment">// 等待网络空闲</span></span><br><span class="line">            );</span><br><span class="line">            </span><br><span class="line">            <span class="comment">// 3. 页面刷新</span></span><br><span class="line">            page.reload();</span><br><span class="line">            </span><br><span class="line">            <span class="comment">// 4. 后退/前进</span></span><br><span class="line">            page.goBack();</span><br><span class="line">            page.goForward();</span><br><span class="line">            </span><br><span class="line">            <span class="comment">// 5. 等待页面加载状态</span></span><br><span class="line">            page.waitForLoadState(LoadState.DOMCONTENTLOADED);  <span class="comment">// DOM加载完成</span></span><br><span class="line">            page.waitForLoadState(LoadState.LOAD);              <span class="comment">// 页面完全加载</span></span><br><span class="line">            page.waitForLoadState(LoadState.NETWORKIDLE);       <span class="comment">// 网络空闲</span></span><br><span class="line">            </span><br><span class="line">            browser.close();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-5-元素定位（Locator）"><a href="#3-5-元素定位（Locator）" class="headerlink" title="3.5 元素定位（Locator）"></a>3.5 元素定位（Locator）</h3><p><strong>Locator 是 Playwright 的核心概念</strong>，代表随时可以重新查找元素的定位器，支持自动等待。</p>
+<h4 id="3-5-1-推荐定位方式（按优先级）"><a href="#3-5-1-推荐定位方式（按优先级）" class="headerlink" title="3.5.1 推荐定位方式（按优先级）"></a>3.5.1 推荐定位方式（按优先级）</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 1. 通过角色定位（最推荐，符合无障碍标准）</span></span><br><span class="line">page.getByRole(AriaRole.BUTTON, </span><br><span class="line">    <span class="keyword">new</span> <span class="title class_">Page</span>.GetByRoleOptions().setName(<span class="string">&quot;提交&quot;</span>));</span><br><span class="line"></span><br><span class="line"><span class="comment">// 2. 通过文本定位</span></span><br><span class="line">page.getByText(<span class="string">&quot;登录&quot;</span>);</span><br><span class="line">page.getByText(<span class="string">&quot;欢迎&quot;</span>, <span class="keyword">new</span> <span class="title class_">Page</span>.GetByTextOptions().setExact(<span class="literal">true</span>));  <span class="comment">// 精确匹配</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 3. 通过标签文本定位（表单输入）</span></span><br><span class="line">page.getByLabel(<span class="string">&quot;用户名&quot;</span>);</span><br><span class="line">page.getByLabel(<span class="string">&quot;密码&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 4. 通过占位符定位</span></span><br><span class="line">page.getByPlaceholder(<span class="string">&quot;请输入邮箱&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 5. 通过 alt 文本定位（图片）</span></span><br><span class="line">page.getByAltText(<span class="string">&quot;产品图片&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 6. 通过 title 属性定位</span></span><br><span class="line">page.getByTitle(<span class="string">&quot;点击查看详情&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 7. 通过测试 ID 定位（最稳定）</span></span><br><span class="line">page.getByTestId(<span class="string">&quot;submit-button&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+<h4 id="3-5-2-CSS-和-XPath-定位"><a href="#3-5-2-CSS-和-XPath-定位" class="headerlink" title="3.5.2 CSS 和 XPath 定位"></a>3.5.2 CSS 和 XPath 定位</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// CSS 选择器</span></span><br><span class="line">page.locator(<span class="string">&quot;#username&quot;</span>);                    <span class="comment">// ID</span></span><br><span class="line">page.locator(<span class="string">&quot;.btn-primary&quot;</span>);                 <span class="comment">// Class</span></span><br><span class="line">page.locator(<span class="string">&quot;button[type=&#x27;submit&#x27;]&quot;</span>);        <span class="comment">// 属性</span></span><br><span class="line">page.locator(<span class="string">&quot;div &gt; span&quot;</span>);                   <span class="comment">// 层级</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// XPath 选择器</span></span><br><span class="line">page.locator(<span class="string">&quot;//button[text()=&#x27;提交&#x27;]&quot;</span>);</span><br><span class="line">page.locator(<span class="string">&quot;//input[@name=&#x27;username&#x27;]&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 链式定位</span></span><br><span class="line">page.locator(<span class="string">&quot;.form-container&quot;</span>)</span><br><span class="line">    .locator(<span class="string">&quot;input&quot;</span>)</span><br><span class="line">    .first();  <span class="comment">// 第一个匹配元素</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="3-5-3-定位器过滤"><a href="#3-5-3-定位器过滤" class="headerlink" title="3.5.3 定位器过滤"></a>3.5.3 定位器过滤</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 过滤包含特定文本的元素</span></span><br><span class="line">page.locator(<span class="string">&quot;li&quot;</span>)</span><br><span class="line">    .filter(<span class="keyword">new</span> <span class="title class_">Locator</span>.FilterOptions().setHasText(<span class="string">&quot;苹果&quot;</span>))</span><br><span class="line">    .click();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 过滤包含子元素的元素</span></span><br><span class="line">page.locator(<span class="string">&quot;div.product-card&quot;</span>)</span><br><span class="line">    .filter(<span class="keyword">new</span> <span class="title class_">Locator</span>.FilterOptions()</span><br><span class="line">        .setHas(page.locator(<span class="string">&quot;.out-of-stock&quot;</span>)))</span><br><span class="line">    .click();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 组合过滤</span></span><br><span class="line">page.locator(<span class="string">&quot;tr&quot;</span>)</span><br><span class="line">    .filter(<span class="keyword">new</span> <span class="title class_">Locator</span>.FilterOptions().setHasText(<span class="string">&quot;John&quot;</span>))</span><br><span class="line">    .filter(<span class="keyword">new</span> <span class="title class_">Locator</span>.FilterOptions()</span><br><span class="line">        .setHas(page.locator(<span class="string">&quot;.status-active&quot;</span>)));</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-6-元素交互操作"><a href="#3-6-元素交互操作" class="headerlink" title="3.6 元素交互操作"></a>3.6 元素交互操作</h3><h4 id="3-6-1-基础交互"><a href="#3-6-1-基础交互" class="headerlink" title="3.6.1 基础交互"></a>3.6.1 基础交互</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">Locator</span> <span class="variable">button</span> <span class="operator">=</span> page.getByRole(AriaRole.BUTTON, </span><br><span class="line">    <span class="keyword">new</span> <span class="title class_">Page</span>.GetByRoleOptions().setName(<span class="string">&quot;提交&quot;</span>));</span><br><span class="line"><span class="type">Locator</span> <span class="variable">input</span> <span class="operator">=</span> page.getByLabel(<span class="string">&quot;用户名&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 点击</span></span><br><span class="line">button.click();</span><br><span class="line">button.click(<span class="keyword">new</span> <span class="title class_">Locator</span>.ClickOptions()</span><br><span class="line">    .setTimeout(<span class="number">5000</span>)           <span class="comment">// 超时时间</span></span><br><span class="line">    .setForce(<span class="literal">true</span>)             <span class="comment">// 强制点击（跳过可操作性检查）</span></span><br><span class="line">    .setClickCount(<span class="number">2</span>)           <span class="comment">// 双击</span></span><br><span class="line">    .setButton(MouseButton.RIGHT)  <span class="comment">// 右键点击</span></span><br><span class="line">);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 双击</span></span><br><span class="line">button.dblclick();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 右键点击</span></span><br><span class="line">button.click(<span class="keyword">new</span> <span class="title class_">Locator</span>.ClickOptions()</span><br><span class="line">    .setButton(MouseButton.RIGHT));</span><br><span class="line"></span><br><span class="line"><span class="comment">// 输入文本</span></span><br><span class="line">input.fill(<span class="string">&quot;hello@example.com&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 清空输入</span></span><br><span class="line">input.clear();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 按下按键</span></span><br><span class="line">input.press(<span class="string">&quot;Enter&quot;</span>);</span><br><span class="line">input.press(<span class="string">&quot;Control+A&quot;</span>);  <span class="comment">// 全选</span></span><br><span class="line">input.press(<span class="string">&quot;Backspace&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+<h4 id="3-6-2-复选框和单选框"><a href="#3-6-2-复选框和单选框" class="headerlink" title="3.6.2 复选框和单选框"></a>3.6.2 复选框和单选框</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">Locator</span> <span class="variable">checkbox</span> <span class="operator">=</span> page.getByLabel(<span class="string">&quot;我同意服务条款&quot;</span>);</span><br><span class="line"><span class="type">Locator</span> <span class="variable">radio</span> <span class="operator">=</span> page.getByLabel(<span class="string">&quot;男&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 勾选复选框</span></span><br><span class="line">checkbox.check();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 取消勾选</span></span><br><span class="line">checkbox.uncheck();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 选择单选框</span></span><br><span class="line">radio.check();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 判断是否选中</span></span><br><span class="line">System.out.println(<span class="string">&quot;是否选中: &quot;</span> + checkbox.isChecked());</span><br></pre></td></tr></table></figure>
+
+<h4 id="3-6-3-下拉选择框"><a href="#3-6-3-下拉选择框" class="headerlink" title="3.6.3 下拉选择框"></a>3.6.3 下拉选择框</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">Locator</span> <span class="variable">select</span> <span class="operator">=</span> page.locator(<span class="string">&quot;select#city&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 按值选择</span></span><br><span class="line">select.selectOption(<span class="string">&quot;shanghai&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 按标签选择</span></span><br><span class="line">select.selectOption(<span class="keyword">new</span> <span class="title class_">SelectOption</span>().setLabel(<span class="string">&quot;上海&quot;</span>));</span><br><span class="line"></span><br><span class="line"><span class="comment">// 按索引选择</span></span><br><span class="line">select.selectOption(<span class="keyword">new</span> <span class="title class_">SelectOption</span>().setIndex(<span class="number">2</span>));</span><br><span class="line"></span><br><span class="line"><span class="comment">// 多选</span></span><br><span class="line">select.selectOption(<span class="keyword">new</span> <span class="title class_">String</span>[]&#123;<span class="string">&quot;beijing&quot;</span>, <span class="string">&quot;shanghai&quot;</span>, <span class="string">&quot;guangzhou&quot;</span>&#125;);</span><br></pre></td></tr></table></figure>
+
+<h4 id="3-6-4-悬停和拖拽"><a href="#3-6-4-悬停和拖拽" class="headerlink" title="3.6.4 悬停和拖拽"></a>3.6.4 悬停和拖拽</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 悬停</span></span><br><span class="line">page.locator(<span class="string">&quot;.menu-item&quot;</span>).hover();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 拖拽</span></span><br><span class="line"><span class="type">Locator</span> <span class="variable">source</span> <span class="operator">=</span> page.locator(<span class="string">&quot;#item-to-drag&quot;</span>);</span><br><span class="line"><span class="type">Locator</span> <span class="variable">target</span> <span class="operator">=</span> page.locator(<span class="string">&quot;#drop-zone&quot;</span>);</span><br><span class="line"></span><br><span class="line">source.dragTo(target);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 自定义拖拽</span></span><br><span class="line">source.hover();</span><br><span class="line">page.mouse().down();</span><br><span class="line">target.hover();</span><br><span class="line">page.mouse().up();</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// 精确控制滑动（鼠标方式）</span></span><br><span class="line">page.mouse().move(<span class="number">100</span>, <span class="number">100</span>);</span><br><span class="line">page.mouse().down();</span><br><span class="line">page.mouse().move(<span class="number">300</span>, <span class="number">300</span>);</span><br><span class="line">page.mouse().up();</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="四、核心功能"><a href="#四、核心功能" class="headerlink" title="四、核心功能"></a>四、核心功能</h2><h3 id="4-1-等待机制"><a href="#4-1-等待机制" class="headerlink" title="4.1 等待机制"></a>4.1 等待机制</h3><h4 id="4-1-1-自动等待（推荐）"><a href="#4-1-1-自动等待（推荐）" class="headerlink" title="4.1.1 自动等待（推荐）"></a>4.1.1 自动等待（推荐）</h4><p>Playwright 在执行操作前会自动进行<strong>可操作性检查</strong>：</p>
+<ul>
+<li><p>元素是否可见</p>
+</li>
+<li><p>元素是否启用</p>
+</li>
+<li><p>元素是否在视口内</p>
+</li>
+<li><p>元素是否未被遮挡</p>
+</li>
+<li><p>元素是否可接收事件</p>
+</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ✅ 自动等待，无需手动等待</span></span><br><span class="line">page.getByRole(AriaRole.BUTTON).click();</span><br><span class="line">page.getByLabel(<span class="string">&quot;用户名&quot;</span>).fill(<span class="string">&quot;test&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// ❌ 不需要这样写</span></span><br><span class="line"><span class="comment">// Thread.sleep(3000);  // 禁止使用！</span></span><br><span class="line"><span class="comment">// page.waitForSelector(&quot;#button&quot;);  // 通常不需要</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="4-1-2-显式等待"><a href="#4-1-2-显式等待" class="headerlink" title="4.1.2 显式等待"></a>4.1.2 显式等待</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">Locator</span> <span class="variable">locator</span> <span class="operator">=</span> page.locator(<span class="string">&quot;.loading&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 等待元素出现</span></span><br><span class="line">locator.waitFor();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 等待元素消失</span></span><br><span class="line">locator.waitFor(<span class="keyword">new</span> <span class="title class_">Locator</span>.WaitForOptions()</span><br><span class="line">    .setState(WaitForSelectorState.HIDDEN));</span><br><span class="line"></span><br><span class="line"><span class="comment">// 等待元素从 DOM 移除</span></span><br><span class="line">locator.waitFor(<span class="keyword">new</span> <span class="title class_">Locator</span>.WaitForOptions()</span><br><span class="line">    .setState(WaitForSelectorState.DETACHED));</span><br><span class="line"></span><br><span class="line"><span class="comment">// 自定义超时</span></span><br><span class="line">locator.waitFor(<span class="keyword">new</span> <span class="title class_">Locator</span>.WaitForOptions()</span><br><span class="line">    .setTimeout(<span class="number">10000</span>));  <span class="comment">// 10秒</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="4-1-3-条件等待"><a href="#4-1-3-条件等待" class="headerlink" title="4.1.3 条件等待"></a>4.1.3 条件等待</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 等待 URL 变化</span></span><br><span class="line">page.waitForURL(<span class="string">&quot;**/dashboard&quot;</span>);</span><br><span class="line">page.waitForURL(url -&gt; url.contains(<span class="string">&quot;success&quot;</span>));</span><br><span class="line"></span><br><span class="line"><span class="comment">// 等待标题变化</span></span><br><span class="line">page.waitForTitle(<span class="string">&quot;登录成功&quot;</span>);</span><br><span class="line">page.waitForTitle(title -&gt; title.startsWith(<span class="string">&quot;欢迎&quot;</span>));</span><br><span class="line"></span><br><span class="line"><span class="comment">// 等待自定义条件</span></span><br><span class="line">page.waitForFunction(<span class="string">&quot;() =&gt; document.readyState === &#x27;complete&#x27;&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 等待响应</span></span><br><span class="line">page.waitForResponse(<span class="string">&quot;**/api/user&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+<h3 id="4-2-断言（Assertions）"><a href="#4-2-断言（Assertions）" class="headerlink" title="4.2 断言（Assertions）"></a>4.2 断言（Assertions）</h3><p>Playwright 提供了专门的断言 API，支持自动等待。</p>
+<h4 id="4-2-1-基础断言"><a href="#4-2-1-基础断言" class="headerlink" title="4.2.1 基础断言"></a>4.2.1 基础断言</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> <span class="keyword">static</span> com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 元素可见性断言</span></span><br><span class="line">assertThat(page.locator(<span class="string">&quot;.success-message&quot;</span>)).isVisible();</span><br><span class="line">assertThat(page.locator(<span class="string">&quot;.error&quot;</span>)).isHidden();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 文本断言</span></span><br><span class="line">assertThat(page.locator(<span class="string">&quot;h1&quot;</span>)).hasText(<span class="string">&quot;欢迎使用&quot;</span>);</span><br><span class="line">assertThat(page.locator(<span class="string">&quot;.items&quot;</span>)).containsText(<span class="string">&quot;商品A&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 属性断言</span></span><br><span class="line">assertThat(page.locator(<span class="string">&quot;input&quot;</span>)).hasValue(<span class="string">&quot;test@example.com&quot;</span>);</span><br><span class="line">assertThat(page.locator(<span class="string">&quot;button&quot;</span>)).hasAttribute(<span class="string">&quot;disabled&quot;</span>, <span class="string">&quot;true&quot;</span>);</span><br><span class="line">assertThat(page.locator(<span class="string">&quot;.active&quot;</span>)).hasClass(<span class="string">&quot;btn btn-primary active&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 状态断言</span></span><br><span class="line">assertThat(page.locator(<span class="string">&quot;input&quot;</span>)).isEnabled();</span><br><span class="line">assertThat(page.locator(<span class="string">&quot;.checkbox&quot;</span>)).isChecked();</span><br><span class="line">assertThat(page.locator(<span class="string">&quot;button&quot;</span>)).isDisabled();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 数量断言</span></span><br><span class="line">assertThat(page.locator(<span class="string">&quot;.list-item&quot;</span>)).hasCount(<span class="number">5</span>);</span><br></pre></td></tr></table></figure>
+
+<h4 id="4-2-2-页面断言"><a href="#4-2-2-页面断言" class="headerlink" title="4.2.2 页面断言"></a>4.2.2 页面断言</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// URL 断言</span></span><br><span class="line">assertThat(page).hasURL(<span class="string">&quot;https://example.com/dashboard&quot;</span>);</span><br><span class="line">assertThat(page).hasURL(url -&gt; url.contains(<span class="string">&quot;login&quot;</span>));</span><br><span class="line"></span><br><span class="line"><span class="comment">// 标题断言</span></span><br><span class="line">assertThat(page).hasTitle(<span class="string">&quot;首页&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 截图对比断言（视觉回归测试）</span></span><br><span class="line">assertThat(page).hasScreenshot(<span class="string">&quot;homepage.png&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+<h4 id=""><a href="#" class="headerlink" title=""></a></h4><h3 id="4-3-截图功能"><a href="#4-3-截图功能" class="headerlink" title="4.3 截图功能"></a>4.3 截图功能</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 基础截图</span></span><br><span class="line">page.screenshot(<span class="keyword">new</span> <span class="title class_">Page</span>.ScreenshotOptions()</span><br><span class="line">    .setPath(Paths.get(<span class="string">&quot;screenshot.png&quot;</span>)));</span><br><span class="line"></span><br><span class="line"><span class="comment">// 全页截图</span></span><br><span class="line">page.screenshot(<span class="keyword">new</span> <span class="title class_">Page</span>.ScreenshotOptions()</span><br><span class="line">    .setPath(Paths.get(<span class="string">&quot;fullpage.png&quot;</span>))</span><br><span class="line">    .setFullPage(<span class="literal">true</span>));</span><br><span class="line"></span><br><span class="line"><span class="comment">// 元素截图</span></span><br><span class="line">page.locator(<span class="string">&quot;.header&quot;</span>).screenshot(</span><br><span class="line">    <span class="keyword">new</span> <span class="title class_">Locator</span>.ScreenshotOptions()</span><br><span class="line">        .setPath(Paths.get(<span class="string">&quot;header.png&quot;</span>)));</span><br><span class="line"></span><br><span class="line"><span class="comment">// 截图到字节数组</span></span><br><span class="line"><span class="type">byte</span>[] bytes = page.screenshot();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 高级选项</span></span><br><span class="line">page.screenshot(<span class="keyword">new</span> <span class="title class_">Page</span>.ScreenshotOptions()</span><br><span class="line">    .setPath(Paths.get(<span class="string">&quot;custom.png&quot;</span>))</span><br><span class="line">    .setType(ScreenshotType.PNG)</span><br><span class="line">    .setQuality(<span class="number">90</span>)                    <span class="comment">// JPEG 质量</span></span><br><span class="line">    .setOmitBackground(<span class="literal">true</span>)           <span class="comment">// 透明背景</span></span><br><span class="line">    .setScale(ScreenshotScale.DEVICE)  <span class="comment">// 设备像素比</span></span><br><span class="line">    .setMask(java.util.Arrays.asList(  <span class="comment">// 遮罩敏感区域</span></span><br><span class="line">        page.locator(<span class="string">&quot;.user-avatar&quot;</span>),</span><br><span class="line">        page.locator(<span class="string">&quot;.email&quot;</span>)</span><br><span class="line">    ))</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+
+<h3 id="4-4-录屏功能"><a href="#4-4-录屏功能" class="headerlink" title="4.4 录屏功能"></a>4.4 录屏功能</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 创建上下文时开启录屏</span></span><br><span class="line"><span class="type">BrowserContext</span> <span class="variable">context</span> <span class="operator">=</span> browser.newContext(</span><br><span class="line">    <span class="keyword">new</span> <span class="title class_">Browser</span>.NewContextOptions()</span><br><span class="line">        .setRecordVideoDir(Paths.get(<span class="string">&quot;videos/&quot;</span>))  <span class="comment">// 视频保存目录</span></span><br><span class="line">        .setRecordVideoSize(<span class="number">1280</span>, <span class="number">720</span>)            <span class="comment">// 视频尺寸</span></span><br><span class="line">);</span><br><span class="line"></span><br><span class="line"><span class="type">Page</span> <span class="variable">page</span> <span class="operator">=</span> context.newPage();</span><br><span class="line">page.navigate(<span class="string">&quot;https://example.com&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// ... 执行操作 ...</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 关闭上下文时自动保存视频</span></span><br><span class="line">context.close();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 获取视频路径</span></span><br><span class="line"><span class="type">Video</span> <span class="variable">video</span> <span class="operator">=</span> page.video();</span><br><span class="line"><span class="keyword">if</span> (video != <span class="literal">null</span>) &#123;</span><br><span class="line">    <span class="type">Path</span> <span class="variable">videoPath</span> <span class="operator">=</span> video.path();</span><br><span class="line">    System.out.println(<span class="string">&quot;视频已保存到: &quot;</span> + videoPath);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 另存为指定路径</span></span><br><span class="line">    video.saveAs(Paths.get(<span class="string">&quot;test-video.webm&quot;</span>));</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 删除视频</span></span><br><span class="line">    <span class="comment">// video.delete();</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="4-5-网络拦截"><a href="#4-5-网络拦截" class="headerlink" title="4.5 网络拦截"></a>4.5 网络拦截</h3><h4 id="4-5-1-监听网络请求"><a href="#4-5-1-监听网络请求" class="headerlink" title="4.5.1 监听网络请求"></a>4.5.1 监听网络请求</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 监听所有请求</span></span><br><span class="line">page.onRequest(request -&gt; &#123;</span><br><span class="line">    System.out.println(<span class="string">&quot;请求: &quot;</span> + request.method() + <span class="string">&quot; &quot;</span> + request.url());</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 监听所有响应</span></span><br><span class="line">page.onResponse(response -&gt; &#123;</span><br><span class="line">    System.out.println(<span class="string">&quot;响应: &quot;</span> + response.status() + <span class="string">&quot; &quot;</span> + response.url());</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 监听失败请求</span></span><br><span class="line">page.onRequestFailed(request -&gt; &#123;</span><br><span class="line">    System.out.println(<span class="string">&quot;请求失败: &quot;</span> + request.url());</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<h4 id="4-5-2-拦截并修改请求"><a href="#4-5-2-拦截并修改请求" class="headerlink" title="4.5.2 拦截并修改请求"></a>4.5.2 拦截并修改请求</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 拦截 API 请求并修改</span></span><br><span class="line">page.route(<span class="string">&quot;**/api/user&quot;</span>, route -&gt; &#123;</span><br><span class="line">    <span class="comment">// 继续请求，修改请求头</span></span><br><span class="line">    route.resume(<span class="keyword">new</span> <span class="title class_">Route</span>.ResumeOptions()</span><br><span class="line">        .setHeaders(java.util.Map.of(</span><br><span class="line">            <span class="string">&quot;Authorization&quot;</span>, <span class="string">&quot;Bearer custom-token&quot;</span>,</span><br><span class="line">            <span class="string">&quot;X-Custom-Header&quot;</span>, <span class="string">&quot;value&quot;</span></span><br><span class="line">        ))</span><br><span class="line">    );</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 拦截并返回 Mock 数据</span></span><br><span class="line">page.route(<span class="string">&quot;**/api/products&quot;</span>, route -&gt; &#123;</span><br><span class="line">    route.fulfill(<span class="keyword">new</span> <span class="title class_">Route</span>.FulfillOptions()</span><br><span class="line">        .setStatus(<span class="number">200</span>)</span><br><span class="line">        .setContentType(<span class="string">&quot;application/json&quot;</span>)</span><br><span class="line">        .setBody(<span class="string">&quot;&#123;\&quot;products\&quot;: [&#123;\&quot;id\&quot;: 1, \&quot;name\&quot;: \&quot;Mock Product\&quot;&#125;]&#125;&quot;</span>)</span><br><span class="line">    );</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 中止特定请求（如广告、图片）</span></span><br><span class="line">page.route(<span class="string">&quot;**/*.png&quot;</span>, route -&gt; route.abort());</span><br><span class="line">page.route(<span class="string">&quot;**/ads/**&quot;</span>, route -&gt; route.abort());</span><br></pre></td></tr></table></figure>
+
+<h4 id="4-5-3-获取响应数据"><a href="#4-5-3-获取响应数据" class="headerlink" title="4.5.3 获取响应数据"></a>4.5.3 获取响应数据</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 等待特定 API 响应并获取数据</span></span><br><span class="line"><span class="type">Response</span> <span class="variable">response</span> <span class="operator">=</span> page.waitForResponse(<span class="string">&quot;**/api/user&quot;</span>, () -&gt; &#123;</span><br><span class="line">    page.navigate(<span class="string">&quot;https://example.com/profile&quot;</span>);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">System.out.println(<span class="string">&quot;状态码: &quot;</span> + response.status());</span><br><span class="line">System.out.println(<span class="string">&quot;响应体: &quot;</span> + response.text());</span><br><span class="line"></span><br><span class="line"><span class="comment">// 解析 JSON 响应</span></span><br><span class="line"><span class="type">String</span> <span class="variable">jsonBody</span> <span class="operator">=</span> response.text();</span><br></pre></td></tr></table></figure>
+
+
+<h3 id="4-6-登录状态复用"><a href="#4-6-登录状态复用" class="headerlink" title="4.6  登录状态复用"></a>4.6  登录状态复用</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 1. 保存登录状态</span></span><br><span class="line">page.navigate(<span class="string">&quot;/login&quot;</span>);</span><br><span class="line">page.getByLabel(<span class="string">&quot;用户名&quot;</span>).fill(<span class="string">&quot;user&quot;</span>);</span><br><span class="line">page.getByLabel(<span class="string">&quot;密码&quot;</span>).fill(<span class="string">&quot;pass&quot;</span>);</span><br><span class="line">page.getByText(<span class="string">&quot;登录&quot;</span>).click();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 保存存储状态</span></span><br><span class="line">context.storageState(</span><br><span class="line">    <span class="keyword">new</span> <span class="title class_">BrowserContext</span>.StorageStateOptions()</span><br><span class="line">        .setPath(Paths.get(<span class="string">&quot;state.json&quot;</span>))</span><br><span class="line">);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 2. 后续测试复用状态</span></span><br><span class="line"><span class="type">BrowserContext</span> <span class="variable">context</span> <span class="operator">=</span> browser.newContext(</span><br><span class="line">    <span class="keyword">new</span> <span class="title class_">Browser</span>.NewContextOptions()</span><br><span class="line">        .setStorageStatePath(Paths.get(<span class="string">&quot;state.json&quot;</span>))</span><br><span class="line">);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 直接访问需要登录的页面，无需重新登录</span></span><br><span class="line"><span class="type">Page</span> <span class="variable">page</span> <span class="operator">=</span> context.newPage();</span><br><span class="line">page.navigate(<span class="string">&quot;/dashboard&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+<h3 id="4-7-键盘操作"><a href="#4-7-键盘操作" class="headerlink" title="4.7  键盘操作"></a>4.7  键盘操作</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 按下单个键</span></span><br><span class="line">page.keyboard().press(<span class="string">&quot;Enter&quot;</span>);</span><br><span class="line">page.keyboard().press(<span class="string">&quot;Tab&quot;</span>);</span><br><span class="line">page.keyboard().press(<span class="string">&quot;Escape&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">Backquote, Minus, Equal, Backslash, Backspace, Tab, Delete, Escape,</span></span><br><span class="line"><span class="comment">ArrowDown, End, Enter, Home, Insert, PageDown, PageUp, ArrowRight,</span></span><br><span class="line"><span class="comment">ArrowUp, F1 - F12, Digit0 - Digit9, KeyA - KeyZ, etc.</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="comment">// 组合键</span></span><br><span class="line">page.keyboard().press(<span class="string">&quot;Control+A&quot;</span>); <span class="comment">// 全选</span></span><br><span class="line">page.keyboard().press(<span class="string">&quot;Control+C&quot;</span>); <span class="comment">// 复制</span></span><br><span class="line">page.keyboard().press(<span class="string">&quot;Control+V&quot;</span>); <span class="comment">// 粘贴</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// Mac 组合键</span></span><br><span class="line">page.keyboard().press(<span class="string">&quot;Meta+A&quot;</span>); <span class="comment">// Command+A</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 输入文本</span></span><br><span class="line">page.keyboard().type(<span class="string">&quot;Hello World&quot;</span>);</span><br><span class="line">page.keyboard().type(<span class="string">&quot;Hello&quot;</span>, <span class="keyword">new</span> <span class="title class_">Keyboard</span>.TypeOptions().setDelay(<span class="number">100</span>));</span><br><span class="line"></span><br><span class="line"><span class="comment">// 按下和释放</span></span><br><span class="line">page.keyboard().down(<span class="string">&quot;Shift&quot;</span>);</span><br><span class="line">page.keyboard().press(<span class="string">&quot;A&quot;</span>);</span><br><span class="line">page.keyboard().up(<span class="string">&quot;Shift&quot;</span>);</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>文档：<a target="_blank" rel="noopener" href="https://playwright.dev/java/docs/input#keys-and-shortcuts">https://playwright.dev/java/docs/input#keys-and-shortcuts</a></p>
+</blockquote>
+<h3 id="4-8-对话框处理"><a href="#4-8-对话框处理" class="headerlink" title="4.8 对话框处理"></a>4.8 对话框处理</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 监听并接受 alert</span></span><br><span class="line">page.onDialog(dialog -&gt; &#123;</span><br><span class="line">    System.out.println(dialog.message());</span><br><span class="line">    dialog.accept();</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 监听并取消 confirm</span></span><br><span class="line">page.onDialog(dialog -&gt; &#123;</span><br><span class="line">    dialog.dismiss();</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 接受 prompt 并输入文本</span></span><br><span class="line">page.onDialog(dialog -&gt; &#123;</span><br><span class="line">    System.out.println(dialog.defaultValue());</span><br><span class="line">    dialog.accept(<span class="string">&quot;输入的文本&quot;</span>);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 触发对话框</span></span><br><span class="line">page.click(<span class="string">&quot;#show-alert&quot;</span>);</span><br><span class="line">page.click(<span class="string">&quot;#show-confirm&quot;</span>);</span><br><span class="line">page.click(<span class="string">&quot;#show-prompt&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+<h2 id="五、高级用法"><a href="#五、高级用法" class="headerlink" title="五、高级用法"></a>五、高级用法</h2><h3 id="5-1-多页面与多标签页"><a href="#5-1-多页面与多标签页" class="headerlink" title="5.1 多页面与多标签页"></a>5.1 多页面与多标签页</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">BrowserContext</span> <span class="variable">context</span> <span class="operator">=</span> browser.newContext();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 创建多个页面（标签页）</span></span><br><span class="line"><span class="type">Page</span> <span class="variable">page1</span> <span class="operator">=</span> context.newPage();</span><br><span class="line"><span class="type">Page</span> <span class="variable">page2</span> <span class="operator">=</span> context.newPage();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 分别导航</span></span><br><span class="line">page1.navigate(<span class="string">&quot;https://example.com&quot;</span>);</span><br><span class="line">page2.navigate(<span class="string">&quot;https://google.com&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 获取所有页面</span></span><br><span class="line">List&lt;Page&gt; pages = context.pages();</span><br><span class="line">System.out.println(<span class="string">&quot;打开的页面数: &quot;</span> + pages.size());</span><br><span class="line"></span><br><span class="line"><span class="comment">// 切换到特定页面</span></span><br><span class="line"><span class="type">Page</span> <span class="variable">targetPage</span> <span class="operator">=</span> pages.stream()</span><br><span class="line">    .filter(p -&gt; p.url().contains(<span class="string">&quot;google&quot;</span>))</span><br><span class="line">    .findFirst()</span><br><span class="line">    .orElse(<span class="literal">null</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 等待新页面打开（点击链接弹出新窗口）</span></span><br><span class="line"><span class="type">Page</span> <span class="variable">newPage</span> <span class="operator">=</span> context.waitForPage(() -&gt; &#123;</span><br><span class="line">    page1.getByText(<span class="string">&quot;打开新窗口&quot;</span>).click();</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 新页面自动加载完成</span></span><br><span class="line">newPage.waitForLoadState();</span><br><span class="line">System.out.println(<span class="string">&quot;新页面URL: &quot;</span> + newPage.url());</span><br><span class="line"></span><br><span class="line"><span class="comment">// 关闭页面</span></span><br><span class="line">page2.close();</span><br></pre></td></tr></table></figure>
+
+<h3 id="5-2-iframe-处理"><a href="#5-2-iframe-处理" class="headerlink" title="5.2 iframe 处理"></a>5.2 iframe 处理</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 1. 通过 frameLocator 定位 iframe</span></span><br><span class="line"><span class="type">FrameLocator</span> <span class="variable">frameLocator</span> <span class="operator">=</span> page.frameLocator(<span class="string">&quot;#my-iframe&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 在 iframe 内操作元素</span></span><br><span class="line">frameLocator.getByLabel(<span class="string">&quot;用户名&quot;</span>).fill(<span class="string">&quot;test&quot;</span>);</span><br><span class="line">frameLocator.getByRole(AriaRole.BUTTON).click();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 2. 嵌套 iframe</span></span><br><span class="line"><span class="type">FrameLocator</span> <span class="variable">outerFrame</span> <span class="operator">=</span> page.frameLocator(<span class="string">&quot;.outer-frame&quot;</span>);</span><br><span class="line"><span class="type">FrameLocator</span> <span class="variable">innerFrame</span> <span class="operator">=</span> outerFrame.frameLocator(<span class="string">&quot;.inner-frame&quot;</span>);</span><br><span class="line">innerFrame.getByText(<span class="string">&quot;提交&quot;</span>).click();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 3. 通过名称或 URL 获取 Frame</span></span><br><span class="line"><span class="type">Frame</span> <span class="variable">frame</span> <span class="operator">=</span> page.frame(<span class="string">&quot;frame-name&quot;</span>);</span><br><span class="line"><span class="keyword">if</span> (frame != <span class="literal">null</span>) &#123;</span><br><span class="line">    frame.locator(<span class="string">&quot;button&quot;</span>).click();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 4. 获取所有 frames</span></span><br><span class="line">List&lt;Frame&gt; frames = page.frames();</span><br><span class="line"><span class="keyword">for</span> (Frame f : frames) &#123;</span><br><span class="line">    System.out.println(<span class="string">&quot;Frame URL: &quot;</span> + f.url());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="5-3-文件上传"><a href="#5-3-文件上传" class="headerlink" title="5.3 文件上传"></a>5.3 文件上传</h3><h4 id="5-3-1-基础文件上传"><a href="#5-3-1-基础文件上传" class="headerlink" title="5.3.1 基础文件上传"></a>5.3.1 基础文件上传</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 1. 最简单的方式（input[type=file]）</span></span><br><span class="line"><span class="type">Locator</span> <span class="variable">fileInput</span> <span class="operator">=</span> page.locator(<span class="string">&quot;input[type=file]&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 上传单个文件</span></span><br><span class="line">fileInput.setInputFiles(Paths.get(<span class="string">&quot;document.pdf&quot;</span>));</span><br><span class="line"></span><br><span class="line"><span class="comment">// 上传多个文件</span></span><br><span class="line">fileInput.setInputFiles(<span class="keyword">new</span> <span class="title class_">Path</span>[]&#123;</span><br><span class="line">    Paths.get(<span class="string">&quot;file1.txt&quot;</span>),</span><br><span class="line">    Paths.get(<span class="string">&quot;file2.jpg&quot;</span>)</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 清空已选文件</span></span><br><span class="line">fileInput.setInputFiles(<span class="keyword">new</span> <span class="title class_">Path</span>[<span class="number">0</span>]);</span><br></pre></td></tr></table></figure>
+
+<h4 id="5-3-2-点击触发的文件选择"><a href="#5-3-2-点击触发的文件选择" class="headerlink" title="5.3.2 点击触发的文件选择"></a>5.3.2 点击触发的文件选择</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 同步方式（推荐）</span></span><br><span class="line"><span class="type">FileChooser</span> <span class="variable">fileChooser</span> <span class="operator">=</span> page.waitForFileChooser(() -&gt; &#123;</span><br><span class="line">    page.getByText(<span class="string">&quot;上传&quot;</span>).click();</span><br><span class="line">&#125;);</span><br><span class="line">fileChooser.setFiles(Paths.get(<span class="string">&quot;data.csv&quot;</span>));</span><br></pre></td></tr></table></figure>
+
+<h4 id="5-3-3-内存文件上传"><a href="#5-3-3-内存文件上传" class="headerlink" title="5.3.3 内存文件上传"></a>5.3.3 内存文件上传</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 从内存创建文件并上传</span></span><br><span class="line">fileInput.setInputFiles(<span class="keyword">new</span> <span class="title class_">FilePayload</span>[]&#123;</span><br><span class="line">    <span class="keyword">new</span> <span class="title class_">FilePayload</span>(</span><br><span class="line">        <span class="string">&quot;test.txt&quot;</span>,           <span class="comment">// 文件名</span></span><br><span class="line">        <span class="string">&quot;text/plain&quot;</span>,         <span class="comment">// MIME 类型</span></span><br><span class="line">        <span class="string">&quot;Hello World!&quot;</span>.getBytes()  <span class="comment">// 文件内容</span></span><br><span class="line">    )</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<h3 id="5-4-文件下载"><a href="#5-4-文件下载" class="headerlink" title="5.4 文件下载"></a>5.4 文件下载</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 创建上下文时允许下载</span></span><br><span class="line"><span class="type">BrowserContext</span> <span class="variable">context</span> <span class="operator">=</span> browser.newContext(</span><br><span class="line">    <span class="keyword">new</span> <span class="title class_">Browser</span>.NewContextOptions()</span><br><span class="line">        .setAcceptDownloads(<span class="literal">true</span>)</span><br><span class="line">);</span><br><span class="line"></span><br><span class="line"><span class="type">Page</span> <span class="variable">page</span> <span class="operator">=</span> context.newPage();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 等待下载完成</span></span><br><span class="line"><span class="type">Download</span> <span class="variable">download</span> <span class="operator">=</span> page.waitForDownload(() -&gt; &#123;</span><br><span class="line">    page.getByText(<span class="string">&quot;下载文件&quot;</span>).click();</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 获取下载信息</span></span><br><span class="line">System.out.println(<span class="string">&quot;文件名: &quot;</span> + download.filename());</span><br><span class="line">System.out.println(<span class="string">&quot;下载URL: &quot;</span> + download.url());</span><br><span class="line"></span><br><span class="line"><span class="comment">// 保存到指定路径</span></span><br><span class="line">download.saveAs(Paths.get(<span class="string">&quot;downloaded_file.pdf&quot;</span>));</span><br><span class="line"></span><br><span class="line"><span class="comment">// 获取下载失败原因</span></span><br><span class="line"><span class="keyword">if</span> (download.failure() != <span class="literal">null</span>) &#123;</span><br><span class="line">    System.out.println(<span class="string">&quot;下载失败: &quot;</span> + download.failure());</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 删除下载文件</span></span><br><span class="line"><span class="comment">// download.delete();</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="5-5-自定义移动端设备参数"><a href="#5-5-自定义移动端设备参数" class="headerlink" title="5.5 自定义移动端设备参数"></a>5.5 自定义移动端设备参数</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">BrowserContext</span> <span class="variable">customMobile</span> <span class="operator">=</span> browser.newContext(</span><br><span class="line">    <span class="keyword">new</span> <span class="title class_">Browser</span>.NewContextOptions()</span><br><span class="line">        .setViewportSize(<span class="number">390</span>, <span class="number">844</span>)      <span class="comment">// iPhone 14 尺寸</span></span><br><span class="line">        .setDeviceScaleFactor(<span class="number">3</span>)</span><br><span class="line">        .setIsMobile(<span class="literal">true</span>)</span><br><span class="line">        .setHasTouch(<span class="literal">true</span>)</span><br><span class="line">        .setUserAgent(<span class="string">&quot;Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X)&quot;</span>)</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="5-6-JavaScript-执行"><a href="#5-6-JavaScript-执行" class="headerlink" title="5.6 JavaScript 执行"></a>5.6 JavaScript 执行</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 1. 执行简单 JS</span></span><br><span class="line"><span class="type">String</span> <span class="variable">title</span> <span class="operator">=</span> page.evaluate(<span class="string">&quot;document.title&quot;</span>).toString();</span><br><span class="line">System.out.println(<span class="string">&quot;标题: &quot;</span> + title);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 2. 执行带参数的 JS</span></span><br><span class="line"><span class="type">int</span> <span class="variable">sum</span> <span class="operator">=</span> (<span class="type">int</span>) page.evaluate(<span class="string">&quot;([a, b]) =&gt; a + b&quot;</span>, </span><br><span class="line">    <span class="keyword">new</span> <span class="title class_">Object</span>[]&#123;<span class="number">5</span>, <span class="number">3</span>&#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 3. 传递元素给 JS</span></span><br><span class="line"><span class="type">Locator</span> <span class="variable">element</span> <span class="operator">=</span> page.locator(<span class="string">&quot;button&quot;</span>);</span><br><span class="line"><span class="type">String</span> <span class="variable">text</span> <span class="operator">=</span> page.evaluate(<span class="string">&quot;el =&gt; el.textContent&quot;</span>, element);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 4. 执行异步 JS</span></span><br><span class="line"><span class="type">String</span> <span class="variable">data</span> <span class="operator">=</span> page.evaluate(<span class="string">&quot;async () =&gt; &#123;\n&quot;</span> +</span><br><span class="line">    <span class="string">&quot;  const response = await fetch(&#x27;/api/data&#x27;);\n&quot;</span> +</span><br><span class="line">    <span class="string">&quot;  return response.json();\n&quot;</span> +</span><br><span class="line">    <span class="string">&quot;&#125;&quot;</span>).toString();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 5. 处理返回的元素句柄</span></span><br><span class="line"><span class="type">ElementHandle</span> <span class="variable">handle</span> <span class="operator">=</span> page.evaluateHandle(<span class="string">&quot;document.body&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+
+
+
+<h3 id="5-7-JUnit-5-集成"><a href="#5-7-JUnit-5-集成" class="headerlink" title="5.7 JUnit 5 集成"></a>5.7 JUnit 5 集成</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.example.test;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.microsoft.playwright.*;</span><br><span class="line"><span class="keyword">import</span> org.junit.jupiter.api.*;</span><br><span class="line"><span class="keyword">import</span> <span class="keyword">static</span> org.junit.jupiter.api.Assertions.*;</span><br><span class="line"></span><br><span class="line"><span class="meta">@TestInstance(TestInstance.Lifecycle.PER_CLASS)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">PlaywrightJUnitTest</span> &#123;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">private</span> Playwright playwright;</span><br><span class="line">    <span class="keyword">private</span> Browser browser;</span><br><span class="line">    <span class="keyword">private</span> BrowserContext context;</span><br><span class="line">    <span class="keyword">protected</span> Page page;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@BeforeAll</span></span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">launchBrowser</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="comment">// 整个测试类只启动一次浏览器</span></span><br><span class="line">        playwright = Playwright.create();</span><br><span class="line">        browser = playwright.chromium().launch(</span><br><span class="line">            <span class="keyword">new</span> <span class="title class_">BrowserType</span>.LaunchOptions()</span><br><span class="line">                .setHeadless(<span class="literal">true</span>)</span><br><span class="line">        );</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@BeforeEach</span></span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">createContextAndPage</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="comment">// 每个测试方法创建独立的上下文和页面</span></span><br><span class="line">        context = browser.newContext();</span><br><span class="line">        page = context.newPage();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@AfterEach</span></span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">closeContext</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="comment">// 每个测试后关闭上下文</span></span><br><span class="line">        context.close();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@AfterAll</span></span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">closeBrowser</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="comment">// 所有测试完成后关闭浏览器</span></span><br><span class="line">        browser.close();</span><br><span class="line">        playwright.close();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 测试用例</span></span><br><span class="line">    <span class="meta">@Test</span></span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">testPageTitle</span><span class="params">()</span> &#123;</span><br><span class="line">        page.navigate(<span class="string">&quot;https://example.com&quot;</span>);</span><br><span class="line">        assertEquals(<span class="string">&quot;Example Domain&quot;</span>, page.title());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Test</span></span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">testNavigation</span><span class="params">()</span> &#123;</span><br><span class="line">        page.navigate(<span class="string">&quot;https://example.com&quot;</span>);</span><br><span class="line">        page.getByText(<span class="string">&quot;More information...&quot;</span>).click();</span><br><span class="line">        assertTrue(page.url().contains(<span class="string">&quot;iana.org&quot;</span>));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="六、常见问题与解决方案"><a href="#六、常见问题与解决方案" class="headerlink" title="六、常见问题与解决方案"></a>六、常见问题与解决方案</h2><h3 id="6-1-环境相关问题"><a href="#6-1-环境相关问题" class="headerlink" title="6.1 环境相关问题"></a>6.1 环境相关问题</h3><h4 id="Q1-首次运行下载浏览器很慢？"><a href="#Q1-首次运行下载浏览器很慢？" class="headerlink" title="Q1: 首次运行下载浏览器很慢？"></a>Q1: 首次运行下载浏览器很慢？</h4><p><strong>解决方案：</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 设置国内镜像</span></span><br><span class="line"><span class="built_in">export</span> PLAYWRIGHT_DOWNLOAD_HOST=https://npmmirror.com/mirrors/playwright/</span><br><span class="line"></span><br><span class="line"><span class="comment"># 或 Maven 参数</span></span><br><span class="line">mvn <span class="built_in">test</span> -Dplaywright.download.host=https://npmmirror.com/mirrors/playwright/</span><br></pre></td></tr></table></figure>
+
+<h4 id="Q2-Linux-环境缺少依赖？"><a href="#Q2-Linux-环境缺少依赖？" class="headerlink" title="Q2: Linux 环境缺少依赖？"></a>Q2: Linux 环境缺少依赖？</h4><p><strong>解决方案：</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 自动安装系统依赖</span></span><br><span class="line">mvn <span class="built_in">exec</span>:java -e -D exec.mainClass=com.microsoft.playwright.CLI -D exec.args=<span class="string">&quot;install-deps&quot;</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="6-2-元素定位问题"><a href="#6-2-元素定位问题" class="headerlink" title="6.2 元素定位问题"></a>6.2 元素定位问题</h3><h4 id="Q1-元素找不到，报-TimeoutError？"><a href="#Q1-元素找不到，报-TimeoutError？" class="headerlink" title="Q1: 元素找不到，报 TimeoutError？"></a>Q1: 元素找不到，报 TimeoutError？</h4><p><strong>排查步骤：</strong></p>
+<ol>
+<li><p>检查选择器是否正确</p>
+</li>
+<li><p>检查元素是否在 iframe 内</p>
+</li>
+<li><p>检查元素是否在 Shadow DOM 内</p>
+</li>
+<li><p>增加超时时间</p>
+</li>
+<li><p>截图确认页面状态</p>
+</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 增加超时</span></span><br><span class="line">locator.click(<span class="keyword">new</span> <span class="title class_">Locator</span>.ClickOptions().setTimeout(<span class="number">30000</span>));</span><br><span class="line"></span><br><span class="line"><span class="comment">// 截图调试</span></span><br><span class="line">page.screenshot(<span class="keyword">new</span> <span class="title class_">Page</span>.ScreenshotOptions()</span><br><span class="line">    .setPath(Paths.get(<span class="string">&quot;debug.png&quot;</span>)));</span><br></pre></td></tr></table></figure>
+
+<h4 id="Q2-元素被遮挡，点击失败？"><a href="#Q2-元素被遮挡，点击失败？" class="headerlink" title="Q2: 元素被遮挡，点击失败？"></a>Q2: 元素被遮挡，点击失败？</h4><p><strong>解决方案：</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 强制点击（跳过可操作性检查）</span></span><br><span class="line">locator.click(<span class="keyword">new</span> <span class="title class_">Locator</span>.ClickOptions().setForce(<span class="literal">true</span>));</span><br><span class="line"></span><br><span class="line"><span class="comment">// 或使用 JS 点击</span></span><br><span class="line">locator.evaluate(<span class="string">&quot;el =&gt; el.click()&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 或滚动到可见区域</span></span><br><span class="line">locator.scrollIntoViewIfNeeded();</span><br><span class="line">locator.click();</span><br></pre></td></tr></table></figure>
+
+<h4 id="Q3-动态-ID-如何处理？"><a href="#Q3-动态-ID-如何处理？" class="headerlink" title="Q3: 动态 ID 如何处理？"></a>Q3: 动态 ID 如何处理？</h4><p><strong>解决方案：</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 使用部分匹配</span></span><br><span class="line">page.locator(<span class="string">&quot;[id^=&#x27;prefix-&#x27;]&quot;</span>);      <span class="comment">// 开头匹配</span></span><br><span class="line">page.locator(<span class="string">&quot;[id$=&#x27;-suffix&#x27;]&quot;</span>);      <span class="comment">// 结尾匹配</span></span><br><span class="line">page.locator(<span class="string">&quot;[id*=&#x27;contains&#x27;]&quot;</span>);     <span class="comment">// 包含匹配</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 更好的方案：使用其他属性</span></span><br><span class="line">page.getByRole(AriaRole.BUTTON);</span><br><span class="line">page.getByText(<span class="string">&quot;提交&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+<h3 id="6-3-并发与稳定性问题"><a href="#6-3-并发与稳定性问题" class="headerlink" title="6.3 并发与稳定性问题"></a>6.3 并发与稳定性问题</h3><h4 id="Q1-多线程环境报错？"><a href="#Q1-多线程环境报错？" class="headerlink" title="Q1: 多线程环境报错？"></a>Q1: 多线程环境报错？</h4><p><strong>重要：Playwright 对象不是线程安全的！</strong></p>
+<p><strong>解决方案：</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ✅ 正确：每个线程使用独立的 Playwright/Browser</span></span><br><span class="line">ThreadLocal&lt;Playwright&gt; playwrightThreadLocal = ThreadLocal.withInitial(() -&gt; &#123;</span><br><span class="line">    <span class="keyword">return</span> Playwright.create();</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">// ❌ 错误：多线程共享同一个 Playwright 实例</span></span><br></pre></td></tr></table></figure>
+
+
+<h4 id="Q2-CI-CD-环境运行失败？"><a href="#Q2-CI-CD-环境运行失败？" class="headerlink" title="Q2: CI&#x2F;CD 环境运行失败？"></a>Q2: CI&#x2F;CD 环境运行失败？</h4><p><strong>解决方案：</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// CI 环境必须使用无头模式</span></span><br><span class="line"><span class="type">Browser</span> <span class="variable">browser</span> <span class="operator">=</span> playwright.chromium().launch(</span><br><span class="line">    <span class="keyword">new</span> <span class="title class_">BrowserType</span>.LaunchOptions()</span><br><span class="line">        .setHeadless(<span class="literal">true</span>)  <span class="comment">// CI 环境必须为 true</span></span><br><span class="line">        .setArgs(java.util.Arrays.asList(</span><br><span class="line">            <span class="string">&quot;--no-sandbox&quot;</span>,</span><br><span class="line">            <span class="string">&quot;--disable-dev-shm-usage&quot;</span></span><br><span class="line">        ))</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+
+<h3 id="6-4-功能使用问题"><a href="#6-4-功能使用问题" class="headerlink" title="6.4 功能使用问题"></a>6.4 功能使用问题</h3><h4 id="Q1-文件上传失败？"><a href="#Q1-文件上传失败？" class="headerlink" title="Q1: 文件上传失败？"></a>Q1: 文件上传失败？</h4><p><strong>解决方案：</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 确保 input 元素可见</span></span><br><span class="line">page.locator(<span class="string">&quot;input[type=file]&quot;</span>).setInputFiles(path);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 如果 input 是隐藏的，使用 force</span></span><br><span class="line">page.locator(<span class="string">&quot;input[type=file]&quot;</span>).setInputFiles(</span><br><span class="line">    path, </span><br><span class="line">    <span class="keyword">new</span> <span class="title class_">Locator</span>.SetInputFilesOptions().setNoWaitAfter(<span class="literal">true</span>)</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+
+<h4 id="Q2-下载没有触发？"><a href="#Q2-下载没有触发？" class="headerlink" title="Q2: 下载没有触发？"></a>Q2: 下载没有触发？</h4><p><strong>解决方案：</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 必须在创建上下文时启用下载</span></span><br><span class="line"><span class="type">BrowserContext</span> <span class="variable">context</span> <span class="operator">=</span> browser.newContext(</span><br><span class="line">    <span class="keyword">new</span> <span class="title class_">Browser</span>.NewContextOptions()</span><br><span class="line">        .setAcceptDownloads(<span class="literal">true</span>)  <span class="comment">// 必须设置！</span></span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+
+<h4 id="Q3-iframe-内元素找不到？"><a href="#Q3-iframe-内元素找不到？" class="headerlink" title="Q3: iframe 内元素找不到？"></a>Q3: iframe 内元素找不到？</h4><p><strong>解决方案：</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 必须使用 frameLocator，不能直接定位</span></span><br><span class="line"><span class="type">FrameLocator</span> <span class="variable">frame</span> <span class="operator">=</span> page.frameLocator(<span class="string">&quot;#iframe-id&quot;</span>);</span><br><span class="line">frame.getByText(<span class="string">&quot;按钮&quot;</span>).click();  <span class="comment">// ✅ 正确</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// page.getByText(&quot;按钮&quot;).click();  // ❌ 错误，找不到 iframe 内元素</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="6-5-性能问题"><a href="#6-5-性能问题" class="headerlink" title="6.5 性能问题"></a>6.5 性能问题</h3><h4 id="Q1-测试执行太慢？"><a href="#Q1-测试执行太慢？" class="headerlink" title="Q1: 测试执行太慢？"></a>Q1: 测试执行太慢？</h4><p><strong>优化建议：</strong></p>
+<ol>
+<li><strong>启用并行执行</strong> - 最有效</li>
+<li><strong>复用浏览器实例</strong> - 不要每个测试都启动浏览器</li>
+<li><strong>复用登录状态</strong> - 使用 <code>storageState</code></li>
+<li><strong>阻止不必要资源</strong> - 图片、广告、分析脚本</li>
+<li><strong>使用 API 准备测试数据</strong> - 不要通过 UI 创建数据</li>
+<li><strong>减少不必要的截图 &#x2F; 录屏</strong></li>
+</ol>
+<h4 id="Q2-内存占用过高？"><a href="#Q2-内存占用过高？" class="headerlink" title="Q2: 内存占用过高？"></a>Q2: 内存占用过高？</h4><p><strong>解决方案：</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 及时关闭不需要的 BrowserContext</span></span><br><span class="line">context.close();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 限制并行数量</span></span><br><span class="line"><span class="comment">// junit.jupiter.execution.parallel.config.dynamic.factor = 0.5</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 定期重启浏览器</span></span><br><span class="line"><span class="keyword">if</span> (testCount &gt; <span class="number">100</span>) &#123;</span><br><span class="line">    browser.close();</span><br><span class="line">    browser = playwright.chromium().launch();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="七、总结"><a href="#七、总结" class="headerlink" title="七、总结"></a>七、总结</h2><p>Playwright Java SDK 提供了强大而现代的浏览器自动化能力，通过此文章你已经掌握了：</p>
+<ol>
+<li><strong>环境搭建</strong> - Maven&#x2F;Gradle 配置，浏览器管理</li>
+<li><strong>基础操作</strong> - 浏览器启动、导航、元素定位、交互</li>
+<li><strong>核心功能</strong> - 等待机制、断言、截图、录屏、网络拦截</li>
+<li><strong>高级用法</strong> - 多页面、iframe、文件处理</li>
+<li><strong>问题排查</strong> - 常见问题的解决方案</li>
+</ol>
+<p><strong>下一步建议：</strong></p>
+<ul>
+<li>阅读 <a target="_blank" rel="noopener" href="https://playwright.dev/java/">官方文档</a> 获取最新 API</li>
+<li>在实际项目中练习使用</li>
+<li>关注 Playwright 版本更新</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>您的打赏，是我创作的动力！不给钱？那我只能靠想象力充饥了。</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/wechat_pay.jpg" alt="rstyro 微信支付">
+        <p>微信支付</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/alipay.jpg" alt="rstyro 支付宝">
+        <p>支付宝</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/blog/tags/%E8%87%AA%E5%8A%A8%E5%8C%96%E6%B5%8B%E8%AF%95/" rel="tag"><i class="fa fa-tag"></i> 自动化测试</a>
+              <a href="/blog/tags/Playwright/" rel="tag"><i class="fa fa-tag"></i> Playwright</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2026/03/05/SpringBoot%E9%9B%86%E6%88%90Keycloak%E5%AE%8C%E6%95%B4%E5%AE%9E%E6%93%8D%E6%95%99%E7%A8%8B/" rel="prev" title="SpringBoot集成Keycloak完整实操教程">
+      <i class="fa fa-chevron-left"></i> SpringBoot集成Keycloak完整实操教程
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9B%AE%E5%BD%95"><span class="nav-number">1.</span> <span class="nav-text">目录</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80-Playwright-%E7%AE%80%E4%BB%8B%E4%B8%8E%E4%BC%98%E5%8A%BF"><span class="nav-number">2.</span> <span class="nav-text">一. Playwright 简介与优势</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-%E4%BB%80%E4%B9%88%E6%98%AF-Playwright"><span class="nav-number">2.1.</span> <span class="nav-text">1.1 什么是 Playwright</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2-%E6%A0%B8%E5%BF%83%E4%BC%98%E5%8A%BF"><span class="nav-number">2.2.</span> <span class="nav-text">1.2 核心优势</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-3-Playwright-vs-Selenium-vs-Cypress-%E5%AF%B9%E6%AF%94"><span class="nav-number">2.3.</span> <span class="nav-text">1.3 Playwright vs Selenium vs Cypress 对比</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81-%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E4%B8%8E%E5%AE%89%E8%A3%85"><span class="nav-number">3.</span> <span class="nav-text">二、 环境搭建与安装</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-%E7%B3%BB%E7%BB%9F%E8%A6%81%E6%B1%82"><span class="nav-number">3.1.</span> <span class="nav-text">2.1 系统要求</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-Maven-%E4%BE%9D%E8%B5%96%E9%85%8D%E7%BD%AE"><span class="nav-number">3.2.</span> <span class="nav-text">2.2 Maven 依赖配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3-Gradle-%E4%BE%9D%E8%B5%96%E9%85%8D%E7%BD%AE"><span class="nav-number">3.3.</span> <span class="nav-text">2.3 Gradle 依赖配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-4-%E6%B5%8F%E8%A7%88%E5%99%A8%E5%AE%89%E8%A3%85"><span class="nav-number">3.4.</span> <span class="nav-text">2.4 浏览器安装</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-5-%E7%AC%AC%E4%B8%80%E4%B8%AA-Playwright-%E7%A8%8B%E5%BA%8F"><span class="nav-number">3.5.</span> <span class="nav-text">2.5 第一个 Playwright 程序</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8"><span class="nav-number">4.</span> <span class="nav-text">三、基础入门</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-%E6%A0%B8%E5%BF%83%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8B"><span class="nav-number">4.1.</span> <span class="nav-text">3.1 核心对象模型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-%E6%B5%8F%E8%A7%88%E5%99%A8%E5%90%AF%E5%8A%A8%E9%85%8D%E7%BD%AE"><span class="nav-number">4.2.</span> <span class="nav-text">3.2 浏览器启动配置</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#3-2-1-%E5%90%AF%E5%8A%A8%E4%B8%8D%E5%90%8C%E6%B5%8F%E8%A7%88%E5%99%A8"><span class="nav-number">4.2.1.</span> <span class="nav-text">3.2.1 启动不同浏览器</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-2-2-%E9%AB%98%E7%BA%A7%E5%90%AF%E5%8A%A8%E9%80%89%E9%A1%B9"><span class="nav-number">4.2.2.</span> <span class="nav-text">3.2.2 高级启动选项</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-3-BrowserContext-%E6%B5%8F%E8%A7%88%E5%99%A8%E4%B8%8A%E4%B8%8B%E6%96%87"><span class="nav-number">4.3.</span> <span class="nav-text">3.3 BrowserContext 浏览器上下文</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%8A%E4%B8%8B%E6%96%87%E9%85%8D%E7%BD%AE%E9%80%89%E9%A1%B9"><span class="nav-number">4.3.1.</span> <span class="nav-text">上下文配置选项</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-4-%E9%A1%B5%E9%9D%A2%E5%AF%BC%E8%88%AA"><span class="nav-number">4.4.</span> <span class="nav-text">3.4 页面导航</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-5-%E5%85%83%E7%B4%A0%E5%AE%9A%E4%BD%8D%EF%BC%88Locator%EF%BC%89"><span class="nav-number">4.5.</span> <span class="nav-text">3.5 元素定位（Locator）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#3-5-1-%E6%8E%A8%E8%8D%90%E5%AE%9A%E4%BD%8D%E6%96%B9%E5%BC%8F%EF%BC%88%E6%8C%89%E4%BC%98%E5%85%88%E7%BA%A7%EF%BC%89"><span class="nav-number">4.5.1.</span> <span class="nav-text">3.5.1 推荐定位方式（按优先级）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-5-2-CSS-%E5%92%8C-XPath-%E5%AE%9A%E4%BD%8D"><span class="nav-number">4.5.2.</span> <span class="nav-text">3.5.2 CSS 和 XPath 定位</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-5-3-%E5%AE%9A%E4%BD%8D%E5%99%A8%E8%BF%87%E6%BB%A4"><span class="nav-number">4.5.3.</span> <span class="nav-text">3.5.3 定位器过滤</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-6-%E5%85%83%E7%B4%A0%E4%BA%A4%E4%BA%92%E6%93%8D%E4%BD%9C"><span class="nav-number">4.6.</span> <span class="nav-text">3.6 元素交互操作</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#3-6-1-%E5%9F%BA%E7%A1%80%E4%BA%A4%E4%BA%92"><span class="nav-number">4.6.1.</span> <span class="nav-text">3.6.1 基础交互</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-6-2-%E5%A4%8D%E9%80%89%E6%A1%86%E5%92%8C%E5%8D%95%E9%80%89%E6%A1%86"><span class="nav-number">4.6.2.</span> <span class="nav-text">3.6.2 复选框和单选框</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-6-3-%E4%B8%8B%E6%8B%89%E9%80%89%E6%8B%A9%E6%A1%86"><span class="nav-number">4.6.3.</span> <span class="nav-text">3.6.3 下拉选择框</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-6-4-%E6%82%AC%E5%81%9C%E5%92%8C%E6%8B%96%E6%8B%BD"><span class="nav-number">4.6.4.</span> <span class="nav-text">3.6.4 悬停和拖拽</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E6%A0%B8%E5%BF%83%E5%8A%9F%E8%83%BD"><span class="nav-number">5.</span> <span class="nav-text">四、核心功能</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-1-%E7%AD%89%E5%BE%85%E6%9C%BA%E5%88%B6"><span class="nav-number">5.1.</span> <span class="nav-text">4.1 等待机制</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#4-1-1-%E8%87%AA%E5%8A%A8%E7%AD%89%E5%BE%85%EF%BC%88%E6%8E%A8%E8%8D%90%EF%BC%89"><span class="nav-number">5.1.1.</span> <span class="nav-text">4.1.1 自动等待（推荐）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-1-2-%E6%98%BE%E5%BC%8F%E7%AD%89%E5%BE%85"><span class="nav-number">5.1.2.</span> <span class="nav-text">4.1.2 显式等待</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-1-3-%E6%9D%A1%E4%BB%B6%E7%AD%89%E5%BE%85"><span class="nav-number">5.1.3.</span> <span class="nav-text">4.1.3 条件等待</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2-%E6%96%AD%E8%A8%80%EF%BC%88Assertions%EF%BC%89"><span class="nav-number">5.2.</span> <span class="nav-text">4.2 断言（Assertions）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#4-2-1-%E5%9F%BA%E7%A1%80%E6%96%AD%E8%A8%80"><span class="nav-number">5.2.1.</span> <span class="nav-text">4.2.1 基础断言</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-2-2-%E9%A1%B5%E9%9D%A2%E6%96%AD%E8%A8%80"><span class="nav-number">5.2.2.</span> <span class="nav-text">4.2.2 页面断言</span></a></li><li class="nav-item nav-level-4"><a class="nav-link"><span class="nav-number">5.2.3.</span> <span class="nav-text"></span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-3-%E6%88%AA%E5%9B%BE%E5%8A%9F%E8%83%BD"><span class="nav-number">5.3.</span> <span class="nav-text">4.3 截图功能</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-4-%E5%BD%95%E5%B1%8F%E5%8A%9F%E8%83%BD"><span class="nav-number">5.4.</span> <span class="nav-text">4.4 录屏功能</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-5-%E7%BD%91%E7%BB%9C%E6%8B%A6%E6%88%AA"><span class="nav-number">5.5.</span> <span class="nav-text">4.5 网络拦截</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#4-5-1-%E7%9B%91%E5%90%AC%E7%BD%91%E7%BB%9C%E8%AF%B7%E6%B1%82"><span class="nav-number">5.5.1.</span> <span class="nav-text">4.5.1 监听网络请求</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-5-2-%E6%8B%A6%E6%88%AA%E5%B9%B6%E4%BF%AE%E6%94%B9%E8%AF%B7%E6%B1%82"><span class="nav-number">5.5.2.</span> <span class="nav-text">4.5.2 拦截并修改请求</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-5-3-%E8%8E%B7%E5%8F%96%E5%93%8D%E5%BA%94%E6%95%B0%E6%8D%AE"><span class="nav-number">5.5.3.</span> <span class="nav-text">4.5.3 获取响应数据</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-6-%E7%99%BB%E5%BD%95%E7%8A%B6%E6%80%81%E5%A4%8D%E7%94%A8"><span class="nav-number">5.6.</span> <span class="nav-text">4.6  登录状态复用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-7-%E9%94%AE%E7%9B%98%E6%93%8D%E4%BD%9C"><span class="nav-number">5.7.</span> <span class="nav-text">4.7  键盘操作</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-8-%E5%AF%B9%E8%AF%9D%E6%A1%86%E5%A4%84%E7%90%86"><span class="nav-number">5.8.</span> <span class="nav-text">4.8 对话框处理</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%94%E3%80%81%E9%AB%98%E7%BA%A7%E7%94%A8%E6%B3%95"><span class="nav-number">6.</span> <span class="nav-text">五、高级用法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#5-1-%E5%A4%9A%E9%A1%B5%E9%9D%A2%E4%B8%8E%E5%A4%9A%E6%A0%87%E7%AD%BE%E9%A1%B5"><span class="nav-number">6.1.</span> <span class="nav-text">5.1 多页面与多标签页</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-2-iframe-%E5%A4%84%E7%90%86"><span class="nav-number">6.2.</span> <span class="nav-text">5.2 iframe 处理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-3-%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0"><span class="nav-number">6.3.</span> <span class="nav-text">5.3 文件上传</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#5-3-1-%E5%9F%BA%E7%A1%80%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0"><span class="nav-number">6.3.1.</span> <span class="nav-text">5.3.1 基础文件上传</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-3-2-%E7%82%B9%E5%87%BB%E8%A7%A6%E5%8F%91%E7%9A%84%E6%96%87%E4%BB%B6%E9%80%89%E6%8B%A9"><span class="nav-number">6.3.2.</span> <span class="nav-text">5.3.2 点击触发的文件选择</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-3-3-%E5%86%85%E5%AD%98%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0"><span class="nav-number">6.3.3.</span> <span class="nav-text">5.3.3 内存文件上传</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-4-%E6%96%87%E4%BB%B6%E4%B8%8B%E8%BD%BD"><span class="nav-number">6.4.</span> <span class="nav-text">5.4 文件下载</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-5-%E8%87%AA%E5%AE%9A%E4%B9%89%E7%A7%BB%E5%8A%A8%E7%AB%AF%E8%AE%BE%E5%A4%87%E5%8F%82%E6%95%B0"><span class="nav-number">6.5.</span> <span class="nav-text">5.5 自定义移动端设备参数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-6-JavaScript-%E6%89%A7%E8%A1%8C"><span class="nav-number">6.6.</span> <span class="nav-text">5.6 JavaScript 执行</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-7-JUnit-5-%E9%9B%86%E6%88%90"><span class="nav-number">6.7.</span> <span class="nav-text">5.7 JUnit 5 集成</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%AD%E3%80%81%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98%E4%B8%8E%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88"><span class="nav-number">7.</span> <span class="nav-text">六、常见问题与解决方案</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#6-1-%E7%8E%AF%E5%A2%83%E7%9B%B8%E5%85%B3%E9%97%AE%E9%A2%98"><span class="nav-number">7.1.</span> <span class="nav-text">6.1 环境相关问题</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Q1-%E9%A6%96%E6%AC%A1%E8%BF%90%E8%A1%8C%E4%B8%8B%E8%BD%BD%E6%B5%8F%E8%A7%88%E5%99%A8%E5%BE%88%E6%85%A2%EF%BC%9F"><span class="nav-number">7.1.1.</span> <span class="nav-text">Q1: 首次运行下载浏览器很慢？</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Q2-Linux-%E7%8E%AF%E5%A2%83%E7%BC%BA%E5%B0%91%E4%BE%9D%E8%B5%96%EF%BC%9F"><span class="nav-number">7.1.2.</span> <span class="nav-text">Q2: Linux 环境缺少依赖？</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-2-%E5%85%83%E7%B4%A0%E5%AE%9A%E4%BD%8D%E9%97%AE%E9%A2%98"><span class="nav-number">7.2.</span> <span class="nav-text">6.2 元素定位问题</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Q1-%E5%85%83%E7%B4%A0%E6%89%BE%E4%B8%8D%E5%88%B0%EF%BC%8C%E6%8A%A5-TimeoutError%EF%BC%9F"><span class="nav-number">7.2.1.</span> <span class="nav-text">Q1: 元素找不到，报 TimeoutError？</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Q2-%E5%85%83%E7%B4%A0%E8%A2%AB%E9%81%AE%E6%8C%A1%EF%BC%8C%E7%82%B9%E5%87%BB%E5%A4%B1%E8%B4%A5%EF%BC%9F"><span class="nav-number">7.2.2.</span> <span class="nav-text">Q2: 元素被遮挡，点击失败？</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Q3-%E5%8A%A8%E6%80%81-ID-%E5%A6%82%E4%BD%95%E5%A4%84%E7%90%86%EF%BC%9F"><span class="nav-number">7.2.3.</span> <span class="nav-text">Q3: 动态 ID 如何处理？</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-3-%E5%B9%B6%E5%8F%91%E4%B8%8E%E7%A8%B3%E5%AE%9A%E6%80%A7%E9%97%AE%E9%A2%98"><span class="nav-number">7.3.</span> <span class="nav-text">6.3 并发与稳定性问题</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Q1-%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%8E%AF%E5%A2%83%E6%8A%A5%E9%94%99%EF%BC%9F"><span class="nav-number">7.3.1.</span> <span class="nav-text">Q1: 多线程环境报错？</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Q2-CI-CD-%E7%8E%AF%E5%A2%83%E8%BF%90%E8%A1%8C%E5%A4%B1%E8%B4%A5%EF%BC%9F"><span class="nav-number">7.3.2.</span> <span class="nav-text">Q2: CI&#x2F;CD 环境运行失败？</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-4-%E5%8A%9F%E8%83%BD%E4%BD%BF%E7%94%A8%E9%97%AE%E9%A2%98"><span class="nav-number">7.4.</span> <span class="nav-text">6.4 功能使用问题</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Q1-%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E5%A4%B1%E8%B4%A5%EF%BC%9F"><span class="nav-number">7.4.1.</span> <span class="nav-text">Q1: 文件上传失败？</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Q2-%E4%B8%8B%E8%BD%BD%E6%B2%A1%E6%9C%89%E8%A7%A6%E5%8F%91%EF%BC%9F"><span class="nav-number">7.4.2.</span> <span class="nav-text">Q2: 下载没有触发？</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Q3-iframe-%E5%86%85%E5%85%83%E7%B4%A0%E6%89%BE%E4%B8%8D%E5%88%B0%EF%BC%9F"><span class="nav-number">7.4.3.</span> <span class="nav-text">Q3: iframe 内元素找不到？</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-5-%E6%80%A7%E8%83%BD%E9%97%AE%E9%A2%98"><span class="nav-number">7.5.</span> <span class="nav-text">6.5 性能问题</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Q1-%E6%B5%8B%E8%AF%95%E6%89%A7%E8%A1%8C%E5%A4%AA%E6%85%A2%EF%BC%9F"><span class="nav-number">7.5.1.</span> <span class="nav-text">Q1: 测试执行太慢？</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Q2-%E5%86%85%E5%AD%98%E5%8D%A0%E7%94%A8%E8%BF%87%E9%AB%98%EF%BC%9F"><span class="nav-number">7.5.2.</span> <span class="nav-text">Q2: 内存占用过高？</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%83%E3%80%81%E6%80%BB%E7%BB%93"><span class="nav-number">8.</span> <span class="nav-text">七、总结</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="rstyro"
+      src="/blog/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">rstyro</p>
+  <div class="site-description" itemprop="description">人间的饭，吃一碗少一碗，身边的人，见一面少一面，脚下的路，走一天少一天，其实人生就是一个减法，来日并不方长！</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives/">
+        
+          <span class="site-state-item-count">241</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">16</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/blog/tags/">
+          
+        <span class="site-state-item-count">99</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/rstyro" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;rstyro" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/rstyro" title="Gitee → https:&#x2F;&#x2F;gitee.com&#x2F;rstyro" rel="noopener" target="_blank"><i class="fab fa-codiepie fa-fw"></i>Gitee</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.jianshu.com/u/651c15a1758a" title="简书 → https:&#x2F;&#x2F;www.jianshu.com&#x2F;u&#x2F;651c15a1758a" rel="noopener" target="_blank"><i class="fa fa-book fa-fw"></i>简书</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      友链
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://rstyro.github.io/blog/" title="https:&#x2F;&#x2F;rstyro.github.io&#x2F;blog&#x2F;">胖不了小陆</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; Mon Apr 10 2017 08:00:00 GMT+0800 (中国标准时间) – 
+  <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">以梦为马，诗酒趁年华</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/muse.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+  <script>
+    (function(){
+      var canonicalURL, curProtocol;
+      //Get the <link> tag
+      var x=document.getElementsByTagName("link");
+		//Find the last canonical URL
+		if(x.length > 0){
+			for (i=0;i<x.length;i++){
+				if(x[i].rel.toLowerCase() == 'canonical' && x[i].href){
+					canonicalURL=x[i].href;
+				}
+			}
+		}
+    //Get protocol
+	    if (!canonicalURL){
+	    	curProtocol = window.location.protocol.split(':')[0];
+	    }
+	    else{
+	    	curProtocol = canonicalURL.split(':')[0];
+	    }
+      //Get current URL if the canonical URL does not exist
+	    if (!canonicalURL) canonicalURL = window.location.href;
+	    //Assign script content. Replace current URL with the canonical URL
+      !function(){var e=/([http|https]:\/\/[a-zA-Z0-9\_\.]+\.baidu\.com)/gi,r=canonicalURL,t=document.referrer;if(!e.test(r)){var n=(String(curProtocol).toLowerCase() === 'https')?"https://sp0.baidu.com/9_Q4simg2RQJ8t7jm9iCKT-xh_/s.gif":"//api.share.baidu.com/s.gif";t?(n+="?r="+encodeURIComponent(document.referrer),r&&(n+="&l="+r)):r&&(n+="?l="+r);var i=new Image;i.src=n}}(window);})();
+  </script>
+
+
+
+
+  
+<script src="/blog/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+<script>
+if (document.querySelectorAll('pre.mermaid').length) {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mermaid@8/dist/mermaid.min.js', () => {
+    mermaid.initialize({
+      theme    : 'default',
+      logLevel : 3,
+      flowchart: { curve     : 'linear' },
+      gantt    : { axisFormat: '%m/%d/%Y' },
+      sequence : { actorMargin: 50 }
+    });
+  }, window.mermaid);
+}
+</script>
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : 'Ov23litYkWaOGM7kAKPD',
+      clientSecret: '43bd3cf99bfcb9d05d16627c97a9f7a0200df04a',
+      repo        : 'blog',
+      owner       : 'rstyro',
+      admin       : ['rstyro'],
+      id          : 'bcb74598571edb228324bb6d7ed0ba9a',
+        language: '',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>
