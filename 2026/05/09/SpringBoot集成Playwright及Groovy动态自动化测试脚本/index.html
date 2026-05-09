@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/favicon.jpg">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon.jpg">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon.jpg">
+  <link rel="mask-icon" href="/blog/images/favicon.jpg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="/blog/lib/pace/pace-theme-flash.min.css">
+  <script src="/blog/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"rstyro.github.io","root":"/blog/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":true},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.json"};
+  </script>
+
+  <meta name="description" content="一、项目概述本项目是一个基于 Spring Boot 3.5、Playwright 和 Groovy 的浏览器自动化测试框架。项目实现了动态脚本执行机制，支持通过 Groovy 脚本灵活定义和执行浏览器自动化测试流程。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SpringBoot集成Playwright及Groovy动态自动化测试脚本">
+<meta property="og:url" content="https://rstyro.github.io/blog/2026/05/09/SpringBoot%E9%9B%86%E6%88%90Playwright%E5%8F%8AGroovy%E5%8A%A8%E6%80%81%E8%87%AA%E5%8A%A8%E5%8C%96%E6%B5%8B%E8%AF%95%E8%84%9A%E6%9C%AC/index.html">
+<meta property="og:site_name" content="胖不了小陆">
+<meta property="og:description" content="一、项目概述本项目是一个基于 Spring Boot 3.5、Playwright 和 Groovy 的浏览器自动化测试框架。项目实现了动态脚本执行机制，支持通过 Groovy 脚本灵活定义和执行浏览器自动化测试流程。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-05-09T08:36:18.000Z">
+<meta property="article:modified_time" content="2026-05-09T08:36:18.000Z">
+<meta property="article:author" content="rstyro">
+<meta property="article:tag" content="Playwright">
+<meta property="article:tag" content="Groovy">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://rstyro.github.io/blog/2026/05/09/SpringBoot%E9%9B%86%E6%88%90Playwright%E5%8F%8AGroovy%E5%8A%A8%E6%80%81%E8%87%AA%E5%8A%A8%E5%8C%96%E6%B5%8B%E8%AF%95%E8%84%9A%E6%9C%AC/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>SpringBoot集成Playwright及Groovy动态自动化测试脚本 | 胖不了小陆</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">胖不了小陆</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">信你所信，为你所见</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/blog/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/blog/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/blog/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/rstyro" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://rstyro.github.io/blog/2026/05/09/SpringBoot%E9%9B%86%E6%88%90Playwright%E5%8F%8AGroovy%E5%8A%A8%E6%80%81%E8%87%AA%E5%8A%A8%E5%8C%96%E6%B5%8B%E8%AF%95%E8%84%9A%E6%9C%AC/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/avatar.jpg">
+      <meta itemprop="name" content="rstyro">
+      <meta itemprop="description" content="人间的饭，吃一碗少一碗，身边的人，见一面少一面，脚下的路，走一天少一天，其实人生就是一个减法，来日并不方长！">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="胖不了小陆">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          SpringBoot集成Playwright及Groovy动态自动化测试脚本
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2026-05-09 16:36:18" itemprop="dateCreated datePublished" datetime="2026-05-09T16:36:18+08:00">2026-05-09</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/Java/" itemprop="url" rel="index"><span itemprop="name">Java</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="一、项目概述"><a href="#一、项目概述" class="headerlink" title="一、项目概述"></a>一、项目概述</h2><p>本项目是一个基于 <strong>Spring Boot 3.5</strong>、<strong>Playwright</strong> 和 <strong>Groovy</strong> 的浏览器自动化测试框架。项目实现了动态脚本执行机制，支持通过 Groovy 脚本灵活定义和执行浏览器自动化测试流程。</p>
+<span id="more"></span>
+
+<h3 id="1、Playwright是什么，有什么用"><a href="#1、Playwright是什么，有什么用" class="headerlink" title="1、Playwright是什么，有什么用"></a>1、Playwright是什么，有什么用</h3><p><strong>Playwright</strong> 是由 Microsoft 开发的一个强大的浏览器自动化测试工具，支持 Chromium、Firefox 和 WebKit 三大浏览器引擎。</p>
+<p><strong>核心特性：</strong></p>
+<ul>
+<li><strong>跨浏览器支持</strong>：统一 API 操作 Chrome、Firefox、Safari 等主流浏览器</li>
+<li><strong>无头模式</strong>：支持无界面运行，适合 CI&#x2F;CD 环境</li>
+<li><strong>自动等待</strong>：智能等待元素就绪，无需手动添加 sleep</li>
+<li><strong>多语言支持</strong>：JavaScript&#x2F;TypeScript、Python、C#、Java</li>
+<li><strong>强大选择器</strong>：支持 CSS、XPath、文本选择器等多种定位方式</li>
+<li><strong>网络拦截</strong>：可以拦截、修改网络请求和响应</li>
+<li><strong>模拟用户行为</strong>：支持鼠标、键盘、触摸等操作</li>
+</ul>
+<p><strong>主要用途：</strong></p>
+<ul>
+<li><strong>Web 自动化测试</strong>：自动化执行功能测试、回归测试</li>
+<li><strong>端到端测试</strong>：模拟真实用户场景进行测试</li>
+<li><strong>网页爬虫</strong>：抓取动态渲染的网页内容</li>
+<li><strong>性能测试</strong>：分析页面加载性能</li>
+<li><strong>浏览器自动化</strong>：自动完成重复性任务</li>
+</ul>
+<h3 id="2、Groovy是什么，有什么用"><a href="#2、Groovy是什么，有什么用" class="headerlink" title="2、Groovy是什么，有什么用"></a>2、Groovy是什么，有什么用</h3><p><strong>Groovy</strong> 是一种基于 JVM 的动态编程语言，兼具 Python、Ruby 和 Smalltalk 的特性，同时保持与 Java 的完全兼容。</p>
+<p><strong>核心特性：</strong></p>
+<ul>
+<li><strong>语法简洁</strong>：比 Java 更简洁的语法，支持闭包、动态类型</li>
+<li><strong>完全兼容 Java</strong>：可以直接调用 Java 类和库</li>
+<li><strong>脚本语言特性</strong>：支持脚本式编程，无需编译即可运行</li>
+<li><strong>元编程能力</strong>：支持运行时修改类行为</li>
+<li><strong>DSL 支持</strong>：易于构建领域特定语言</li>
+</ul>
+<p><strong>主要用途：</strong></p>
+<ul>
+<li><strong>脚本编写</strong>：快速编写自动化脚本和工具</li>
+<li><strong>测试框架</strong>：常用作测试脚本语言（如 Spock 测试框架）</li>
+<li><strong>动态配置</strong>：运行时动态加载和执行代码</li>
+<li><strong>构建工具</strong>：Gradle 构建工具使用 Groovy 作为脚本语言</li>
+<li><strong>快速原型开发</strong>：快速验证想法和原型</li>
+</ul>
+<p><strong>在本项目中的应用：</strong></p>
+<ul>
+<li>浏览器自动化测试脚本可以动态编写和修改</li>
+<li>无需重新编译 Java 代码即可更新测试逻辑</li>
+<li>支持热更新，脚本修改后立即生效</li>
+</ul>
+<h3 id="3、Playwright-Groovy-解决了什么痛点"><a href="#3、Playwright-Groovy-解决了什么痛点" class="headerlink" title="3、Playwright + Groovy 解决了什么痛点"></a>3、Playwright + Groovy 解决了什么痛点</h3><p><strong>传统 Playwright 测试的痛点：</strong></p>
+<ul>
+<li><strong>代码固化</strong>：测试逻辑硬编码在 Java 代码中，每次新增测试场景都需要修改代码并重新部署</li>
+<li><strong>代码膨胀</strong>：多个需求的测试代码堆积导致项目体积庞大，维护困难</li>
+<li><strong>灵活性差</strong>：测试脚本无法动态调整，难以快速响应业务变化</li>
+</ul>
+<p><strong>Playwright + Groovy 的解决方案：</strong></p>
+<ul>
+<li><strong>脚本解耦</strong>：将测试逻辑抽取为独立的 Groovy 脚本，与主应用代码分离</li>
+<li><strong>动态加载</strong>：测试脚本可从文件、数据库等多种来源动态加载，无需重启服务</li>
+<li><strong>热更新支持</strong>：脚本修改后立即生效，无需重新编译部署</li>
+<li><strong>扩展性强</strong>：新增测试场景只需编写新脚本，不影响现有代码结构</li>
+</ul>
+<h2 id="二、快速开始"><a href="#二、快速开始" class="headerlink" title="二、快速开始"></a>二、快速开始</h2><h3 id="2-1-技术栈"><a href="#2-1-技术栈" class="headerlink" title="2.1 技术栈"></a>2.1 技术栈</h3><ul>
+<li><strong>JDK 版本</strong>: JDK17+</li>
+<li><strong>Spring Boot</strong>: 3.5.14</li>
+<li><strong>Playwright</strong>: 1.59.0</li>
+<li><strong>Groovy</strong>: 4.0.31</li>
+</ul>
+<h3 id="2-2-项目依赖"><a href="#2-2-项目依赖" class="headerlink" title="2.2 项目依赖"></a>2.2 项目依赖</h3><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">properties</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">java.version</span>&gt;</span>17<span class="tag">&lt;/<span class="name">java.version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">playwright.version</span>&gt;</span>1.59.0<span class="tag">&lt;/<span class="name">playwright.version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groovy.version</span>&gt;</span>4.0.31<span class="tag">&lt;/<span class="name">groovy.version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">properties</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-web<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.projectlombok<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>lombok<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">&lt;!-- playwright 自动化测试 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.microsoft.playwright<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>playwright<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>$&#123;playwright.version&#125;<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">&lt;!-- groovy动态脚本 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.groovy<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>groovy-all<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>$&#123;groovy.version&#125;<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">type</span>&gt;</span>pom<span class="tag">&lt;/<span class="name">type</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="2-3-脚本管理核心模块"><a href="#2-3-脚本管理核心模块" class="headerlink" title="2.3 脚本管理核心模块"></a>2.3 脚本管理核心模块</h3><h4 id="2-3-1-ScriptProvider脚本提供者接口"><a href="#2-3-1-ScriptProvider脚本提供者接口" class="headerlink" title="2.3.1 ScriptProvider脚本提供者接口"></a>2.3.1 ScriptProvider脚本提供者接口</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 自定义的脚本实体类</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@AllArgsConstructor</span></span><br><span class="line"><span class="meta">@NoArgsConstructor</span></span><br><span class="line"><span class="meta">@Data</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ScriptContent</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> String content;        <span class="comment">// groovy 脚本源码</span></span><br><span class="line">    <span class="keyword">private</span> <span class="type">long</span> lastModified;     <span class="comment">// 最后修改时间（文件时间戳或数据库更新时间）</span></span><br><span class="line">    <span class="keyword">private</span> SourceType sourceType; <span class="comment">// FILE, DB</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 判断是不是更新的文件</span></span><br><span class="line">    <span class="keyword">public</span> <span class="type">boolean</span> <span class="title function_">isNewerThan</span><span class="params">(ScriptContent other)</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">this</span>.lastModified &gt; other.lastModified;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 脚本提供者接口,扩展多种脚本</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">ScriptProvider</span> &#123;</span><br><span class="line">    ScriptContent <span class="title function_">getScript</span><span class="params">(String scriptName)</span>;</span><br><span class="line">    <span class="type">boolean</span> <span class="title function_">supports</span><span class="params">(String scriptName)</span>;</span><br><span class="line">    <span class="keyword">default</span> <span class="keyword">void</span> <span class="title function_">refresh</span><span class="params">(String scriptName)</span> &#123;&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>目前只实现了<code>FileScriptProvider</code>文件提供者，可以保留一下默认的脚本文件</li>
+<li>可以实现这个接口扩展多种脚本来源，比如从数据库查询等等</li>
+</ul>
+<h4 id="2-3-2-扩展文件来源脚本FileScriptProvider"><a href="#2-3-2-扩展文件来源脚本FileScriptProvider" class="headerlink" title="2.3.2 扩展文件来源脚本FileScriptProvider"></a>2.3.2 扩展文件来源脚本FileScriptProvider</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Slf4j</span></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">FileScriptProvider</span> <span class="keyword">implements</span> <span class="title class_">ScriptProvider</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> String scriptBasePath;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="type">ResourcePatternResolver</span> <span class="variable">resourceResolver</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">PathMatchingResourcePatternResolver</span>();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">FileScriptProvider</span><span class="params">(<span class="meta">@Value(&quot;$&#123;script.file.path:classpath:scripts/&#125;&quot;)</span> String path)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.scriptBasePath = path;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> ScriptContent <span class="title function_">getScript</span><span class="params">(String scriptName)</span> &#123;</span><br><span class="line">        <span class="comment">// 只处理不以 &quot;db:&quot; 开头的名字</span></span><br><span class="line">        <span class="keyword">if</span> (!supports(scriptName)) <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">        <span class="type">String</span> <span class="variable">location</span> <span class="operator">=</span> scriptBasePath + scriptName + <span class="string">&quot;.groovy&quot;</span>;</span><br><span class="line">        <span class="type">Resource</span> <span class="variable">resource</span> <span class="operator">=</span> resourceResolver.getResource(location);</span><br><span class="line">        <span class="keyword">if</span> (!resource.exists()) &#123;</span><br><span class="line">            log.warn(<span class="string">&quot;文件脚本不存在: &#123;&#125;&quot;</span>, location);</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="type">String</span> <span class="variable">content</span> <span class="operator">=</span> StreamUtils.copyToString(resource.getInputStream(), StandardCharsets.UTF_8);</span><br><span class="line">            <span class="type">long</span> <span class="variable">lastModified</span> <span class="operator">=</span> resource.getFile().lastModified();</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">ScriptContent</span>(content, lastModified, SourceType.FILE);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">RuntimeException</span>(<span class="string">&quot;读取文件脚本失败&quot;</span>, e);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="type">boolean</span> <span class="title function_">supports</span><span class="params">(String scriptName)</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> !scriptName.startsWith(<span class="string">&quot;db:&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>文件脚本提供者，从 <code>classpath:scripts/</code> 目录加载 <code>.groovy</code> 脚本文件。</p>
+<h4 id="2-3-3-脚本管理器-GroovyScriptManager"><a href="#2-3-3-脚本管理器-GroovyScriptManager" class="headerlink" title="2.3.3 脚本管理器 GroovyScriptManager"></a>2.3.3 脚本管理器 GroovyScriptManager</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">GroovyScriptManager</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="type">GroovyClassLoader</span> <span class="variable">classLoader</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">GroovyClassLoader</span>();</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> Map&lt;String, Class&lt;?&gt;&gt; scriptCache = <span class="keyword">new</span> <span class="title class_">ConcurrentHashMap</span>&lt;&gt;();</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> Map&lt;String, ScriptContent&gt; contentCache = <span class="keyword">new</span> <span class="title class_">ConcurrentHashMap</span>&lt;&gt;();</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> List&lt;ScriptProvider&gt; providers;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">GroovyScriptManager</span><span class="params">(List&lt;ScriptProvider&gt; providers)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.providers = providers;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 执行脚本中的指定方法</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> scriptName 脚本名，支持 &quot;login&quot; 或 &quot;db:login&quot;</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> methodName 方法名</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> args 参数</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> 方法返回值</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> Object <span class="title function_">execute</span><span class="params">(String scriptName, String methodName, Object... args)</span> &#123;</span><br><span class="line">        Class&lt;?&gt; clazz = getScriptClass(scriptName);</span><br><span class="line">        Object instance;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            instance = clazz.getDeclaredConstructor().newInstance();</span><br><span class="line">            <span class="type">Method</span> <span class="variable">method</span> <span class="operator">=</span> findMethod(clazz, methodName, args);</span><br><span class="line">            <span class="keyword">return</span> method.invoke(instance, args);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">RuntimeException</span>(<span class="string">&quot;执行脚本失败: &quot;</span> + scriptName, e);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> Class&lt;?&gt; getScriptClass(String scriptName) &#123;</span><br><span class="line">        <span class="type">ScriptContent</span> <span class="variable">latest</span> <span class="operator">=</span> fetchLatestContent(scriptName);</span><br><span class="line">        <span class="type">ScriptContent</span> <span class="variable">cached</span> <span class="operator">=</span> contentCache.get(scriptName);</span><br><span class="line">        <span class="keyword">if</span> (cached == <span class="literal">null</span> || !cached.isNewerThan(latest)) &#123;</span><br><span class="line">            <span class="comment">// 有更新，重新编译</span></span><br><span class="line">            Class&lt;?&gt; clazz = compile(scriptName, latest.getContent());</span><br><span class="line">            scriptCache.put(scriptName, clazz);</span><br><span class="line">            contentCache.put(scriptName, latest);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> scriptCache.get(scriptName);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> ScriptContent <span class="title function_">fetchLatestContent</span><span class="params">(String scriptName)</span> &#123;</span><br><span class="line">        <span class="keyword">for</span> (ScriptProvider provider : providers) &#123;</span><br><span class="line">            <span class="keyword">if</span> (provider.supports(scriptName)) &#123;</span><br><span class="line">                <span class="type">ScriptContent</span> <span class="variable">content</span> <span class="operator">=</span> provider.getScript(scriptName);</span><br><span class="line">                <span class="keyword">if</span> (content != <span class="literal">null</span>) <span class="keyword">return</span> content;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">IllegalArgumentException</span>(<span class="string">&quot;未找到脚本: &quot;</span> + scriptName);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> Class&lt;?&gt; compile(String scriptName, String content) &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> classLoader.parseClass(content, scriptName);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (GroovyRuntimeException e) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">RuntimeException</span>(<span class="string">&quot;Groovy 编译错误: &quot;</span> + scriptName + <span class="string">&quot; - &quot;</span> + e.getMessage(), e);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> Method <span class="title function_">findMethod</span><span class="params">(Class&lt;?&gt; clazz, String methodName, Object[] args)</span> <span class="keyword">throws</span> NoSuchMethodException &#123;</span><br><span class="line">        <span class="keyword">for</span> (Method m : clazz.getMethods()) &#123;</span><br><span class="line">            <span class="keyword">if</span> (m.getName().equals(methodName) &amp;&amp; m.getParameterCount() == args.length) &#123;</span><br><span class="line">                <span class="keyword">return</span> m;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">NoSuchMethodException</span>(methodName);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 手动刷新指定脚本（如数据库主动更新后调用）</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">refresh</span><span class="params">(String scriptName)</span> &#123;</span><br><span class="line">        scriptCache.remove(scriptName);</span><br><span class="line">        contentCache.remove(scriptName);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>负责脚本的加载、编译、缓存和执行。</li>
+</ul>
+<p><strong>核心功能：</strong></p>
+<ul>
+<li>支持多脚本源（文件、数据库等）</li>
+<li>脚本内容自动检测更新，无需重启</li>
+<li>基于 <code>ConcurrentHashMap</code> 的线程安全缓存</li>
+</ul>
+<p><strong>关键方法：</strong></p>
+<table>
+<thead>
+<tr>
+<th align="left">方法</th>
+<th align="left">功能</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><code>execute(scriptName, methodName, args)</code></td>
+<td align="left">执行指定脚本的指定方法</td>
+</tr>
+<tr>
+<td align="left"><code>refresh(scriptName)</code></td>
+<td align="left">手动刷新指定脚本缓存</td>
+</tr>
+</tbody></table>
+<h3 id="2-4-实战示例"><a href="#2-4-实战示例" class="headerlink" title="2.4 实战示例"></a>2.4 实战示例</h3><h4 id="脚本规范"><a href="#脚本规范" class="headerlink" title="脚本规范"></a>脚本规范</h4><ol>
+<li>脚本文件放置在 <code>src/main/resources/scripts/</code> 目录</li>
+<li>文件名即为脚本名（不含 <code>.groovy</code> 后缀）</li>
+<li>脚本类名需与文件名一致</li>
+</ol>
+<h4 id="示例脚本：TestLoginScript-groovy"><a href="#示例脚本：TestLoginScript-groovy" class="headerlink" title="示例脚本：TestLoginScript.groovy"></a>示例脚本：TestLoginScript.groovy</h4><figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">TestLoginScript</span> &#123;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> String LOGIN_URL = <span class="string">&quot;http://example.com/login&quot;</span></span><br><span class="line">    </span><br><span class="line">    <span class="type">boolean</span> testLogin(String username, String password) &#123;</span><br><span class="line">        <span class="keyword">try</span> (Playwright playwright = Playwright.create();</span><br><span class="line">             Browser browser = playwright.chromium().launch(<span class="keyword">new</span> BrowserType.LaunchOptions()</span><br><span class="line">                     .setHeadless(<span class="literal">false</span>)</span><br><span class="line">                     .setSlowMo(<span class="number">50</span>))) &#123;</span><br><span class="line">            </span><br><span class="line">            Page page = browser.newPage()</span><br><span class="line">            page.navigate(LOGIN_URL)</span><br><span class="line">            </span><br><span class="line">            page.fill(<span class="string">&quot;input[placeholder=&#x27;用户名&#x27;]&quot;</span>, username)</span><br><span class="line">            page.fill(<span class="string">&quot;input[placeholder=&#x27;密码&#x27;]&quot;</span>, password)</span><br><span class="line">            page.click(<span class="string">&quot;.login-button&quot;</span>)</span><br><span class="line">            <span class="comment">// todo ....</span></span><br><span class="line">            </span><br><span class="line">            <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="执行脚本示例"><a href="#执行脚本示例" class="headerlink" title="执行脚本示例"></a>执行脚本示例</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Slf4j</span></span><br><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="meta">@RequiredArgsConstructor</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">TestServiceImpl</span> <span class="keyword">implements</span> <span class="title class_">ITestService</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> GroovyScriptManager scriptManager;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 验证登录的脚步文件名称</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">String</span> <span class="variable">LOGIN_SCRIPT_NAME</span> <span class="operator">=</span> <span class="string">&quot;TestLoginScript&quot;</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="type">boolean</span> <span class="title function_">testGroovyLogin</span><span class="params">(TestLoginDto dto)</span> &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            log.info(<span class="string">&quot;开始执行 Groovy 登录脚本，用户名: &#123;&#125;, 脚本: &#123;&#125;&quot;</span>, dto.getUsername(), LOGIN_SCRIPT_NAME);</span><br><span class="line">            <span class="type">Object</span> <span class="variable">result</span> <span class="operator">=</span> scriptManager.execute(LOGIN_SCRIPT_NAME, <span class="string">&quot;testLogin&quot;</span>, dto.getUsername(), dto.getPassword());</span><br><span class="line">            <span class="type">boolean</span> <span class="variable">success</span> <span class="operator">=</span> (Boolean) result;</span><br><span class="line">            log.info(<span class="string">&quot;Groovy 脚本执行完成，结果: &#123;&#125;&quot;</span>, success);</span><br><span class="line">            <span class="keyword">return</span> success;</span><br><span class="line">        &#125; <span class="keyword">catch</span> (ServiceException e) &#123;</span><br><span class="line">            log.error(e.getMessage(), e);</span><br><span class="line">            <span class="keyword">throw</span> e;</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            log.error(<span class="string">&quot;执行 Groovy 登录脚本失败&quot;</span>, e);</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">ServiceException</span>(<span class="string">&quot;执行 Groovy 登录脚本失败&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<ul>
+<li><strong>注意</strong>：首次运行时 Playwright 会自动下载浏览器驱动</li>
+</ul>
+<h2 id="三、扩展说明"><a href="#三、扩展说明" class="headerlink" title="三、扩展说明"></a>三、扩展说明</h2><h3 id="添加新的脚本来源"><a href="#添加新的脚本来源" class="headerlink" title="添加新的脚本来源"></a>添加新的脚本来源</h3><p>实现 <code>ScriptProvider</code> 接口即可扩展新的脚本来源，例如从数据库加载脚本：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">DatabaseScriptProvider</span> <span class="keyword">implements</span> <span class="title class_">ScriptProvider</span> &#123;</span><br><span class="line">    </span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> ScriptContent <span class="title function_">getScript</span><span class="params">(String scriptName)</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (!supports(scriptName)) <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">        <span class="comment">// 从数据库查询脚本内容</span></span><br><span class="line">        <span class="type">String</span> <span class="variable">content</span> <span class="operator">=</span> scriptRepository.findByKey(scriptName.substring(<span class="number">3</span>));</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">ScriptContent</span>(content, System.currentTimeMillis(), SourceType.DB);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="type">boolean</span> <span class="title function_">supports</span><span class="params">(String scriptName)</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> scriptName.startsWith(<span class="string">&quot;db:&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>使用时脚本名前缀为 <code>db:</code>，如 <code>db:loginScript</code>。</p>
+<h2 id="四、总结"><a href="#四、总结" class="headerlink" title="四、总结"></a>四、总结</h2><p>本项目成功实现了 <strong>Spring Boot + Playwright + Groovy</strong> 的技术整合，构建了一个灵活、高效的浏览器自动化测试框架。</p>
+<h3 id="核心价值"><a href="#核心价值" class="headerlink" title="核心价值"></a>核心价值</h3><ol>
+<li><strong>动态脚本执行</strong>：通过 Groovy 脚本实现测试逻辑的动态加载和执行，无需修改 Java 代码即可扩展测试场景。</li>
+<li><strong>自动化测试能力</strong>：基于 Playwright 实现跨浏览器自动化测试，支持无头模式运行，适合 CI&#x2F;CD 集成。</li>
+</ol>
+<h3 id="技术亮点"><a href="#技术亮点" class="headerlink" title="技术亮点"></a>技术亮点</h3><ul>
+<li><strong>脚本热更新</strong>：脚本内容变更后自动检测并重新编译，无需重启服务。</li>
+<li><strong>多脚本源支持</strong>：通过 <code>ScriptProvider</code> 接口可扩展多种脚本来源（文件、数据库等）。</li>
+<li><strong>线程安全设计</strong>：使用 <code>ConcurrentHashMap</code> 保证脚本缓存的线程安全性。</li>
+<li><strong>优雅的异常处理</strong>：统一的异常处理机制，提供清晰的错误信息。</li>
+</ul>
+<h3 id="适用场景"><a href="#适用场景" class="headerlink" title="适用场景"></a>适用场景</h3><ul>
+<li><strong>Web 自动化测试</strong>：适用于需要频繁更新测试用例的场景。</li>
+<li><strong>端到端测试</strong>：模拟真实用户操作流程进行完整业务链路测试。</li>
+<li><strong>自动化爬虫</strong>：动态加载爬虫脚本，灵活应对目标网站变化。</li>
+<li><strong>回归测试</strong>：快速执行回归测试用例，确保代码变更不影响现有功能。</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>您的打赏，是我创作的动力！不给钱？那我只能靠想象力充饥了。</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/wechat_pay.jpg" alt="rstyro 微信支付">
+        <p>微信支付</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/alipay.jpg" alt="rstyro 支付宝">
+        <p>支付宝</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/blog/tags/Playwright/" rel="tag"><i class="fa fa-tag"></i> Playwright</a>
+              <a href="/blog/tags/Groovy/" rel="tag"><i class="fa fa-tag"></i> Groovy</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2026/05/09/Playwright%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E7%B2%BE%E9%80%9A-Java%E8%87%AA%E5%8A%A8%E5%8C%96%E6%B5%8B%E8%AF%95%E5%85%A8%E6%8C%87%E5%8D%97/" rel="prev" title="Playwright从入门到精通 Java自动化测试全指南">
+      <i class="fa fa-chevron-left"></i> Playwright从入门到精通 Java自动化测试全指南
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E9%A1%B9%E7%9B%AE%E6%A6%82%E8%BF%B0"><span class="nav-number">1.</span> <span class="nav-text">一、项目概述</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1%E3%80%81Playwright%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%8C%E6%9C%89%E4%BB%80%E4%B9%88%E7%94%A8"><span class="nav-number">1.1.</span> <span class="nav-text">1、Playwright是什么，有什么用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2%E3%80%81Groovy%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%8C%E6%9C%89%E4%BB%80%E4%B9%88%E7%94%A8"><span class="nav-number">1.2.</span> <span class="nav-text">2、Groovy是什么，有什么用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3%E3%80%81Playwright-Groovy-%E8%A7%A3%E5%86%B3%E4%BA%86%E4%BB%80%E4%B9%88%E7%97%9B%E7%82%B9"><span class="nav-number">1.3.</span> <span class="nav-text">3、Playwright + Groovy 解决了什么痛点</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E5%BF%AB%E9%80%9F%E5%BC%80%E5%A7%8B"><span class="nav-number">2.</span> <span class="nav-text">二、快速开始</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-%E6%8A%80%E6%9C%AF%E6%A0%88"><span class="nav-number">2.1.</span> <span class="nav-text">2.1 技术栈</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-%E9%A1%B9%E7%9B%AE%E4%BE%9D%E8%B5%96"><span class="nav-number">2.2.</span> <span class="nav-text">2.2 项目依赖</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3-%E8%84%9A%E6%9C%AC%E7%AE%A1%E7%90%86%E6%A0%B8%E5%BF%83%E6%A8%A1%E5%9D%97"><span class="nav-number">2.3.</span> <span class="nav-text">2.3 脚本管理核心模块</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#2-3-1-ScriptProvider%E8%84%9A%E6%9C%AC%E6%8F%90%E4%BE%9B%E8%80%85%E6%8E%A5%E5%8F%A3"><span class="nav-number">2.3.1.</span> <span class="nav-text">2.3.1 ScriptProvider脚本提供者接口</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-3-2-%E6%89%A9%E5%B1%95%E6%96%87%E4%BB%B6%E6%9D%A5%E6%BA%90%E8%84%9A%E6%9C%ACFileScriptProvider"><span class="nav-number">2.3.2.</span> <span class="nav-text">2.3.2 扩展文件来源脚本FileScriptProvider</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-3-3-%E8%84%9A%E6%9C%AC%E7%AE%A1%E7%90%86%E5%99%A8-GroovyScriptManager"><span class="nav-number">2.3.3.</span> <span class="nav-text">2.3.3 脚本管理器 GroovyScriptManager</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-4-%E5%AE%9E%E6%88%98%E7%A4%BA%E4%BE%8B"><span class="nav-number">2.4.</span> <span class="nav-text">2.4 实战示例</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%84%9A%E6%9C%AC%E8%A7%84%E8%8C%83"><span class="nav-number">2.4.1.</span> <span class="nav-text">脚本规范</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%A4%BA%E4%BE%8B%E8%84%9A%E6%9C%AC%EF%BC%9ATestLoginScript-groovy"><span class="nav-number">2.4.2.</span> <span class="nav-text">示例脚本：TestLoginScript.groovy</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%89%A7%E8%A1%8C%E8%84%9A%E6%9C%AC%E7%A4%BA%E4%BE%8B"><span class="nav-number">2.4.3.</span> <span class="nav-text">执行脚本示例</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E6%89%A9%E5%B1%95%E8%AF%B4%E6%98%8E"><span class="nav-number">3.</span> <span class="nav-text">三、扩展说明</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B7%BB%E5%8A%A0%E6%96%B0%E7%9A%84%E8%84%9A%E6%9C%AC%E6%9D%A5%E6%BA%90"><span class="nav-number">3.1.</span> <span class="nav-text">添加新的脚本来源</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E6%80%BB%E7%BB%93"><span class="nav-number">4.</span> <span class="nav-text">四、总结</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A0%B8%E5%BF%83%E4%BB%B7%E5%80%BC"><span class="nav-number">4.1.</span> <span class="nav-text">核心价值</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8A%80%E6%9C%AF%E4%BA%AE%E7%82%B9"><span class="nav-number">4.2.</span> <span class="nav-text">技术亮点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%80%82%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-number">4.3.</span> <span class="nav-text">适用场景</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="rstyro"
+      src="/blog/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">rstyro</p>
+  <div class="site-description" itemprop="description">人间的饭，吃一碗少一碗，身边的人，见一面少一面，脚下的路，走一天少一天，其实人生就是一个减法，来日并不方长！</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives/">
+        
+          <span class="site-state-item-count">242</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">16</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/blog/tags/">
+          
+        <span class="site-state-item-count">100</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/rstyro" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;rstyro" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/rstyro" title="Gitee → https:&#x2F;&#x2F;gitee.com&#x2F;rstyro" rel="noopener" target="_blank"><i class="fab fa-codiepie fa-fw"></i>Gitee</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.jianshu.com/u/651c15a1758a" title="简书 → https:&#x2F;&#x2F;www.jianshu.com&#x2F;u&#x2F;651c15a1758a" rel="noopener" target="_blank"><i class="fa fa-book fa-fw"></i>简书</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      友链
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://rstyro.github.io/blog/" title="https:&#x2F;&#x2F;rstyro.github.io&#x2F;blog&#x2F;">胖不了小陆</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; Mon Apr 10 2017 08:00:00 GMT+0800 (中国标准时间) – 
+  <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">以梦为马，诗酒趁年华</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/muse.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+  <script>
+    (function(){
+      var canonicalURL, curProtocol;
+      //Get the <link> tag
+      var x=document.getElementsByTagName("link");
+		//Find the last canonical URL
+		if(x.length > 0){
+			for (i=0;i<x.length;i++){
+				if(x[i].rel.toLowerCase() == 'canonical' && x[i].href){
+					canonicalURL=x[i].href;
+				}
+			}
+		}
+    //Get protocol
+	    if (!canonicalURL){
+	    	curProtocol = window.location.protocol.split(':')[0];
+	    }
+	    else{
+	    	curProtocol = canonicalURL.split(':')[0];
+	    }
+      //Get current URL if the canonical URL does not exist
+	    if (!canonicalURL) canonicalURL = window.location.href;
+	    //Assign script content. Replace current URL with the canonical URL
+      !function(){var e=/([http|https]:\/\/[a-zA-Z0-9\_\.]+\.baidu\.com)/gi,r=canonicalURL,t=document.referrer;if(!e.test(r)){var n=(String(curProtocol).toLowerCase() === 'https')?"https://sp0.baidu.com/9_Q4simg2RQJ8t7jm9iCKT-xh_/s.gif":"//api.share.baidu.com/s.gif";t?(n+="?r="+encodeURIComponent(document.referrer),r&&(n+="&l="+r)):r&&(n+="?l="+r);var i=new Image;i.src=n}}(window);})();
+  </script>
+
+
+
+
+  
+<script src="/blog/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+<script>
+if (document.querySelectorAll('pre.mermaid').length) {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mermaid@8/dist/mermaid.min.js', () => {
+    mermaid.initialize({
+      theme    : 'default',
+      logLevel : 3,
+      flowchart: { curve     : 'linear' },
+      gantt    : { axisFormat: '%m/%d/%Y' },
+      sequence : { actorMargin: 50 }
+    });
+  }, window.mermaid);
+}
+</script>
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : 'Ov23litYkWaOGM7kAKPD',
+      clientSecret: '43bd3cf99bfcb9d05d16627c97a9f7a0200df04a',
+      repo        : 'blog',
+      owner       : 'rstyro',
+      admin       : ['rstyro'],
+      id          : 'cc48954f41df0663c08a02c397285949',
+        language: '',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>
