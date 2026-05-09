@@ -36,6 +36,8 @@ updated: 2026-05-09 13:41:05
 - **移动端模拟**：支持移动设备视口和触摸事件模拟
 
 
+<!--more-->
+
 
 ### 1.3 Playwright vs Selenium vs Cypress 对比
 
