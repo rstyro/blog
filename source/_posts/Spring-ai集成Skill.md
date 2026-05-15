@@ -232,8 +232,8 @@ public class SkillConfig {
 注册完成后，整个调用链路如下：
 
 1. **发现阶段**：`SkillsTool` 在初始化时扫描配置路径下的所有 Skill，提取 `name` 和 `description`，将其嵌入自身工具描述的上下文中。当 `ChatClient` 向 LLM 发送请求时，LLM 会看到 `SkillsTool` 及其提供的 Skill 列表（仅名称与描述）。
-2. **激活阶段**：当用户提出请求（例如 “帮我搜索关于蛋白质折叠的最新论文”），LLM 判断该意图与 `academic-search` 的描述高度匹配，于是返回一个调用 `SkillsTool` 的工具请求，参数为 `skillName="academic-search"`。`SkillsTool` 收到调用后，从磁盘加载完整的 `SKILL.md` 内容并返回给 LLM。
-3. **执行阶段**：LLM 阅读 Skill 指令，按步骤执行。如需运行脚本，它会调用 `ShellTools` 执行 `scripts/search_papers.py`；如需查阅参考资料，则通过 `FileSystemTools` 读取。脚本执行结果和文件内容进入上下文后，LLM 生成最终的回答返回给用户。
+2. **激活阶段**：当用户提出请求（例如 "帮我审查这段 Java 代码的潜在问题"），LLM 判断该意图与 `code-reviewer` 的描述高度匹配，于是返回一个调用 `SkillsTool` 的工具请求，参数为 `skillName="code-reviewer"`。`SkillsTool` 收到调用后，从磁盘加载完整的 `SKILL.md` 内容并返回给 LLM。
+3. **执行阶段**：LLM 阅读 Skill 指令，按步骤执行。通过 `FileSystemTools` 读取代码文件，结合自身推理能力进行全面审查，生成最终的审查报告返回给用户。
 
 整个过程对用户完全透明。无论系统注册了多少 Skill，每次请求的初始上下文只包含轻量级的 Skill 列表，完全消除了工具膨胀带来的 token 浪费和模型选择压力。
 
