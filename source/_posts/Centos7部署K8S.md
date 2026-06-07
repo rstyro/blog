@@ -612,3 +612,134 @@ service/nginx        NodePort    10.105.79.246   <none>        80:31129/TCP   11
 
 - 访问Nginx地址： http://任意节点的ip:图中Nginx的对外映射端口，http://192.168.80.132:31129/
 
+
+### 三、常用命令
+
+
+
+以下整理了 Kubernetes 中 **Namespace**、**Pod**、**Deployment**、**Service**、**Ingress**、**存储卷（PV / PVC / StorageClass）** 的常用 `kubectl` 命令。每个分类均包含查看、创建、删除、描述等典型操作。
+
+---
+
+#### 1. Namespace
+
+| 命令                                                      | 说明                               |
+| --------------------------------------------------------- | ---------------------------------- |
+| `kubectl get namespaces` 或 `kubectl get ns`              | 列出所有命名空间                   |
+| `kubectl create namespace <名称>`                         | 创建命名空间                       |
+| `kubectl describe namespace <名称>`                       | 查看命名空间详情                   |
+| `kubectl delete namespace <名称>`                         | 删除命名空间（会删除其下所有资源） |
+| `kubectl config set-context --current --namespace=<名称>` | 切换当前上下文的默认命名空间       |
+
+> **提示**：多数命令可通过 `-n <命名空间>` 或 `--all-namespaces` 指定范围。
+
+
+
+
+#### 2. Pod
+
+| 命令                                                | 说明                                 |
+| --------------------------------------------------- | ------------------------------------ |
+| `kubectl get pods` 或 `kubectl get po`              | 列出当前命名空间的 Pod               |
+| `kubectl get pods -o wide`                          | 显示更多信息（IP、节点等）           |
+| `kubectl describe pod <pod名>`                      | 查看 Pod 详细状态和事件              |
+| `kubectl logs <pod名>`                              | 查看 Pod 日志                        |
+| `kubectl logs <pod名> -c <容器名>`                  | 查看多容器 Pod 中特定容器的日志      |
+| `kubectl exec -it <pod名> -- /bin/bash`             | 进入 Pod 的 shell（需容器内有 bash） |
+| `kubectl exec <pod名> -- <命令>`                    | 在 Pod 中执行命令                    |
+| `kubectl delete pod <pod名>`                        | 删除 Pod（若被控制器管理，会重建）   |
+| `kubectl port-forward <pod名> <本地端口>:<Pod端口>` | 将本地端口转发到 Pod 端口            |
+
+---
+
+#### 3. Deployment
+
+| 命令                                                        | 说明                                  |
+| ----------------------------------------------------------- | ------------------------------------- |
+| `kubectl get deployments` 或 `kubectl get deploy`           | 列出 Deployment                       |
+| `kubectl describe deployment <deploy名>`                    | 查看 Deployment 详情                  |
+| `kubectl create deployment <名称> --image=<镜像>`           | 快速创建 Deployment                   |
+| `kubectl edit deployment <deploy名>`                        | 在线编辑 Deployment 配置              |
+| `kubectl scale deployment <deploy名> --replicas=<数量>`     | 手动扩缩容                            |
+| `kubectl set image deployment/<deploy名> <容器名>=<新镜像>` | 滚动更新镜像                          |
+| `kubectl rollout status deployment <deploy名>`              | 查看滚动更新状态                      |
+| `kubectl rollout history deployment <deploy名>`             | 查看更新历史                          |
+| `kubectl rollout undo deployment <deploy名>`                | 回滚到上一个版本                      |
+| `kubectl rollout restart deployment/<deploy名>`             | 重启 Deployment（滚动重启）           |
+| `kubectl delete deployment <deploy名>`                      | 删除 Deployment（会删除其管理的 Pod） |
+
+---
+
+#### 4. Service
+
+| 命令                                                         | 说明                       |
+| ------------------------------------------------------------ | -------------------------- |
+| `kubectl get services` 或 `kubectl get svc`                  | 列出 Service               |
+| `kubectl describe service <svc名>`                           | 查看 Service 详情及端点    |
+| `kubectl expose deployment <deploy名> --port=<端口> --target-port=<目标端口> --type=<ClusterIP/NodePort/LoadBalancer>` | 为 Deployment 创建 Service |
+| `kubectl delete service <svc名>`                             | 删除 Service               |
+
+---
+
+#### 5. Ingress
+
+| 命令                                       | 说明                            |
+| ------------------------------------------ | ------------------------------- |
+| `kubectl get ingress` 或 `kubectl get ing` | 列出 Ingress 规则               |
+| `kubectl describe ingress <ingress名>`     | 查看 Ingress 详情及路由规则     |
+| `kubectl apply -f <ingress.yaml>`          | 通过 YAML 文件创建/更新 Ingress |
+| `kubectl delete ingress <ingress名>`       | 删除 Ingress                    |
+
+> **注意**：Ingress 需要集群中安装 Ingress Controller（如 nginx-ingress）才能生效。
+
+---
+
+#### 6. 存储卷
+
+##### PersistentVolume (PV)
+| 命令                         | 说明            |
+| ---------------------------- | --------------- |
+| `kubectl get pv`             | 列出所有 PV     |
+| `kubectl describe pv <pv名>` | 查看 PV 详情    |
+| `kubectl create -f pv.yaml`  | 从 YAML 创建 PV |
+| `kubectl delete pv <pv名>`   | 删除 PV         |
+
+##### PersistentVolumeClaim (PVC)
+| 命令                               | 说明                              |
+| ---------------------------------- | --------------------------------- |
+| `kubectl get pvc`                  | 列出当前命名空间的 PVC            |
+| `kubectl get pvc --all-namespaces` | 列出所有命名空间的 PVC            |
+| `kubectl describe pvc <pvc名>`     | 查看 PVC 绑定状态和容量           |
+| `kubectl delete pvc <pvc名>`       | 删除 PVC（可能导致 Pod 挂载失败） |
+
+##### StorageClass (SC)
+| 命令                                           | 说明                             |
+| ---------------------------------------------- | -------------------------------- |
+| `kubectl get storageclass` 或 `kubectl get sc` | 列出 StorageClass                |
+| `kubectl describe sc <sc名>`                   | 查看 StorageClass 参数及默认配置 |
+| `kubectl delete sc <sc名>`                     | 删除 StorageClass                |
+
+**卷挂载相关**（Pod 中使用 PVC）：
+```yaml
+# 在 Pod 或 Deployment 的 YAML 中定义 volumes 和 volumeMounts
+```
+
+常用命令检查挂载情况：
+- `kubectl describe pod <pod名>` 查看 Volumes 字段
+- `kubectl exec <pod名> -- df -h` 查看容器内文件系统挂载
+
+---
+
+#### 常用选项与技巧
+
+| 命令模式                            | 说明                                                  |
+| ----------------------------------- | ----------------------------------------------------- |
+| `kubectl get all -n <ns>`           | 列出命名空间下常见资源（Pod、Service、Deployment 等） |
+| `kubectl get <资源> -w`             | 实时监听资源变化                                      |
+| `kubectl api-resources`             | 查看集群支持的所有资源类型                            |
+| `kubectl explain <资源>`            | 查看资源的字段说明（如 `kubectl explain pod.spec`）   |
+| `kubectl delete -f <配置文件>.yaml` | 通过 YAML 文件删除资源                                |
+| `kubectl apply -f <目录或文件>`     | 声明式创建/更新资源（推荐）                           |
+
+
+
