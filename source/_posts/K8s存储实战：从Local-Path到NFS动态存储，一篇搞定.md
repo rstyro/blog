@@ -8,20 +8,20 @@ updated: 2026-07-04 17:50:44
 
 
 
-在 Kubernetes 集群中，持久化存储是绕不开的刚需。无论是数据库的高可用，还是 AI 模型文件的共享，都离不开一个可靠的 StorageClass（存储类）。
+在 K8s 里搞存储，很多人一开始都是手动写 YAML 建 PV，后来才发现**动态供给（Dynamic Provisioning）** 才是王道。
 
-今天这篇文章，我们将**从零开始**，先搭建轻量级的本地存储 `local-path-provisioner`，再搭建企业级共享存储 NFS，并最终在 K8s 中实现**动态存储卷分配**（PVC 自动创建 PV）。读完这篇，你就能根据业务需求灵活选择存储方案了。
-
-
+本文不扯虚的，直接上手两套方案：先搞定轻量级的本地存储 `local-path-provisioner`，再搭建企业级共享存储 `NFS`。读完这篇，你就能根据业务需求，灵活搞定 K8s 的持久化存储了。
 
 
-好的，我在原文最前面补充了 **local-path-provisioner** 的安装使用，并在其后增加了与 NFS 的横向对比，帮你更清晰地理解两者的适用场景。以下是完整的微信公众号文章内容，你可以直接复制排版发布。
+
+<!--more-->
+
 
 
 
 ## 一、安装本地动态存储
 
-如果你只是想快速测试，或者对读写性能要求极高且数据不需要跨节点共享，`local-path-provisioner` 是最佳选择。它由 Rancher 开源，利用节点本地的磁盘空间为 Pod 动态分配存储。
+如果你只是想快速测试，或者跑一些对 IO 要求极高、且不需要跨节点共享的组件（比如单机 Prometheus、临时计算任务），Rancher 开源的 `local-path-provisioner` 是最佳选择。它直接利用节点本地磁盘给 Pod 分配存储，性能几乎等同于裸盘。
 
 
 
@@ -31,6 +31,10 @@ updated: 2026-07-04 17:50:44
 kubectl apply -f https://raw.githubusercontent.com/rancher/local-path-provisioner/v0.0.30/deploy/local-path-storage.yaml
 
 # 修改配置把镜像名称 rancher/local-path-provisioner:v0.0.30 改为 docker.io/rancher/local-path-provisioner:v0.0.30
+
+# 避坑提示：国内节点拉取 rancher/local-path-provisioner 镜像可能会超时。
+# 如果 Pod 一直处于 ImagePullBackOff，建议提前将镜像导入，或修改 Deployment 替换为国内代理镜像。
+
 
 # 将 local-path 设为默认 StorageClass
 # 这样后续创建 PVC 时不指定 `storageClassName` 也会自动使用它
@@ -86,7 +90,7 @@ kubectl get pvc test-local-pvc
 
 ## 二、方案对比：Local-Path vs NFS
 
-在选择存储方案前，我们先看一张核心对比图：
+在决定上 NFS 之前，我们先看一张核心对比图，理清两者的边界：
 
 | 对比维度 | **local-path-provisioner** | **NFS (网络文件系统)** |
 | :--- | :--- | :--- |
@@ -97,16 +101,13 @@ kubectl get pvc test-local-pvc
 | **适用场景** | 高性能数据库、缓存、临时计算任务 | 共享配置文件、AI 模型仓库、日志收集、跨 Pod 共享文件 |
 | **维护成本** | 极低（无需额外服务器） | 需要独立维护 NFS 服务器及磁盘阵列 |
 
-**一句话结论**： 
-**追求极致性能且不需要共享**，选 `local-path`；**需要多 Pod 共享数据或做持久化模型存储**，选 `NFS`。
-
-下面，我们就来详细搭建这套企业级 NFS 动态存储方案。
+**一句话总结**：追求极致性能且数据不共享，选 `local-path`；需要多 Pod 共享数据或做高可用持久化，选 `NFS`。
 
 
 
 ## 三、NFS 服务端安装与配置
 
-- 我们假设你有一台节点作为 NFS 服务端（IP 示例：`192.168.32.131`）。
+- 假设你有一台独立的节点（或 NAS 设备）作为 NFS 服务端，IP 为 `192.168.32.131`。
 
 
 
@@ -114,7 +115,7 @@ kubectl get pvc test-local-pvc
 
 
 
-#### Ubuntu安装
+#### **Ubuntu / Debian 环境：**
 
 ```bash
 sudo apt update
@@ -128,11 +129,11 @@ sudo apt install -y nfs-common rpcbind
 
 
 
-#### Centos
+#### **CentOS / RHEL 环境：**
 
 ```bash
 # 在每个机器。
-yum install -y nfs-utils
+sudo yum install -y nfs-utils rpcbind
 ```
 
 
@@ -149,11 +150,13 @@ sudo mkdir -p /data/nfs-share
 # 配置 exports 文件（定义共享规则）
 echo "/data/nfs-share *(insecure,rw,sync,no_root_squash)" | sudo tee /etc/exports
 
-# *： 允许所有客户端 IP 连接
-# insecure： 允许客户端使用大于 1024 的随机端口（容器 / 虚拟机必加）
-# rw： 读写权限
-# sync： 同步写入，数据落盘更安全
-# no_root_squash： 客户端 root 用户不压缩成 nobody，拥有完整权限
+# 参数解释：
+# *           : 允许所有 IP 访问（生产环境务必改成具体网段，如 192.168.32.0/24）
+# insecure    : 允许客户端使用大于 1024 的随机端口（容器/虚拟机环境必加）
+# rw          : 读写权限
+# sync        : 同步写入，数据落盘更安全
+# no_root_squash: 客户端 root 用户不压缩为 nobody，保留完整权限（避免容器内 root 写入报 Permission denied）
+
 
 
 
@@ -168,10 +171,8 @@ sudo systemctl enable --now nfs-server
 sudo exportfs -arv
 
 
-# 防火墙放行（如开启了 UFW）
-sudo ufw allow nfs
-sudo ufw allow rpcbind
-sudo ufw reload
+# 放行防火墙（如果开启了 UFW/firewalld）
+sudo ufw allow nfs && sudo ufw allow rpcbind
 ```
 
 
@@ -179,33 +180,25 @@ sudo ufw reload
 ### 3.NFS 从节点
 
 ```bash
-# 先查看服务端共享（替换你的 NFS 服务端 IP 192.168.32.131）
+# 1. 查看服务端共享目录
 showmount -e 192.168.32.131
 # 正常输出：/data/nfs-share *
 
 
-# 创建本地挂载目录
+# 2. 本地挂载测试
 sudo mkdir -p /data/nfs-share
-
-# 执行挂载
 sudo mount -t nfs 192.168.32.131:/data/nfs-share /data/nfs-share
 
 
-# 测试读写，写入测试文件
-sudo echo "hello nfs server" > /data/nfs-share/test.txt
-# 回到服务端 /nfs/data 下能看到 test.txt 即成功
+# 3. 测试读写（同样注意 sudo 重定向问题）
+echo "hello nfs server" | sudo tee /data/nfs-share/test.txt
+# 回到服务端查看 /data/nfs-share 下是否有 test.txt，有则说明网络与权限全通。
 
 
 
-# 开机自动永久挂载
-sudo nano /etc/fstab
-
-# 添加一行
-# _netdev：代表网络文件系统，系统等网卡就绪后再挂载，防止开机报错
-192.168.32.131:/data/nfs-share  /data/nfs-share  nfs defaults,_netdev 0 0
-
-
-
+# 4. 配置开机自动挂载
+echo "192.168.32.131:/data/nfs-share  /data/nfs-share  nfs defaults,_netdev 0 0" | sudo tee -a /etc/fstab
+# _netdev 参数很重要：告诉系统等网络就绪后再挂载，防止开机卡死
 
 # 使上面写入生效
 sudo mount -a
@@ -222,9 +215,10 @@ sudo umount -lf /data/nfs-share
 ```
 
 
-## 四、Kubernetes中的 NFS 动态存储卷
 
-手动创建 PV 太原始了，我们使用官方推荐的 **nfs-subdir-external-provisioner** 控制器。它就像一个小管家，只要监听到 PVC 请求，就会自动在 NFS 共享目录下创建子目录并绑定 PV。
+## 四、K8s接入 NFS 动态存储
+
+手动建 PV 太原始了，我们使用官方推荐的 `nfs-subdir-external-provisioner`。它就像一个小管家，监听到 PVC 请求后，会自动在 NFS 目录下创建子目录并绑定 PV。
 
 ### 1. 通过 Helm 安装 Provisioner
 ```bash
@@ -398,15 +392,16 @@ strategyType: Recreate
 # 镜像配置 (如果国内拉取困难，可替换为代理镜像)
 image:
   # repository: registry.k8s.io/sig-storage/nfs-subdir-external-provisioner
-  # 使用华为云的镜像
+  # 国内拉取 k8s.gcr.io 困难，这里替换为华为云代理镜像
   repository: swr.cn-north-4.myhuaweicloud.com/ddn-k8s/registry.k8s.io/sig-storage/nfs-subdir-external-provisioner
   tag: v4.0.2
   
 nfs:
   # 替换为你的 NFS 服务器 IP
   server: 192.168.32.131
-  # 替换为你的 NFS 共享路径
+  # 替换为你的 NFS 共享路径，必须与服务端 /etc/exports 中的路径完全一致
   path: /data/nfs-share 
+  # 优化 NFS 挂载参数，减少锁超时问题
   mountOptions:
     - nolock,tcp,noresvport
 
@@ -426,7 +421,8 @@ storageClass:
   # 设置卷绑定模式 - Immediate(立即绑定) 或 WaitForFirstConsumer(等待第一个 Pod 调度时再绑定)
   volumeBindingMode: Immediate
   # 设置访问模式 - ReadWriteOnce(单节点读写), ReadOnlyMany(多节点只读) 或 ReadWriteMany(多节点读写)
-  accessModes: ReadWriteOnce
+  # NFS 的精髓就是共享，这里必须设为 ReadWriteMany，否则跟本地存储没区别
+  accessModes: ReadWriteMany
   
 # 资源限制
 resources:
@@ -454,15 +450,16 @@ helm install nfs-provisioner nfs-subdir-external-provisioner/nfs-subdir-external
 helm upgrade nfs-provisioner nfs-subdir-external-provisioner/nfs-subdir-external-provisioner \
   -f nfs-values.yaml \
   -n nfs-system  
-  
+
+
+# 查看 Pod 状态，确保 Running
+kubectl get pods -n nfs-system
+
 # 卸载
-helm uninstall nfs-provisioner -n nfs-system
+# helm uninstall nfs-provisioner -n nfs-system
 ```
 
-查看 Pod 是否正常运行：
-```bash
-kubectl get pods -n nfs-system
-```
+
 
 ### 4. 验证动态存储是否生效
 创建一个测试 PVC：
@@ -505,9 +502,10 @@ kubectl get pv
 
 - **故障排查三板斧**：
 
-  - 节点上执行 `showmount -e <server_ip>` 看网络通不通。
+  - PVC 一直 `Pending`？执行 `kubectl describe pvc <name>` 看 Events。
 
-  - K8s 中 PVC Pending 时，看 `kubectl describe pvc` 事件，并检查 `nfs-provisioner` Pod 日志。
+  - 提示 `mount failed`？去节点上执行 `showmount -e <server_ip>` 检查网络通不通。
+  - 容器内报 `Permission denied`？检查 NFS 服务端的目录属主，或者确认是否加了 `no_root_squash`。
 
 
 
