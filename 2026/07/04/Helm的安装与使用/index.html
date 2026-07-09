@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/favicon.jpg">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon.jpg">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon.jpg">
+  <link rel="mask-icon" href="/blog/images/favicon.jpg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="/blog/lib/pace/pace-theme-flash.min.css">
+  <script src="/blog/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"rstyro.github.io","root":"/blog/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":true},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.json"};
+  </script>
+
+  <meta name="description" content="玩 K8s 的朋友肯定都有过这种体验：部署一个微服务，Deployment、Service、ConfigMap、Ingress…… 一堆 YAML 文件写得头晕眼花。换个环境还得挨个改配置，一旦升级出错，回滚更是噩梦。 这时候，你就需要 Helm 了。 作为 K8s 事实上的“包管理器”，Helm 能把这些零散的资源打包，让你像用 apt 或 yum 装软件一样，一条命令搞定复杂应用的部署。这篇文">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Helm的安装与使用">
+<meta property="og:url" content="https://rstyro.github.io/blog/2026/07/04/Helm%E7%9A%84%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/index.html">
+<meta property="og:site_name" content="胖不了小陆">
+<meta property="og:description" content="玩 K8s 的朋友肯定都有过这种体验：部署一个微服务，Deployment、Service、ConfigMap、Ingress…… 一堆 YAML 文件写得头晕眼花。换个环境还得挨个改配置，一旦升级出错，回滚更是噩梦。 这时候，你就需要 Helm 了。 作为 K8s 事实上的“包管理器”，Helm 能把这些零散的资源打包，让你像用 apt 或 yum 装软件一样，一条命令搞定复杂应用的部署。这篇文">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://rstyro.github.io/blog/2026/07/04/Helm%E7%9A%84%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/version.png">
+<meta property="article:published_time" content="2026-07-04T04:03:01.000Z">
+<meta property="article:modified_time" content="2026-07-04T04:03:01.000Z">
+<meta property="article:author" content="rstyro">
+<meta property="article:tag" content="k8s">
+<meta property="article:tag" content="Kubernetes">
+<meta property="article:tag" content="Helm">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://rstyro.github.io/blog/2026/07/04/Helm%E7%9A%84%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/version.png">
+
+<link rel="canonical" href="https://rstyro.github.io/blog/2026/07/04/Helm%E7%9A%84%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Helm的安装与使用 | 胖不了小陆</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">胖不了小陆</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">信你所信，为你所见</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/blog/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/blog/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/blog/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/rstyro" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://rstyro.github.io/blog/2026/07/04/Helm%E7%9A%84%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/avatar.jpg">
+      <meta itemprop="name" content="rstyro">
+      <meta itemprop="description" content="人间的饭，吃一碗少一碗，身边的人，见一面少一面，脚下的路，走一天少一天，其实人生就是一个减法，来日并不方长！">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="胖不了小陆">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Helm的安装与使用
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2026-07-04 12:03:01" itemprop="dateCreated datePublished" datetime="2026-07-04T12:03:01+08:00">2026-07-04</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E7%BD%91%E7%BB%9C%E8%BF%90%E7%BB%B4/" itemprop="url" rel="index"><span itemprop="name">网络运维</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>玩 K8s 的朋友肯定都有过这种体验：部署一个微服务，Deployment、Service、ConfigMap、Ingress…… 一堆 YAML 文件写得头晕眼花。换个环境还得挨个改配置，一旦升级出错，回滚更是噩梦。</p>
+<p>这时候，你就需要 Helm 了。</p>
+<p>作为 K8s 事实上的“包管理器”，Helm 能把这些零散的资源打包，让你像用 <code>apt</code> 或 <code>yum</code> 装软件一样，一条命令搞定复杂应用的部署。这篇文章不整虚的，直接带你搞懂 Helm 的核心逻辑，并手把手完成安装和基础配置。</p>
+<span id="more"></span>
+
+
+<h2 id="一、为什么-K8s-需要-Helm？"><a href="#一、为什么-K8s-需要-Helm？" class="headerlink" title="一、为什么 K8s 需要 Helm？"></a>一、为什么 K8s 需要 Helm？</h2><h3 id="1-1-原生-Kubernetes-部署的痛点"><a href="#1-1-原生-Kubernetes-部署的痛点" class="headerlink" title="1.1 原生 Kubernetes 部署的痛点"></a>1.1 原生 Kubernetes 部署的痛点</h3><p>假设你要部署一个微服务应用，它通常包含：</p>
+<ul>
+<li>Deployment（部署）</li>
+<li>Service（服务暴露）</li>
+<li>ConfigMap（配置）</li>
+<li>Secret（敏感信息）</li>
+<li>Ingress（路由）</li>
+<li>PersistentVolumeClaim（存储）</li>
+</ul>
+<p>你需要维护数十甚至上百个 YAML 文件，且每个环境（开发、测试、生产）的配置还有差异。更麻烦的是，<strong>版本升级时你要小心翼翼地修改参数，回滚时更是噩梦</strong>——因为 Kubernetes 原生并不提供“应用级”的版本管理。</p>
+<h3 id="1-2-Helm-的解法"><a href="#1-2-Helm-的解法" class="headerlink" title="1.2 Helm 的解法"></a>1.2 Helm 的解法</h3><p>Helm 的出现，正是为了解决上述问题。它的灵感来自 Linux 的包管理器（如 apt、yum）——就像 <code>apt install nginx</code> 能帮你搞定所有依赖和配置一样，Helm 让你用一条命令就能安装一个完整的应用栈。</p>
+<ul>
+<li><strong>诞生时间</strong>：2015 年，由 Deis 公司开源，后来成为 CNCF（云原生计算基金会）的顶级项目。</li>
+<li><strong>核心目标</strong>：定义、安装、升级复杂的 Kubernetes 应用，并管理其生命周期。</li>
+</ul>
+<h3 id="1-3-Helm-的核心概念"><a href="#1-3-Helm-的核心概念" class="headerlink" title="1.3 Helm 的核心概念"></a>1.3 Helm 的核心概念</h3><p>要理解 Helm，只需记住三个关键词：</p>
+<table>
+<thead>
+<tr>
+<th align="left">概念</th>
+<th align="left">类比</th>
+<th align="left">解释</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>Chart</strong></td>
+<td align="left">软件包（如 .deb&#x2F;.rpm）</td>
+<td align="left">包含运行一个应用所需的所有 K8s 资源 YAML 模板和元数据。</td>
+</tr>
+<tr>
+<td align="left"><strong>Release</strong></td>
+<td align="left">运行中的实例（如一个已安装的软件）</td>
+<td align="left">当你在集群中安装一个 Chart 后，就产生了一个 Release，可以多次安装同一个 Chart 得到多个 Release（如 dev-nginx、prod-nginx）。</td>
+</tr>
+<tr>
+<td align="left"><strong>Repository</strong></td>
+<td align="left">软件源（如 APT 仓库）</td>
+<td align="left">存放 Chart 的 HTTP 服务器，Helm 从仓库中拉取 Chart。</td>
+</tr>
+</tbody></table>
+<p>有了这三个抽象，Helm 就能像管理软件包一样管理你的应用。</p>
+<hr>
+<h2 id="二、Helm的核心能力"><a href="#二、Helm的核心能力" class="headerlink" title="二、Helm的核心能力"></a>二、Helm的核心能力</h2><p>日常使用中，Helm 主要帮你干这几件事：</p>
+<ol>
+<li><strong>一键部署与升级</strong>：用 <code>helm install</code> 部署，用 <code>helm upgrade</code> 更新。改个配置或换个镜像，K8s 资源会自动滚动更新。</li>
+<li><strong>后悔药（回滚）</strong>：Helm 会记录每次升级的 Revision（修订版号）。生产环境出事故时，一句 <code>helm rollback</code> 就能瞬间回到上一个正常版本。</li>
+<li><strong>模板化配置</strong>：Chart 内部使用 Go 模板。你只需维护一个 <code>values.yaml</code>，就能用同一套模板适配 dev、test、prod 不同环境。</li>
+<li><strong>依赖与钩子</strong>：支持应用依赖管理（如 WordPress 自动拉取 MySQL）；支持生命周期钩子（Hooks），可以在安装前后自动执行数据库初始化等 Job。</li>
+</ol>
+<hr>
+<h2 id="三、Helm安装指南"><a href="#三、Helm安装指南" class="headerlink" title="三、Helm安装指南"></a>三、Helm安装指南</h2><p><em>注：Helm v3 之后已经移除了服务端组件 Tiller，所以现在安装 Helm，实际上就是安装客户端 CLI 工具。</em></p>
+<p>这里提供两种最常用的安装方式。</p>
+<h3 id="3-1-方式一：官方脚本一键安装（推荐，最快捷）"><a href="#3-1-方式一：官方脚本一键安装（推荐，最快捷）" class="headerlink" title="3.1 方式一：官方脚本一键安装（推荐，最快捷）"></a>3.1 方式一：官方脚本一键安装（推荐，最快捷）</h3><p>适合所有 Linux 发行版，脚本会自动检测系统架构并下载对应二进制文件。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 下载安装脚本并执行（自动检测最新版本）</span></span><br><span class="line">curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-4</span><br><span class="line"><span class="built_in">chmod</span> 700 get_helm.sh</span><br><span class="line">./get_helm.sh</span><br><span class="line"></span><br><span class="line"><span class="comment"># 或者简单粗暴的一行命令版：</span></span><br><span class="line">curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-4 | bash</span><br></pre></td></tr></table></figure>
+
+<p><strong>原理</strong>：脚本会检测系统架构，从 GitHub Releases 下载对应二进制文件，并放到 <code>/usr/local/bin/helm</code>。</p>
+<p>安装完成后，检查版本：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">helm version</span><br><span class="line"><span class="comment"># 输出类似: version.BuildInfo&#123;Version:&quot;v3.18.5&quot;, ...&#125;</span></span><br></pre></td></tr></table></figure>
+
+
+
+<blockquote>
+<p><em>国内网络如果拉取 GitHub 脚本较慢，建议配置代理，或者直接使用下面的 APT 方式</em></p>
+</blockquote>
+<h3 id="3-2-方式二：APT-包管理器安装（适合-Ubuntu-Debian）"><a href="#3-2-方式二：APT-包管理器安装（适合-Ubuntu-Debian）" class="headerlink" title="3.2 方式二：APT 包管理器安装（适合 Ubuntu&#x2F;Debian）"></a>3.2 方式二：APT 包管理器安装（适合 Ubuntu&#x2F;Debian）</h3><p>利用 APT 管理，优点是支持签名校验和后续的自动更新。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 定义Helm官方APT仓库密钥指纹，用于校验密钥合法性，防止密钥被篡改</span></span><br><span class="line">HELM_BUILDKITE_APT_KEY_ID=<span class="string">&quot;DDF78C3E6EBB2D2CC223C95C62BA89D07698DBC6&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 安装必备工具：curl下载文件、gpg校验密钥、apt-transport-https支持https源；--yes自动确认安装</span></span><br><span class="line"><span class="built_in">sudo</span> apt-get install curl gpg apt-transport-https --<span class="built_in">yes</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 静默下载Helm仓库GPG公钥，保存到临时目录，无TMPDIR则默认存/tmp/helm.gpg</span></span><br><span class="line">curl -fsSL https://packages.buildkite.com/helm-linux/helm-debian/gpgkey &gt; <span class="string">&quot;<span class="variable">$&#123;TMPDIR:-/tmp&#125;</span>/helm.gpg&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 校验下载的公钥指纹和预设指纹是否一致，防止中间人篡改密钥</span></span><br><span class="line"><span class="comment"># gpg --show-keys --with-colons：机器可读格式输出密钥信息</span></span><br><span class="line"><span class="comment"># awk -F: &#x27;$1 == &quot;fpr&quot; &#123;print $10&#125;&#x27;：提取指纹字段</span></span><br><span class="line"><span class="comment"># head -n 1：取第一条指纹</span></span><br><span class="line"><span class="comment"># 不一致则打印错误并直接退出脚本</span></span><br><span class="line"><span class="keyword">if</span> [ <span class="string">&quot;<span class="subst">$(gpg --show-keys --with-colons <span class="string">&quot;<span class="variable">$&#123;TMPDIR:-/tmp&#125;</span>/helm.gpg&quot;</span> | awk -F: &#x27;$1 == <span class="string">&quot;fpr&quot;</span> &#123;print $10&#125;&#x27; | head -n 1)</span>&quot;</span> != <span class="string">&quot;<span class="variable">$&#123;HELM_BUILDKITE_APT_KEY_ID&#125;</span>&quot;</span> ]; <span class="keyword">then</span> <span class="built_in">echo</span> <span class="string">&quot;ERROR: Unexpected Helm APT key ID: potential key compromise&quot;</span>; <span class="built_in">exit</span> 1; <span class="keyword">fi</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 将明文GPG密钥转为apt兼容的二进制密钥，保存到系统可信密钥目录，屏蔽标准输出</span></span><br><span class="line"><span class="built_in">cat</span> <span class="string">&quot;<span class="variable">$&#123;TMPDIR:-/tmp&#125;</span>/helm.gpg&quot;</span> | gpg --dearmor | <span class="built_in">sudo</span> <span class="built_in">tee</span> /usr/share/keyrings/helm.gpg &gt; /dev/null</span><br><span class="line"></span><br><span class="line"><span class="comment"># 写入Helm软件源配置文件，指定该源使用上面导入的密钥校验包签名</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;deb [signed-by=/usr/share/keyrings/helm.gpg] https://packages.buildkite.com/helm-linux/helm-debian/any/ any main&quot;</span> | <span class="built_in">sudo</span> <span class="built_in">tee</span> /etc/apt/sources.list.d/helm-stable-debian.list</span><br><span class="line"></span><br><span class="line"><span class="comment"># 更新apt软件源索引，读取刚添加的helm源</span></span><br><span class="line"><span class="built_in">sudo</span> apt-get update</span><br><span class="line"></span><br><span class="line"><span class="comment"># 通过apt包管理器安装helm客户端</span></span><br><span class="line"><span class="built_in">sudo</span> apt-get install helm</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 卸载</span></span><br><span class="line">apt remove helm</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="3-3-验证安装与配置"><a href="#3-3-验证安装与配置" class="headerlink" title="3.3 验证安装与配置"></a>3.3 验证安装与配置</h3><p>安装完毕后，运行 <code>helm version</code>，如果显示客户端版本信息，则成功。</p>
+<blockquote>
+<p><strong>注意</strong>：Helm 默认使用 <code>~/.kube/config</code> 与集群通信，所以请确保你的 <code>kubectl</code> 已正确配置。如果没有，Helm 命令会报错。</p>
+</blockquote>
+<p><img src="/blog/2026/07/04/Helm%E7%9A%84%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/version.png"></p>
+<h2 id="四、日常高频命令速查"><a href="#四、日常高频命令速查" class="headerlink" title="四、日常高频命令速查"></a>四、日常高频命令速查</h2><p>装好 Helm 后，把下面这些命令混个脸熟，日常运维基本够用了。</p>
+<h3 id="4-1-仓库管理"><a href="#4-1-仓库管理" class="headerlink" title="4.1 仓库管理"></a>4.1 仓库管理</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 添加仓库（以知名的 Bitnami、Higress 为例）</span></span><br><span class="line">helm repo add bitnami https://charts.bitnami.com/bitnami</span><br><span class="line">helm repo add higress https://higress.io/helm-charts</span><br><span class="line"></span><br><span class="line"><span class="comment"># 更新仓库索引（安装前务必执行）</span></span><br><span class="line">helm repo update</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 确认harbor版本存在</span></span><br><span class="line">helm search repo harbor/harbor --versions | <span class="built_in">head</span></span><br><span class="line"><span class="comment"># 确认mysql版本存在</span></span><br><span class="line">helm search repo mysql --versions | <span class="built_in">head</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看已添加的仓库列表</span></span><br><span class="line">helm repo list</span><br><span class="line"></span><br><span class="line"><span class="comment"># 删除仓库</span></span><br><span class="line">helm repo remove higress</span><br></pre></td></tr></table></figure>
+
+<h3 id="4-2-安装与升级"><a href="#4-2-安装与升级" class="headerlink" title="4.2 安装与升级"></a>4.2 安装与升级</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 基本安装（创建命名空间）</span></span><br><span class="line">helm install my-nginx bitnami/nginx -n my-ns --create-namespace</span><br><span class="line"></span><br><span class="line"><span class="comment"># 指定自定义 values.yaml 安装</span></span><br><span class="line">helm install my-app ./my-chart -f values-prod.yaml</span><br><span class="line"></span><br><span class="line"><span class="comment"># 安装特定版本</span></span><br><span class="line">helm install my-app bitnami/nginx --version 15.0.0</span><br><span class="line"></span><br><span class="line"><span class="comment"># 升级（如果 release 不存在则执行 install）</span></span><br><span class="line">helm upgrade my-app bitnami/nginx -n my-ns --install -f new-values.yaml</span><br></pre></td></tr></table></figure>
+
+<h3 id="4-3-查看与调试"><a href="#4-3-查看与调试" class="headerlink" title="4.3 查看与调试"></a>4.3 查看与调试</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 列出所有命名空间的 Release</span></span><br><span class="line">helm list -A</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看 Release 状态</span></span><br><span class="line">helm status my-app -n my-ns</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看历史版本（含 Revision 编号）</span></span><br><span class="line">helm <span class="built_in">history</span> my-app -n my-ns</span><br><span class="line"></span><br><span class="line"><span class="comment"># 只渲染 YAML 而不实际安装（用于调试模板）</span></span><br><span class="line">helm template my-app ./my-chart</span><br><span class="line"></span><br><span class="line"><span class="comment"># 模拟执行（dry-run）</span></span><br><span class="line">helm upgrade my-app ./my-chart --dry-run</span><br></pre></td></tr></table></figure>
+
+<h3 id="4-4-回滚与卸载"><a href="#4-4-回滚与卸载" class="headerlink" title="4.4 回滚与卸载"></a>4.4 回滚与卸载</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 回滚到上一个版本</span></span><br><span class="line">helm rollback my-app -n my-ns</span><br><span class="line"></span><br><span class="line"><span class="comment"># 回滚到指定 Revision（如 2）</span></span><br><span class="line">helm rollback my-app 2 -n my-ns</span><br><span class="line"></span><br><span class="line"><span class="comment"># 卸载 Release</span></span><br><span class="line">helm uninstall my-app -n my-ns</span><br></pre></td></tr></table></figure>
+
+<h3 id="4-5-导出配置与查看-Chart-信息"><a href="#4-5-导出配置与查看-Chart-信息" class="headerlink" title="4.5 导出配置与查看 Chart 信息"></a>4.5 导出配置与查看 Chart 信息</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看 Chart 的默认 values（调参必看）</span></span><br><span class="line">helm show values bitnami/nginx</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看 Chart 的 README</span></span><br><span class="line">helm show readme bitnami/nginx</span><br><span class="line"></span><br><span class="line"><span class="comment"># 导出当前 Release 的已生效配置（用于备份）</span></span><br><span class="line">helm get values my-app -n my-ns -o yaml &gt; current-values.yaml</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="五、最佳实践与避坑指南"><a href="#五、最佳实践与避坑指南" class="headerlink" title="五、最佳实践与避坑指南"></a>五、最佳实践与避坑指南</h2><ol>
+<li><p><strong>始终使用 <code>--dry-run</code> 预览</strong>：在正式安装或升级前，先执行 <code>--dry-run</code> 和 <code>--debug</code>，检查生成的 YAML 是否符合预期，避免直接犯错。</p>
+</li>
+<li><p><strong>管理 values 文件</strong>：将不同环境的配置（dev&#x2F;staging&#x2F;prod）分离，不要直接在命令行传参，否则难以维护。</p>
+</li>
+<li><p><strong>善用 Helm 钩子（Hooks）</strong>：如果 Chart 提供了 <code>pre-install</code>、<code>post-upgrade</code> 等钩子，利用它们来做数据库迁移等初始化操作。</p>
+</li>
+<li><p><strong>注意 CRD 管理</strong>：Helm 默认不会升级 CRD（自定义资源），请参考 Chart 官方文档单独处理。</p>
+</li>
+<li><p><strong>国内网络优化</strong>：如果从 GitHub 下载脚本慢，可以设置代理或使用 APT 方式（已经过 CDN 加速）。</p>
+</li>
+</ol>
+<h2 id="六、结语"><a href="#六、结语" class="headerlink" title="六、结语"></a>六、结语</h2><p>Helm 早就成了 K8s 生态里绕不开的基础设施，把 Helm 玩溜了，你的 K8s 交付效率绝对能翻倍。</p>
+<p>从这篇的安装和基础命令开始，你已经掌握了 Helm 的核心玩法。接下来，我打算写一期实战，用 Helm 部署  <strong>NFS 动态存储 Provisioner</strong> 和 <strong>Harbor 镜像仓库</strong>，真正将理论落地到生产级别的环境中。</p>
+<p>大家在安装或使用 Helm 时踩过什么坑？或者有什么好用的私有 Chart 仓库推荐？欢迎在评论区交流，我们下期见。</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>您的打赏，是我创作的动力！不给钱？那我只能靠想象力充饥了。</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/wechat_pay.jpg" alt="rstyro 微信支付">
+        <p>微信支付</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/alipay.jpg" alt="rstyro 支付宝">
+        <p>支付宝</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/blog/tags/k8s/" rel="tag"><i class="fa fa-tag"></i> k8s</a>
+              <a href="/blog/tags/Kubernetes/" rel="tag"><i class="fa fa-tag"></i> Kubernetes</a>
+              <a href="/blog/tags/Helm/" rel="tag"><i class="fa fa-tag"></i> Helm</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2026/07/04/Linux%E6%9C%8D%E5%8A%A1%E5%99%A8%E9%83%A8%E7%BD%B2Mihomo%E9%85%8D%E7%BD%AEClash%E4%BB%A3%E7%90%86/" rel="prev" title="Linux服务器部署Mihomo配置Clash代理">
+      <i class="fa fa-chevron-left"></i> Linux服务器部署Mihomo配置Clash代理
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/blog/2026/07/04/K8s%E5%AD%98%E5%82%A8%E5%AE%9E%E6%88%98%EF%BC%9A%E4%BB%8ELocal-Path%E5%88%B0NFS%E5%8A%A8%E6%80%81%E5%AD%98%E5%82%A8%EF%BC%8C%E4%B8%80%E7%AF%87%E6%90%9E%E5%AE%9A/" rel="next" title="K8s存储实战：从Local-Path到NFS动态存储，一篇搞定">
+      K8s存储实战：从Local-Path到NFS动态存储，一篇搞定 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E4%B8%BA%E4%BB%80%E4%B9%88-K8s-%E9%9C%80%E8%A6%81-Helm%EF%BC%9F"><span class="nav-number">1.</span> <span class="nav-text">一、为什么 K8s 需要 Helm？</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-%E5%8E%9F%E7%94%9F-Kubernetes-%E9%83%A8%E7%BD%B2%E7%9A%84%E7%97%9B%E7%82%B9"><span class="nav-number">1.1.</span> <span class="nav-text">1.1 原生 Kubernetes 部署的痛点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2-Helm-%E7%9A%84%E8%A7%A3%E6%B3%95"><span class="nav-number">1.2.</span> <span class="nav-text">1.2 Helm 的解法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-3-Helm-%E7%9A%84%E6%A0%B8%E5%BF%83%E6%A6%82%E5%BF%B5"><span class="nav-number">1.3.</span> <span class="nav-text">1.3 Helm 的核心概念</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81Helm%E7%9A%84%E6%A0%B8%E5%BF%83%E8%83%BD%E5%8A%9B"><span class="nav-number">2.</span> <span class="nav-text">二、Helm的核心能力</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81Helm%E5%AE%89%E8%A3%85%E6%8C%87%E5%8D%97"><span class="nav-number">3.</span> <span class="nav-text">三、Helm安装指南</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-%E6%96%B9%E5%BC%8F%E4%B8%80%EF%BC%9A%E5%AE%98%E6%96%B9%E8%84%9A%E6%9C%AC%E4%B8%80%E9%94%AE%E5%AE%89%E8%A3%85%EF%BC%88%E6%8E%A8%E8%8D%90%EF%BC%8C%E6%9C%80%E5%BF%AB%E6%8D%B7%EF%BC%89"><span class="nav-number">3.1.</span> <span class="nav-text">3.1 方式一：官方脚本一键安装（推荐，最快捷）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-%E6%96%B9%E5%BC%8F%E4%BA%8C%EF%BC%9AAPT-%E5%8C%85%E7%AE%A1%E7%90%86%E5%99%A8%E5%AE%89%E8%A3%85%EF%BC%88%E9%80%82%E5%90%88-Ubuntu-Debian%EF%BC%89"><span class="nav-number">3.2.</span> <span class="nav-text">3.2 方式二：APT 包管理器安装（适合 Ubuntu&#x2F;Debian）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-3-%E9%AA%8C%E8%AF%81%E5%AE%89%E8%A3%85%E4%B8%8E%E9%85%8D%E7%BD%AE"><span class="nav-number">3.3.</span> <span class="nav-text">3.3 验证安装与配置</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E6%97%A5%E5%B8%B8%E9%AB%98%E9%A2%91%E5%91%BD%E4%BB%A4%E9%80%9F%E6%9F%A5"><span class="nav-number">4.</span> <span class="nav-text">四、日常高频命令速查</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-1-%E4%BB%93%E5%BA%93%E7%AE%A1%E7%90%86"><span class="nav-number">4.1.</span> <span class="nav-text">4.1 仓库管理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2-%E5%AE%89%E8%A3%85%E4%B8%8E%E5%8D%87%E7%BA%A7"><span class="nav-number">4.2.</span> <span class="nav-text">4.2 安装与升级</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-3-%E6%9F%A5%E7%9C%8B%E4%B8%8E%E8%B0%83%E8%AF%95"><span class="nav-number">4.3.</span> <span class="nav-text">4.3 查看与调试</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-4-%E5%9B%9E%E6%BB%9A%E4%B8%8E%E5%8D%B8%E8%BD%BD"><span class="nav-number">4.4.</span> <span class="nav-text">4.4 回滚与卸载</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-5-%E5%AF%BC%E5%87%BA%E9%85%8D%E7%BD%AE%E4%B8%8E%E6%9F%A5%E7%9C%8B-Chart-%E4%BF%A1%E6%81%AF"><span class="nav-number">4.5.</span> <span class="nav-text">4.5 导出配置与查看 Chart 信息</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%94%E3%80%81%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5%E4%B8%8E%E9%81%BF%E5%9D%91%E6%8C%87%E5%8D%97"><span class="nav-number">5.</span> <span class="nav-text">五、最佳实践与避坑指南</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%AD%E3%80%81%E7%BB%93%E8%AF%AD"><span class="nav-number">6.</span> <span class="nav-text">六、结语</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="rstyro"
+      src="/blog/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">rstyro</p>
+  <div class="site-description" itemprop="description">人间的饭，吃一碗少一碗，身边的人，见一面少一面，脚下的路，走一天少一天，其实人生就是一个减法，来日并不方长！</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives/">
+        
+          <span class="site-state-item-count">248</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/blog/tags/">
+          
+        <span class="site-state-item-count">105</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/rstyro" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;rstyro" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/rstyro" title="Gitee → https:&#x2F;&#x2F;gitee.com&#x2F;rstyro" rel="noopener" target="_blank"><i class="fab fa-codiepie fa-fw"></i>Gitee</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.jianshu.com/u/651c15a1758a" title="简书 → https:&#x2F;&#x2F;www.jianshu.com&#x2F;u&#x2F;651c15a1758a" rel="noopener" target="_blank"><i class="fa fa-book fa-fw"></i>简书</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      友链
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://rstyro.github.io/blog/" title="https:&#x2F;&#x2F;rstyro.github.io&#x2F;blog&#x2F;">胖不了小陆</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; Mon Apr 10 2017 08:00:00 GMT+0800 (中国标准时间) – 
+  <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">以梦为马，诗酒趁年华</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/muse.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+  <script>
+    (function(){
+      var canonicalURL, curProtocol;
+      //Get the <link> tag
+      var x=document.getElementsByTagName("link");
+		//Find the last canonical URL
+		if(x.length > 0){
+			for (i=0;i<x.length;i++){
+				if(x[i].rel.toLowerCase() == 'canonical' && x[i].href){
+					canonicalURL=x[i].href;
+				}
+			}
+		}
+    //Get protocol
+	    if (!canonicalURL){
+	    	curProtocol = window.location.protocol.split(':')[0];
+	    }
+	    else{
+	    	curProtocol = canonicalURL.split(':')[0];
+	    }
+      //Get current URL if the canonical URL does not exist
+	    if (!canonicalURL) canonicalURL = window.location.href;
+	    //Assign script content. Replace current URL with the canonical URL
+      !function(){var e=/([http|https]:\/\/[a-zA-Z0-9\_\.]+\.baidu\.com)/gi,r=canonicalURL,t=document.referrer;if(!e.test(r)){var n=(String(curProtocol).toLowerCase() === 'https')?"https://sp0.baidu.com/9_Q4simg2RQJ8t7jm9iCKT-xh_/s.gif":"//api.share.baidu.com/s.gif";t?(n+="?r="+encodeURIComponent(document.referrer),r&&(n+="&l="+r)):r&&(n+="?l="+r);var i=new Image;i.src=n}}(window);})();
+  </script>
+
+
+
+
+  
+<script src="/blog/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+<script>
+if (document.querySelectorAll('pre.mermaid').length) {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mermaid@8/dist/mermaid.min.js', () => {
+    mermaid.initialize({
+      theme    : 'default',
+      logLevel : 3,
+      flowchart: { curve     : 'linear' },
+      gantt    : { axisFormat: '%m/%d/%Y' },
+      sequence : { actorMargin: 50 }
+    });
+  }, window.mermaid);
+}
+</script>
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : 'Ov23litYkWaOGM7kAKPD',
+      clientSecret: '43bd3cf99bfcb9d05d16627c97a9f7a0200df04a',
+      repo        : 'blog',
+      owner       : 'rstyro',
+      admin       : ['rstyro'],
+      id          : '70209db827c71c96446c88d37e4ea19d',
+        language: '',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>

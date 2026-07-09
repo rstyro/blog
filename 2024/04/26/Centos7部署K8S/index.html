@@ -407,6 +407,299 @@
 <ul>
 <li>访问Nginx地址： http:&#x2F;&#x2F;任意节点的ip:图中Nginx的对外映射端口，<a target="_blank" rel="noopener" href="http://192.168.80.132:31129/">http://192.168.80.132:31129/</a></li>
 </ul>
+<h3 id="三、常用命令"><a href="#三、常用命令" class="headerlink" title="三、常用命令"></a>三、常用命令</h3><p>以下整理了 Kubernetes 中 <strong>Namespace</strong>、<strong>Pod</strong>、<strong>Deployment</strong>、<strong>Service</strong>、<strong>Ingress</strong>、<strong>存储卷（PV &#x2F; PVC &#x2F; StorageClass）</strong> 的常用 <code>kubectl</code> 命令。每个分类均包含查看、创建、删除、描述等典型操作。</p>
+<hr>
+<h4 id="1-Namespace"><a href="#1-Namespace" class="headerlink" title="1. Namespace"></a>1. Namespace</h4><table>
+<thead>
+<tr>
+<th>命令</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>kubectl get namespaces</code> 或 <code>kubectl get ns</code></td>
+<td>列出所有命名空间</td>
+</tr>
+<tr>
+<td><code>kubectl create namespace &lt;名称&gt;</code></td>
+<td>创建命名空间</td>
+</tr>
+<tr>
+<td><code>kubectl describe namespace &lt;名称&gt;</code></td>
+<td>查看命名空间详情</td>
+</tr>
+<tr>
+<td><code>kubectl delete namespace &lt;名称&gt;</code></td>
+<td>删除命名空间（会删除其下所有资源）</td>
+</tr>
+<tr>
+<td><code>kubectl config set-context --current --namespace=&lt;名称&gt;</code></td>
+<td>切换当前上下文的默认命名空间</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p><strong>提示</strong>：多数命令可通过 <code>-n &lt;命名空间&gt;</code> 或 <code>--all-namespaces</code> 指定范围。</p>
+</blockquote>
+<h4 id="2-Pod"><a href="#2-Pod" class="headerlink" title="2. Pod"></a>2. Pod</h4><table>
+<thead>
+<tr>
+<th>命令</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>kubectl get pods</code> 或 <code>kubectl get po</code></td>
+<td>列出当前命名空间的 Pod</td>
+</tr>
+<tr>
+<td><code>kubectl get pods -o wide</code></td>
+<td>显示更多信息（IP、节点等）</td>
+</tr>
+<tr>
+<td><code>kubectl describe pod &lt;pod名&gt;</code></td>
+<td>查看 Pod 详细状态和事件</td>
+</tr>
+<tr>
+<td><code>kubectl logs &lt;pod名&gt;</code></td>
+<td>查看 Pod 日志</td>
+</tr>
+<tr>
+<td><code>kubectl logs &lt;pod名&gt; -c &lt;容器名&gt;</code></td>
+<td>查看多容器 Pod 中特定容器的日志</td>
+</tr>
+<tr>
+<td><code>kubectl exec -it &lt;pod名&gt; -- /bin/bash</code></td>
+<td>进入 Pod 的 shell（需容器内有 bash）</td>
+</tr>
+<tr>
+<td><code>kubectl exec &lt;pod名&gt; -- &lt;命令&gt;</code></td>
+<td>在 Pod 中执行命令</td>
+</tr>
+<tr>
+<td><code>kubectl delete pod &lt;pod名&gt;</code></td>
+<td>删除 Pod（若被控制器管理，会重建）</td>
+</tr>
+<tr>
+<td><code>kubectl port-forward &lt;pod名&gt; &lt;本地端口&gt;:&lt;Pod端口&gt;</code></td>
+<td>将本地端口转发到 Pod 端口</td>
+</tr>
+</tbody></table>
+<hr>
+<h4 id="3-Deployment"><a href="#3-Deployment" class="headerlink" title="3. Deployment"></a>3. Deployment</h4><table>
+<thead>
+<tr>
+<th>命令</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>kubectl get deployments</code> 或 <code>kubectl get deploy</code></td>
+<td>列出 Deployment</td>
+</tr>
+<tr>
+<td><code>kubectl describe deployment &lt;deploy名&gt;</code></td>
+<td>查看 Deployment 详情</td>
+</tr>
+<tr>
+<td><code>kubectl create deployment &lt;名称&gt; --image=&lt;镜像&gt;</code></td>
+<td>快速创建 Deployment</td>
+</tr>
+<tr>
+<td><code>kubectl edit deployment &lt;deploy名&gt;</code></td>
+<td>在线编辑 Deployment 配置</td>
+</tr>
+<tr>
+<td><code>kubectl scale deployment &lt;deploy名&gt; --replicas=&lt;数量&gt;</code></td>
+<td>手动扩缩容</td>
+</tr>
+<tr>
+<td><code>kubectl set image deployment/&lt;deploy名&gt; &lt;容器名&gt;=&lt;新镜像&gt;</code></td>
+<td>滚动更新镜像</td>
+</tr>
+<tr>
+<td><code>kubectl rollout status deployment &lt;deploy名&gt;</code></td>
+<td>查看滚动更新状态</td>
+</tr>
+<tr>
+<td><code>kubectl rollout history deployment &lt;deploy名&gt;</code></td>
+<td>查看更新历史</td>
+</tr>
+<tr>
+<td><code>kubectl rollout undo deployment &lt;deploy名&gt;</code></td>
+<td>回滚到上一个版本</td>
+</tr>
+<tr>
+<td><code>kubectl rollout restart deployment/&lt;deploy名&gt;</code></td>
+<td>重启 Deployment（滚动重启）</td>
+</tr>
+<tr>
+<td><code>kubectl delete deployment &lt;deploy名&gt;</code></td>
+<td>删除 Deployment（会删除其管理的 Pod）</td>
+</tr>
+</tbody></table>
+<hr>
+<h4 id="4-Service"><a href="#4-Service" class="headerlink" title="4. Service"></a>4. Service</h4><table>
+<thead>
+<tr>
+<th>命令</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>kubectl get services</code> 或 <code>kubectl get svc</code></td>
+<td>列出 Service</td>
+</tr>
+<tr>
+<td><code>kubectl describe service &lt;svc名&gt;</code></td>
+<td>查看 Service 详情及端点</td>
+</tr>
+<tr>
+<td><code>kubectl expose deployment &lt;deploy名&gt; --port=&lt;端口&gt; --target-port=&lt;目标端口&gt; --type=&lt;ClusterIP/NodePort/LoadBalancer&gt;</code></td>
+<td>为 Deployment 创建 Service</td>
+</tr>
+<tr>
+<td><code>kubectl delete service &lt;svc名&gt;</code></td>
+<td>删除 Service</td>
+</tr>
+</tbody></table>
+<hr>
+<h4 id="5-Ingress"><a href="#5-Ingress" class="headerlink" title="5. Ingress"></a>5. Ingress</h4><table>
+<thead>
+<tr>
+<th>命令</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>kubectl get ingress</code> 或 <code>kubectl get ing</code></td>
+<td>列出 Ingress 规则</td>
+</tr>
+<tr>
+<td><code>kubectl describe ingress &lt;ingress名&gt;</code></td>
+<td>查看 Ingress 详情及路由规则</td>
+</tr>
+<tr>
+<td><code>kubectl apply -f &lt;ingress.yaml&gt;</code></td>
+<td>通过 YAML 文件创建&#x2F;更新 Ingress</td>
+</tr>
+<tr>
+<td><code>kubectl delete ingress &lt;ingress名&gt;</code></td>
+<td>删除 Ingress</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p><strong>注意</strong>：Ingress 需要集群中安装 Ingress Controller（如 nginx-ingress）才能生效。</p>
+</blockquote>
+<hr>
+<h4 id="6-存储卷"><a href="#6-存储卷" class="headerlink" title="6. 存储卷"></a>6. 存储卷</h4><h5 id="PersistentVolume-PV"><a href="#PersistentVolume-PV" class="headerlink" title="PersistentVolume (PV)"></a>PersistentVolume (PV)</h5><table>
+<thead>
+<tr>
+<th>命令</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>kubectl get pv</code></td>
+<td>列出所有 PV</td>
+</tr>
+<tr>
+<td><code>kubectl describe pv &lt;pv名&gt;</code></td>
+<td>查看 PV 详情</td>
+</tr>
+<tr>
+<td><code>kubectl create -f pv.yaml</code></td>
+<td>从 YAML 创建 PV</td>
+</tr>
+<tr>
+<td><code>kubectl delete pv &lt;pv名&gt;</code></td>
+<td>删除 PV</td>
+</tr>
+</tbody></table>
+<h5 id="PersistentVolumeClaim-PVC"><a href="#PersistentVolumeClaim-PVC" class="headerlink" title="PersistentVolumeClaim (PVC)"></a>PersistentVolumeClaim (PVC)</h5><table>
+<thead>
+<tr>
+<th>命令</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>kubectl get pvc</code></td>
+<td>列出当前命名空间的 PVC</td>
+</tr>
+<tr>
+<td><code>kubectl get pvc --all-namespaces</code></td>
+<td>列出所有命名空间的 PVC</td>
+</tr>
+<tr>
+<td><code>kubectl describe pvc &lt;pvc名&gt;</code></td>
+<td>查看 PVC 绑定状态和容量</td>
+</tr>
+<tr>
+<td><code>kubectl delete pvc &lt;pvc名&gt;</code></td>
+<td>删除 PVC（可能导致 Pod 挂载失败）</td>
+</tr>
+</tbody></table>
+<h5 id="StorageClass-SC"><a href="#StorageClass-SC" class="headerlink" title="StorageClass (SC)"></a>StorageClass (SC)</h5><table>
+<thead>
+<tr>
+<th>命令</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>kubectl get storageclass</code> 或 <code>kubectl get sc</code></td>
+<td>列出 StorageClass</td>
+</tr>
+<tr>
+<td><code>kubectl describe sc &lt;sc名&gt;</code></td>
+<td>查看 StorageClass 参数及默认配置</td>
+</tr>
+<tr>
+<td><code>kubectl delete sc &lt;sc名&gt;</code></td>
+<td>删除 StorageClass</td>
+</tr>
+</tbody></table>
+<p><strong>卷挂载相关</strong>（Pod 中使用 PVC）：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 在 Pod 或 Deployment 的 YAML 中定义 volumes 和 volumeMounts</span></span><br></pre></td></tr></table></figure>
+
+<p>常用命令检查挂载情况：</p>
+<ul>
+<li><code>kubectl describe pod &lt;pod名&gt;</code> 查看 Volumes 字段</li>
+<li><code>kubectl exec &lt;pod名&gt; -- df -h</code> 查看容器内文件系统挂载</li>
+</ul>
+<hr>
+<h4 id="常用选项与技巧"><a href="#常用选项与技巧" class="headerlink" title="常用选项与技巧"></a>常用选项与技巧</h4><table>
+<thead>
+<tr>
+<th>命令模式</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>kubectl get all -n &lt;ns&gt;</code></td>
+<td>列出命名空间下常见资源（Pod、Service、Deployment 等）</td>
+</tr>
+<tr>
+<td><code>kubectl get &lt;资源&gt; -w</code></td>
+<td>实时监听资源变化</td>
+</tr>
+<tr>
+<td><code>kubectl api-resources</code></td>
+<td>查看集群支持的所有资源类型</td>
+</tr>
+<tr>
+<td><code>kubectl explain &lt;资源&gt;</code></td>
+<td>查看资源的字段说明（如 <code>kubectl explain pod.spec</code>）</td>
+</tr>
+<tr>
+<td><code>kubectl delete -f &lt;配置文件&gt;.yaml</code></td>
+<td>通过 YAML 文件删除资源</td>
+</tr>
+<tr>
+<td><code>kubectl apply -f &lt;目录或文件&gt;</code></td>
+<td>声明式创建&#x2F;更新资源（推荐）</td>
+</tr>
+</tbody></table>
 
     </div>
 
@@ -513,7 +806,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%80%E3%80%81Kubernetes%E6%A6%82%E8%BF%B0"><span class="nav-number">1.</span> <span class="nav-text">一、Kubernetes概述</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1%E3%80%81%E4%B8%BA%E4%BB%80%E4%B9%88%E9%9C%80%E8%A6%81K8S-%E5%AE%83%E8%83%BD%E5%81%9A%E4%BB%80%E4%B9%88"><span class="nav-number">1.1.</span> <span class="nav-text">1、为什么需要K8S,它能做什么</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E5%AE%89%E8%A3%85K8S"><span class="nav-number">2.</span> <span class="nav-text">二、安装K8S</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1%E3%80%81%E9%A2%84%E7%BD%AE%E6%9D%A1%E4%BB%B6"><span class="nav-number">2.1.</span> <span class="nav-text">1、预置条件</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#Centos7-9%E5%8D%87%E7%BA%A7%E5%86%85%E6%A0%B8"><span class="nav-number">2.1.1.</span> <span class="nav-text">Centos7.9升级内核</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E8%AE%BE%E7%BD%AEhostname"><span class="nav-number">2.1.2.</span> <span class="nav-text">设置hostname</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#1%E3%80%81%E5%AE%89%E8%A3%85NTP%E6%97%B6%E9%97%B4%E5%90%8C%E6%AD%A5"><span class="nav-number">2.1.3.</span> <span class="nav-text">1、安装NTP时间同步</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2%E3%80%81%E5%AE%89%E8%A3%85cri-dockerd"><span class="nav-number">2.1.4.</span> <span class="nav-text">2、安装cri-dockerd</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3%E3%80%81%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE"><span class="nav-number">2.1.5.</span> <span class="nav-text">3、环境配置</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#4%E3%80%81%E9%85%8D%E5%88%B6iptables%E8%A7%84%E5%88%99"><span class="nav-number">2.1.6.</span> <span class="nav-text">4、配制iptables规则</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#5%E3%80%81%E5%AE%89%E8%A3%85docker"><span class="nav-number">2.1.7.</span> <span class="nav-text">5、安装docker</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2%E3%80%81%E5%BC%80%E5%A7%8B%E5%AE%89%E8%A3%85"><span class="nav-number">2.2.</span> <span class="nav-text">2、开始安装</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1%E3%80%81%E5%AE%89%E8%A3%85k8s%E7%BB%84%E4%BB%B6"><span class="nav-number">2.2.1.</span> <span class="nav-text">1、安装k8s组件</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2%E3%80%81%E5%88%9D%E5%A7%8B%E5%8C%96K8S%E9%9B%86%E7%BE%A4"><span class="nav-number">2.2.2.</span> <span class="nav-text">2、初始化K8S集群</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3%E3%80%81%E5%AE%89%E8%A3%85%E7%BD%91%E7%BB%9C%E6%8F%92%E4%BB%B6"><span class="nav-number">2.2.3.</span> <span class="nav-text">3、安装网络插件</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#4%E3%80%81node%E8%8A%82%E7%82%B9%E5%8A%A0%E5%85%A5%E9%9B%86%E7%BE%A4"><span class="nav-number">2.2.4.</span> <span class="nav-text">4、node节点加入集群</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#5%E3%80%81%E9%AA%8C%E8%AF%81%E9%9B%86%E7%BE%A4%E7%9A%84%E5%8F%AF%E7%94%A8%E6%80%A7"><span class="nav-number">2.2.5.</span> <span class="nav-text">5、验证集群的可用性</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3%E3%80%81%E6%B5%8B%E8%AF%95%E9%83%A8%E7%BD%B2"><span class="nav-number">2.3.</span> <span class="nav-text">3、测试部署</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%80%E3%80%81Kubernetes%E6%A6%82%E8%BF%B0"><span class="nav-number">1.</span> <span class="nav-text">一、Kubernetes概述</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1%E3%80%81%E4%B8%BA%E4%BB%80%E4%B9%88%E9%9C%80%E8%A6%81K8S-%E5%AE%83%E8%83%BD%E5%81%9A%E4%BB%80%E4%B9%88"><span class="nav-number">1.1.</span> <span class="nav-text">1、为什么需要K8S,它能做什么</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E5%AE%89%E8%A3%85K8S"><span class="nav-number">2.</span> <span class="nav-text">二、安装K8S</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1%E3%80%81%E9%A2%84%E7%BD%AE%E6%9D%A1%E4%BB%B6"><span class="nav-number">2.1.</span> <span class="nav-text">1、预置条件</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#Centos7-9%E5%8D%87%E7%BA%A7%E5%86%85%E6%A0%B8"><span class="nav-number">2.1.1.</span> <span class="nav-text">Centos7.9升级内核</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E8%AE%BE%E7%BD%AEhostname"><span class="nav-number">2.1.2.</span> <span class="nav-text">设置hostname</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#1%E3%80%81%E5%AE%89%E8%A3%85NTP%E6%97%B6%E9%97%B4%E5%90%8C%E6%AD%A5"><span class="nav-number">2.1.3.</span> <span class="nav-text">1、安装NTP时间同步</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2%E3%80%81%E5%AE%89%E8%A3%85cri-dockerd"><span class="nav-number">2.1.4.</span> <span class="nav-text">2、安装cri-dockerd</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3%E3%80%81%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE"><span class="nav-number">2.1.5.</span> <span class="nav-text">3、环境配置</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#4%E3%80%81%E9%85%8D%E5%88%B6iptables%E8%A7%84%E5%88%99"><span class="nav-number">2.1.6.</span> <span class="nav-text">4、配制iptables规则</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#5%E3%80%81%E5%AE%89%E8%A3%85docker"><span class="nav-number">2.1.7.</span> <span class="nav-text">5、安装docker</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2%E3%80%81%E5%BC%80%E5%A7%8B%E5%AE%89%E8%A3%85"><span class="nav-number">2.2.</span> <span class="nav-text">2、开始安装</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1%E3%80%81%E5%AE%89%E8%A3%85k8s%E7%BB%84%E4%BB%B6"><span class="nav-number">2.2.1.</span> <span class="nav-text">1、安装k8s组件</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2%E3%80%81%E5%88%9D%E5%A7%8B%E5%8C%96K8S%E9%9B%86%E7%BE%A4"><span class="nav-number">2.2.2.</span> <span class="nav-text">2、初始化K8S集群</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3%E3%80%81%E5%AE%89%E8%A3%85%E7%BD%91%E7%BB%9C%E6%8F%92%E4%BB%B6"><span class="nav-number">2.2.3.</span> <span class="nav-text">3、安装网络插件</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#4%E3%80%81node%E8%8A%82%E7%82%B9%E5%8A%A0%E5%85%A5%E9%9B%86%E7%BE%A4"><span class="nav-number">2.2.4.</span> <span class="nav-text">4、node节点加入集群</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#5%E3%80%81%E9%AA%8C%E8%AF%81%E9%9B%86%E7%BE%A4%E7%9A%84%E5%8F%AF%E7%94%A8%E6%80%A7"><span class="nav-number">2.2.5.</span> <span class="nav-text">5、验证集群的可用性</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3%E3%80%81%E6%B5%8B%E8%AF%95%E9%83%A8%E7%BD%B2"><span class="nav-number">2.3.</span> <span class="nav-text">3、测试部署</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4"><span class="nav-number">3.</span> <span class="nav-text">三、常用命令</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-Namespace"><span class="nav-number">3.1.</span> <span class="nav-text">1. Namespace</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-Pod"><span class="nav-number">3.2.</span> <span class="nav-text">2. Pod</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-Deployment"><span class="nav-number">3.3.</span> <span class="nav-text">3. Deployment</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-Service"><span class="nav-number">3.4.</span> <span class="nav-text">4. Service</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-Ingress"><span class="nav-number">3.5.</span> <span class="nav-text">5. Ingress</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#6-%E5%AD%98%E5%82%A8%E5%8D%B7"><span class="nav-number">3.6.</span> <span class="nav-text">6. 存储卷</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#PersistentVolume-PV"><span class="nav-number">3.6.1.</span> <span class="nav-text">PersistentVolume (PV)</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#PersistentVolumeClaim-PVC"><span class="nav-number">3.6.2.</span> <span class="nav-text">PersistentVolumeClaim (PVC)</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#StorageClass-SC"><span class="nav-number">3.6.3.</span> <span class="nav-text">StorageClass (SC)</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%B8%B8%E7%94%A8%E9%80%89%E9%A1%B9%E4%B8%8E%E6%8A%80%E5%B7%A7"><span class="nav-number">3.7.</span> <span class="nav-text">常用选项与技巧</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -529,7 +822,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/blog/archives/">
         
-          <span class="site-state-item-count">244</span>
+          <span class="site-state-item-count">248</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -542,7 +835,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/blog/tags/">
           
-        <span class="site-state-item-count">101</span>
+        <span class="site-state-item-count">105</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>

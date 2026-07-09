@@ -196,6 +196,326 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://rstyro.github.io/blog/2026/02/24/%E4%BA%BF%E7%BA%A7%E7%94%A8%E6%88%B7%E5%AE%9E%E6%97%B6%E5%9C%A8%E7%BA%BF%E7%BB%9F%E8%AE%A1-%E6%88%91%E8%BF%99%E6%A0%B7%E5%AE%9E%E7%8E%B0%E4%BD%8E%E5%86%85%E5%AD%98%E3%80%81%E9%AB%98%E5%B9%B6%E5%8F%91%E3%80%81%E9%AB%98%E5%8F%AF%E7%94%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/avatar.jpg">
+      <meta itemprop="name" content="rstyro">
+      <meta itemprop="description" content="人间的饭，吃一碗少一碗，身边的人，见一面少一面，脚下的路，走一天少一天，其实人生就是一个减法，来日并不方长！">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="胖不了小陆">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/blog/2026/02/24/%E4%BA%BF%E7%BA%A7%E7%94%A8%E6%88%B7%E5%AE%9E%E6%97%B6%E5%9C%A8%E7%BA%BF%E7%BB%9F%E8%AE%A1-%E6%88%91%E8%BF%99%E6%A0%B7%E5%AE%9E%E7%8E%B0%E4%BD%8E%E5%86%85%E5%AD%98%E3%80%81%E9%AB%98%E5%B9%B6%E5%8F%91%E3%80%81%E9%AB%98%E5%8F%AF%E7%94%A8/" class="post-title-link" itemprop="url">亿级用户实时在线统计 我这样实现低内存、高并发、高可用</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2026-02-24 17:46:05" itemprop="dateCreated datePublished" datetime="2026-02-24T17:46:05+08:00">2026-02-24</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/Java/" itemprop="url" rel="index"><span itemprop="name">Java</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>在互联网产品进入亿级DAU（日活）时代的今天，<strong>实时、精准、高效的在线用户统计</strong>已成为社交、游戏、直播等场景的基石能力。</p>
+<p>传统方案（如Redis Set、DB计数）在千万级以下尚可应付，一旦面对<strong>亿级乃至十亿级</strong>用户规模，立即暴露致命短板：</p>
+<ul>
+<li><strong>内存失控</strong>：10亿用户，仅存ID就需<strong>上百GB内存</strong>。</li>
+<li><strong>性能瓶颈</strong>：<code>SCARD</code>统计总数全量扫描，延迟动辄秒级，高峰QPS难破十万。</li>
+<li><strong>扩展性差</strong>：难以适配雪花ID等分布式ID，单Key过大易导致集群倾斜。</li>
+</ul>
+<p>有没有一套方案，既能支撑亿级流量，又兼顾内存和性能，还能直接落地生产？<strong>当然有！</strong></p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/blog/2026/02/24/%E4%BA%BF%E7%BA%A7%E7%94%A8%E6%88%B7%E5%AE%9E%E6%97%B6%E5%9C%A8%E7%BA%BF%E7%BB%9F%E8%AE%A1-%E6%88%91%E8%BF%99%E6%A0%B7%E5%AE%9E%E7%8E%B0%E4%BD%8E%E5%86%85%E5%AD%98%E3%80%81%E9%AB%98%E5%B9%B6%E5%8F%91%E3%80%81%E9%AB%98%E5%8F%AF%E7%94%A8/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://rstyro.github.io/blog/2026/02/06/%E4%B8%80%E4%BA%BF%E7%8E%A9%E5%AE%B6%E5%AE%9E%E6%97%B6%E6%8E%92%E5%90%8D%E6%80%8E%E4%B9%88%E5%AE%9E%E7%8E%B0%EF%BC%9F/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/avatar.jpg">
+      <meta itemprop="name" content="rstyro">
+      <meta itemprop="description" content="人间的饭，吃一碗少一碗，身边的人，见一面少一面，脚下的路，走一天少一天，其实人生就是一个减法，来日并不方长！">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="胖不了小陆">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/blog/2026/02/06/%E4%B8%80%E4%BA%BF%E7%8E%A9%E5%AE%B6%E5%AE%9E%E6%97%B6%E6%8E%92%E5%90%8D%E6%80%8E%E4%B9%88%E5%AE%9E%E7%8E%B0%EF%BC%9F/" class="post-title-link" itemprop="url">一亿玩家实时排名怎么实现？</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2026-02-06 14:38:53 / 修改时间：14:42:48" itemprop="dateCreated datePublished" datetime="2026-02-06T14:38:53+08:00">2026-02-06</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/Java/" itemprop="url" rel="index"><span itemprop="name">Java</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>面试中被问到 “1 亿玩家实时排名如何实现”，90% 的开发者只会说 “用 Redis”，但能讲清<strong>分片策略、同分数排序、性能优化</strong> 的人不足 10%。</p>
+<p>这个问题的核心诉求远不止 “能用 Redis”，而是要满足：</p>
+<ul>
+<li><strong>排名毫秒级实时更新</strong>（玩家分数变化立即反映）；</li>
+<li><strong>高并发查询</strong>（百万 QPS 下排名查询不卡顿）；</li>
+<li><strong>海量数据支撑</strong>（1 亿玩家无性能瓶颈）；</li>
+<li><strong>边界场景兼容</strong>（同分数、跨分片全局排名）。</li>
+</ul>
+<p>在游戏、直播等互联网场景中，实时排名系统是提升用户参与感和刺激竞争的核心功能。本文将从零开始，详细讲解如何设计并实现一个支持1亿玩家、高并发实时更新的排名系统。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/blog/2026/02/06/%E4%B8%80%E4%BA%BF%E7%8E%A9%E5%AE%B6%E5%AE%9E%E6%97%B6%E6%8E%92%E5%90%8D%E6%80%8E%E4%B9%88%E5%AE%9E%E7%8E%B0%EF%BC%9F/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://rstyro.github.io/blog/2026/01/22/%E4%BC%98%E9%9B%85%E5%AE%9E%E7%8E%B0Redisson%E5%88%86%E5%B8%83%E5%BC%8F%E6%8E%A5%E5%8F%A3%E9%99%90%E6%B5%81/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/avatar.jpg">
+      <meta itemprop="name" content="rstyro">
+      <meta itemprop="description" content="人间的饭，吃一碗少一碗，身边的人，见一面少一面，脚下的路，走一天少一天，其实人生就是一个减法，来日并不方长！">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="胖不了小陆">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/blog/2026/01/22/%E4%BC%98%E9%9B%85%E5%AE%9E%E7%8E%B0Redisson%E5%88%86%E5%B8%83%E5%BC%8F%E6%8E%A5%E5%8F%A3%E9%99%90%E6%B5%81/" class="post-title-link" itemprop="url">优雅实现Redisson分布式接口限流</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2026-01-22 14:48:58" itemprop="dateCreated datePublished" datetime="2026-01-22T14:48:58+08:00">2026-01-22</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/Java/" itemprop="url" rel="index"><span itemprop="name">Java</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>之前已经讲过2篇接口防刷的文章：《别再让接口被刷爆了！资深架构师的防刷实战笔记，附完整代码1》、《别再让接口被刷爆了！资深架构师的防刷实战笔记，附完整代码2》，都是我们自己实现lua脚本的，包含算法</p>
+<ul>
+<li>固定窗口计数器算法</li>
+<li>令牌桶限流</li>
+<li>漏桶限流</li>
+<li>滑动时间窗口限流</li>
+</ul>
+<p>今天再加一篇吧，我们不用自己实现lua脚本了，直接用现成的限流类就行。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/blog/2026/01/22/%E4%BC%98%E9%9B%85%E5%AE%9E%E7%8E%B0Redisson%E5%88%86%E5%B8%83%E5%BC%8F%E6%8E%A5%E5%8F%A3%E9%99%90%E6%B5%81/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://rstyro.github.io/blog/2026/01/22/%E6%89%8B%E6%8A%8A%E6%89%8B%E6%95%99%E4%BD%A0%E7%8E%A9%E8%BD%AC3D%E9%AA%B0%E5%AD%90%E7%BB%84%E4%BB%B6%EF%BC%81%E6%8A%BD%E5%A5%96-%E5%B0%8F%E6%B8%B8%E6%88%8F%E5%BF%85%E5%A4%87/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/avatar.jpg">
+      <meta itemprop="name" content="rstyro">
+      <meta itemprop="description" content="人间的饭，吃一碗少一碗，身边的人，见一面少一面，脚下的路，走一天少一天，其实人生就是一个减法，来日并不方长！">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="胖不了小陆">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/blog/2026/01/22/%E6%89%8B%E6%8A%8A%E6%89%8B%E6%95%99%E4%BD%A0%E7%8E%A9%E8%BD%AC3D%E9%AA%B0%E5%AD%90%E7%BB%84%E4%BB%B6%EF%BC%81%E6%8A%BD%E5%A5%96-%E5%B0%8F%E6%B8%B8%E6%88%8F%E5%BF%85%E5%A4%87/" class="post-title-link" itemprop="url">手把手教你玩转3D骰子组件！抽奖/小游戏必备</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2026-01-22 10:11:58" itemprop="dateCreated datePublished" datetime="2026-01-22T10:11:58+08:00">2026-01-22</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E5%89%8D%E7%AB%AF/" itemprop="url" rel="index"><span itemprop="name">前端</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>谁懂啊！做小程序或 App 时，想加个抽奖、桌游类互动功能，一个酷炫的 3D 骰子真的能拉满氛围感✨。今天就给大家分享一个我珍藏的 Uniapp 骰子组件，不仅能直接用，还能随心定制样式，新手也能轻松拿捏。咱们不搞晦涩术语，就像拆玩具一样，一步步摸清它的构造！</p>
+<h2 id="一、先看效果"><a href="#一、先看效果" class="headerlink" title="一、先看效果"></a>一、先看效果</h2><p>先放个“成品预告”，让大家有直观感受：</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/blog/2026/01/22/%E6%89%8B%E6%8A%8A%E6%89%8B%E6%95%99%E4%BD%A0%E7%8E%A9%E8%BD%AC3D%E9%AA%B0%E5%AD%90%E7%BB%84%E4%BB%B6%EF%BC%81%E6%8A%BD%E5%A5%96-%E5%B0%8F%E6%B8%B8%E6%88%8F%E5%BF%85%E5%A4%87/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://rstyro.github.io/blog/2026/01/08/2026%E5%B9%B4%E6%9C%80%E5%87%B6%E7%94%9F%E8%82%96Top3%E5%87%BA%E7%82%89%EF%BC%81%E8%BF%99%E6%A0%B7%E7%AE%97%EF%BC%8C%E4%BD%A0%E6%AF%94%E7%AE%97%E5%91%BD%E5%85%88%E7%94%9F%E8%BF%98%E5%87%86/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -665,307 +985,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://rstyro.github.io/blog/2025/11/26/SpringBoot%E9%9B%86%E6%88%90Jasypt%E7%BB%99%E9%85%8D%E7%BD%AE%E5%8A%A0%E5%AF%86/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/blog/images/avatar.jpg">
-      <meta itemprop="name" content="rstyro">
-      <meta itemprop="description" content="人间的饭，吃一碗少一碗，身边的人，见一面少一面，脚下的路，走一天少一天，其实人生就是一个减法，来日并不方长！">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="胖不了小陆">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/blog/2025/11/26/SpringBoot%E9%9B%86%E6%88%90Jasypt%E7%BB%99%E9%85%8D%E7%BD%AE%E5%8A%A0%E5%AF%86/" class="post-title-link" itemprop="url">SpringBoot集成Jasypt给配置加密</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2025-11-26 09:45:46" itemprop="dateCreated datePublished" datetime="2025-11-26T09:45:46+08:00">2025-11-26</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/blog/categories/Java/" itemprop="url" rel="index"><span itemprop="name">Java</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="一、什么是Jasypt？"><a href="#一、什么是Jasypt？" class="headerlink" title="一、什么是Jasypt？"></a>一、什么是Jasypt？</h2><p>Jasypt（Java Simplified Encryption）是一个强大的Java加密库，专门用于简化应用程序中的加密操作。在Spring Boot项目中，我们经常需要处理敏感配置信息（如数据库密码、API密钥等），Jasypt可以帮助我们<strong>加密这些敏感配置</strong>，避免明文存储的安全风险。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/blog/2025/11/26/SpringBoot%E9%9B%86%E6%88%90Jasypt%E7%BB%99%E9%85%8D%E7%BD%AE%E5%8A%A0%E5%AF%86/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://rstyro.github.io/blog/2025/11/25/%E6%97%A5%E5%BF%97%E6%A1%86%E6%9E%B6%E7%9A%84%E4%B8%89%E5%9B%BD%E6%BC%94%E4%B9%89%EF%BC%9ALog4j%E3%80%81Logback%E3%80%81Log4j2%E7%9A%84%E7%88%B1%E6%81%A8%E6%83%85%E4%BB%87/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/blog/images/avatar.jpg">
-      <meta itemprop="name" content="rstyro">
-      <meta itemprop="description" content="人间的饭，吃一碗少一碗，身边的人，见一面少一面，脚下的路，走一天少一天，其实人生就是一个减法，来日并不方长！">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="胖不了小陆">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/blog/2025/11/25/%E6%97%A5%E5%BF%97%E6%A1%86%E6%9E%B6%E7%9A%84%E4%B8%89%E5%9B%BD%E6%BC%94%E4%B9%89%EF%BC%9ALog4j%E3%80%81Logback%E3%80%81Log4j2%E7%9A%84%E7%88%B1%E6%81%A8%E6%83%85%E4%BB%87/" class="post-title-link" itemprop="url">日志框架的三国演义：Log4j、Logback、Log4j2的爱恨情仇</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2025-11-25 16:01:54" itemprop="dateCreated datePublished" datetime="2025-11-25T16:01:54+08:00">2025-11-25</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/blog/categories/Java/" itemprop="url" rel="index"><span itemprop="name">Java</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="一、概述"><a href="#一、概述" class="headerlink" title="一、概述"></a>一、概述</h2><p>日志，作为一个开发者应该不会陌生吧，如果没有日志，当系统报错：“系统异常” 时，就算你是有几百年功力的技术大佬你也难以瞬间定位问题所在。</p>
-<p>良好的日志系统就像飞机的”黑匣子”，它能记录运行轨迹、监控系统状态并快速定位问题。本文将带你了解<code>Log4j</code>、<code>Logback</code>和<code>Log4j2</code>这三个主流日志框架，以及如何通过门面模式统一日志接口。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/blog/2025/11/25/%E6%97%A5%E5%BF%97%E6%A1%86%E6%9E%B6%E7%9A%84%E4%B8%89%E5%9B%BD%E6%BC%94%E4%B9%89%EF%BC%9ALog4j%E3%80%81Logback%E3%80%81Log4j2%E7%9A%84%E7%88%B1%E6%81%A8%E6%83%85%E4%BB%87/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://rstyro.github.io/blog/2025/11/14/%E5%88%AB%E5%86%8D%E8%AE%A9%E6%8E%A5%E5%8F%A3%E8%A2%AB%E5%88%B7%E7%88%86%E4%BA%86%EF%BC%81%E8%B5%84%E6%B7%B1%E6%9E%B6%E6%9E%84%E5%B8%88%E7%9A%84%E9%98%B2%E5%88%B7%E5%AE%9E%E6%88%98%E7%AC%94%E8%AE%B0%EF%BC%8C%E9%99%84%E5%AE%8C%E6%95%B4%E4%BB%A3%E7%A0%81/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/blog/images/avatar.jpg">
-      <meta itemprop="name" content="rstyro">
-      <meta itemprop="description" content="人间的饭，吃一碗少一碗，身边的人，见一面少一面，脚下的路，走一天少一天，其实人生就是一个减法，来日并不方长！">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="胖不了小陆">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/blog/2025/11/14/%E5%88%AB%E5%86%8D%E8%AE%A9%E6%8E%A5%E5%8F%A3%E8%A2%AB%E5%88%B7%E7%88%86%E4%BA%86%EF%BC%81%E8%B5%84%E6%B7%B1%E6%9E%B6%E6%9E%84%E5%B8%88%E7%9A%84%E9%98%B2%E5%88%B7%E5%AE%9E%E6%88%98%E7%AC%94%E8%AE%B0%EF%BC%8C%E9%99%84%E5%AE%8C%E6%95%B4%E4%BB%A3%E7%A0%81/" class="post-title-link" itemprop="url">别再让接口被刷爆了！资深架构师的防刷实战笔记，附完整代码</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-              
-
-              <time title="创建时间：2025-11-14 18:06:47 / 修改时间：18:09:04" itemprop="dateCreated datePublished" datetime="2025-11-14T18:06:47+08:00">2025-11-14</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/blog/categories/Java/" itemprop="url" rel="index"><span itemprop="name">Java</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <blockquote>
-<p> 高并发场景下，接口防刷是系统稳定性的重要保障。上一篇我们已经介绍了固定计数器限流和令牌桶限流，今天继续分享漏桶限流和滑动时间窗口限流这两种经典算法。</p>
-</blockquote>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/blog/2025/11/14/%E5%88%AB%E5%86%8D%E8%AE%A9%E6%8E%A5%E5%8F%A3%E8%A2%AB%E5%88%B7%E7%88%86%E4%BA%86%EF%BC%81%E8%B5%84%E6%B7%B1%E6%9E%B6%E6%9E%84%E5%B8%88%E7%9A%84%E9%98%B2%E5%88%B7%E5%AE%9E%E6%88%98%E7%AC%94%E8%AE%B0%EF%BC%8C%E9%99%84%E5%AE%8C%E6%95%B4%E4%BB%A3%E7%A0%81/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://rstyro.github.io/blog/2025/11/12/Springboot%E5%BF%AB%E9%80%9F%E9%9B%86%E6%88%90Camunda%E5%B7%A5%E4%BD%9C%E6%B5%81/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/blog/images/avatar.jpg">
-      <meta itemprop="name" content="rstyro">
-      <meta itemprop="description" content="人间的饭，吃一碗少一碗，身边的人，见一面少一面，脚下的路，走一天少一天，其实人生就是一个减法，来日并不方长！">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="胖不了小陆">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/blog/2025/11/12/Springboot%E5%BF%AB%E9%80%9F%E9%9B%86%E6%88%90Camunda%E5%B7%A5%E4%BD%9C%E6%B5%81/" class="post-title-link" itemprop="url">Springboot快速集成Camunda工作流</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-              
-
-              <time title="创建时间：2025-11-12 14:41:37 / 修改时间：17:16:14" itemprop="dateCreated datePublished" datetime="2025-11-12T14:41:37+08:00">2025-11-12</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/blog/categories/Java/" itemprop="url" rel="index"><span itemprop="name">Java</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h2><h3 id="为什么需要工作流引擎？"><a href="#为什么需要工作流引擎？" class="headerlink" title="为什么需要工作流引擎？"></a>为什么需要工作流引擎？</h3><p>在当今快速变化的商业环境中，企业需要处理越来越复杂的业务流程。想象一下：一个员工请假申请需要经过部门经理审批、HR备案、财务记录等多个环节；一个电商订单需要经历库存检查、支付确认、发货通知、物流跟踪等步骤。这些业务流程如果硬编码在系统中，不仅难以维护，更无法快速适应业务变化。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/blog/2025/11/12/Springboot%E5%BF%AB%E9%80%9F%E9%9B%86%E6%88%90Camunda%E5%B7%A5%E4%BD%9C%E6%B5%81/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1037,7 +1056,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/blog/archives/">
         
-          <span class="site-state-item-count">244</span>
+          <span class="site-state-item-count">248</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -1050,7 +1069,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/blog/tags/">
           
-        <span class="site-state-item-count">101</span>
+        <span class="site-state-item-count">105</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
