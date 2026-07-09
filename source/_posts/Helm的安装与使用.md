@@ -160,6 +160,12 @@ helm repo add higress https://higress.io/helm-charts
 # 更新仓库索引（安装前务必执行）
 helm repo update
 
+
+# 确认harbor版本存在
+helm search repo harbor/harbor --versions | head
+# 确认mysql版本存在
+helm search repo mysql --versions | head
+
 # 查看已添加的仓库列表
 helm repo list
 

@@ -2,97 +2,641 @@
 title: Harbor的安装与使用
 tags: [k8s,Harbor,Kubernetes]
 categories: 网络运维
-date: 2026-07-04 20:08:52
-updated: 2026-07-04 20:08:52
+date: 2026-07-08 20:08:52
+updated: 2026-07-09 20:08:52
 ---
 
 
+## 一、前言：为什么需要 Harbor
 
-## 前言
+### 1.1 Docker Hub 的痛点
+
+Docker Hub 是公共镜像仓库，企业大规模使用时会遇到以下问题：
+
+- **网络限制**：拉取镜像慢、不稳定，生产环境不可控
+- **安全风险**：公共镜像来源不明，可能包含漏洞或恶意代码
+- **合规要求**：金融、政务等行业要求镜像必须存储在境内或内部
+- **版本管理缺失**：无法按项目、团队、环境进行细粒度权限控制
+- **拉取次数限制**：Docker Hub 对匿名和免费账户有拉取配额
+
+### 1.2 私有镜像仓库的选择
+
+| 方案 | 定位 | 特点 |
+| --- | --- | --- |
+| Docker Registry | 基础镜像存储 | 官方开源，功能单一，无 UI |
+| Harbor | 企业级镜像仓库 | 图形界面、权限管理、漏洞扫描、镜像复制、签名验证 |
+| Nexus | 通用制品库 | 支持 Maven、npm、Docker 等多种制品 |
+| Quay / ACR / TCR | 商业/云厂商 | 开箱即用，按量付费 |
+
+**选型建议**：
+
+- 团队规模小、只需要存储镜像 → Docker Registry
+- 需要权限管理、扫描、审计、多仓库同步 → **Harbor**
+- 已经有 Nexus 管理 Java/NPM 制品 → 可直接复用 Nexus 的 Docker 仓库
+- 不想自建、预算充足 → 云厂商容器镜像服务
+
+### 1.3 Harbor 能解决什么问题
+
+- **镜像私有化**：将业务镜像统一存储在公司内部
+- **权限隔离**：按项目划分命名空间，控制谁可以推送/拉取
+- **漏洞扫描**：集成 Trivy，扫描镜像中的 OS/应用漏洞
+- **镜像复制**：跨机房、跨云同步镜像，构建多活/灾备
+- **签名与可信**：支持 Notation / Cosign 镜像签名，防止镜像被篡改
+- **审计与合规**：记录推送、拉取、删除操作日志
+
+
+<!--more-->
 
 
 
-## Harbor是什么
+## 二、Harbor 是什么
 
+### 2.1 官方定义
 
+Harbor 是一个开源的**云原生制品仓库（Cloud Native Registry）**，用于存储、签名和扫描容器镜像、Helm Chart、OCI Artifact 等云原生制品。
 
-### Harbor的结构化认知模式
+它由 VMware 开源，现为 CNCF 孵化项目，地址：[https://goharbor.io](https://goharbor.io)
 
-### -  起源 → 定义 → 用途 → 模式归属？
+### 2.2 支持的制品类型
 
+Harbor 基于 OCI（Open Container Initiative）规范，支持：
 
+- Docker 镜像
+- Helm Chart
+- OCI Artifact（如 SBOM、签名包）
+- CNAB（Cloud Native Application Bundle）
+
+### 2.3 与 Docker Registry 的关系
+
+Harbor 底层基于 Docker Distribution（即 Docker Registry v2）实现镜像的 blob 存储，但在此基础上增加了：
+
+- Web UI（Portal）
+- 用户与权限系统
+- 数据库元数据管理
+- 异步任务调度（Jobservice）
+- 漏洞扫描适配器
+- 多仓库复制
+- 镜像签名验证
+
+可以理解为：**Harbor = Docker Registry + 企业级管理平台**
+
+---
+
+## 三、Harbor 核心架构
+
+### 3.1 数据分层模型
 
 很多坑其实源于没想清楚 Harbor 的**数据分层**。它不是一个单体，而是把"元数据"和"镜像 blob"拆成了两层：
 
-| 层级     | 组件                       | 存什么                | 是否状态           |
-| -------- | -------------------------- | --------------------- | ------------------ |
-| 接入层   | Nginx（Ingress）           | TLS 终止、路由        | 无                 |
-| 服务层   | Portal / Core / Jobservice | API、UI、异步任务     | **无**（可多副本） |
-| 安全层   | Trivy（Scanner）           | 漏洞扫描              | 无                 |
-| 镜像层   | Registry + RegistryCTL     | 镜像 blob 实际存储    | **有**             |
-| 元数据层 | PostgreSQL                 | 项目/用户/镜像索引    | **有**             |
-| 缓存层   | Redis                      | 会话、Job 队列、Token | **有**             |
+| 层级 | 组件 | 存什么 | 是否状态 | 说明 |
+| --- | --- | --- | --- | --- |
+| 接入层 | Nginx / Ingress | TLS 终止、路由转发 | 无 | 无状态时可以多副本 |
+| 服务层 | Portal / Core / Jobservice | API、UI、异步任务 | **无**（可多副本） | Core 是核心 API 网关 |
+| 安全层 | Trivy（Scanner） | 漏洞扫描 | 无 | 扫描结果元数据进 PG |
+| 镜像层 | Registry + RegistryCTL | 镜像 blob 实际存储 | **有** | 需要持久化，多副本需共享存储 |
+| 元数据层 | PostgreSQL | 项目/用户/镜像索引/审计日志 | **有** | 核心状态库，建议外部高可用 |
+| 缓存层 | Redis | 会话、Job 队列、Token | **有** | 建议外部 Redis/Sentinel |
 
+**关键理解**：
 
+- **无状态层**（Portal/Core/Jobservice/Trivy）可以随时水平扩展
+- **有状态层**（Registry 存储、PG、Redis）必须保证数据持久化和高可用
+- 生产环境尽量使用**外部 PostgreSQL + 外部 Redis + 共享对象存储/SAN**
 
+### 3.2 核心组件职责
 
+| 组件 | 职责 |
+| --- | --- |
+| **nginx** | 反向代理，统一入口，处理 TLS、静态资源、路由 |
+| **portal** | Harbor Web UI，基于 Angular 开发 |
+| **core** | 核心业务服务，提供 REST API，处理认证、权限、项目管理、Webhook 等 |
+| **jobservice** | 异步任务调度，负责镜像复制、垃圾回收、扫描、保留策略等 |
+| **registry** | 基于 Docker Distribution，负责镜像 blob 的推拉 |
+| **registryctl** | Registry 的管理面，执行垃圾回收等操作 |
+| **trivy-adapter** | 漏洞扫描适配器，调用 Trivy 扫描镜像 |
+| **postgresql** | 元数据库，存储用户、项目、仓库、Artifact、审计日志等 |
+| **redis** | 缓存会话、任务队列、镜像层缓存索引 |
+| **exporter** | Prometheus 指标导出器 |
 
-## 一、安装Harbor
-
-
-
-### 方案一：docker-compose安装
-
-```bash
-# 下离线包
-wget https://github.com/goharbor/harbor/releases/download/v2.15.2/harbor-offline-installer-v2.15.2.tgz
-tar xzf harbor-offline-installer-v2.15.2.tgz && cd harbor
-cp harbor.yml.tmpl harbor.yml
-# 改 hostname + 端口 + 管理员密码，然后
-./install.sh
+### 3.3 请求流转示意
 
 ```
+Docker Client / Browser
+         │
+         ▼
+    Nginx / Ingress  ←── TLS 终止
+         │
+    ┌────┴────┐
+    ▼         ▼
+  Portal     Core API
+    │         │
+    │    ┌────┴────┐
+    │    ▼         ▼
+    │  Registry   PostgreSQL
+    │    │           │
+    │    ▼           ▼
+    │  镜像 Blob    Redis 缓存
+    │
+    ▼
+  Jobservice ──→ Trivy / 复制目标 / GC
+```
 
+---
 
+## 四、安装 Harbor
 
+### 4.1 安装前准备
 
+#### 4.1.1 硬件要求（生产参考）
 
-### 方案二：Helm安装
+| 规模 | CPU | 内存 | 存储 | 说明 |
+| --- | --- | --- | --- | --- |
+| 测试环境 | 2 核 | 4 GB | 50 GB | 单节点即可 |
+| 小型生产 | 4 核 | 8 GB | 200 GB+ | 建议外部数据库 |
+| 中大型生产 | 8 核+ | 16 GB+ | 1 TB+ | 必须外部 PG/Redis + 对象存储 |
+
+#### 4.1.2 软件依赖
+
+- Docker 20.10+（Docker Compose 方式）
+- Docker Compose v2.0+（Docker Compose 方式）
+- Kubernetes 1.24+（Helm 方式）
+- Helm 3.12+
+- 可解析的域名（推荐）
+- 有效 TLS 证书（生产环境）
+
+#### 4.1.3 网络规划
+
+- 确定 Harbor 的访问域名，例如 `harbor.example.com`
+- 确定暴露方式：Ingress / NodePort / LoadBalancer / ClusterIP
+- 确定镜像推拉端口：HTTPS 默认 443，HTTP 默认 80
+- 如果走 NodePort，客户端 tag 和 login 时必须带端口
+
+### 4.2 方案一：Docker Compose 安装
+
+适用于单节点测试、小型环境或快速验证。
+
+#### 4.2.1 下载离线安装包
 
 ```bash
-# 添加仓库并部署
+# 下载离线包（包含所有镜像）
+wget https://github.com/goharbor/harbor/releases/download/v2.15.2/harbor-offline-installer-v2.15.2.tgz
+
+# 解压
+tar xzf harbor-offline-installer-v2.15.2.tgz && cd harbor
+```
+
+#### 4.2.2 配置文件
+
+```bash
+# 复制模板
+cp harbor.yml.tmpl harbor.yml
+```
+
+最小化配置示例：
+
+```yaml
+# 访问域名
+hostname: harbor.example.com
+
+# HTTP 端口
+http:
+  port: 80
+
+# HTTPS 端口（生产必须启用）
+https:
+  port: 443
+  certificate: /your/path/harbor.crt
+  private_key: /your/path/harbor.key
+
+# 管理员初始密码
+harbor_admin_password: Harbor12345
+
+# 数据库密码
+database:
+  password: root123
+  max_idle_conns: 100
+  max_open_conns: 900
+
+# 数据持久化目录
+data_volume: /data
+
+# 日志配置
+log:
+  level: info
+  local:
+    rotate_count: 50
+    rotate_size: 200M
+    location: /var/log/harbor
+```
+
+#### 4.2.3 执行安装
+
+```bash
+# 标准安装
+./install.sh
+
+# 安装时启用 Trivy 扫描
+./install.sh --with-trivy
+
+# 如果后续需要启用其他组件，重新配置后执行
+./prepare
+```
+
+#### 4.2.4 常用管理命令
+
+```bash
+# 停止 Harbor
+docker compose -f docker-compose.yml down
+
+# 启动 Harbor
+docker compose -f docker-compose.yml up -d
+
+# 查看服务状态
+docker compose -f docker-compose.yml ps
+
+# 查看日志
+docker compose -f docker-compose.yml logs -f core
+```
+
+### 4.3 方案二：Kubernetes Helm 安装
+
+适用于生产环境，便于扩展、升级和高可用。
+
+#### 4.3.1 添加仓库
+
+```bash
 helm repo add harbor https://helm.goharbor.io
 helm repo update
 
-# 确认版本存在
-helm search repo harbor/harbor --versions | head
-
-#  查看harbor的 Chart 的默认 values
-helm show values harbor/harbor > harbor-values.yaml
-
-# 创建命名空间
-# kubectl create ns harbor
-
-# 安装harbor
-helm install harbor harbor/harbor -n harbor --create-namespace -f harbor-values.yaml 
-
-# 升级harbor配置
-helm upgrade harbor harbor/harbor -n harbor -f harbor-values.yaml
-
-
-# 卸载
-helm uninstall harbor -n  harbor
-
-# 删除镜像/模型数据
-kubectl delete pvc -n harbor --all
-
-# === 删除 Namespace ===
-kubectl delete namespace harbor
-# ⚠️ 会删除 namespace 下所有资源!
+# 查看可用版本
+helm search repo harbor/harbor --versions | head -20
 ```
 
-#### 默认配置详解
-- 总体配置模板如下：
+
+
+![](harbor1.png)
+
+
+
+#### 4.3.2 导出默认配置
+
+```bash
+helm show values harbor/harbor > harbor-values.yaml
+```
+
+harbor-values.yaml内容很多，后面会有篇章讲配置解释，下面是我测试使用的一个配置：
+
+
+
+```yaml
+# ---------------------- 服务暴露配置 ----------------------
+expose:
+  # 服务暴露方式：可选 ingress / clusterIP / nodePort / loadBalancer / route
+  # 生产环境建议使用 ingress 或 loadBalancer
+  type: ingress
+
+  tls:
+    # 是否启用 TLS（生产环境必须启用）
+    enabled: true
+    # TLS 证书来源：auto（自动生成）/ secret（从 Secret 读取）/ none（不使用）
+    # 生产环境建议使用 cert-manager 自动签发或手动创建 Secret
+    certSource: auto
+    auto:
+      # 自动生成证书时的通用名称（若 type 不是 ingress，则必须指定）
+      commonName: ""  # 通常留空，由 Ingress 规则决定
+    secret:
+      # 若 certSource 为 secret，指定包含 tls.crt 和 tls.key 的 Secret 名称
+      secretName: ""
+
+  ingress:
+    hosts:
+      # 【需修改】Harbor 核心服务的域名（必须与 externalURL 一致）
+      core: harbor.rstyro.com
+    # Ingress 控制器类型，默认 default 适用于大多数
+    controller: default
+    # IngressClass 名称（K8s 1.18+ 支持）
+    className: "higress"  # 若使用 nginx-ingress，可指定为：nginx
+    annotations:
+      # 强制 HTTPS 重定向（根据控制器调整）
+      ingress.kubernetes.io/ssl-redirect: "true"
+      ingress.kubernetes.io/proxy-body-size: "0"
+      nginx.ingress.kubernetes.io/ssl-redirect: "true"
+      nginx.ingkubernetes.io/proxy-body-size: "0"
+      # 【建议】NFS 场景下可增加超时配置
+      nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
+      nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
+    labels: {}
+
+  # 其他暴露方式（clusterIP/nodePort/loadBalancer/route）均未启用，保持默认
+
+# ---------------------- 外部访问 URL ----------------------
+# 【需修改】Harbor 对外访问的完整 URL（必须与 ingress hosts 一致）
+externalURL: https://harbor.rstyro.com
+# ---------------------- CA 证书 Secret ----------------------
+caSecretName: ""  # 若需提供自定义 CA 证书供下载，可指定
+
+# ---------------------- 持久化存储配置 ----------------------
+persistence:
+  enabled: true
+  # 生产环境务必设置为 "keep"，防止误执行 helm uninstall 导致数据丢失
+  resourcePolicy: "keep"
+  
+  persistentVolumeClaim:
+    # Registry 镜像存储 (需要多副本共享，必须使用 ReadWriteMany)
+    registry:
+      existingClaim: ""
+      # 指定 NFS 的 StorageClass
+      storageClass: "nfs-client"
+      subPath: "harbor/registry"
+      # NFS 必须使用 RWX 以支持多副本同时读写
+      accessMode: ReadWriteMany 
+      size: 50Gi
+    jobservice:
+      jobLog:
+        storageClass: "nfs-client"
+        subPath: "harbor/jobservice"
+        accessMode: ReadWriteMany
+        size: 5Gi
+    trivy:
+      # Trivy 漏洞库缓存，多副本必须共享
+      storageClass: "nfs-client"
+      subPath: "harbor/trivy"
+      accessMode: ReadWriteMany
+      size: 5Gi
+
+# ---------------------- 管理员密码 ----------------------
+# 【需修改】初始管理员密码（部署后请立即修改）
+harborAdminPassword: "Rstyro168"
+
+
+# ---------------------- 日志级别 ----------------------
+logLevel: info  # 生产环境可设为 warn 或 error 减少日志量
+
+
+
+# ---------------------- 加密密钥 ----------------------
+# 16 字符字符串，用于加密敏感数据。生产环境务必修改！
+secretKey: "a1b2c3d4e5f6g7h8"  # 【需修改】
+
+
+# ---------------------- 代理设置（如需） ----------------------
+proxy:
+  httpProxy:
+  httpsProxy:
+  noProxy: 127.0.0.1,localhost,.local,.internal
+  components: []  # 留空表示所有组件都不使用代理
+
+# ---------------------- Metrics 监控 ----------------------
+metrics:
+  enabled: false
+  core:
+    path: /metrics
+    port: 8001
+  registry:
+    path: /metrics
+    port: 8001
+  jobservice:
+    path: /metrics
+    port: 8001
+  exporter:
+    path: /metrics
+    port: 8001
+
+# 自动创建 Prometheus ServiceMonitor (需集群已安装 Prometheus Operator)
+serviceMonitor:
+  enabled: false
+  additionalLabels: {}
+  interval: "30s"
+
+
+# =============================================================================
+# 各组件独立配置
+# =============================================================================
+
+
+# ---------------------- Portal（Web UI） ----------------------
+portal:
+  image:
+    repository: docker.io/goharbor/harbor-portal
+    tag: v2.15.1
+  replicas: 1
+  resources:
+    requests:
+      memory: 256Mi
+      cpu: 100m
+    limits:
+      memory: 512Mi
+      cpu: 200m
+  # 探针保持默认
+
+# ---------------------- Core（核心服务） ----------------------
+core:
+  image:
+    repository: docker.io/goharbor/harbor-core
+    tag: v2.15.1
+  replicas: 1  # 生产建议多副本
+  resources:
+    requests:
+      memory: 512Mi
+      cpu: 200m
+    limits:
+      memory: 1Gi
+      cpu: 500m
+
+# ---------------------- Jobservice（任务调度） ----------------------
+jobservice:
+  image:
+    repository: docker.io/goharbor/harbor-jobservice
+    tag: v2.15.1
+  replicas: 1
+  resources:
+    requests:
+      memory: 512Mi
+      cpu: 200m
+    limits:
+      memory: 1Gi
+      cpu: 500m
+
+
+# ---------------------- Registry（镜像存储） ----------------------
+registry:
+  registry:
+    image:
+      repository: docker.io/goharbor/registry-photon
+      tag: v2.15.1
+    resources:
+      requests:
+        memory: 256Mi
+        cpu: 100m
+      limits:
+        memory: 1Gi
+        cpu: 500m
+  controller:
+    image:
+      repository: docker.io/goharbor/harbor-registryctl
+      tag: v2.15.1
+    resources:
+      requests:
+        memory: 256Mi
+        cpu: 100m
+      limits:
+        memory: 512Mi
+        cpu: 200m
+  replicas: 1
+  credentials:
+    username: "harbor_registry_user"
+    password: "harbor_registry_password"  # 【可自己修改】
+
+# ---------------------- Trivy（漏洞扫描） ----------------------
+trivy:
+  enabled: true
+  image:
+    repository: docker.io/goharbor/trivy-adapter-photon
+    tag: v2.15.1
+  replicas: 1
+  resources:
+    requests:
+      memory: 512Mi
+      cpu: 200m
+    limits:
+      memory: 2Gi
+      cpu: 1
+
+  skipUpdate: true
+  # DB 仓库镜像地址（国内可替换）
+  dbRepository:
+    - "mirror.gcr.io/aquasec/trivy-db"
+    - "ghcr.io/aquasecurity/trivy-db"
+  javaDBRepository:
+    - "mirror.gcr.io/aquasec/trivy-java-db"
+    - "ghcr.io/aquasecurity/trivy-java-db"
+
+
+# ---------------------- 数据库 ----------------------
+# 警告：多副本环境下，内置数据库无法使用 NFS 共享，必须使用外部高可用数据库
+database:
+  type: internal  # 使用内置 PostgreSQL
+  internal:
+    image:
+      repository: docker.io/goharbor/harbor-db
+      tag: v2.15.1
+    resources:
+      requests:
+        memory: 512Mi
+        cpu: 200m
+      limits:
+        memory: 1Gi
+        cpu: 500m
+    password: "rstyro"  # 【需修改】数据库超级用户密码
+
+# ---------------------- Redis ----------------------
+redis:
+  type: internal  # 使用内置 Redis
+  internal:
+    image:
+      repository: docker.io/goharbor/redis-photon
+      tag: v2.15.1
+    resources:
+      requests:
+        memory: 256Mi
+        cpu: 100m
+      limits:
+        memory: 512Mi
+        cpu: 200m
+
+# ---------------------- Exporter（指标导出） ----------------------
+exporter:
+  image:
+    repository: docker.io/goharbor/harbor-exporter
+    tag: v2.15.1
+  replicas: 1
+  resources:
+    requests:
+      memory: 128Mi
+      cpu: 50m
+    limits:
+      memory: 256Mi
+      cpu: 100m
+```
+
+- 我这个存储配置使用了NFS动态分配，默认StorageClass为: `nfs-client`  NFS的安装与配置可参考我之前的文章
+- 然后ingress 的实现使用的是Higress，也可以使用ingress-nginx只是不维护就想着换一个
+- 还有tls这里使用 `auto` 证书有效期一年做测试够用了，后面会有篇章讲 `certSource: secret` 的
+
+
+
+#### 4.3.3 创建命名空间并安装
+
+```bash
+# 创建命名空间
+kubectl create ns harbor
+
+# 安装命令
+helm install harbor harbor/harbor -n harbor -f harbor-values.yaml
+```
+
+安装成功之后，还要安装ingress的控制器，ingress的控制器有很多，我上面配置使用的是higress,我们查看一下它的网关地址
+
+![](harbor-ingress.png)
+
+可以看到，443映射30145端口，所以我们就可以通过 `域名:30145` 进行访问，higress会通过域名自动进行代理
+
+
+
+![](harbor-login.png)
+
+
+
+账号密码就是之前配置文件里面harborAdminPassword设置的：`Rstyro168`
+
+
+
+![](harbor-view.png)
+
+
+
+具体的仓库如何上传镜像和下载镜像看后面的章节
+
+
+
+#### 4.3.4 升级与卸载
+
+```bash
+# 升级配置
+helm upgrade harbor harbor/harbor -n harbor -f harbor-values.yaml
+
+# 卸载（保留 PVC，除非 persistence.resourcePolicy 不是 keep）
+helm uninstall harbor -n harbor
+
+# 彻底清理数据（危险操作）
+kubectl delete pvc -n harbor --all
+kubectl delete namespace harbor
+```
+
+
+
+
+
+### 4.4 两种方案对比
+
+| 维度 | Docker Compose | Helm on Kubernetes |
+| --- | --- | --- |
+| 适用场景 | 测试、单节点、小团队 | 生产、大规模、高可用 |
+| 扩展性 | 垂直扩展为主 | 水平扩展、多副本 |
+| 高可用 | 需要手动配置 | 原生支持 |
+| 运维复杂度 | 低 | 中 |
+| 存储方式 | 本地目录/NFS | PVC / 对象存储 |
+| 升级方式 | 重新执行 install.sh | helm upgrade |
+
+**生产强烈推荐 Helm + 外部 PG/Redis + 对象存储/SAN 共享存储。**
+
+
+
+## 五、配置解析与生产建议
+
+### 5.1 默认 values 配置总体模板
+
+- 方便查询参考
 
 ```yaml
 # 对外暴露服务配置
@@ -982,378 +1526,975 @@ exporter:
   cacheCleanInterval: 14400 # 缓存清理间隔（秒）
 ```
 
+### 5.2 TLS 与证书配置详解
 
+TLS 是 Harbor 最容易出问题的环节。理解证书信任链是排查 401、x509 错误的关键。
 
-#### 我的配置
-
-- 我提前配置nfs动态分配
+#### 5.2.1 TLS 核心配置块
 
 ```yaml
-# ---------------------- 服务暴露配置 ----------------------
 expose:
-  # 服务暴露方式：可选 ingress / clusterIP / nodePort / loadBalancer / route
-  # 生产环境建议使用 ingress 或 loadBalancer
   type: ingress
-
   tls:
-    # 是否启用 TLS（生产环境必须启用）
     enabled: true
-    # TLS 证书来源：auto（自动生成）/ secret（从 Secret 读取）/ none（不使用）
-    # 生产环境建议使用 cert-manager 自动签发或手动创建 Secret
-    certSource: auto
+    certSource: secret # 切换为读取自有tls secret
     auto:
-      # 自动生成证书时的通用名称（若 type 不是 ingress，则必须指定）
-      commonName: ""  # 通常留空，由 Ingress 规则决定
+      commonName: "" # auto模块完全失效，留空
     secret:
-      # 若 certSource 为 secret，指定包含 tls.crt 和 tls.key 的 Secret 名称
-      secretName: ""
-
+      secretName: "harbor-rstyro-tls" # 自定义Secret名称，下文创建时保持一致
   ingress:
     hosts:
-      # 【需修改】Harbor 核心服务的域名（必须与 externalURL 一致）
-      core: harbor.rstyro.com
-    # Ingress 控制器类型，默认 default 适用于大多数
-    controller: default
-    # IngressClass 名称（K8s 1.18+ 支持）
-    className: "nginx"  # 若使用 nginx-ingress，可指定
+      core: harbor.rstyro.com # 证书绑定域名必须完全匹配
+    className: "higress"
     annotations:
-      # 强制 HTTPS 重定向（根据控制器调整）
       ingress.kubernetes.io/ssl-redirect: "true"
       ingress.kubernetes.io/proxy-body-size: "0"
       nginx.ingress.kubernetes.io/ssl-redirect: "true"
       nginx.ingkubernetes.io/proxy-body-size: "0"
-      # 【建议】NFS 场景下可增加超时配置
       nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
       nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
-    labels: {}
-
-  # 其他暴露方式（clusterIP/nodePort/loadBalancer/route）均未启用，保持默认
-
-# ---------------------- 外部访问 URL ----------------------
-# 【需修改】Harbor 对外访问的完整 URL（必须与 ingress hosts 一致）
 externalURL: https://harbor.rstyro.com
-
-# ---------------------- 持久化存储配置 ----------------------
-persistence:
-  enabled: true
-  # 生产环境务必设置为 "keep"，防止误执行 helm uninstall 导致数据丢失
-  resourcePolicy: "keep"
-  
-  persistentVolumeClaim:
-    # Registry 镜像存储 (需要多副本共享，必须使用 ReadWriteMany)
-    registry:
-      existingClaim: ""
-      # 指定 NFS 的 StorageClass
-      storageClass: "nfs-client"
-      subPath: "harbor/registry"
-      # NFS 必须使用 RWX 以支持多副本同时读写
-      accessMode: ReadWriteMany 
-      size: 50Gi
-    jobservice:
-      jobLog:
-        storageClass: "nfs-client"
-        subPath: "harbor/jobservice"
-        accessMode: ReadWriteMany
-        size: 5Gi
-    trivy:
-      # Trivy 漏洞库缓存，多副本必须共享
-      storageClass: "nfs-client"
-      subPath: "harbor/trivy"
-      accessMode: ReadWriteMany
-      size: 5Gi
-
-# ---------------------- 管理员密码 ----------------------
-# 【需修改】初始管理员密码（部署后请立即修改）
-harborAdminPassword: "Rstyro168"
-
-
-# ---------------------- 日志级别 ----------------------
-logLevel: info  # 生产环境可设为 warn 或 error 减少日志量
-
-# ---------------------- CA 证书 Secret ----------------------
-caSecretName: ""  # 若需提供自定义 CA 证书供下载，可指定
-
-# ---------------------- 加密密钥 ----------------------
-# 16 字符字符串，用于加密敏感数据。生产环境务必修改！
-secretKey: "a1b2c3d4e5f6g7h8"  # 【需修改】
-
-
-# ---------------------- 代理设置（如需） ----------------------
-proxy:
-  httpProxy:
-  httpsProxy:
-  noProxy: 127.0.0.1,localhost,.local,.internal
-  components: []  # 留空表示所有组件都不使用代理
-
-# ---------------------- Metrics 监控 ----------------------
-metrics:
-  enabled: false
-  core:
-    path: /metrics
-    port: 8001
-  registry:
-    path: /metrics
-    port: 8001
-  jobservice:
-    path: /metrics
-    port: 8001
-  exporter:
-    path: /metrics
-    port: 8001
-
-# 自动创建 Prometheus ServiceMonitor (需集群已安装 Prometheus Operator)
-serviceMonitor:
-  enabled: false
-  additionalLabels: {}
-  interval: "30s"
-
-
-# =============================================================================
-# 各组件独立配置
-# =============================================================================
-
-
-# ---------------------- Portal（Web UI） ----------------------
-portal:
-  image:
-    repository: docker.io/goharbor/harbor-portal
-    tag: v2.15.1
-  replicas: 1
-  resources:
-    requests:
-      memory: 256Mi
-      cpu: 100m
-    limits:
-      memory: 512Mi
-      cpu: 200m
-  # 探针保持默认
-
-# ---------------------- Core（核心服务） ----------------------
-core:
-  image:
-    repository: docker.io/goharbor/harbor-core
-    tag: v2.15.1
-  replicas: 1  # 生产建议多副本
-  resources:
-    requests:
-      memory: 512Mi
-      cpu: 200m
-    limits:
-      memory: 1Gi
-      cpu: 500m
-
-# ---------------------- Jobservice（任务调度） ----------------------
-jobservice:
-  image:
-    repository: docker.io/goharbor/harbor-jobservice
-    tag: v2.15.1
-  replicas: 1
-  resources:
-    requests:
-      memory: 512Mi
-      cpu: 200m
-    limits:
-      memory: 1Gi
-      cpu: 500m
-
-
-# ---------------------- Registry（镜像存储） ----------------------
-registry:
-  registry:
-    image:
-      repository: docker.io/goharbor/registry-photon
-      tag: v2.15.1
-    resources:
-      requests:
-        memory: 256Mi
-        cpu: 100m
-      limits:
-        memory: 1Gi
-        cpu: 500m
-  controller:
-    image:
-      repository: docker.io/goharbor/harbor-registryctl
-      tag: v2.15.1
-    resources:
-      requests:
-        memory: 256Mi
-        cpu: 100m
-      limits:
-        memory: 512Mi
-        cpu: 200m
-  replicas: 1
-  credentials:
-    username: "harbor_registry_user"
-    password: "harbor_registry_password"  # 【需修改】
-
-# ---------------------- Trivy（漏洞扫描） ----------------------
-trivy:
-  enabled: true
-  image:
-    repository: docker.io/goharbor/trivy-adapter-photon
-    tag: v2.15.1
-  replicas: 1
-  resources:
-    requests:
-      memory: 512Mi
-      cpu: 200m
-    limits:
-      memory: 2Gi
-      cpu: 1
-
-  skipUpdate: true
-  # DB 仓库镜像地址（国内可替换）
-  dbRepository:
-    - "mirror.gcr.io/aquasec/trivy-db"
-    - "ghcr.io/aquasecurity/trivy-db"
-  javaDBRepository:
-    - "mirror.gcr.io/aquasec/trivy-java-db"
-    - "ghcr.io/aquasecurity/trivy-java-db"
-
-
-# ---------------------- 数据库 ----------------------
-# 警告：多副本环境下，内置数据库无法使用 NFS 共享，必须使用外部高可用数据库
-database:
-  type: internal  # 使用内置 PostgreSQL
-  internal:
-    image:
-      repository: docker.io/goharbor/harbor-db
-      tag: v2.15.1
-    resources:
-      requests:
-        memory: 512Mi
-        cpu: 200m
-      limits:
-        memory: 1Gi
-        cpu: 500m
-    password: "rstyro"  # 【需修改】数据库超级用户密码
-
-# ---------------------- Redis ----------------------
-redis:
-  type: internal  # 使用内置 Redis
-  internal:
-    image:
-      repository: docker.io/goharbor/redis-photon
-      tag: v2.15.1
-    resources:
-      requests:
-        memory: 256Mi
-        cpu: 100m
-      limits:
-        memory: 512Mi
-        cpu: 200m
-
-# ---------------------- Exporter（指标导出） ----------------------
-exporter:
-  image:
-    repository: docker.io/goharbor/harbor-exporter
-    tag: v2.15.1
-  replicas: 1
-  resources:
-    requests:
-      memory: 128Mi
-      cpu: 50m
-    limits:
-      memory: 256Mi
-      cpu: 100m
+# 若使用企业自建CA，配置全局可信CA Secret（可选）
+# caSecretName: "harbor-root-ca"
 ```
 
+| 字段 | 说明 |
+| --- | --- |
+| `enabled` | 是否启用 HTTPS。生产必须 `true` |
+| `certSource` | 证书来源：`auto` 自签、`secret` 自有证书、`none` 使用 Ingress 默认证书 |
+| `auto.commonName` | 非 Ingress 模式必填域名 |
+| `secret.secretName` | `certSource: secret` 时，指定 TLS Secret 名称 |
 
-
-
-
-## 二、配置解析
-
-
-
-### TLS 总配置区块
-
-```
-expose:
-  type: ingress
-  tls:
-    # 生产必须开启HTTPS
-    enabled: true
-    # 核心切换字段：auto / secret / none
-    certSource: auto
-    auto:
-      # auto模式下证书域名
-      commonName: ""
-    secret:
-      # secret模式下tls类型Secret名称
-      secretName: ""
-```
-
-### 字段核心释义
-
-1. `enabled: true`：全局开关，关闭则不启用 HTTPS，生产禁止关闭
-
-2. ```
-   certSource
-   ```
-
-   
-
-   三选一：
-
-   - `auto`：Harbor Chart 自动生成一套自签 CA + 域名证书，零证书文件准备
-   - `secret`：读取集群预先创建的 `kubernetes.io/tls` 类型 Secret，使用企业 / 云厂商可信证书、自建 CA 证书
-   - `none`：Ingress Controller 全局默认证书，极少使用
-
-3. `auto.commonName`：非 Ingress 暴露模式必填，Ingress 场景会自动复用 `expose.ingress.hosts.core` 域名
-
-4. `secret.secretName`：仅 `certSource: secret` 生效，必须提前在 harbor 命名空间创建 tls Secret
-
-### 配套全局关联配置（必须同步匹配）
+#### 5.2.2 配套全局关联配置
 
 ```yaml
 externalURL: https://harbor.rstyro.com
-ingress:
-  hosts:
-    core: harbor.rstyro.com
+
+expose:
+  ingress:
+    hosts:
+      core: harbor.rstyro.com
 ```
 
-域名必须完全一致，否则证书域名不匹配、docker 推拉 401 鉴权失败。
+**注意**：`externalURL` 和 `ingress.hosts.core` 必须完全一致，否则：
 
+- 浏览器报证书域名不匹配
+- Docker login 报 401 鉴权失败
+- Token 服务返回错误地址
 
+#### 5.2.3 模式一：certSource = auto（自动生成证书）
 
+适用场景：测试、内网临时环境、快速验证。
 
-## 三、安装Higress
+```yaml
+expose:
+  type: ingress
+  tls:
+    enabled: true
+    certSource: auto
+  ingress:
+    hosts:
+      core: harbor.rstyro.com
 
+externalURL: https://harbor.rstyro.com
+```
 
+**优点**：
+
+- 零证书准备，一条命令部署
+- 自动创建 TLS Secret 并绑定 Ingress
+
+**缺点**：
+
+- 自签证书不被浏览器/客户端信任
+- Docker login 会报 `x509: certificate signed by unknown authority`
+- 升级 Harbor 可能重新生成证书，导致客户端信任失效
+- 企业等保、合规场景不认可
+
+#### 5.2.4 模式二：certSource = secret（企业生产标准）
+
+支持三种证书来源：
+
+1. 公网可信 SSL（Let's Encrypt、云厂商付费证书）
+2. 企业自建 OpenCA 签发的内网域名证书
+3. cert-manager 自动签发
+
+配置示例：
+
+```yaml
+expose:
+  type: ingress
+  tls:
+    enabled: true
+    certSource: secret
+    secret:
+      secretName: "harbor-tls"
+  ingress:
+    hosts:
+      core: harbor.rstyro.com
+
+externalURL: https://harbor.rstyro.com
+
+# 企业自建CA
+caSecretName: "harbor-root-ca"
+```
+
+前置要求：
 
 ```bash
-helm repo add higress.io https://higress.io/helm-charts
-helm repo update
+# 云平台下载压缩包，得到 3 个文件：
+# domain.crt  域名证书
+# domain.key  私钥
+# chain.crt  中间 CA 证
+# 拼接完整证书链
+cat domain.crt chain.crt > fullchain.crt
 
+# 提前在 harbor 命名空间创建 TLS Secret
+kubectl create secret tls harbor-tls \
+  -n harbor \
+  --cert ./fullchain.crt \
+  --key ./domain.key
 
-helm install higress -n higress-system higress.io/higress --create-namespace --render-subchart-notes
-
-
-helm upgrade higress -n higress-system higress.io/higress --create-namespace --render-subchart-notes --set global.gateway.replicas=1
-
-
-
-# 服务器资源不够，测试用
-helm install higress -n higress-system higress.io/higress \
-  --create-namespace \
-  --set gateway.replicas=1 \
-  --set higress-core.gateway.resources.requests.cpu=50m \
-  --set higress-core.gateway.resources.requests.memory=128Mi \
-  --set higress-core.gateway.resources.limits.cpu=200m \
-  --set higress-core.gateway.resources.limits.memory=256Mi \
-  --set higress-core.controller.replicas=1 \
-  --set higress-core.controller.resources.requests.cpu=100m \
-  --set higress-core.controller.resources.requests.memory=256Mi \
-  --set higress-core.controller.resources.limits.cpu=500m \
-  --set higress-core.controller.resources.limits.memory=512Mi \
-  --set higress-console.resources.requests.cpu=50m \
-  --set higress-console.resources.requests.memory=128Mi \
-  --set higress-console.resources.limits.cpu=200m \
-  --set higress-console.resources.limits.memory=256Mi
-
-
-# 卸载
-helm uninstall higress -n higress-system
+# 如果是自建 CA，同时创建根 CA Secret
+kubectl create secret generic harbor-root-ca \
+  -n harbor \
+  --from-file=ca.crt=./ca.crt
 ```
 
+证书文件要求：
+
+- `tls.crt`：完整证书链，顺序为 **域名证书 → 中间 CA 证书**（部分场景需包含根 CA）
+- `tls.key`：无密码的 RSA/ECC 私钥
+- SAN/CN 必须包含 `harbor.example.com`
+
+#### 5.2.5 自建 CA 签发证书完整流程
+
+适用于企业内网没有公网域名的场景。
+
+- 示例需要配置域名：harbor.rstyro.com
+
+**步骤 1：创建根 CA**
+
+```bash
+# 根 CA 私钥
+openssl genrsa -out ca.key 4096
+
+# 根 CA 证书，有效期 10 年
+openssl req -x509 -new -nodes -key ca.key -sha256 -days 3650 \
+  -subj "/C=CN/ST=Guangdong/L=Shenzhen/O=Company/OU=DevOps/CN=Company-Internal-CA" \
+  -out ca.crt
+```
+
+**步骤 2：创建域名证书请求并签发**
+
+创建 `v3.ext` 文件：
+
+```ini
+[req]
+distinguished_name = dn
+x509_extensions = v3
+prompt = no
+
+[dn]
+C=CN
+ST=Guangdong
+L=Shenzhen
+O=Company
+OU=DevOps
+CN=harbor.rstyro.com
+
+[v3]
+keyUsage = digitalSignature, keyEncipherment
+extendedKeyUsage = serverAuth
+subjectAltName = @alt
+
+[alt]
+DNS.1=harbor.rstyro.com
+# 如有泛域名可添加 DNS.2=*.rstyro.com
+# 如有内网IP访问可添加 IP.1=192.168.xx.xx
+```
+
+签发：
+
+```bash
+# 域名私钥
+openssl genrsa -out harbor.key 2048
+
+# 证书请求
+openssl req -new -key harbor.key -out harbor.csr -config v3.ext
+
+# 使用根 CA 签发
+# -CAcreateserial会生成 harbor-ca.srl，妥善保存，后续签发其他内网证书需要，不要删除
+openssl x509 -req -in harbor.csr -CA ca.crt -CAkey ca.key -CAcreateserial \
+  -out harbor.crt -days 1095 -sha256 -extfile v3.ext -extensions v3
+```
+
+**步骤 3：创建 K8s Secret**
+
+```bash
+# 拼接证书链
+cat harbor.crt ca.crt > fullchain.crt
+
+# Ingress对外HTTPS tls类型secret
+kubectl create secret tls harbor-tls -n harbor --cert fullchain.crt --key harbor.key
+
+# 全局根CA信任secret，对应caSecretName: harbor-root-ca
+kubectl create secret generic harbor-root-ca -n harbor --from-file=ca.crt=ca.crt
+
+# 验证根 CA secret 存在
+kubectl get secret harbor-root-ca -n harbor
+
+
+# 查看Ingress 是否切换到你指定的 Secret
+kubectl get ingress -n harbor -o yaml | grep secretName
+
+
+# 查看证书有效期，30145对应443端口
+echo | openssl s_client -connect harbor.rstyro.com:30145 -servername harbor.rstyro.com 2>/dev/null | openssl x509 -noout -text | grep -E "Not Before|Not After|Issuer:"
+```
+
+#### 5.2.6 客户端信任自建 CA
+
+服务器端配置完成后，客户端（Docker/containerd/nerdctl）也需要信任该 CA：
+
+```bash
+# Linux 系统信任
+cp ca.crt /usr/local/share/ca-certificates/harbor-ca.crt
+update-ca-certificates
+
+# containerd 配置信任
+cp ca.crt /etc/containerd/certs.d/harbor.rstyro.com/ca.crt
+
+# 重启 containerd
+systemctl restart containerd
+```
+
+### 5.3 使用cert-manager自动管理证书
+
+cert-manager 是 Kubernetes 上最常用的证书自动化管理工具，支持 Let's Encrypt、ACME、私有 CA 等多种 Issuer。与 Harbor 配合后，可以实现证书自动申请、自动续期、自动更新 Secret，无需人工干预。
+
+#### 适用场景
+
+- 使用公网域名（如 `harbor.example.com`）
+- 集群已安装 cert-manager
+- 有可用的 Issuer：`ClusterIssuer` 或 `NamespaceIssuer`
+- 希望证书到期前自动续期
+
+#### 步骤 1：安装 cert-manager（如未安装）
+
+```bash
+# 安装
+helm install \
+  cert-manager oci://quay.io/jetstack/charts/cert-manager \
+  --namespace cert-manager \
+  --create-namespace \
+  --version v1.21.0 \
+  --set crds.enabled=true
+  
+  
+# 卸载,使用 uninstall 或 delete
+helm uninstall cert-manager --namespace cert-manager
+# 如果你想完全卸载 cert-manager，需要删除之前安装的 CustomResourceDefinition 资源
+kubectl delete crd \
+  issuers.cert-manager.io \
+  clusterissuers.cert-manager.io \
+  certificates.cert-manager.io \
+  certificaterequests.cert-manager.io \
+  orders.acme.cert-manager.io \
+  challenges.acme.cert-manager.io
+
+```
+
+#### 步骤 2：创建 ClusterIssuer（以 Let's Encrypt 为例）
+
+```yaml
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-prod
+spec:
+  acme:
+    server: https://acme-v02.api.letsencrypt.org/directory
+    email: admin@example.com
+    privateKeySecretRef:
+      name: letsencrypt-prod
+    solvers:
+      - http01:
+          ingress:
+            class: nginx
+```
+
+如果是公司自建 CA（参考 [5.2.5 自建 CA 签发证书完整流程](#525-自建-ca-签发证书完整流程)），可改用 `Issuer` + `CA` 类型，复用已有的根 CA 证书：
+
+```bash
+# 将自建根 CA 证书创建为 Secret（cert-manager 会用它签发域名证书）
+kubectl create secret tls company-root-ca-secret \
+  -n cert-manager \
+  --cert ./ca.crt \
+  --key ./ca.key
+```
+
+```yaml
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: rstyro-internal-ca
+spec:
+  ca:
+    secretName: company-root-ca-secret
+    
+
+# 新建文件
+cat > ca-clusterissuer.yaml<<EOF
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: rstyro-internal-ca
+spec:
+  ca:
+    secretName: company-root-ca-secret
+EOF    
+```
+
+#### 步骤 3：创建 Certificate 资源
+
+在 Harbor 命名空间创建 Certificate，cert-manager 会自动签发并写入 Secret：
+
+```yaml
+cat > ca-certificate.yaml<<EOF
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: harbor-tls
+  namespace: harbor
+spec:
+  secretName: harbor-tls
+  issuerRef:
+    name: rstyro-internal-ca      # 或 letsencrypt-prod
+    kind: ClusterIssuer
+  dnsNames:
+    - harbor.rstyro.com
+  duration: 8760h        # 证书有效期 1 年
+  renewBefore: 720h      # 到期前 30 天续期
+EOF  
+```
+
+创建后检查证书状态：
+
+```bash
+kubectl get certificate -n harbor
+kubectl describe certificate harbor-tls -n harbor
+
+# 因为之前我们自建证书的时候，已经创建了harbor-tls，需要删除掉，不然会冲突（要么就改名）
+kubectl delete secret harbor-tls -n harbor
+```
+
+正常状态应为 `Ready=True`，并自动创建 `harbor-tls` Secret。
+
+#### 步骤 4：Harbor values 使用 cert-manager 生成的 Secret（如果之前secretName不一样的话）
+
+```yaml
+expose:
+  type: ingress
+  tls:
+    enabled: true
+    certSource: secret
+    secret:
+      secretName: "harbor-tls"   # 与 Certificate.spec.secretName 一致
+  ingress:
+    hosts:
+      core: harbor.rstyro.com
+    className: nginx
+    annotations:
+      ingress.kubernetes.io/ssl-redirect: "true"
+      nginx.ingress.kubernetes.io/ssl-redirect: "true"
+      nginx.ingress.kubernetes.io/proxy-body-size: "0"
+
+externalURL: https://harbor.rstyro.com
+```
+
+然后升级 Harbor：
+
+```bash
+# 如果secretName 和之前配置的一样就不用升级，直接把之前的secret删掉就行
+helm upgrade harbor harbor/harbor -n harbor -f harbor-values.yaml
+```
+
+#### 步骤 5：验证 cert-manager 接管成功
+
+```bash
+# 查看证书资源
+kubectl get certificate -n harbor
+
+# 查看 Secret
+kubectl get secret harbor-tls -n harbor
+
+# 验证证书信息，这个 30145 是我higress-gateway网关暴露443的映射端口
+echo | openssl s_client -connect harbor.rstyro.com:30145 -servername harbor.rstyro.com 2>/dev/null \
+  | openssl x509 -noout -text | grep -E "Issuer:|Not After|DNS:"
+```
+
+
+
+![](harbor-cert.png)
+
+
+
+
+
+
+
+#### 自动续期机制
+
+cert-manager 默认在证书有效期剩余 **1/3** 时自动续期。例如 90 天有效期的 Let's Encrypt 证书，会在到期前 30 天左右自动：
+
+1. 向 ACME/CA 申请新证书
+2. 更新 `harbor-rstyro-tls` Secret 中的 `tls.crt` 和 `tls.key`
+3. Ingress 控制器 watch 到 Secret 变化后自动热加载
+
+可以通过以下命令查看下次续期时间：
+
+```bash
+kubectl get certificate harbor-tls -n harbor -o wide
+```
+
+#### 注意事项
+
+- 使用 Let's Encrypt 时，域名必须能从公网访问并通过 HTTP-01 或 DNS-01 挑战
+- 内网域名建议使用 DNS-01 挑战，或部署私有 ACME（如 step-ca）
+- 使用私有 CA 时，客户端仍需手动信任根 CA
+- 不要同时用 Helm 自动证书（`certSource: auto`）和 cert-manager，两者会冲突
+- 建议设置 Prometheus 告警监控 `Certificate` 资源的 `Ready=False` 状态
+
+#### 自建 CA 续期自动化补充
+
+如果使用公司自建 CA，也可以将续期脚本与 cert-manager 结合：
+
+1. 编写一个 CronJob，定期调用内部 CA 接口签发新证书
+2. 签发后将 `tls.crt` 和 `tls.key` 写入 `harbor-rstyro-tls` Secret
+3. 或者实现自定义 cert-manager `Issuer`/`ClusterIssuer`，对接公司 CA
+
+更简单的方式是使用 [step-ca](https://smallstep.com/docs/step-ca) 作为内部 ACME 服务器，cert-manager 直接通过 ACME 协议申请和续期。
+
+### 5.4 外部数据库与 Redis
+
+生产环境建议将 PG 和 Redis 外置：
+
+```yaml
+database:
+  type: external
+  external:
+    host: "192.168.0.10"
+    port: "5432"
+    username: "harbor"
+    password: "password"
+    coreDatabase: "registry"
+    sslmode: "require"
+
+redis:
+  type: external
+  external:
+    addr: "192.168.0.11:6379"
+    coreDatabaseIndex: "0"
+    jobserviceDatabaseIndex: "1"
+    registryDatabaseIndex: "2"
+    trivyAdapterIndex: "5"
+```
+
+
+
+## 六、客户端配置与镜像操作
+
+### 6.1 常用客户端工具
+
+| 工具 | 适用场景 |
+| --- | --- |
+| docker | 传统 Docker 环境 |
+| nerdctl | containerd 环境（K8s 节点常用） |
+| crictl | 仅用于排查，不推荐日常推送拉取 |
+| helm | 推送/拉取 Helm Chart |
+| oras | 推送/拉取 OCI Artifact |
+
+### 6.2 配置 containerd / nerdctl 访问 Harbor
+
+#### 6.2.1 方式一：配置 hosts.toml 跳过 TLS 校验（测试）
+
+```bash
+mkdir -p /etc/containerd/certs.d/harbor.rstyro.com:30145
+
+cat > /etc/containerd/certs.d/harbor.rstyro.com:30145/hosts.toml << EOF
+server = "https://harbor.rstyro.com:30145"
+
+[host."https://harbor.rstyro.com:30145"]
+  capabilities = ["pull", "push", "resolve"]
+  skip_verify = true
+EOF
+
+systemctl restart containerd
+nerdctl login harbor.rstyro.com
+```
+
+#### 6.2.2 方式二：配置 CA 证书信任（生产）
+
+```bash
+# 下载 CA 证书
+kubectl get secret -n harbor harbor-tls \
+  -o jsonpath='{.data.ca\.crt}' | base64 -d > /etc/containerd/certs.d/harbor.rstyro.com:30145/ca.crt
+
+# 可选：加入系统信任
+cp /etc/containerd/certs.d/harbor.rstyro.com:30145/ca.crt /usr/local/share/ca-certificates/harbor-ca.crt
+update-ca-certificates
+
+systemctl restart containerd
+nerdctl login harbor.rstyro.com:30145
+```
+
+#### 6.2.3 Docker 配置 insecure registry（不推荐生产使用）
+
+```json
+{
+  "insecure-registries": ["harbor.rstyro.com:30145"]
+}
+```
+
+### 6.3 镜像推送与拉取
+
+```bash
+# 登录
+nerdctl login harbor.rstyro.com:30145
+
+# 拉取公共镜像测试
+nerdctl pull nginx:alpine
+
+# 打标签
+nerdctl tag nginx:alpine harbor.rstyro.com:30145/library/nginx:alpine
+
+# 推送
+nerdctl push harbor.rstyro.com:30145/library/nginx:alpine
+
+# 拉取
+nerdctl pull harbor.rstyro.com:30145/library/nginx:alpine
+
+# 删除本地镜像
+nerdctl rmi harbor.rstyro.com:30145/library/nginx:alpine
+```
+
+
+![](harbor-nerdctl.png)
+
+
+
+### 6.4 推送 Helm Chart
+
+```bash
+# 拉取 harbor Chart,
+# --untar 参数会解压出 harbor 文件夹
+helm pull harbor/harbor --untar
+
+# 登录 Helm
+helm registry login harbor.rstyro.com:30145
+
+# 打包 Chart
+helm package ./harbor
+
+# 推送 Chart
+helm push harbor-1.19.1.tgz oci://harbor.rstyro.com:30145/library
+
+# 拉取 Chart
+helm pull oci://harbor.rstyro.com:30145/library/harbor --version 1.19.1
+```
+
+
+
+![](harbor-use.png)
+
+
+
+## 七、Harbor 日常使用
+
+### 7.1 核心概念：项目、仓库、Artifact
+
+| 概念 | 说明 | 类比 |
+| --- | --- | --- |
+| **项目（Project）** | 镜像/Chart 的命名空间，用于权限隔离 | GitLab Group |
+| **仓库（Repository）** | 同一镜像/Chart 的不同版本集合 | GitLab Project |
+| **Artifact** | 单个镜像或 Chart 版本 | Git Commit |
+| **Tag** | Artifact 的可读标识 | Git Tag |
+| **Digest** | Artifact 的内容寻址哈希 | Git SHA |
+
+**示例**：`harbor.rstyro.com:30145/library/nginx:alpine`
+
+- `library` 是项目
+- `nginx` 是仓库
+- `alpine` 是 tag
+
+### 7.2 项目规划建议
+
+| 项目类型 | 用途 | 访问控制 |
+| --- | --- | --- |
+| `library` | 基础镜像（nginx、alpine、busybox） | 公开只读，管理员推送 |
+| `middleware` | 中间件镜像（redis、mysql、kafka） | 团队只读，运维推送 |
+| `business/<team>` | 业务镜像 | 团队读写，其他团队只读或无权限 |
+| `public` | 允许外部拉取的镜像 | 公开只读 |
+| `sandbox` | 测试/实验镜像 | 团队成员读写 |
+
+### 7.3 用户与权限模型
+
+Harbor 支持三类账户：
+
+- **本地用户**：Harbor 内置数据库用户
+- **LDAP/AD 用户**：对接企业目录服务
+- **OIDC 用户**：对接 OIDC 身份提供商（如 Keycloak、Dex）
+
+#### 7.3.1 项目角色
+
+| 角色 | 权限 |
+| --- | --- |
+| **项目管理员（Project Admin）** | 管理项目成员、配置、策略、推送/拉取/删除 |
+| **维护人员（Maintainer）** | 推送/拉取/删除镜像、管理标签、扫描 |
+| **开发人员（Developer）** | 推送/拉取镜像 |
+| **访客（Guest）** | 只能拉取 |
+| **受限访客（Limited Guest）** | 只能拉取，看不到日志和扫描结果 |
+
+#### 7.3.2 系统角色
+
+| 角色 | 权限 |
+| --- | --- |
+| **Harbor 系统管理员** | 管理所有项目、用户、配置、执行系统级操作 |
+| **普通用户** | 只能访问有权限的项目 |
+
+### 7.4 镜像清理策略
+
+#### 7.4.1 保留策略（Tag Retention）
+
+按规则自动保留/删除 Tag，避免仓库无限膨胀。
+
+常见规则：
+
+- 保留最近推送的 10 个 Tag
+- 保留最近 30 天内推送的 Tag
+- 删除匹配 `*-snapshot-*` 的 Tag
+- 永远保留匹配 `release-*` 的 Tag
+
+#### 7.4.2 不可变规则（Tag Immutability）
+
+防止重要 Tag 被覆盖或删除，例如 `latest`、`v1.0.0`、`release-*`。
+
+#### 7.4.3 垃圾回收（Garbage Collection）
+
+删除不再被任何 Tag 引用的 blob，释放存储空间。
+
+操作路径：**系统管理 → 垃圾回收 → 立即执行**
+
+**注意**：
+
+- GC 会锁定 Registry，执行期间禁止推送
+- 大仓库 GC 可能耗时较长，建议低峰期执行
+- 可以配置定时任务自动执行
+
+### 7.5 镜像复制（Replication）
+
+Harbor 支持将镜像从一个 Harbor 实例复制到另一个 Harbor，或复制到 Docker Hub、ACR 等外部仓库。
+
+#### 7.5.1 典型场景
+
+- 多地域部署，就近拉取镜像
+- 生产/测试环境镜像同步
+- 灾备备份
+- 向公网仓库发布镜像
+
+#### 7.5.2 配置步骤
+
+1. **创建目标 Registry**：系统管理 → 仓库管理 → 新建目标
+2. **创建复制规则**：系统管理 → 复制管理 → 新建规则
+3. 选择源项目/仓库、目标仓库、触发方式
+4. 支持手动触发、事件触发（推送时自动复制）、定时触发
+
+#### 7.5.3 复制过滤器
+
+- 按项目名称过滤
+- 按 Tag 过滤（支持通配符）
+- 按标签/资源类型过滤（镜像/Chart）
+
+### 7.6 漏洞扫描
+
+Harbor 默认集成 Trivy，可以对镜像执行安全扫描。
+
+#### 7.6.1 手动扫描
+
+在仓库页面选择一个 Artifact，点击"扫描"。
+
+#### 7.6.2 自动扫描
+
+在项目配置中开启"推送时自动扫描"。
+
+#### 7.6.3 扫描结果解读
+
+| 级别 | 说明 |
+| --- | --- |
+| CRITICAL | 严重漏洞，建议立即修复 |
+| HIGH | 高危漏洞，建议尽快修复 |
+| MEDIUM | 中危漏洞，安排修复 |
+| LOW | 低危漏洞，视情况处理 |
+| UNKNOWN | 信息不足 |
+
+#### 7.6.4 扫描器配置
+
+```yaml
+trivy:
+  enabled: true
+  vulnType: "os,library"
+  severity: "UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL"
+  skipUpdate: false          # 离线环境设为 true
+  offlineScan: false
+  timeout: 5m
+  resources:
+    limits:
+      cpu: 1
+      memory: 2Gi
+```
+
+### 7.7 Webhook 与事件通知
+
+Harbor 支持在镜像推送、拉取、删除、扫描完成等事件时发送 Webhook。
+
+常见用途：
+
+- CI/CD 触发部署
+- 企业微信/钉钉/飞书通知
+- 安全事件告警
+- 审计日志同步
+
+---
+
+## 八、安全与合规
+
+### 8.1 镜像签名与验证
+
+镜像签名可以确保镜像在传输和存储过程中未被篡改。
+
+Harbor 支持两种签名方案：
+
+| 方案 | 工具 | 特点 |
+| --- | --- | --- |
+| Notation | notation CLI | CNCF 推荐，兼容 OCI 1.0 |
+| Cosign | cosign | Sigstore 生态，支持密钥less 签名 |
+
+#### 8.1.1 Notation 签名流程
+
+```bash
+# 生成密钥对
+notation cert generate-test --default "harbor-signing"
+
+# 登录 Harbor
+notation login harbor.rstyro.com:30145
+
+# 签名镜像
+notation sign harbor.rstyro.com:30145/library/nginx:alpine
+
+# 验证签名
+notation verify harbor.rstyro.com:30145/library/nginx:alpine
+```
+
+#### 8.1.2 在 Harbor 中启用签名策略
+
+可以在项目中配置"部署安全"策略：
+
+- 仅允许签名的镜像
+- 仅允许来自特定 CVE 级别的镜像
+- 阻止存在 CRITICAL 漏洞的镜像拉取
+
+### 8.2 访问控制最佳实践
+
+- 禁止使用 admin 账户日常操作
+- 为每个团队/项目分配独立项目
+- 最小权限原则：只给需要的角色
+- 定期审计用户和机器人账户
+- 对接 LDAP/OIDC 实现统一身份管理
+
+### 8.3 机器人账户（Robot Account）
+
+机器人账户用于 CI/CD 流水线推送镜像，避免使用个人账号。
+
+创建路径：项目 → 机器人账户 → 新建
+
+建议：
+
+- 按流水线/项目创建独立机器人账户
+- 只分配 Developer 或 Maintainer 权限
+- 设置过期时间
+- 定期轮换 Token
+
+### 8.4 审计日志
+
+Harbor 记录以下操作：
+
+- 用户登录/登出
+- 镜像推送/拉取/删除
+- 项目创建/删除
+- 成员权限变更
+- 配置修改
+
+**注意**：审计日志存储在 PostgreSQL 中，长期运行会占用大量空间，建议定期归档或外接审计系统。
+
+---
+
+## 九、高可用与扩展
+
+### 9.1 高可用架构设计
+
+生产 Harbor 高可用需要考虑三个层面的冗余：
+
+| 层面 | 高可用方案 |
+| --- | --- |
+| 无状态服务 | Portal/Core/Jobservice 多副本 + K8s Deployment |
+| 数据库 | 外部 PostgreSQL 主从/集群（如 Patroni、RDS、Cloud SQL） |
+| 缓存 | 外部 Redis Sentinel/Cluster |
+| 镜像存储 | 对象存储（S3/OSS/GCS/MinIO）或共享 SAN |
+| 入口 | Ingress 多副本 + LB |
+
+### 9.2 不推荐的高可用误区
+
+- **内置 PG/Redis 多副本 + NFS 共享**：内置 PG 不支持多实例共享存储，会导致数据损坏
+- **Registry 使用 ReadWriteOnce PVC 多副本**：Pod 无法同时挂载
+- **单节点对象存储网关**：对象存储本身也要高可用
+
+### 9.3 性能优化
+
+- **开启 Redis 缓存**：
+
+```yaml
+cache:
+  enabled: true
+  expireHours: 24
+```
+
+- **Registry 多副本 + 对象存储**：分散拉取压力
+- **CDN 加速**：大镜像分发时在前端加 CDN
+- **配额限制**：防止单个项目占用全部存储
+- **镜像精简**：使用多阶段构建，减少层数
+
+### 9.4 容量规划
+
+| 场景 | 估算 |
+| --- | --- |
+| 小型团队（10-50 镜像） | 50-100 GB |
+| 中型企业（数百镜像） | 500 GB - 2 TB |
+| 大型企业/多地域 | 5 TB+，使用对象存储 |
+
+---
+
+## 十、运维与故障排查
+
+### 10.1 常用排查命令
+
+```bash
+# 查看 Pod 状态
+kubectl get pods -n harbor
+
+# 查看 Core 日志
+kubectl logs -n harbor deployment/harbor-core -f
+
+# 查看 Registry 日志
+kubectl logs -n harbor deployment/harbor-registry -c registry -f
+
+# 进入 Core 容器排查
+kubectl exec -it -n harbor deployment/harbor-core -- sh
+
+# 查看 Jobservice 任务
+kubectl logs -n harbor deployment/harbor-jobservice -f
+```
+
+### 10.2 常见问题与解决方案
+
+#### 问题 1：Docker login 报 `x509: certificate signed by unknown authority`
+
+**原因**：客户端不信任 Harbor 的 CA。
+
+**解决**：
+
+- 将 CA 证书加入系统信任
+- containerd 配置 `certs.d/<domain>/ca.crt`
+- 或使用 `--insecure-registry`（仅限测试）
+
+#### 问题 2：推送镜像报 `unauthorized: authentication required`
+
+**原因**：
+
+- 未登录或 Token 过期
+- 用户没有该项目的推送权限
+- 项目不存在且用户没有创建项目权限
+
+**解决**：
+
+- 执行 `docker login`
+- 检查项目权限
+- 确认项目已创建
+
+#### 问题 3：页面能打开，但 Docker pull 报 401
+
+**原因**：
+
+- `externalURL` 与 Ingress 域名不一致
+- Core 返回的 Token 服务地址错误
+
+**解决**：
+
+- 检查 `externalURL` 配置
+- 检查 Ingress/Service 是否正确路由到 Core
+
+#### 问题 4：GC 执行后空间没有释放
+
+**原因**：
+
+- GC 设置为 dryrun 模式
+- 镜像 Tag 仍被引用
+- 底层存储未真正删除（对象存储需检查生命周期策略）
+
+**解决**：
+
+- 关闭 dryrun
+- 删除不再需要的 Tag 后再执行 GC
+- 检查对象存储侧是否有删除延迟
+
+#### 问题 5：Trivy 扫描失败或超时
+
+**原因**：
+
+- 无法下载漏洞库（离线/网络问题）
+- 镜像过大或层数过多
+- 资源限制过低
+
+**解决**：
+
+- 离线环境设置 `skipUpdate: true` 并预置漏洞库
+- 增加 `timeout`
+- 增加 Trivy 的 CPU/内存限制
+
+### 10.3 备份与恢复
+
+#### 10.3.1 需要备份的数据
+
+| 数据 | 备份方式 |
+| --- | --- |
+| PostgreSQL 数据库 | pg_dump / 数据库备份工具 |
+| Registry 镜像 blob | 对象存储跨区域复制 / 文件系统快照 |
+| Redis | 可重建，通常不需要持久化备份 |
+| Harbor 配置文件 | Git 版本化 |
+| TLS 证书 Secret | Vault / 安全存储 |
+
+#### 10.3.2 数据库备份脚本示例
+
+```bash
+# 进入 PostgreSQL Pod 执行备份
+kubectl exec -it -n harbor deployment/harbor-database -- bash -c \
+  "pg_dump -U postgres registry" > harbor_registry_$(date +%F).sql
+```
+
+#### 10.3.3 恢复流程
+
+1. 在新环境部署 Harbor（使用相同版本或兼容版本）
+2. 恢复 PostgreSQL 数据库
+3. 挂载原有的 Registry 存储
+4. 验证登录、推送、拉取
+5. 执行一次 GC 清理孤儿 blob
