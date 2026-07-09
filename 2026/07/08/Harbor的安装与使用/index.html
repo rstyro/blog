@@ -29,13 +29,13 @@
 <meta property="og:site_name" content="胖不了小陆">
 <meta property="og:description" content="一、前言：为什么需要 Harbor1.1 Docker Hub 的痛点Docker Hub 是公共镜像仓库，企业大规模使用时会遇到以下问题：  网络限制：拉取镜像慢、不稳定，生产环境不可控 安全风险：公共镜像来源不明，可能包含漏洞或恶意代码 合规要求：金融、政务等行业要求镜像必须存储在境内或内部 版本管理缺失：无法按项目、团队、环境进行细粒度权限控制 拉取次数限制：Docker Hub 对匿名和免">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://rstyro.github.io/blog/harbor1.png">
-<meta property="og:image" content="https://rstyro.github.io/blog/harbor-ingress.png">
-<meta property="og:image" content="https://rstyro.github.io/blog/harbor-login.png">
-<meta property="og:image" content="https://rstyro.github.io/blog/harbor-view.png">
-<meta property="og:image" content="https://rstyro.github.io/blog/harbor-cert.png">
-<meta property="og:image" content="https://rstyro.github.io/blog/harbor-nerdctl.png">
-<meta property="og:image" content="https://rstyro.github.io/blog/harbor-use.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2026/07/08/Harbor%E7%9A%84%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/harbor1.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2026/07/08/Harbor%E7%9A%84%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/harbor-ingress.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2026/07/08/Harbor%E7%9A%84%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/harbor-login.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2026/07/08/Harbor%E7%9A%84%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/harbor-view.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2026/07/08/Harbor%E7%9A%84%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/harbor-cert.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2026/07/08/Harbor%E7%9A%84%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/harbor-nerdctl.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2026/07/08/Harbor%E7%9A%84%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/harbor-use.png">
 <meta property="article:published_time" content="2026-07-08T12:08:52.000Z">
 <meta property="article:modified_time" content="2026-07-09T12:08:52.000Z">
 <meta property="article:author" content="rstyro">
@@ -43,7 +43,7 @@
 <meta property="article:tag" content="Kubernetes">
 <meta property="article:tag" content="Harbor">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://rstyro.github.io/blog/harbor1.png">
+<meta name="twitter:image" content="https://rstyro.github.io/blog/2026/07/08/Harbor%E7%9A%84%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/harbor1.png">
 
 <link rel="canonical" href="https://rstyro.github.io/blog/2026/07/08/Harbor%E7%9A%84%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/">
 
@@ -513,7 +513,7 @@
 
 
 
-<p><img src="/blog/harbor1.png"></p>
+<p><img src="/blog/2026/07/08/Harbor%E7%9A%84%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/harbor1.png"></p>
 <h4 id="4-3-2-导出默认配置"><a href="#4-3-2-导出默认配置" class="headerlink" title="4.3.2 导出默认配置"></a>4.3.2 导出默认配置</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">helm show values harbor/harbor &gt; harbor-values.yaml</span><br></pre></td></tr></table></figure>
 
 <p>harbor-values.yaml内容很多，后面会有篇章讲配置解释，下面是我测试使用的一个配置：</p>
@@ -527,11 +527,11 @@
 <h4 id="4-3-3-创建命名空间并安装"><a href="#4-3-3-创建命名空间并安装" class="headerlink" title="4.3.3 创建命名空间并安装"></a>4.3.3 创建命名空间并安装</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 创建命名空间</span></span><br><span class="line">kubectl create ns harbor</span><br><span class="line"></span><br><span class="line"><span class="comment"># 安装命令</span></span><br><span class="line">helm install harbor harbor/harbor -n harbor -f harbor-values.yaml</span><br></pre></td></tr></table></figure>
 
 <p>安装成功之后，还要安装ingress的控制器，ingress的控制器有很多，我上面配置使用的是higress,我们查看一下它的网关地址</p>
-<p><img src="/blog/harbor-ingress.png"></p>
+<p><img src="/blog/2026/07/08/Harbor%E7%9A%84%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/harbor-ingress.png"></p>
 <p>可以看到，443映射30145端口，所以我们就可以通过 <code>域名:30145</code> 进行访问，higress会通过域名自动进行代理</p>
-<p><img src="/blog/harbor-login.png"></p>
+<p><img src="/blog/2026/07/08/Harbor%E7%9A%84%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/harbor-login.png"></p>
 <p>账号密码就是之前配置文件里面harborAdminPassword设置的：<code>Rstyro168</code></p>
-<p><img src="/blog/harbor-view.png"></p>
+<p><img src="/blog/2026/07/08/Harbor%E7%9A%84%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/harbor-view.png"></p>
 <p>具体的仓库如何上传镜像和下载镜像看后面的章节</p>
 <h4 id="4-3-4-升级与卸载"><a href="#4-3-4-升级与卸载" class="headerlink" title="4.3.4 升级与卸载"></a>4.3.4 升级与卸载</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 升级配置</span></span><br><span class="line">helm upgrade harbor harbor/harbor -n harbor -f harbor-values.yaml</span><br><span class="line"></span><br><span class="line"><span class="comment"># 卸载（保留 PVC，除非 persistence.resourcePolicy 不是 keep）</span></span><br><span class="line">helm uninstall harbor -n harbor</span><br><span class="line"></span><br><span class="line"><span class="comment"># 彻底清理数据（危险操作）</span></span><br><span class="line">kubectl delete pvc -n harbor --all</span><br><span class="line">kubectl delete namespace harbor</span><br></pre></td></tr></table></figure>
 
@@ -704,7 +704,7 @@
 
 
 
-<p><img src="/blog/harbor-cert.png"></p>
+<p><img src="/blog/2026/07/08/Harbor%E7%9A%84%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/harbor-cert.png"></p>
 <h4 id="自动续期机制"><a href="#自动续期机制" class="headerlink" title="自动续期机制"></a>自动续期机制</h4><p>cert-manager 默认在证书有效期剩余 <strong>1&#x2F;3</strong> 时自动续期。例如 90 天有效期的 Let’s Encrypt 证书，会在到期前 30 天左右自动：</p>
 <ol>
 <li>向 ACME&#x2F;CA 申请新证书</li>
@@ -770,12 +770,12 @@
 <h3 id="6-3-镜像推送与拉取"><a href="#6-3-镜像推送与拉取" class="headerlink" title="6.3 镜像推送与拉取"></a>6.3 镜像推送与拉取</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 登录</span></span><br><span class="line">nerdctl login harbor.rstyro.com:30145</span><br><span class="line"></span><br><span class="line"><span class="comment"># 拉取公共镜像测试</span></span><br><span class="line">nerdctl pull nginx:alpine</span><br><span class="line"></span><br><span class="line"><span class="comment"># 打标签</span></span><br><span class="line">nerdctl tag nginx:alpine harbor.rstyro.com:30145/library/nginx:alpine</span><br><span class="line"></span><br><span class="line"><span class="comment"># 推送</span></span><br><span class="line">nerdctl push harbor.rstyro.com:30145/library/nginx:alpine</span><br><span class="line"></span><br><span class="line"><span class="comment"># 拉取</span></span><br><span class="line">nerdctl pull harbor.rstyro.com:30145/library/nginx:alpine</span><br><span class="line"></span><br><span class="line"><span class="comment"># 删除本地镜像</span></span><br><span class="line">nerdctl rmi harbor.rstyro.com:30145/library/nginx:alpine</span><br></pre></td></tr></table></figure>
 
 
-<p><img src="/blog/harbor-nerdctl.png"></p>
+<p><img src="/blog/2026/07/08/Harbor%E7%9A%84%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/harbor-nerdctl.png"></p>
 <h3 id="6-4-推送-Helm-Chart"><a href="#6-4-推送-Helm-Chart" class="headerlink" title="6.4 推送 Helm Chart"></a>6.4 推送 Helm Chart</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 拉取 harbor Chart,</span></span><br><span class="line"><span class="comment"># --untar 参数会解压出 harbor 文件夹</span></span><br><span class="line">helm pull harbor/harbor --untar</span><br><span class="line"></span><br><span class="line"><span class="comment"># 登录 Helm</span></span><br><span class="line">helm registry login harbor.rstyro.com:30145</span><br><span class="line"></span><br><span class="line"><span class="comment"># 打包 Chart</span></span><br><span class="line">helm package ./harbor</span><br><span class="line"></span><br><span class="line"><span class="comment"># 推送 Chart</span></span><br><span class="line">helm push harbor-1.19.1.tgz oci://harbor.rstyro.com:30145/library</span><br><span class="line"></span><br><span class="line"><span class="comment"># 拉取 Chart</span></span><br><span class="line">helm pull oci://harbor.rstyro.com:30145/library/harbor --version 1.19.1</span><br></pre></td></tr></table></figure>
 
 
 
-<p><img src="/blog/harbor-use.png"></p>
+<p><img src="/blog/2026/07/08/Harbor%E7%9A%84%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/harbor-use.png"></p>
 <h2 id="七、Harbor-日常使用"><a href="#七、Harbor-日常使用" class="headerlink" title="七、Harbor 日常使用"></a>七、Harbor 日常使用</h2><h3 id="7-1-核心概念：项目、仓库、Artifact"><a href="#7-1-核心概念：项目、仓库、Artifact" class="headerlink" title="7.1 核心概念：项目、仓库、Artifact"></a>7.1 核心概念：项目、仓库、Artifact</h3><table>
 <thead>
 <tr>
