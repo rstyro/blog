@@ -16,6 +16,7 @@ date: 2026-07-10 18:49:21
 
 Higress 是阿里巴巴开源的**云原生一体化API网关**，基于Envoy数据面、Istio控制面深度构建，区别于传统网关，针对性优化了AI服务调度、云原生微服务治理场景，具备轻量化、高性能、易扩展、全场景适配的特点，是兼顾微服务网关、Ingress网关、AI网关的一站式流量治理组件。
 
+<!--more-->
 
 
 ### 2.核心能力
@@ -65,11 +66,11 @@ higress-core:
       type: NodePort
     resources:
       requests:
-        cpu: 50m
-        memory: 128Mi
-      limits:
-        cpu: 200m
+        cpu: 100m
         memory: 256Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
   controller:
     replicas: 1
     resources:
@@ -151,6 +152,12 @@ helm install higress -n higress-system higress.io/higress --create-namespace --r
 # 升级已部署的 Higress（例如修改副本数）
 helm upgrade higress -n higress-system higress.io/higress \
   --set global.gateway.replicas=1
+
+# 升级已部署的 Higress-通过自定义文件
+helm upgrade higress higress.io/higress \
+  -n higress-system \
+  -f higress-values.yaml
+  
 
 # 卸载 Higress
 helm uninstall higress -n higress-system
@@ -263,10 +270,89 @@ kubectl get ingress hello-world
 # 先获取 Higress 网关 NodePort 端口
 kubectl get svc -n higress-system higress-gateway
 
-
 ```
 
 
 
+![](higress.png)
 
 
+
+网关（`higress-gateway`）暴露的端口，`80:31320/TCP,443:30145/TCP ` 所以可以访问：
+
+- `http://服务器IP:31320/hello-world`
+- `https://服务器IP:30145/hello-world`
+
+ 
+
+![](test1.png)
+
+
+
+### 4、配置Key认证
+
+Higress 支持为路由配置 API Key 认证，增强访问安全性。
+
+可以添加一个路由指向 `backend` 服务，然后给这个路由配置key认证
+
+
+
+![域名管理-先创建一个域名](c1.png)
+
+创建`hw.com` 测试域名（随便取）
+
+
+
+![点击创建路由按钮](c2.png)
+
+
+
+创建一个路由
+
+![创建路由的各个配置项](c3.png)
+
+
+
+目标服务，选择backend 服务
+
+
+
+![保存路由成功后，点击路由策略](c4.png)
+
+
+
+配置策略
+
+
+
+![策略选择-Key认证](c5.png)
+
+
+
+选择key认证，进行配置
+
+
+
+![调用方添加apikey的列表](c6.png)
+
+
+
+在电脑上配置域名hosts文件
+
+![在电脑上配置域名hosts文件](r1.png)
+
+
+
+访问测试，
+- 添加apikey参数，访问成功
+- 不加apikey参数，访问失败
+
+
+
+![添加apikey参数，访问成功](c7.png)
+
+![不加apikey参数，访问失败](c8.png)
+
+
+
+至此，Higress 的基础安装和路由认证功能已成功验证。后续可根据业务需求配置更复杂的灰度发布、限流和 AI 路由策略。
