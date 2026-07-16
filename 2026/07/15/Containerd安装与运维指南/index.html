@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/favicon.jpg">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon.jpg">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon.jpg">
+  <link rel="mask-icon" href="/blog/images/favicon.jpg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="/blog/lib/pace/pace-theme-flash.min.css">
+  <script src="/blog/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"rstyro.github.io","root":"/blog/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":true},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.json"};
+  </script>
+
+  <meta name="description" content="一、Containerd 简介Containerd 是一个行业标准的容器运行时，由 CNCF 托管（毕业项目）。它负责管理容器的完整生命周期：镜像拉取&#x2F;存储、容器的创建&#x2F;运行&#x2F;销毁、网络和存储管理等。  GitHub: https:&#x2F;&#x2F;github.com&#x2F;containerd&#x2F;containerd 官方文档: https:&#x2F;&#x2F;github.com&#x2F;container">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Containerd安装与运维指南">
+<meta property="og:url" content="https://rstyro.github.io/blog/2026/07/15/Containerd%E5%AE%89%E8%A3%85%E4%B8%8E%E8%BF%90%E7%BB%B4%E6%8C%87%E5%8D%97/index.html">
+<meta property="og:site_name" content="胖不了小陆">
+<meta property="og:description" content="一、Containerd 简介Containerd 是一个行业标准的容器运行时，由 CNCF 托管（毕业项目）。它负责管理容器的完整生命周期：镜像拉取&#x2F;存储、容器的创建&#x2F;运行&#x2F;销毁、网络和存储管理等。  GitHub: https:&#x2F;&#x2F;github.com&#x2F;containerd&#x2F;containerd 官方文档: https:&#x2F;&#x2F;github.com&#x2F;container">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-07-15T11:09:59.000Z">
+<meta property="article:modified_time" content="2026-07-16T09:20:04.106Z">
+<meta property="article:author" content="rstyro">
+<meta property="article:tag" content="k8s">
+<meta property="article:tag" content="Containerd">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://rstyro.github.io/blog/2026/07/15/Containerd%E5%AE%89%E8%A3%85%E4%B8%8E%E8%BF%90%E7%BB%B4%E6%8C%87%E5%8D%97/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Containerd安装与运维指南 | 胖不了小陆</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">胖不了小陆</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">信你所信，为你所见</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/blog/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/blog/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/blog/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/rstyro" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://rstyro.github.io/blog/2026/07/15/Containerd%E5%AE%89%E8%A3%85%E4%B8%8E%E8%BF%90%E7%BB%B4%E6%8C%87%E5%8D%97/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/avatar.jpg">
+      <meta itemprop="name" content="rstyro">
+      <meta itemprop="description" content="人间的饭，吃一碗少一碗，身边的人，见一面少一面，脚下的路，走一天少一天，其实人生就是一个减法，来日并不方长！">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="胖不了小陆">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Containerd安装与运维指南
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2026-07-15 19:09:59" itemprop="dateCreated datePublished" datetime="2026-07-15T19:09:59+08:00">2026-07-15</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2026-07-16 17:20:04" itemprop="dateModified" datetime="2026-07-16T17:20:04+08:00">2026-07-16</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E7%BD%91%E7%BB%9C%E8%BF%90%E7%BB%B4/" itemprop="url" rel="index"><span itemprop="name">网络运维</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="一、Containerd-简介"><a href="#一、Containerd-简介" class="headerlink" title="一、Containerd 简介"></a>一、Containerd 简介</h2><p><a target="_blank" rel="noopener" href="https://containerd.io/">Containerd</a> 是一个行业标准的容器运行时，由 CNCF 托管（毕业项目）。它负责管理容器的完整生命周期：镜像拉取&#x2F;存储、容器的创建&#x2F;运行&#x2F;销毁、网络和存储管理等。</p>
+<ul>
+<li><strong>GitHub</strong>: <a target="_blank" rel="noopener" href="https://github.com/containerd/containerd">https://github.com/containerd/containerd</a></li>
+<li><strong>官方文档</strong>: <a target="_blank" rel="noopener" href="https://github.com/containerd/containerd/tree/main/docs">https://github.com/containerd/containerd/tree/main/docs</a></li>
+</ul>
+<blockquote>
+<p><strong>提示</strong>: Containerd 自 1.24 版本起成为 Kubernetes 默认的容器运行时（取代 Docker）。</p>
+</blockquote>
+<span id="more"></span>
+
+
+
+
+<h2 id="二、环境要求"><a href="#二、环境要求" class="headerlink" title="二、环境要求"></a>二、环境要求</h2><table>
+<thead>
+<tr>
+<th>项目</th>
+<th>要求</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>操作系统</td>
+<td>Linux (推荐 Ubuntu 20.04+ &#x2F; CentOS 7.9+ &#x2F; Rocky 8+)</td>
+</tr>
+<tr>
+<td>内核版本</td>
+<td>&gt;&#x3D; 4.x（推荐 5.x+）</td>
+</tr>
+<tr>
+<td>runc</td>
+<td>&gt;&#x3D; 1.1.0</td>
+</tr>
+<tr>
+<td>CNI 插件</td>
+<td>需单独安装</td>
+</tr>
+</tbody></table>
+<h3 id="2-1-前置依赖安装"><a href="#2-1-前置依赖安装" class="headerlink" title="2.1 前置依赖安装"></a>2.1 前置依赖安装</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 加载必要内核模块</span></span><br><span class="line"><span class="built_in">cat</span> &lt;&lt;<span class="string">EOF | sudo tee /etc/modules-load.d/containerd.conf</span></span><br><span class="line"><span class="string">overlay</span></span><br><span class="line"><span class="string">br_netfilter</span></span><br><span class="line"><span class="string">EOF</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">sudo</span> modprobe overlay</span><br><span class="line"><span class="built_in">sudo</span> modprobe br_netfilter</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 验证内核模块是否加载成功</span></span><br><span class="line">lsmod | grep -e overlay -e br_netfilter</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 设置必要的 sysctl 参数</span></span><br><span class="line"><span class="built_in">cat</span> &lt;&lt;<span class="string">EOF | sudo tee /etc/sysctl.d/99-kubernetes-cri.conf</span></span><br><span class="line"><span class="string">net.bridge.bridge-nf-call-iptables  = 1</span></span><br><span class="line"><span class="string">net.ipv4.ip_forward                 = 1</span></span><br><span class="line"><span class="string">net.bridge.bridge-nf-call-ip6tables = 1</span></span><br><span class="line"><span class="string">EOF</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">sudo</span> sysctl --system</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 验证网络参数是否生效（显示 1 代表成功）</span></span><br><span class="line">sysctl net.bridge.bridge-nf-call-iptables net.ipv4.ip_forward</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="三、安装-Containerd"><a href="#三、安装-Containerd" class="headerlink" title="三、安装 Containerd"></a>三、安装 Containerd</h2><h3 id="3-1-二进制包安装（通用方式）"><a href="#3-1-二进制包安装（通用方式）" class="headerlink" title="3.1 二进制包安装（通用方式）"></a>3.1 二进制包安装（通用方式）</h3><p><strong>适用场景</strong>: 所有 Linux 发行版，离线安装，需要特定版本。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1. 下载 containerd 二进制包</span></span><br><span class="line">CONTAINERD_VERSION=<span class="string">&quot;2.2.6&quot;</span></span><br><span class="line">wget https://github.com/containerd/containerd/releases/download/v<span class="variable">$&#123;CONTAINERD_VERSION&#125;</span>/containerd-<span class="variable">$&#123;CONTAINERD_VERSION&#125;</span>-linux-amd64.tar.gz</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 解压到 /usr/local</span></span><br><span class="line"><span class="built_in">sudo</span> tar Cxzvf /usr/local containerd-<span class="variable">$&#123;CONTAINERD_VERSION&#125;</span>-linux-amd64.tar.gz</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 下载 runc</span></span><br><span class="line">RUNC_VERSION=<span class="string">&quot;1.3.6&quot;</span></span><br><span class="line">wget https://github.com/opencontainers/runc/releases/download/v<span class="variable">$&#123;RUNC_VERSION&#125;</span>/runc.amd64</span><br><span class="line"><span class="built_in">sudo</span> install -m 755 runc.amd64 /usr/local/sbin/runc</span><br><span class="line"></span><br><span class="line"><span class="comment"># 4. 下载 CNI 插件</span></span><br><span class="line">CNI_VERSION=<span class="string">&quot;1.6.2&quot;</span></span><br><span class="line">wget https://github.com/containernetworking/plugins/releases/download/v<span class="variable">$&#123;CNI_VERSION&#125;</span>/cni-plugins-linux-amd64-v<span class="variable">$&#123;CNI_VERSION&#125;</span>.tgz</span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">mkdir</span> -p /opt/cni/bin</span><br><span class="line"><span class="built_in">sudo</span> tar Cxzvf /opt/cni/bin cni-plugins-linux-amd64-v<span class="variable">$&#123;CNI_VERSION&#125;</span>.tgz</span><br><span class="line"></span><br><span class="line"><span class="comment"># 5. 创建 systemd 服务文件</span></span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">mkdir</span> -p /usr/local/lib/systemd/system</span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">tee</span> /usr/local/lib/systemd/system/containerd.service &lt;&lt;<span class="string">&#x27;EOF&#x27;</span></span><br><span class="line">[Unit]</span><br><span class="line">Description=containerd container runtime</span><br><span class="line">Documentation=https://containerd.io</span><br><span class="line">After=network.target local-fs.target</span><br><span class="line"></span><br><span class="line">[Service]</span><br><span class="line">ExecStartPre=-/sbin/modprobe overlay</span><br><span class="line">ExecStart=/usr/local/bin/containerd</span><br><span class="line"></span><br><span class="line">Type=notify</span><br><span class="line">Delegate=<span class="built_in">yes</span></span><br><span class="line">KillMode=process</span><br><span class="line">Restart=always</span><br><span class="line">RestartSec=5</span><br><span class="line"></span><br><span class="line">LimitNPROC=infinity</span><br><span class="line">LimitCORE=infinity</span><br><span class="line">LimitNOFILE=infinity</span><br><span class="line"></span><br><span class="line">TasksMax=infinity</span><br><span class="line">OOMScoreAdjust=-999</span><br><span class="line"></span><br><span class="line">[Install]</span><br><span class="line">WantedBy=multi-user.target</span><br><span class="line">EOF</span><br><span class="line"></span><br><span class="line"><span class="comment"># 6. 启用服务</span></span><br><span class="line"><span class="built_in">sudo</span> systemctl daemon-reload</span><br><span class="line"><span class="built_in">sudo</span> systemctl <span class="built_in">enable</span> --now containerd</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-2-使用-apt-安装（Debian-Ubuntu）"><a href="#3-2-使用-apt-安装（Debian-Ubuntu）" class="headerlink" title="3.2 使用 apt 安装（Debian&#x2F;Ubuntu）"></a>3.2 使用 apt 安装（Debian&#x2F;Ubuntu）</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1. 安装依赖</span></span><br><span class="line"><span class="built_in">sudo</span> apt-get update</span><br><span class="line"><span class="built_in">sudo</span> apt-get install -y ca-certificates curl</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 添加 Docker 官方 GPG 密钥（containerd 随 docker 源分发）</span></span><br><span class="line"><span class="comment"># sudo install -m 0755 -d /etc/apt/keyrings</span></span><br><span class="line"><span class="comment"># sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc</span></span><br><span class="line"><span class="comment"># sudo chmod a+r /etc/apt/keyrings/docker.asc</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 添加 apt 源</span></span><br><span class="line"><span class="comment"># echo \</span></span><br><span class="line"><span class="comment">#   &quot;deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \</span></span><br><span class="line"><span class="comment">#   $(. /etc/os-release &amp;&amp; echo &quot;$VERSION_CODENAME&quot;) stable&quot; | \</span></span><br><span class="line"><span class="comment">#   sudo tee /etc/apt/sources.list.d/docker.list &gt; /dev/null</span></span><br><span class="line">  </span><br><span class="line"><span class="comment"># 2. 添加 阿里云Docker GPG 密钥（地址替换为阿里云镜像站）</span></span><br><span class="line"><span class="built_in">sudo</span> install -m 0755 -d /etc/apt/keyrings</span><br><span class="line"><span class="built_in">sudo</span> curl -fsSL https://mirrors.aliyun.com/docker-ce/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc</span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">chmod</span> a+r /etc/apt/keyrings/docker.asc</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 添加 阿里云Docker APT源（把download.docker.com替换成mirrors.aliyun.com/docker-ce）</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;deb [arch=<span class="subst">$(dpkg --print-architecture)</span> signed-by=/etc/apt/keyrings/docker.asc] https://mirrors.aliyun.com/docker-ce/linux/ubuntu <span class="subst">$(. /etc/os-release &amp;&amp; echo <span class="string">&quot;<span class="variable">$VERSION_CODENAME</span>&quot;</span>)</span> stable&quot;</span> | <span class="built_in">sudo</span> <span class="built_in">tee</span> /etc/apt/sources.list.d/docker.list &gt; /dev/null</span><br><span class="line"> </span><br><span class="line">  </span><br><span class="line"></span><br><span class="line"><span class="comment"># 4. 安装 containerd</span></span><br><span class="line"><span class="built_in">sudo</span> apt-get update</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看可安装的版本</span></span><br><span class="line"><span class="built_in">sudo</span> apt list -a containerd.io</span><br><span class="line"></span><br><span class="line"><span class="comment"># 安装最新版</span></span><br><span class="line"><span class="comment"># sudo apt install -y containerd.io</span></span><br><span class="line"><span class="comment"># 安装与卸载</span></span><br><span class="line"><span class="comment"># sudo apt install -y containerd.io=2.1.5-1~ubuntu.24.04~noble</span></span><br><span class="line"><span class="comment"># 卸载</span></span><br><span class="line"><span class="comment"># apt purge containerd.io=2.1.5-1~ubuntu.24.04~noble -y</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 安装 1.7.27-1 版本</span></span><br><span class="line"><span class="built_in">sudo</span> apt install -y containerd.io=1.7.27-1</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 5. 启动并设置开机自启</span></span><br><span class="line"><span class="built_in">sudo</span> systemctl <span class="built_in">enable</span> --now containerd</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-3-使用-yum-dnf-安装（CentOS-RHEL-Rocky）"><a href="#3-3-使用-yum-dnf-安装（CentOS-RHEL-Rocky）" class="headerlink" title="3.3 使用 yum&#x2F;dnf 安装（CentOS&#x2F;RHEL&#x2F;Rocky）"></a>3.3 使用 yum&#x2F;dnf 安装（CentOS&#x2F;RHEL&#x2F;Rocky）</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1. 安装 yum-utils</span></span><br><span class="line"><span class="built_in">sudo</span> yum install -y yum-utils</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 添加 Docker 官方 yum 源</span></span><br><span class="line"><span class="built_in">sudo</span> yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 安装 containerd.io</span></span><br><span class="line"><span class="built_in">sudo</span> yum install -y containerd.io</span><br><span class="line"></span><br><span class="line"><span class="comment"># 或使用 dnf (Fedora / Rocky 8+)</span></span><br><span class="line"><span class="comment"># sudo dnf install -y containerd.io</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 4. 启动并设置开机自启</span></span><br><span class="line"><span class="built_in">sudo</span> systemctl <span class="built_in">enable</span> --now containerd</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="四、生成默认配置"><a href="#四、生成默认配置" class="headerlink" title="四、生成默认配置"></a>四、生成默认配置</h2><p>Containerd 安装后默认不生成配置文件，需要手动生成：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 创建配置目录</span></span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">mkdir</span> -p /etc/containerd</span><br><span class="line"></span><br><span class="line"><span class="comment"># 生成默认配置文件</span></span><br><span class="line"><span class="built_in">sudo</span> containerd config default | <span class="built_in">sudo</span> <span class="built_in">tee</span> /etc/containerd/config.toml</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看配置</span></span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">cat</span> /etc/containerd/config.toml</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="五、配置详解"><a href="#五、配置详解" class="headerlink" title="五、配置详解"></a>五、配置详解</h2><p>配置文件位置: <code>/etc/containerd/config.toml</code></p>
+<h3 id="5-1-镜像加速（Registry-Mirrors）"><a href="#5-1-镜像加速（Registry-Mirrors）" class="headerlink" title="5.1 镜像加速（Registry Mirrors）"></a>5.1 镜像加速（Registry Mirrors）</h3><blockquote>
+<p>注册表镜像用于加速从容器镜像仓库拉取镜像的速度。</p>
+<p><strong>两种配置方式（互斥）</strong>:</p>
+<ul>
+<li><strong>方式A（推荐）</strong>: <code>config.toml</code> 中设置 <code>config_path</code>，然后在 <code>/etc/containerd/certs.d/</code> 下通过 <code>hosts.toml</code> 配置</li>
+<li><strong>方式B</strong>: <code>config.toml</code> 中内联 <code>registry.mirrors</code> 配置</li>
+</ul>
+<p><strong>一旦设置了 <code>config_path</code>，内联的 <code>registry.mirrors</code> 和 <code>registry.configs</code> 将被忽略。</strong></p>
+</blockquote>
+<p>以下采用<strong>方式A（推荐）</strong>，以 Docker Hub 为例，其他仓库同理：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 编辑配置文件</span></span><br><span class="line"><span class="built_in">sudo</span> vim /etc/containerd/config.toml</span><br></pre></td></tr></table></figure>
+
+<p>找到 <code>[plugins.&quot;io.containerd.grpc.v1.cri&quot;.registry]</code> 部分，修改如下：</p>
+<blockquote>
+<p>如果是 containerd 2.x 插件路径改为 io.containerd.cri.v1.images</p>
+</blockquote>
+<figure class="highlight toml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># containerd 2.x 插件路径改为 io.containerd.cri.v1.images，写法一致</span></span><br><span class="line"><span class="comment"># 1. 修改 config.toml（设置 config_path=/etc/containerd/certs.d）</span></span><br><span class="line">    <span class="section">[plugins.&quot;io.containerd.grpc.v1.cri&quot;.registry]</span></span><br><span class="line">      <span class="attr">config_path</span> = <span class="string">&quot;/etc/containerd/certs.d&quot;</span>     </span><br><span class="line">     </span><br></pre></td></tr></table></figure>
+
+<p>上面配置了 <code>/etc/containerd/certs.d</code> 路径，下面配置镜像加速</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 2. 创建目录</span></span><br><span class="line"><span class="built_in">mkdir</span> -p /etc/containerd/certs.d/docker.io</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 写入 hosts.toml</span></span><br><span class="line"><span class="built_in">cat</span> &gt; /etc/containerd/certs.d/docker.io/hosts.toml &lt;&lt; <span class="string">&#x27;EOF&#x27;</span></span><br><span class="line">server = <span class="string">&quot;https://registry-1.docker.io&quot;</span></span><br><span class="line">[host.<span class="string">&quot;https://docker.1ms.run&quot;</span>]</span><br><span class="line">  capabilities = [<span class="string">&quot;pull&quot;</span>, <span class="string">&quot;resolve&quot;</span>]</span><br><span class="line">  skip_fetch_failure = <span class="literal">true</span></span><br><span class="line">  <span class="built_in">timeout</span> = <span class="string">&quot;30s&quot;</span></span><br><span class="line">[host.<span class="string">&quot;https://docker.m.daocloud.io&quot;</span>]</span><br><span class="line">  capabilities = [<span class="string">&quot;pull&quot;</span>, <span class="string">&quot;resolve&quot;</span>]</span><br><span class="line">  skip_fetch_failure = <span class="literal">true</span></span><br><span class="line">  <span class="built_in">timeout</span> = <span class="string">&quot;30s&quot;</span></span><br><span class="line">EOF</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 4. 测试</span></span><br><span class="line">ctr image pull docker.io/library/nginx:alpine</span><br><span class="line"><span class="comment"># 指定 k8s 命名空间</span></span><br><span class="line">ctr -n k8s.io images list</span><br><span class="line">ctr image pull --hosts-dir=/etc/containerd/certs.d docker.io/library/nginx:alpine</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># crictl是安装k8s时才有</span></span><br><span class="line">crictl pull docker.io/library/nginx:alpine</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="5-2-配置代理（HTTP-HTTPS-Proxy）"><a href="#5-2-配置代理（HTTP-HTTPS-Proxy）" class="headerlink" title="5.2 配置代理（HTTP&#x2F;HTTPS Proxy）"></a>5.2 配置代理（HTTP&#x2F;HTTPS Proxy）</h3><p>当拉取镜像需要通过代理服务器访问外网时，有以下两种方式配置：</p>
+<h4 id="方式一：为-Containerd-配置代理（推荐）"><a href="#方式一：为-Containerd-配置代理（推荐）" class="headerlink" title="方式一：为 Containerd 配置代理（推荐）"></a>方式一：为 Containerd 配置代理（推荐）</h4><p>修改 containerd 的 systemd 服务文件，添加环境变量：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1. 创建 containerd 服务的代理配置目录</span></span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">mkdir</span> -p /etc/systemd/system/containerd.service.d</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 创建代理配置文件</span></span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">tee</span> /etc/systemd/system/containerd.service.d/http-proxy.conf &lt;&lt;<span class="string">&#x27;EOF&#x27;</span></span><br><span class="line">[Service]</span><br><span class="line"><span class="comment"># 大写标准环境变量</span></span><br><span class="line"><span class="comment"># 这里的http://127.0.0.1:7890 是我的本地安装clash代理地址</span></span><br><span class="line">Environment=<span class="string">&quot;HTTP_PROXY=http://127.0.0.1:7890&quot;</span></span><br><span class="line">Environment=<span class="string">&quot;HTTPS_PROXY=http://127.0.0.1:7890&quot;</span></span><br><span class="line">Environment=<span class="string">&quot;NO_PROXY=localhost,127.0.0.1,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,.local,.svc,.cluster.local&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 兼容小写变量，适配各类OCI/镜像拉取工具</span></span><br><span class="line">Environment=<span class="string">&quot;http_proxy=http://127.0.0.1:7890&quot;</span></span><br><span class="line">Environment=<span class="string">&quot;https_proxy=http://127.0.0.1:7890&quot;</span></span><br><span class="line">Environment=<span class="string">&quot;no_proxy=localhost,127.0.0.1,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,.local,.svc,.cluster.local&quot;</span></span><br><span class="line">EOF</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 3. 重新加载并重启</span></span><br><span class="line"><span class="built_in">sudo</span> systemctl daemon-reload</span><br><span class="line"><span class="built_in">sudo</span> systemctl restart containerd</span><br><span class="line"></span><br><span class="line"><span class="comment"># 4. 验证代理是否生效</span></span><br><span class="line"><span class="built_in">sudo</span> systemctl show containerd --property=Environment</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 卸载代理</span></span><br><span class="line"><span class="built_in">rm</span> -f /etc/systemd/system/containerd.service.d/http-proxy.conf</span><br><span class="line">systemctl daemon-reload</span><br><span class="line">systemctl restart containerd</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p><strong>注意</strong>: <code>NO_PROXY</code> 中应包含 Kubernetes 集群的 Service CIDR 和 Pod CIDR，以及 <code>.svc</code>、<code>.cluster.local</code> 等域名，避免集群内部通信经过代理。</p>
+</blockquote>
+<h4 id="方式二：全局环境变量设置"><a href="#方式二：全局环境变量设置" class="headerlink" title="方式二：全局环境变量设置"></a>方式二：全局环境变量设置</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 编辑 /etc/environment 或 /etc/profile</span></span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">tee</span> -a /etc/environment &lt;&lt;<span class="string">EOF</span></span><br><span class="line"><span class="string">HTTP_PROXY=http://127.0.0.1:7890</span></span><br><span class="line"><span class="string">HTTPS_PROXY=http://127.0.0.1:7890</span></span><br><span class="line"><span class="string">NO_PROXY=localhost,127.0.0.1,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,.local,.svc,.cluster.local</span></span><br><span class="line"><span class="string">EOF</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="查看当前代理配置"><a href="#查看当前代理配置" class="headerlink" title="查看当前代理配置"></a>查看当前代理配置</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看 containerd 进程的实际环境变量</span></span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">cat</span> /proc/$(pidof containerd)/environ | <span class="built_in">tr</span> <span class="string">&#x27;\0&#x27;</span> <span class="string">&#x27;\n&#x27;</span> | grep -i proxy</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="5-3-配置私有镜像仓库"><a href="#5-3-配置私有镜像仓库" class="headerlink" title="5.3 配置私有镜像仓库"></a>5.3 配置私有镜像仓库</h3><blockquote>
+<p><strong>重要</strong>: 当你在 <code>config.toml</code> 中设置了 <code>config_path = &quot;/etc/containerd/certs.d&quot;</code> 后，所有 registry 的镜像加速、私有仓库配置都应放在 <code>/etc/containerd/certs.d/&lt;registry-host&gt;/hosts.toml</code> 中。<strong>原有的内联 <code>registry.mirrors</code> 和 <code>registry.configs</code> 会被忽略</strong>。</p>
+</blockquote>
+<h4 id="目录结构总览"><a href="#目录结构总览" class="headerlink" title="目录结构总览"></a>目录结构总览</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">/etc/containerd/certs.d/</span><br><span class="line">├── docker.io/</span><br><span class="line">│   └── hosts.toml           # Docker Hub 镜像加速</span><br><span class="line">├── harbor.mycorp.com/</span><br><span class="line">│   ├── hosts.toml           # 私有 Harbor 仓库</span><br><span class="line">│   ├── ca.crt               # 自签名 CA 证书</span><br><span class="line">│   ├── client.crt           # 客户端证书（mTLS场景）</span><br><span class="line">│   └── client.key           # 客户端密钥</span><br><span class="line">└── my-registry.local:5000/</span><br><span class="line">    └── hosts.toml           # HTTP 非安全仓库</span><br></pre></td></tr></table></figure>
+
+<h4 id="场景1：HTTP-非安全私有仓库"><a href="#场景1：HTTP-非安全私有仓库" class="headerlink" title="场景1：HTTP 非安全私有仓库"></a>场景1：HTTP 非安全私有仓库</h4><p>适用于内网 Harbor 或自建 registry 且未配置 HTTPS。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 创建目录</span></span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">mkdir</span> -p /etc/containerd/certs.d/my-registry.local:5000</span><br><span class="line"></span><br><span class="line"><span class="comment"># 写入 hosts.toml</span></span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">tee</span> /etc/containerd/certs.d/my-registry.local:5000/hosts.toml &lt;&lt;<span class="string">&#x27;EOF&#x27;</span></span><br><span class="line">server = <span class="string">&quot;http://my-registry.local:5000&quot;</span></span><br><span class="line"></span><br><span class="line">[host.<span class="string">&quot;http://my-registry.local:5000&quot;</span>]</span><br><span class="line">  capabilities = [<span class="string">&quot;pull&quot;</span>, <span class="string">&quot;resolve&quot;</span>, <span class="string">&quot;push&quot;</span>]</span><br><span class="line">  skip_verify = <span class="literal">true</span></span><br><span class="line">EOF</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p><strong>说明</strong>:</p>
+<ul>
+<li><code>server</code> — 指明上游目标地址（HTTP 协议）</li>
+<li><code>skip_verify = true</code> — 跳过 TLS 验证（HTTP 仓库必须设为 true）</li>
+<li><code>capabilities</code> — <code>pull</code>（拉取）、<code>resolve</code>（解析）、<code>push</code>（推送）</li>
+</ul>
+</blockquote>
+<h4 id="场景2：HTTPS-私有仓库（自签名证书）"><a href="#场景2：HTTPS-私有仓库（自签名证书）" class="headerlink" title="场景2：HTTPS 私有仓库（自签名证书）"></a>场景2：HTTPS 私有仓库（自签名证书）</h4><p>当私有仓库开启了 HTTPS 但使用自签名证书时：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1. 创建目录并放入 CA 证书</span></span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">mkdir</span> -p /etc/containerd/certs.d/harbor.mycorp.com</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 将自签名 CA 证书复制进来</span></span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">cp</span> /path/to/ca.crt /etc/containerd/certs.d/harbor.mycorp.com/ca.crt</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 写入 hosts.toml</span></span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">tee</span> /etc/containerd/certs.d/harbor.mycorp.com/hosts.toml &lt;&lt;<span class="string">&#x27;EOF&#x27;</span></span><br><span class="line">server = <span class="string">&quot;https://harbor.mycorp.com&quot;</span></span><br><span class="line"></span><br><span class="line">[host.<span class="string">&quot;https://harbor.mycorp.com&quot;</span>]</span><br><span class="line">  capabilities = [<span class="string">&quot;pull&quot;</span>, <span class="string">&quot;resolve&quot;</span>, <span class="string">&quot;push&quot;</span>]</span><br><span class="line">  ca = <span class="string">&quot;/etc/containerd/certs.d/harbor.mycorp.com/ca.crt&quot;</span></span><br><span class="line">EOF</span><br></pre></td></tr></table></figure>
+
+<p>也可以直接用 <code>skip_verify</code> 跳过证书校验（仅限测试环境）：</p>
+<figure class="highlight toml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">[host.&quot;https://harbor.mycorp.com&quot;]</span></span><br><span class="line">  <span class="attr">capabilities</span> = [<span class="string">&quot;pull&quot;</span>, <span class="string">&quot;resolve&quot;</span>, <span class="string">&quot;push&quot;</span>]</span><br><span class="line">  <span class="attr">skip_verify</span> = <span class="literal">true</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="场景3：HTTPS-私有仓库-认证"><a href="#场景3：HTTPS-私有仓库-认证" class="headerlink" title="场景3：HTTPS 私有仓库 + 认证"></a>场景3：HTTPS 私有仓库 + 认证</h4><p>需要登录凭据的私有仓库：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1. 创建目录</span></span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">mkdir</span> -p /etc/containerd/certs.d/harbor.mycorp.com</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 写入带认证的 hosts.toml</span></span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">tee</span> /etc/containerd/certs.d/harbor.mycorp.com/hosts.toml &lt;&lt;<span class="string">&#x27;EOF&#x27;</span></span><br><span class="line">server = <span class="string">&quot;https://harbor.mycorp.com&quot;</span></span><br><span class="line"></span><br><span class="line">[host.<span class="string">&quot;https://harbor.mycorp.com&quot;</span>]</span><br><span class="line">  capabilities = [<span class="string">&quot;pull&quot;</span>, <span class="string">&quot;resolve&quot;</span>, <span class="string">&quot;push&quot;</span>]</span><br><span class="line">  ca = <span class="string">&quot;/etc/containerd/certs.d/harbor.mycorp.com/ca.crt&quot;</span></span><br><span class="line"></span><br><span class="line">  [host.<span class="string">&quot;https://harbor.mycorp.com&quot;</span>.header]</span><br><span class="line">    authorization = [<span class="string">&quot;Basic YWRtaW46bXlwYXNzd29yZA==&quot;</span>]</span><br><span class="line">EOF</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p><code>authorization</code> 的值为 <code>Base64(username:password)</code>，生成方式：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> -n <span class="string">&quot;admin:mypassword&quot;</span> | <span class="built_in">base64</span></span><br></pre></td></tr></table></figure>
+</blockquote>
+<h4 id="场景4：mTLS-双向认证"><a href="#场景4：mTLS-双向认证" class="headerlink" title="场景4：mTLS 双向认证"></a>场景4：mTLS 双向认证</h4><p>私有仓库要求客户端提供证书时：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1. 放入客户端证书和密钥</span></span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">cp</span> /path/to/client.crt /etc/containerd/certs.d/harbor.mycorp.com/client.crt</span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">cp</span> /path/to/client.key /etc/containerd/certs.d/harbor.mycorp.com/client.key</span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">cp</span> /path/to/ca.crt       /etc/containerd/certs.d/harbor.mycorp.com/ca.crt</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. hosts.toml 中指定客户端证书</span></span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">tee</span> /etc/containerd/certs.d/harbor.mycorp.com/hosts.toml &lt;&lt;<span class="string">&#x27;EOF&#x27;</span></span><br><span class="line">server = <span class="string">&quot;https://harbor.mycorp.com&quot;</span></span><br><span class="line"></span><br><span class="line">[host.<span class="string">&quot;https://harbor.mycorp.com&quot;</span>]</span><br><span class="line">  capabilities = [<span class="string">&quot;pull&quot;</span>, <span class="string">&quot;resolve&quot;</span>, <span class="string">&quot;push&quot;</span>]</span><br><span class="line">  ca = <span class="string">&quot;/etc/containerd/certs.d/harbor.mycorp.com/ca.crt&quot;</span></span><br><span class="line">  client = [[<span class="string">&quot;/etc/containerd/certs.d/harbor.mycorp.com/client.crt&quot;</span>, <span class="string">&quot;/etc/containerd/certs.d/harbor.mycorp.com/client.key&quot;</span>]]</span><br><span class="line">EOF</span><br></pre></td></tr></table></figure>
+
+<h4 id="配置后验证"><a href="#配置后验证" class="headerlink" title="配置后验证"></a>配置后验证</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 重启 containerd 使配置生效</span></span><br><span class="line"><span class="built_in">sudo</span> systemctl restart containerd</span><br><span class="line"></span><br><span class="line"><span class="comment"># 测试拉取私有仓库镜像</span></span><br><span class="line"><span class="built_in">sudo</span> ctr image pull harbor.mycorp.com/project/nginx:latest</span><br><span class="line"></span><br><span class="line"><span class="comment"># 使用 --hosts-dir 指定目录测试</span></span><br><span class="line"><span class="built_in">sudo</span> ctr image pull --hosts-dir=/etc/containerd/certs.d harbor.mycorp.com/project/nginx:latest</span><br><span class="line"></span><br><span class="line"><span class="comment"># 如果安装了 crictl</span></span><br><span class="line"><span class="built_in">sudo</span> crictl pull harbor.mycorp.com/project/nginx:latest</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p><strong>安全提示</strong>: <code>hosts.toml</code> 中的密码以 Base64 编码存储（非加密），生产环境建议使用密钥管理服务。</p>
+</blockquote>
+<h3 id="5-4-配置-Cgroup-驱动"><a href="#5-4-配置-Cgroup-驱动" class="headerlink" title="5.4 配置 Cgroup 驱动"></a>5.4 配置 Cgroup 驱动</h3><p>对于 Kubernetes 集群，<strong>强烈推荐使用 systemd cgroup 驱动</strong>:</p>
+<figure class="highlight toml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">[plugins.&quot;io.containerd.grpc.v1.cri&quot;.containerd.runtimes.runc]</span></span><br><span class="line">  <span class="attr">runtime_type</span> = <span class="string">&quot;io.containerd.runc.v2&quot;</span></span><br><span class="line"></span><br><span class="line">  <span class="section">[plugins.&quot;io.containerd.grpc.v1.cri&quot;.containerd.runtimes.runc.options]</span></span><br><span class="line">    <span class="attr">SystemdCgroup</span> = <span class="literal">true</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="5-5-配置-sandbox-镜像（pause-镜像）"><a href="#5-5-配置-sandbox-镜像（pause-镜像）" class="headerlink" title="5.5 配置 sandbox 镜像（pause 镜像）"></a>5.5 配置 sandbox 镜像（pause 镜像）</h3><figure class="highlight toml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">[plugins.&quot;io.containerd.grpc.v1.cri&quot;]</span></span><br><span class="line">  <span class="comment"># 默认的 sandbox_image，可按需修改为国内镜像源</span></span><br><span class="line">  <span class="attr">sandbox_image</span> = <span class="string">&quot;registry.cn-hangzhou.aliyuncs.com/google_containers/pause:3.10&quot;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="5-6-修改默认镜像存储位置"><a href="#5-6-修改默认镜像存储位置" class="headerlink" title="5.6 修改默认镜像存储位置"></a>5.6 修改默认镜像存储位置</h3><p>Containerd 默认将所有数据（镜像层、容器快照、元数据等）存储在 <code>/var/lib/containerd</code>，生产环境中经常需要迁移到大容量磁盘或独立挂载点。</p>
+<h4 id="涉及的路径"><a href="#涉及的路径" class="headerlink" title="涉及的路径"></a>涉及的路径</h4><table>
+<thead>
+<tr>
+<th>路径</th>
+<th>默认值</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>root</code></td>
+<td><code>/var/lib/containerd</code></td>
+<td>containerd 全局数据根目录（快照、元数据、临时文件）</td>
+</tr>
+<tr>
+<td><code>state</code></td>
+<td><code>/run/containerd</code></td>
+<td>运行时临时状态（socket、pid 等，通常无需修改）</td>
+</tr>
+</tbody></table>
+<h4 id="方式一：修改顶层-root（一步到位，推荐）"><a href="#方式一：修改顶层-root（一步到位，推荐）" class="headerlink" title="方式一：修改顶层 root（一步到位，推荐）"></a>方式一：修改顶层 <code>root</code>（一步到位，推荐）</h4><p>直接修改 <code>config.toml</code> 顶层的 <code>root</code> 字段，所有数据统一迁移：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1. 停止 containerd</span></span><br><span class="line"><span class="built_in">sudo</span> systemctl stop containerd</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 创建新的数据目录</span></span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">mkdir</span> -p /data/containerd</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 迁移现有数据（如果有）</span></span><br><span class="line"><span class="built_in">sudo</span> rsync -avz /var/lib/containerd/ /data/containerd/</span><br><span class="line"></span><br><span class="line"><span class="comment"># 4. 编辑 config.toml，修改顶层 root 字段</span></span><br><span class="line"><span class="built_in">sudo</span> vim /etc/containerd/config.toml</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight toml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 原来</span></span><br><span class="line"><span class="attr">root</span> = <span class="string">&quot;/var/lib/containerd&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 改为</span></span><br><span class="line"><span class="attr">root</span> = <span class="string">&quot;/data/containerd&quot;</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 5. 启动 containerd</span></span><br><span class="line"><span class="built_in">sudo</span> systemctl start containerd</span><br><span class="line"></span><br><span class="line"><span class="comment"># 6. 验证新路径</span></span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">ls</span> /data/containerd/</span><br><span class="line"><span class="built_in">sudo</span> ctr image <span class="built_in">ls</span></span><br><span class="line"><span class="built_in">sudo</span> ctr image pull docker.io/library/alpine:latest</span><br></pre></td></tr></table></figure>
+
+<h4 id="方式二：仅修改-CRI-插件的镜像存储（细粒度控制）"><a href="#方式二：仅修改-CRI-插件的镜像存储（细粒度控制）" class="headerlink" title="方式二：仅修改 CRI 插件的镜像存储（细粒度控制）"></a>方式二：仅修改 CRI 插件的镜像存储（细粒度控制）</h4><p>如果只想改镜像存储位置而保持其他数据不变：</p>
+<figure class="highlight toml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">[plugins.&quot;io.containerd.grpc.v1.cri&quot;]</span></span><br><span class="line">  <span class="comment"># CRI 插件镜像存储根目录（containerd 1.x）</span></span><br><span class="line">  <span class="comment"># containerd_image_store_path = &quot;/data/containerd/images&quot;</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p><strong>注意</strong>: <code>containerd_image_store_path</code> 仅 containerd 2.x 支持。1.x 版本通过顶层 <code>root</code> 统一控制。</p>
+</blockquote>
+<h4 id="方式三：软链接（无侵入、零停机时间最短）"><a href="#方式三：软链接（无侵入、零停机时间最短）" class="headerlink" title="方式三：软链接（无侵入、零停机时间最短）"></a>方式三：软链接（无侵入、零停机时间最短）</h4><p>不想改配置时，直接做软链接映射：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1. 停止 containerd</span></span><br><span class="line"><span class="built_in">sudo</span> systemctl stop containerd</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 迁移数据到新位置</span></span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">mkdir</span> -p /data/containerd</span><br><span class="line"><span class="built_in">sudo</span> rsync -avz /var/lib/containerd/ /data/containerd/</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 备份原目录并创建软链接</span></span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">mv</span> /var/lib/containerd /var/lib/containerd.bak</span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">ln</span> -s /data/containerd /var/lib/containerd</span><br><span class="line"></span><br><span class="line"><span class="comment"># 4. 启动并验证</span></span><br><span class="line"><span class="built_in">sudo</span> systemctl start containerd</span><br><span class="line"><span class="built_in">sudo</span> ctr image <span class="built_in">ls</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="迁移后验证"><a href="#迁移后验证" class="headerlink" title="迁移后验证"></a>迁移后验证</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 确认数据写到了新路径</span></span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">du</span> -sh /data/containerd/</span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">ls</span> -la /data/containerd/io.containerd.content.v1.content/</span><br><span class="line"></span><br><span class="line"><span class="comment"># 拉取镜像测试</span></span><br><span class="line"><span class="built_in">sudo</span> ctr image pull docker.io/library/redis:alpine</span><br><span class="line"></span><br><span class="line"><span class="comment"># 确认镜像层存到了新位置</span></span><br><span class="line"><span class="built_in">sudo</span> find /data/containerd -name <span class="string">&quot;*.tar&quot;</span> | <span class="built_in">head</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="清理旧路径"><a href="#清理旧路径" class="headerlink" title="清理旧路径"></a>清理旧路径</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 验证无误后，删除旧数据释放空间</span></span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">rm</span> -rf /var/lib/containerd.bak</span><br></pre></td></tr></table></figure>
+
+<h3 id="5-7-完整配置示例"><a href="#5-7-完整配置示例" class="headerlink" title="5.7 完整配置示例"></a>5.7 完整配置示例</h3><p>以下是一个适用于 Kubernetes 集群的生产级 <code>config.toml</code> 模板（在默认配置基础上覆盖关键参数，其余保持默认即可）:</p>
+<figure class="highlight toml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">version</span> = <span class="number">2</span></span><br><span class="line"></span><br><span class="line"><span class="section">[plugins.&quot;io.containerd.grpc.v1.cri&quot;]</span></span><br><span class="line">  <span class="attr">sandbox_image</span> = <span class="string">&quot;registry.cn-hangzhou.aliyuncs.com/google_containers/pause:3.10&quot;</span></span><br><span class="line"></span><br><span class="line">  <span class="section">[plugins.&quot;io.containerd.grpc.v1.cri&quot;.containerd]</span></span><br><span class="line"></span><br><span class="line">    <span class="section">[plugins.&quot;io.containerd.grpc.v1.cri&quot;.containerd.runtimes.runc]</span></span><br><span class="line">      <span class="attr">runtime_type</span> = <span class="string">&quot;io.containerd.runc.v2&quot;</span></span><br><span class="line"></span><br><span class="line">      <span class="section">[plugins.&quot;io.containerd.grpc.v1.cri&quot;.containerd.runtimes.runc.options]</span></span><br><span class="line">        <span class="attr">SystemdCgroup</span> = <span class="literal">true</span></span><br><span class="line"></span><br><span class="line">  <span class="comment"># 关键：指定 hosts.toml 目录，镜像加速和私有仓库配置都在这里完成</span></span><br><span class="line">  <span class="section">[plugins.&quot;io.containerd.grpc.v1.cri&quot;.registry]</span></span><br><span class="line">    <span class="attr">config_path</span> = <span class="string">&quot;/etc/containerd/certs.d&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>配套的 <code>certs.d</code> 目录结构（镜像加速 + 私有仓库统一管理）:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">/etc/containerd/certs.d/</span><br><span class="line">├── docker.io/</span><br><span class="line">│   └── hosts.toml              # Docker Hub 镜像加速</span><br><span class="line">├── registry.k8s.io/</span><br><span class="line">│   └── hosts.toml              # K8s 镜像仓库加速</span><br><span class="line">├── gcr.io/</span><br><span class="line">│   └── hosts.toml              # GCR 镜像加速</span><br><span class="line">├── quay.io/</span><br><span class="line">│   └── hosts.toml              # Quay 镜像加速</span><br><span class="line">└── harbor.mycorp.com/</span><br><span class="line">    ├── hosts.toml              # 私有 Harbor 仓库</span><br><span class="line">    └── ca.crt                  # 自签名证书</span><br></pre></td></tr></table></figure>
+
+<p>典型 <code>docker.io/hosts.toml</code> 示例:</p>
+<figure class="highlight toml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">server</span> = <span class="string">&quot;https://registry-1.docker.io&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="section">[host.&quot;https://docker.m.daocloud.io&quot;]</span></span><br><span class="line">  <span class="attr">capabilities</span> = [<span class="string">&quot;pull&quot;</span>, <span class="string">&quot;resolve&quot;</span>]</span><br><span class="line">  <span class="attr">skip_fetch_failure</span> = <span class="literal">true</span></span><br><span class="line"></span><br><span class="line"><span class="section">[host.&quot;https://docker.1ms.run&quot;]</span></span><br><span class="line">  <span class="attr">capabilities</span> = [<span class="string">&quot;pull&quot;</span>, <span class="string">&quot;resolve&quot;</span>]</span><br><span class="line">  <span class="attr">skip_fetch_failure</span> = <span class="literal">true</span></span><br></pre></td></tr></table></figure>
+
+<p>典型 <code>harbor.mycorp.com/hosts.toml</code> 示例:</p>
+<figure class="highlight toml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">server</span> = <span class="string">&quot;https://harbor.mycorp.com&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="section">[host.&quot;https://harbor.mycorp.com&quot;]</span></span><br><span class="line">  <span class="attr">capabilities</span> = [<span class="string">&quot;pull&quot;</span>, <span class="string">&quot;resolve&quot;</span>, <span class="string">&quot;push&quot;</span>]</span><br><span class="line">  <span class="attr">ca</span> = <span class="string">&quot;/etc/containerd/certs.d/harbor.mycorp.com/ca.crt&quot;</span></span><br><span class="line"></span><br><span class="line">  <span class="section">[host.&quot;https://harbor.mycorp.com&quot;.header]</span></span><br><span class="line">    <span class="attr">authorization</span> = [<span class="string">&quot;Basic &lt;base64-credentials&gt;&quot;</span>]</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="六、启动与管理"><a href="#六、启动与管理" class="headerlink" title="六、启动与管理"></a>六、启动与管理</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 启动 containerd</span></span><br><span class="line"><span class="built_in">sudo</span> systemctl start containerd</span><br><span class="line"></span><br><span class="line"><span class="comment"># 停止 containerd</span></span><br><span class="line"><span class="built_in">sudo</span> systemctl stop containerd</span><br><span class="line"></span><br><span class="line"><span class="comment"># 重启 containerd（配置修改后执行）</span></span><br><span class="line"><span class="built_in">sudo</span> systemctl restart containerd</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看运行状态</span></span><br><span class="line"><span class="built_in">sudo</span> systemctl status containerd</span><br><span class="line"></span><br><span class="line"><span class="comment"># 设置开机自启</span></span><br><span class="line"><span class="built_in">sudo</span> systemctl <span class="built_in">enable</span> containerd</span><br><span class="line"></span><br><span class="line"><span class="comment"># 取消开机自启</span></span><br><span class="line"><span class="built_in">sudo</span> systemctl <span class="built_in">disable</span> containerd</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看日志</span></span><br><span class="line"><span class="built_in">sudo</span> journalctl -u containerd -f      <span class="comment"># 实时跟踪</span></span><br><span class="line"><span class="built_in">sudo</span> journalctl -u containerd -n 100  <span class="comment"># 最近 100 行</span></span><br><span class="line"><span class="built_in">sudo</span> journalctl -u containerd --since <span class="string">&quot;10 minutes ago&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看 containerd 版本</span></span><br><span class="line">containerd --version</span><br><span class="line"><span class="built_in">sudo</span> ctr version</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="七、常用运维命令"><a href="#七、常用运维命令" class="headerlink" title="七、常用运维命令"></a>七、常用运维命令</h2><h3 id="7-1-ctr-命令"><a href="#7-1-ctr-命令" class="headerlink" title="7.1 ctr 命令"></a>7.1 ctr 命令</h3><p><code>ctr</code> 是 containerd 自带的 CLI 工具，功能全面但操作较为底层。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ------ 镜像操作 ------</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 拉取镜像</span></span><br><span class="line"><span class="built_in">sudo</span> ctr image pull docker.io/library/nginx:alpine</span><br><span class="line"></span><br><span class="line"><span class="comment"># 列出所有镜像</span></span><br><span class="line"><span class="built_in">sudo</span> ctr image <span class="built_in">ls</span></span><br><span class="line"><span class="built_in">sudo</span> ctr image <span class="built_in">ls</span> -q                    <span class="comment"># 只显示镜像名</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 导出镜像</span></span><br><span class="line"><span class="built_in">sudo</span> ctr image <span class="built_in">export</span> nginx-alpine.tar docker.io/library/nginx:alpine</span><br><span class="line"></span><br><span class="line"><span class="comment"># 导入镜像</span></span><br><span class="line"><span class="built_in">sudo</span> ctr image import nginx-alpine.tar</span><br><span class="line"></span><br><span class="line"><span class="comment"># 删除镜像</span></span><br><span class="line"><span class="built_in">sudo</span> ctr image <span class="built_in">rm</span> docker.io/library/nginx:alpine</span><br><span class="line"></span><br><span class="line"><span class="comment"># 给镜像打标签</span></span><br><span class="line"><span class="built_in">sudo</span> ctr image tag docker.io/library/nginx:alpine docker.io/library/nginx:my-tag</span><br><span class="line"></span><br><span class="line"><span class="comment"># ------ 容器操作 ------</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建并运行容器</span></span><br><span class="line"><span class="built_in">sudo</span> ctr run -d docker.io/library/nginx:alpine my-nginx</span><br><span class="line"></span><br><span class="line"><span class="comment"># 列出运行中的容器</span></span><br><span class="line"><span class="built_in">sudo</span> ctr container <span class="built_in">ls</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 列出所有容器（含已停止）</span></span><br><span class="line"><span class="built_in">sudo</span> ctr container <span class="built_in">ls</span> -a</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看容器详情</span></span><br><span class="line"><span class="built_in">sudo</span> ctr container info my-nginx</span><br><span class="line"></span><br><span class="line"><span class="comment"># 停止容器</span></span><br><span class="line"><span class="built_in">sudo</span> ctr task <span class="built_in">kill</span> my-nginx</span><br><span class="line"></span><br><span class="line"><span class="comment"># 删除容器（需先停止）</span></span><br><span class="line"><span class="built_in">sudo</span> ctr container <span class="built_in">rm</span> my-nginx</span><br><span class="line"></span><br><span class="line"><span class="comment"># ------ 任务操作 ------</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看运行中的任务</span></span><br><span class="line"><span class="built_in">sudo</span> ctr task <span class="built_in">ls</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 执行命令（类似 docker exec）</span></span><br><span class="line"><span class="built_in">sudo</span> ctr task <span class="built_in">exec</span> -t --exec-id exec1 my-nginx /bin/sh</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看任务详情（CPU、内存等）</span></span><br><span class="line"><span class="built_in">sudo</span> ctr task metrics my-nginx</span><br><span class="line"></span><br><span class="line"><span class="comment"># ------ 命名空间操作 ------</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看命名空间列表</span></span><br><span class="line"><span class="built_in">sudo</span> ctr namespace <span class="built_in">ls</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Kubernetes 镜像存储在 k8s.io 命名空间</span></span><br><span class="line"><span class="built_in">sudo</span> ctr -n k8s.io image <span class="built_in">ls</span></span><br><span class="line"><span class="built_in">sudo</span> ctr -n k8s.io container <span class="built_in">ls</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="7-2-crictl-命令"><a href="#7-2-crictl-命令" class="headerlink" title="7.2 crictl 命令"></a>7.2 crictl 命令</h3><p><code>crictl</code> 是 Kubernetes 社区维护的 CRI 调试工具，使用方式与 docker 命令行非常接近。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 安装 crictl</span></span><br><span class="line">VERSION=<span class="string">&quot;v1.32.0&quot;</span></span><br><span class="line">wget https://github.com/kubernetes-sigs/cri-tools/releases/download/<span class="variable">$&#123;VERSION&#125;</span>/crictl-<span class="variable">$&#123;VERSION&#125;</span>-linux-amd64.tar.gz</span><br><span class="line"><span class="built_in">sudo</span> tar Cxzvf /usr/local/bin crictl-<span class="variable">$&#123;VERSION&#125;</span>-linux-amd64.tar.gz</span><br><span class="line"></span><br><span class="line"><span class="comment"># 配置 crictl</span></span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">tee</span> /etc/crictl.yaml &lt;&lt;<span class="string">EOF</span></span><br><span class="line"><span class="string">runtime-endpoint: unix:///run/containerd/containerd.sock</span></span><br><span class="line"><span class="string">image-endpoint: unix:///run/containerd/containerd.sock</span></span><br><span class="line"><span class="string">timeout: 10</span></span><br><span class="line"><span class="string">debug: false</span></span><br><span class="line"><span class="string">EOF</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ------ 镜像操作 ------</span></span><br><span class="line"><span class="built_in">sudo</span> crictl pull nginx:alpine            <span class="comment"># 拉取镜像</span></span><br><span class="line"><span class="built_in">sudo</span> crictl images                        <span class="comment"># 列出镜像</span></span><br><span class="line"><span class="built_in">sudo</span> crictl rmi &lt;IMAGE_ID&gt;                <span class="comment"># 删除镜像</span></span><br><span class="line"><span class="built_in">sudo</span> crictl inspecti &lt;IMAGE_ID&gt;           <span class="comment"># 查看镜像详情</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ------ Pod 操作 ------</span></span><br><span class="line"><span class="built_in">sudo</span> crictl pods                          <span class="comment"># 列出 Pod</span></span><br><span class="line"><span class="built_in">sudo</span> crictl pods --all                    <span class="comment"># 含已停止的 Pod</span></span><br><span class="line"><span class="built_in">sudo</span> crictl inspectp &lt;POD_ID&gt;             <span class="comment"># 查看 Pod 详情</span></span><br><span class="line"><span class="built_in">sudo</span> crictl runp pod-config.json          <span class="comment"># 运行 Pod（通过 PodSandbox 配置）</span></span><br><span class="line"><span class="built_in">sudo</span> crictl stopp &lt;POD_ID&gt;                <span class="comment"># 停止 Pod</span></span><br><span class="line"><span class="built_in">sudo</span> crictl rmp &lt;POD_ID&gt;                  <span class="comment"># 删除 Pod</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ------ 容器操作 ------</span></span><br><span class="line"><span class="built_in">sudo</span> crictl ps                            <span class="comment"># 列出运行中的容器</span></span><br><span class="line"><span class="built_in">sudo</span> crictl ps -a                         <span class="comment"># 列出所有容器</span></span><br><span class="line"><span class="built_in">sudo</span> crictl inspect &lt;CONTAINER_ID&gt;        <span class="comment"># 查看容器详情</span></span><br><span class="line"><span class="built_in">sudo</span> crictl logs &lt;CONTAINER_ID&gt;           <span class="comment"># 查看容器日志</span></span><br><span class="line"><span class="built_in">sudo</span> crictl logs -f &lt;CONTAINER_ID&gt;        <span class="comment"># 跟踪容器日志</span></span><br><span class="line"><span class="built_in">sudo</span> crictl <span class="built_in">exec</span> -it &lt;CONTAINER_ID&gt; /bin/sh  <span class="comment"># 进入容器</span></span><br><span class="line"><span class="built_in">sudo</span> crictl stats                         <span class="comment"># 查看容器资源使用</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ------ 综合操作 ------</span></span><br><span class="line"><span class="built_in">sudo</span> crictl info                          <span class="comment"># 查看运行时信息</span></span><br><span class="line"><span class="built_in">sudo</span> crictl version                       <span class="comment"># 查看版本</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="7-3-nerdctl-命令（推荐）"><a href="#7-3-nerdctl-命令（推荐）" class="headerlink" title="7.3 nerdctl 命令（推荐）"></a>7.3 nerdctl 命令（推荐）</h3><p><code>nerdctl</code> 是 containerd 的类 Docker CLI 工具，对 Docker 用户非常友好。</p>
+<blockquote>
+<p>安装方式见 <a href="#8-%E5%AE%89%E8%A3%85-nerdctl%E7%B1%BB-docker-cli">第 8 节</a></p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ------ 镜像操作 ------</span></span><br><span class="line">nerdctl pull nginx:alpine                 <span class="comment"># 拉取镜像</span></span><br><span class="line">nerdctl images                            <span class="comment"># 列出镜像</span></span><br><span class="line">nerdctl rmi nginx:alpine                  <span class="comment"># 删除镜像</span></span><br><span class="line">nerdctl tag nginx:alpine nginx:my-tag     <span class="comment"># 打标签</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ------ 容器操作 ------</span></span><br><span class="line">nerdctl run -d --name web -p 8080:80 nginx:alpine   <span class="comment"># 运行容器</span></span><br><span class="line">nerdctl ps                               <span class="comment"># 列出运行中的容器</span></span><br><span class="line">nerdctl ps -a                            <span class="comment"># 列出所有容器</span></span><br><span class="line">nerdctl stop web                         <span class="comment"># 停止容器</span></span><br><span class="line">nerdctl start web                        <span class="comment"># 启动已停止的容器</span></span><br><span class="line">nerdctl restart web                      <span class="comment"># 重启容器</span></span><br><span class="line">nerdctl <span class="built_in">rm</span> web                           <span class="comment"># 删除容器（需先停止）</span></span><br><span class="line">nerdctl <span class="built_in">rm</span> -f web                        <span class="comment"># 强制删除容器</span></span><br><span class="line">nerdctl <span class="built_in">exec</span> -it web /bin/sh             <span class="comment"># 进入容器</span></span><br><span class="line">nerdctl logs -f web                      <span class="comment"># 查看容器日志</span></span><br><span class="line">nerdctl inspect web                      <span class="comment"># 查看容器详情</span></span><br><span class="line">nerdctl top web                          <span class="comment"># 查看容器内进程</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ------ Compose 操作 ------</span></span><br><span class="line">nerdctl compose up -d                    <span class="comment"># 启动 compose 服务</span></span><br><span class="line">nerdctl compose down                     <span class="comment"># 停止 compose 服务</span></span><br><span class="line">nerdctl compose ps                       <span class="comment"># 查看 compose 服务状态</span></span><br><span class="line">nerdctl compose logs -f                  <span class="comment"># 查看 compose 日志</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ------ 网络操作 ------</span></span><br><span class="line">nerdctl network <span class="built_in">ls</span>                       <span class="comment"># 列出网络</span></span><br><span class="line">nerdctl network create my-net            <span class="comment"># 创建网络</span></span><br><span class="line">nerdctl network inspect my-net           <span class="comment"># 查看网络详情</span></span><br><span class="line">nerdctl network <span class="built_in">rm</span> my-net                <span class="comment"># 删除网络</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ------ 卷操作 ------</span></span><br><span class="line">nerdctl volume <span class="built_in">ls</span>                        <span class="comment"># 列出卷</span></span><br><span class="line">nerdctl volume create my-vol             <span class="comment"># 创建卷</span></span><br><span class="line">nerdctl volume inspect my-vol            <span class="comment"># 查看卷详情</span></span><br><span class="line">nerdctl volume <span class="built_in">rm</span> my-vol                 <span class="comment"># 删除卷</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ------ 系统操作 ------</span></span><br><span class="line">nerdctl system events                    <span class="comment"># 查看事件流</span></span><br><span class="line">nerdctl system info                      <span class="comment"># 查看系统信息</span></span><br><span class="line">nerdctl system <span class="built_in">df</span>                        <span class="comment"># 查看磁盘使用情况</span></span><br><span class="line">nerdctl system prune -af                 <span class="comment"># 清理无用资源</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ------ 命名空间 ------</span></span><br><span class="line">nerdctl -n k8s.io ps                     <span class="comment"># 查看 k8s 命名空间的容器</span></span><br><span class="line">nerdctl -n k8s.io images                 <span class="comment"># 查看 k8s 命名空间的镜像</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="八、安装-nerdctl（类-Docker-CLI）"><a href="#八、安装-nerdctl（类-Docker-CLI）" class="headerlink" title="八、安装 nerdctl（类 Docker CLI）"></a>八、安装 nerdctl（类 Docker CLI）</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 1. 下载 nerdctl</span></span><br><span class="line">NERDCTL_VERSION=<span class="string">&quot;2.0.4&quot;</span></span><br><span class="line">wget https://github.com/containerd/nerdctl/releases/download/v<span class="variable">$&#123;NERDCTL_VERSION&#125;</span>/nerdctl-full-<span class="variable">$&#123;NERDCTL_VERSION&#125;</span>-linux-amd64.tar.gz</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 解压安装（包含 nerdctl + CNI + BuildKit + Rootless 等全套工具）</span></span><br><span class="line"><span class="built_in">sudo</span> tar Cxzvvf /usr/local nerdctl-full-<span class="variable">$&#123;NERDCTL_VERSION&#125;</span>-linux-amd64.tar.gz</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 验证安装</span></span><br><span class="line">nerdctl version</span><br><span class="line">nerdctl info</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 如果仅下载nerdctl</span></span><br><span class="line">wget https://github.com/containerd/nerdctl/releases/download/v<span class="variable">$&#123;NERDCTL_VERSION&#125;</span>/nerdctl-<span class="variable">$&#123;NERDCTL_VERSION&#125;</span>-linux-amd64.tar.gz</span><br><span class="line"></span><br><span class="line">tar -zxvf nerdctl-<span class="variable">$&#123;NERDCTL_VERSION&#125;</span>-linux-amd64.tar.gz</span><br><span class="line"><span class="built_in">mv</span> nerdctl /usr/local/bin/</span><br><span class="line"></span><br><span class="line"><span class="comment"># 验证安装</span></span><br><span class="line">nerdctl version</span><br><span class="line">nerdctl info</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p><strong>提示</strong>: <code>nerdctl-full</code> 包包含了 BuildKit（用于镜像构建）、CNI 插件等完整组件。如果只需要 CLI 工具，可仅下载 <code>nerdctl</code> 单文件。</p>
+</blockquote>
+<h2 id="九、卸载-Containerd"><a href="#九、卸载-Containerd" class="headerlink" title="九、卸载 Containerd"></a>九、卸载 Containerd</h2><h3 id="9-1-停止服务并清理数据"><a href="#9-1-停止服务并清理数据" class="headerlink" title="9.1 停止服务并清理数据"></a>9.1 停止服务并清理数据</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1. 停止 containerd</span></span><br><span class="line"><span class="built_in">sudo</span> systemctl stop containerd</span><br><span class="line"><span class="built_in">sudo</span> systemctl <span class="built_in">disable</span> containerd</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 停止所有容器</span></span><br><span class="line"><span class="built_in">sudo</span> ctr task <span class="built_in">ls</span> -q | xargs -r <span class="built_in">sudo</span> ctr task <span class="built_in">kill</span></span><br><span class="line"><span class="comment"># 或使用 nerdctl</span></span><br><span class="line"><span class="comment"># nerdctl ps -aq | xargs -r nerdctl rm -f</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 删除容器和镜像数据</span></span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">rm</span> -rf /var/lib/containerd</span><br><span class="line"></span><br><span class="line"><span class="comment"># 4. 删除配置</span></span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">rm</span> -rf /etc/containerd</span><br></pre></td></tr></table></figure>
+
+<h3 id="9-2-按安装方式卸载"><a href="#9-2-按安装方式卸载" class="headerlink" title="9.2 按安装方式卸载"></a>9.2 按安装方式卸载</h3><p><strong>二进制安装</strong>:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 删除二进制文件</span></span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">rm</span> -f /usr/local/bin/containerd</span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">rm</span> -f /usr/local/bin/containerd-shim*</span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">rm</span> -f /usr/local/bin/ctr</span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">rm</span> -f /usr/local/bin/runc</span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">rm</span> -f /usr/local/sbin/runc</span><br><span class="line"></span><br><span class="line"><span class="comment"># 删除 service 文件</span></span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">rm</span> -f /usr/local/lib/systemd/system/containerd.service</span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">rm</span> -f /etc/systemd/system/containerd.service.d/http-proxy.conf</span><br><span class="line"><span class="built_in">sudo</span> systemctl daemon-reload</span><br><span class="line"></span><br><span class="line"><span class="comment"># 删除 CNI 插件</span></span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">rm</span> -rf /opt/cni</span><br></pre></td></tr></table></figure>
+
+<p><strong>apt 安装（Debian&#x2F;Ubuntu）</strong>:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> apt-get purge -y containerd.io</span><br><span class="line"><span class="built_in">sudo</span> apt-get autoremove -y</span><br></pre></td></tr></table></figure>
+
+<p><strong>yum 安装（CentOS&#x2F;RHEL）</strong>:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> yum remove -y containerd.io</span><br></pre></td></tr></table></figure>
+
+<h3 id="9-3-完全清理（可选）"><a href="#9-3-完全清理（可选）" class="headerlink" title="9.3 完全清理（可选）"></a>9.3 完全清理（可选）</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 清理残留的运行时目录</span></span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">rm</span> -rf /run/containerd</span><br><span class="line"></span><br><span class="line"><span class="comment"># 清理 socket 文件</span></span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">rm</span> -f /run/containerd/containerd.sock</span><br><span class="line"></span><br><span class="line"><span class="comment"># 如果安装了 nerdctl</span></span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">rm</span> -f /usr/local/bin/nerdctl /usr/local/bin/buildkitd /usr/local/bin/buildctl</span><br><span class="line"></span><br><span class="line"><span class="comment"># 清理用户级 containerd（如使用了 rootless 模式）</span></span><br><span class="line"><span class="built_in">rm</span> -rf ~/.local/share/containerd</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="十、常见问题与排错"><a href="#十、常见问题与排错" class="headerlink" title="十、常见问题与排错"></a>十、常见问题与排错</h2><h3 id="Q1-拉取镜像报错-x509-certificate-signed-by-unknown-authority"><a href="#Q1-拉取镜像报错-x509-certificate-signed-by-unknown-authority" class="headerlink" title="Q1: 拉取镜像报错 x509: certificate signed by unknown authority"></a>Q1: 拉取镜像报错 <code>x509: certificate signed by unknown authority</code></h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 原因: 私有镜像仓库证书不受信任</span></span><br><span class="line"><span class="comment"># 解决:</span></span><br><span class="line"><span class="comment"># 1. 在 config.toml 中添加 insecure_skip_verify = true（仅限测试）</span></span><br><span class="line"><span class="comment"># 2. 将 CA 证书安装到系统信任链</span></span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">cp</span> ca.crt /usr/local/share/ca-certificates/my-ca.crt</span><br><span class="line"><span class="built_in">sudo</span> update-ca-certificates</span><br></pre></td></tr></table></figure>
+
+<h3 id="Q2-拉取镜像报错-dial-tcp-lookup-xxxx-no-such-host"><a href="#Q2-拉取镜像报错-dial-tcp-lookup-xxxx-no-such-host" class="headerlink" title="Q2: 拉取镜像报错 dial tcp: lookup xxxx: no such host"></a>Q2: 拉取镜像报错 <code>dial tcp: lookup xxxx: no such host</code></h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 原因: DNS 解析失败</span></span><br><span class="line"><span class="comment"># 检查 DNS 配置</span></span><br><span class="line"><span class="built_in">cat</span> /etc/resolv.conf</span><br><span class="line"></span><br><span class="line"><span class="comment"># 在 config.toml 中确认没有错误的代理或镜像地址</span></span><br><span class="line"><span class="built_in">sudo</span> journalctl -u containerd | grep -i <span class="string">&quot;dial&quot;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="Q3-grpc-timed-out-或-context-deadline-exceeded"><a href="#Q3-grpc-timed-out-或-context-deadline-exceeded" class="headerlink" title="Q3: grpc: timed out 或 context deadline exceeded"></a>Q3: <code>grpc: timed out</code> 或 <code>context deadline exceeded</code></h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 原因: 网络超时或国内无法直连 gcr.io</span></span><br><span class="line"><span class="comment"># 解决: 配置镜像加速（见 5.1 节）</span></span><br><span class="line"><span class="comment"># 或拉取镜像时增加超时</span></span><br><span class="line"><span class="built_in">sudo</span> ctr image pull --<span class="built_in">timeout</span> 300s docker.io/library/nginx:alpine</span><br></pre></td></tr></table></figure>
+
+<h3 id="Q4-cgroup-相关错误"><a href="#Q4-cgroup-相关错误" class="headerlink" title="Q4: cgroup 相关错误"></a>Q4: cgroup 相关错误</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 检查 cgroup 驱动是否一致</span></span><br><span class="line"><span class="comment"># Kubernetes 推荐 systemd，containerd 也需配置 SystemdCgroup = true（见 5.4 节）</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 验证当前 cgroup 驱动</span></span><br><span class="line"><span class="built_in">sudo</span> ctr info | grep -i cgroup</span><br></pre></td></tr></table></figure>
+
+<h3 id="Q5-容器无法访问网络"><a href="#Q5-容器无法访问网络" class="headerlink" title="Q5: 容器无法访问网络"></a>Q5: 容器无法访问网络</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 检查 CNI 插件是否安装</span></span><br><span class="line"><span class="built_in">ls</span> /opt/cni/bin/</span><br><span class="line"></span><br><span class="line"><span class="comment"># 检查 CNI 配置文件</span></span><br><span class="line"><span class="built_in">ls</span> /etc/cni/net.d/</span><br><span class="line"></span><br><span class="line"><span class="comment"># 测试网络转发</span></span><br><span class="line"><span class="built_in">sudo</span> sysctl net.ipv4.ip_forward</span><br><span class="line"></span><br><span class="line"><span class="comment"># 如果为 0，开启转发</span></span><br><span class="line"><span class="built_in">sudo</span> sysctl -w net.ipv4.ip_forward=1</span><br></pre></td></tr></table></figure>
+
+<h3 id="Q6-查看-Containerd-配置是否生效"><a href="#Q6-查看-Containerd-配置是否生效" class="headerlink" title="Q6: 查看 Containerd 配置是否生效"></a>Q6: 查看 Containerd 配置是否生效</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看当前 containerd 运行时配置</span></span><br><span class="line"><span class="built_in">sudo</span> ctr info</span><br><span class="line"></span><br><span class="line"><span class="comment"># 重新加载配置后验证</span></span><br><span class="line"><span class="built_in">sudo</span> systemctl restart containerd</span><br><span class="line"><span class="built_in">sudo</span> ctr info | grep -A 20 mirrors</span><br></pre></td></tr></table></figure>
+
+<h3 id="Q7-磁盘空间不足"><a href="#Q7-磁盘空间不足" class="headerlink" title="Q7: 磁盘空间不足"></a>Q7: 磁盘空间不足</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看 containerd 占用空间</span></span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">du</span> -sh /var/lib/containerd</span><br><span class="line"></span><br><span class="line"><span class="comment"># 清理未使用的镜像和容器</span></span><br><span class="line"><span class="built_in">sudo</span> ctr image prune --all</span><br><span class="line"><span class="comment"># 或使用 nerdctl</span></span><br><span class="line">nerdctl system prune -af</span><br></pre></td></tr></table></figure>
+
+<h3 id="Q8-配置更新后不生效"><a href="#Q8-配置更新后不生效" class="headerlink" title="Q8: 配置更新后不生效"></a>Q8: 配置更新后不生效</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 确保重启了 containerd</span></span><br><span class="line"><span class="built_in">sudo</span> systemctl restart containerd</span><br><span class="line"></span><br><span class="line"><span class="comment"># 检查配置文件语法（TOML）</span></span><br><span class="line"><span class="comment"># 常见错误: 缺少方括号、缩进不一致</span></span><br><span class="line">containerd config dump &gt; /tmp/current-config.toml</span><br><span class="line"></span><br><span class="line"><span class="comment"># 对比默认配置和当前运行配置的差异</span></span><br><span class="line">diff &lt;(containerd config default) &lt;(containerd config dump)</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="十一、快速参考"><a href="#十一、快速参考" class="headerlink" title="十一、快速参考"></a>十一、快速参考</h2><h3 id="关键文件路径"><a href="#关键文件路径" class="headerlink" title="关键文件路径"></a>关键文件路径</h3><table>
+<thead>
+<tr>
+<th>文件&#x2F;目录</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>/etc/containerd/config.toml</code></td>
+<td>主配置文件</td>
+</tr>
+<tr>
+<td><code>/var/lib/containerd/</code></td>
+<td>数据存储目录（镜像、容器层等）</td>
+</tr>
+<tr>
+<td><code>/run/containerd/containerd.sock</code></td>
+<td>gRPC 监听 socket</td>
+</tr>
+<tr>
+<td><code>/opt/cni/bin/</code></td>
+<td>CNI 插件目录</td>
+</tr>
+<tr>
+<td><code>/etc/cni/net.d/</code></td>
+<td>CNI 网络配置目录</td>
+</tr>
+<tr>
+<td><code>/etc/crictl.yaml</code></td>
+<td>crictl 配置文件</td>
+</tr>
+</tbody></table>
+<h3 id="常用操作速查"><a href="#常用操作速查" class="headerlink" title="常用操作速查"></a>常用操作速查</h3><table>
+<thead>
+<tr>
+<th>操作</th>
+<th>命令</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>启动服务</td>
+<td><code>sudo systemctl start containerd</code></td>
+</tr>
+<tr>
+<td>重启服务</td>
+<td><code>sudo systemctl restart containerd</code></td>
+</tr>
+<tr>
+<td>查看状态</td>
+<td><code>sudo systemctl status containerd</code></td>
+</tr>
+<tr>
+<td>查看日志</td>
+<td><code>sudo journalctl -u containerd -f</code></td>
+</tr>
+<tr>
+<td>查看版本</td>
+<td><code>containerd --version</code></td>
+</tr>
+<tr>
+<td>生成配置</td>
+<td><code>containerd config default</code></td>
+</tr>
+<tr>
+<td>拉取镜像</td>
+<td><code>sudo ctr image pull &lt;image&gt;</code></td>
+</tr>
+<tr>
+<td>列出镜像</td>
+<td><code>sudo ctr image ls</code></td>
+</tr>
+<tr>
+<td>运行容器</td>
+<td><code>sudo ctr run -d &lt;image&gt; &lt;name&gt;</code></td>
+</tr>
+<tr>
+<td>清理资源</td>
+<td><code>sudo ctr image prune --all</code></td>
+</tr>
+</tbody></table>
+<h3 id="镜像加速地址汇总"><a href="#镜像加速地址汇总" class="headerlink" title="镜像加速地址汇总"></a>镜像加速地址汇总</h3><table>
+<thead>
+<tr>
+<th>源仓库</th>
+<th>镜像加速地址</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>docker.io</td>
+<td><code>https://docker.m.daocloud.io</code></td>
+</tr>
+<tr>
+<td>gcr.io</td>
+<td><code>https://gcr.m.daocloud.io</code></td>
+</tr>
+<tr>
+<td>k8s.gcr.io &#x2F; registry.k8s.io</td>
+<td><code>https://k8s.m.daocloud.io</code></td>
+</tr>
+<tr>
+<td>quay.io</td>
+<td><code>https://quay.m.daocloud.io</code></td>
+</tr>
+<tr>
+<td>ghcr.io</td>
+<td><code>https://ghcr.m.daocloud.io</code></td>
+</tr>
+<tr>
+<td>docker.io（阿里云）</td>
+<td><code>https://&lt;your-id&gt;.mirror.aliyuncs.com</code></td>
+</tr>
+<tr>
+<td>docker.io（中科大）</td>
+<td><code>https://docker.mirrors.ustc.edu.cn</code></td>
+</tr>
+<tr>
+<td>docker.io（南京大学）</td>
+<td><code>https://docker.nju.edu.cn</code></td>
+</tr>
+</tbody></table>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>您的打赏，是我创作的动力！不给钱？那我只能靠想象力充饥了。</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/wechat_pay.jpg" alt="rstyro 微信支付">
+        <p>微信支付</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/alipay.jpg" alt="rstyro 支付宝">
+        <p>支付宝</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/blog/tags/k8s/" rel="tag"><i class="fa fa-tag"></i> k8s</a>
+              <a href="/blog/tags/Containerd/" rel="tag"><i class="fa fa-tag"></i> Containerd</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2026/07/10/%E5%AE%89%E8%A3%85Higress%E4%B8%8E%E4%BD%BF%E7%94%A8/" rel="prev" title="安装Higress与使用">
+      <i class="fa fa-chevron-left"></i> 安装Higress与使用
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/blog/2026/07/16/docker-compose%E5%AE%89%E8%A3%85GitLab%E8%AF%A6%E7%BB%86%E5%AE%89%E8%A3%85%E6%8C%87%E5%8D%97/" rel="next" title="docker-compose安装GitLab详细安装指南">
+      docker-compose安装GitLab详细安装指南 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81Containerd-%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">一、Containerd 简介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E7%8E%AF%E5%A2%83%E8%A6%81%E6%B1%82"><span class="nav-number">2.</span> <span class="nav-text">二、环境要求</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-%E5%89%8D%E7%BD%AE%E4%BE%9D%E8%B5%96%E5%AE%89%E8%A3%85"><span class="nav-number">2.1.</span> <span class="nav-text">2.1 前置依赖安装</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E5%AE%89%E8%A3%85-Containerd"><span class="nav-number">3.</span> <span class="nav-text">三、安装 Containerd</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%8C%85%E5%AE%89%E8%A3%85%EF%BC%88%E9%80%9A%E7%94%A8%E6%96%B9%E5%BC%8F%EF%BC%89"><span class="nav-number">3.1.</span> <span class="nav-text">3.1 二进制包安装（通用方式）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-%E4%BD%BF%E7%94%A8-apt-%E5%AE%89%E8%A3%85%EF%BC%88Debian-Ubuntu%EF%BC%89"><span class="nav-number">3.2.</span> <span class="nav-text">3.2 使用 apt 安装（Debian&#x2F;Ubuntu）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-3-%E4%BD%BF%E7%94%A8-yum-dnf-%E5%AE%89%E8%A3%85%EF%BC%88CentOS-RHEL-Rocky%EF%BC%89"><span class="nav-number">3.3.</span> <span class="nav-text">3.3 使用 yum&#x2F;dnf 安装（CentOS&#x2F;RHEL&#x2F;Rocky）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E7%94%9F%E6%88%90%E9%BB%98%E8%AE%A4%E9%85%8D%E7%BD%AE"><span class="nav-number">4.</span> <span class="nav-text">四、生成默认配置</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%94%E3%80%81%E9%85%8D%E7%BD%AE%E8%AF%A6%E8%A7%A3"><span class="nav-number">5.</span> <span class="nav-text">五、配置详解</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#5-1-%E9%95%9C%E5%83%8F%E5%8A%A0%E9%80%9F%EF%BC%88Registry-Mirrors%EF%BC%89"><span class="nav-number">5.1.</span> <span class="nav-text">5.1 镜像加速（Registry Mirrors）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-2-%E9%85%8D%E7%BD%AE%E4%BB%A3%E7%90%86%EF%BC%88HTTP-HTTPS-Proxy%EF%BC%89"><span class="nav-number">5.2.</span> <span class="nav-text">5.2 配置代理（HTTP&#x2F;HTTPS Proxy）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%96%B9%E5%BC%8F%E4%B8%80%EF%BC%9A%E4%B8%BA-Containerd-%E9%85%8D%E7%BD%AE%E4%BB%A3%E7%90%86%EF%BC%88%E6%8E%A8%E8%8D%90%EF%BC%89"><span class="nav-number">5.2.1.</span> <span class="nav-text">方式一：为 Containerd 配置代理（推荐）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%96%B9%E5%BC%8F%E4%BA%8C%EF%BC%9A%E5%85%A8%E5%B1%80%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%E8%AE%BE%E7%BD%AE"><span class="nav-number">5.2.2.</span> <span class="nav-text">方式二：全局环境变量设置</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%9F%A5%E7%9C%8B%E5%BD%93%E5%89%8D%E4%BB%A3%E7%90%86%E9%85%8D%E7%BD%AE"><span class="nav-number">5.2.3.</span> <span class="nav-text">查看当前代理配置</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-3-%E9%85%8D%E7%BD%AE%E7%A7%81%E6%9C%89%E9%95%9C%E5%83%8F%E4%BB%93%E5%BA%93"><span class="nav-number">5.3.</span> <span class="nav-text">5.3 配置私有镜像仓库</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%9B%AE%E5%BD%95%E7%BB%93%E6%9E%84%E6%80%BB%E8%A7%88"><span class="nav-number">5.3.1.</span> <span class="nav-text">目录结构总览</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9C%BA%E6%99%AF1%EF%BC%9AHTTP-%E9%9D%9E%E5%AE%89%E5%85%A8%E7%A7%81%E6%9C%89%E4%BB%93%E5%BA%93"><span class="nav-number">5.3.2.</span> <span class="nav-text">场景1：HTTP 非安全私有仓库</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9C%BA%E6%99%AF2%EF%BC%9AHTTPS-%E7%A7%81%E6%9C%89%E4%BB%93%E5%BA%93%EF%BC%88%E8%87%AA%E7%AD%BE%E5%90%8D%E8%AF%81%E4%B9%A6%EF%BC%89"><span class="nav-number">5.3.3.</span> <span class="nav-text">场景2：HTTPS 私有仓库（自签名证书）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9C%BA%E6%99%AF3%EF%BC%9AHTTPS-%E7%A7%81%E6%9C%89%E4%BB%93%E5%BA%93-%E8%AE%A4%E8%AF%81"><span class="nav-number">5.3.4.</span> <span class="nav-text">场景3：HTTPS 私有仓库 + 认证</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9C%BA%E6%99%AF4%EF%BC%9AmTLS-%E5%8F%8C%E5%90%91%E8%AE%A4%E8%AF%81"><span class="nav-number">5.3.5.</span> <span class="nav-text">场景4：mTLS 双向认证</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%85%8D%E7%BD%AE%E5%90%8E%E9%AA%8C%E8%AF%81"><span class="nav-number">5.3.6.</span> <span class="nav-text">配置后验证</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-4-%E9%85%8D%E7%BD%AE-Cgroup-%E9%A9%B1%E5%8A%A8"><span class="nav-number">5.4.</span> <span class="nav-text">5.4 配置 Cgroup 驱动</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-5-%E9%85%8D%E7%BD%AE-sandbox-%E9%95%9C%E5%83%8F%EF%BC%88pause-%E9%95%9C%E5%83%8F%EF%BC%89"><span class="nav-number">5.5.</span> <span class="nav-text">5.5 配置 sandbox 镜像（pause 镜像）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-6-%E4%BF%AE%E6%94%B9%E9%BB%98%E8%AE%A4%E9%95%9C%E5%83%8F%E5%AD%98%E5%82%A8%E4%BD%8D%E7%BD%AE"><span class="nav-number">5.6.</span> <span class="nav-text">5.6 修改默认镜像存储位置</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%B6%89%E5%8F%8A%E7%9A%84%E8%B7%AF%E5%BE%84"><span class="nav-number">5.6.1.</span> <span class="nav-text">涉及的路径</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%96%B9%E5%BC%8F%E4%B8%80%EF%BC%9A%E4%BF%AE%E6%94%B9%E9%A1%B6%E5%B1%82-root%EF%BC%88%E4%B8%80%E6%AD%A5%E5%88%B0%E4%BD%8D%EF%BC%8C%E6%8E%A8%E8%8D%90%EF%BC%89"><span class="nav-number">5.6.2.</span> <span class="nav-text">方式一：修改顶层 root（一步到位，推荐）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%96%B9%E5%BC%8F%E4%BA%8C%EF%BC%9A%E4%BB%85%E4%BF%AE%E6%94%B9-CRI-%E6%8F%92%E4%BB%B6%E7%9A%84%E9%95%9C%E5%83%8F%E5%AD%98%E5%82%A8%EF%BC%88%E7%BB%86%E7%B2%92%E5%BA%A6%E6%8E%A7%E5%88%B6%EF%BC%89"><span class="nav-number">5.6.3.</span> <span class="nav-text">方式二：仅修改 CRI 插件的镜像存储（细粒度控制）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%96%B9%E5%BC%8F%E4%B8%89%EF%BC%9A%E8%BD%AF%E9%93%BE%E6%8E%A5%EF%BC%88%E6%97%A0%E4%BE%B5%E5%85%A5%E3%80%81%E9%9B%B6%E5%81%9C%E6%9C%BA%E6%97%B6%E9%97%B4%E6%9C%80%E7%9F%AD%EF%BC%89"><span class="nav-number">5.6.4.</span> <span class="nav-text">方式三：软链接（无侵入、零停机时间最短）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%BF%81%E7%A7%BB%E5%90%8E%E9%AA%8C%E8%AF%81"><span class="nav-number">5.6.5.</span> <span class="nav-text">迁移后验证</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%B8%85%E7%90%86%E6%97%A7%E8%B7%AF%E5%BE%84"><span class="nav-number">5.6.6.</span> <span class="nav-text">清理旧路径</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-7-%E5%AE%8C%E6%95%B4%E9%85%8D%E7%BD%AE%E7%A4%BA%E4%BE%8B"><span class="nav-number">5.7.</span> <span class="nav-text">5.7 完整配置示例</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%AD%E3%80%81%E5%90%AF%E5%8A%A8%E4%B8%8E%E7%AE%A1%E7%90%86"><span class="nav-number">6.</span> <span class="nav-text">六、启动与管理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%83%E3%80%81%E5%B8%B8%E7%94%A8%E8%BF%90%E7%BB%B4%E5%91%BD%E4%BB%A4"><span class="nav-number">7.</span> <span class="nav-text">七、常用运维命令</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#7-1-ctr-%E5%91%BD%E4%BB%A4"><span class="nav-number">7.1.</span> <span class="nav-text">7.1 ctr 命令</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7-2-crictl-%E5%91%BD%E4%BB%A4"><span class="nav-number">7.2.</span> <span class="nav-text">7.2 crictl 命令</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7-3-nerdctl-%E5%91%BD%E4%BB%A4%EF%BC%88%E6%8E%A8%E8%8D%90%EF%BC%89"><span class="nav-number">7.3.</span> <span class="nav-text">7.3 nerdctl 命令（推荐）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%AB%E3%80%81%E5%AE%89%E8%A3%85-nerdctl%EF%BC%88%E7%B1%BB-Docker-CLI%EF%BC%89"><span class="nav-number">8.</span> <span class="nav-text">八、安装 nerdctl（类 Docker CLI）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B9%9D%E3%80%81%E5%8D%B8%E8%BD%BD-Containerd"><span class="nav-number">9.</span> <span class="nav-text">九、卸载 Containerd</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#9-1-%E5%81%9C%E6%AD%A2%E6%9C%8D%E5%8A%A1%E5%B9%B6%E6%B8%85%E7%90%86%E6%95%B0%E6%8D%AE"><span class="nav-number">9.1.</span> <span class="nav-text">9.1 停止服务并清理数据</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#9-2-%E6%8C%89%E5%AE%89%E8%A3%85%E6%96%B9%E5%BC%8F%E5%8D%B8%E8%BD%BD"><span class="nav-number">9.2.</span> <span class="nav-text">9.2 按安装方式卸载</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#9-3-%E5%AE%8C%E5%85%A8%E6%B8%85%E7%90%86%EF%BC%88%E5%8F%AF%E9%80%89%EF%BC%89"><span class="nav-number">9.3.</span> <span class="nav-text">9.3 完全清理（可选）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8D%81%E3%80%81%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98%E4%B8%8E%E6%8E%92%E9%94%99"><span class="nav-number">10.</span> <span class="nav-text">十、常见问题与排错</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Q1-%E6%8B%89%E5%8F%96%E9%95%9C%E5%83%8F%E6%8A%A5%E9%94%99-x509-certificate-signed-by-unknown-authority"><span class="nav-number">10.1.</span> <span class="nav-text">Q1: 拉取镜像报错 x509: certificate signed by unknown authority</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Q2-%E6%8B%89%E5%8F%96%E9%95%9C%E5%83%8F%E6%8A%A5%E9%94%99-dial-tcp-lookup-xxxx-no-such-host"><span class="nav-number">10.2.</span> <span class="nav-text">Q2: 拉取镜像报错 dial tcp: lookup xxxx: no such host</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Q3-grpc-timed-out-%E6%88%96-context-deadline-exceeded"><span class="nav-number">10.3.</span> <span class="nav-text">Q3: grpc: timed out 或 context deadline exceeded</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Q4-cgroup-%E7%9B%B8%E5%85%B3%E9%94%99%E8%AF%AF"><span class="nav-number">10.4.</span> <span class="nav-text">Q4: cgroup 相关错误</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Q5-%E5%AE%B9%E5%99%A8%E6%97%A0%E6%B3%95%E8%AE%BF%E9%97%AE%E7%BD%91%E7%BB%9C"><span class="nav-number">10.5.</span> <span class="nav-text">Q5: 容器无法访问网络</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Q6-%E6%9F%A5%E7%9C%8B-Containerd-%E9%85%8D%E7%BD%AE%E6%98%AF%E5%90%A6%E7%94%9F%E6%95%88"><span class="nav-number">10.6.</span> <span class="nav-text">Q6: 查看 Containerd 配置是否生效</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Q7-%E7%A3%81%E7%9B%98%E7%A9%BA%E9%97%B4%E4%B8%8D%E8%B6%B3"><span class="nav-number">10.7.</span> <span class="nav-text">Q7: 磁盘空间不足</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Q8-%E9%85%8D%E7%BD%AE%E6%9B%B4%E6%96%B0%E5%90%8E%E4%B8%8D%E7%94%9F%E6%95%88"><span class="nav-number">10.8.</span> <span class="nav-text">Q8: 配置更新后不生效</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8D%81%E4%B8%80%E3%80%81%E5%BF%AB%E9%80%9F%E5%8F%82%E8%80%83"><span class="nav-number">11.</span> <span class="nav-text">十一、快速参考</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%B3%E9%94%AE%E6%96%87%E4%BB%B6%E8%B7%AF%E5%BE%84"><span class="nav-number">11.1.</span> <span class="nav-text">关键文件路径</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B8%B8%E7%94%A8%E6%93%8D%E4%BD%9C%E9%80%9F%E6%9F%A5"><span class="nav-number">11.2.</span> <span class="nav-text">常用操作速查</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%95%9C%E5%83%8F%E5%8A%A0%E9%80%9F%E5%9C%B0%E5%9D%80%E6%B1%87%E6%80%BB"><span class="nav-number">11.3.</span> <span class="nav-text">镜像加速地址汇总</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="rstyro"
+      src="/blog/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">rstyro</p>
+  <div class="site-description" itemprop="description">人间的饭，吃一碗少一碗，身边的人，见一面少一面，脚下的路，走一天少一天，其实人生就是一个减法，来日并不方长！</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives/">
+        
+          <span class="site-state-item-count">251</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/blog/tags/">
+          
+        <span class="site-state-item-count">109</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/rstyro" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;rstyro" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/rstyro" title="Gitee → https:&#x2F;&#x2F;gitee.com&#x2F;rstyro" rel="noopener" target="_blank"><i class="fab fa-codiepie fa-fw"></i>Gitee</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.jianshu.com/u/651c15a1758a" title="简书 → https:&#x2F;&#x2F;www.jianshu.com&#x2F;u&#x2F;651c15a1758a" rel="noopener" target="_blank"><i class="fa fa-book fa-fw"></i>简书</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      友链
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://rstyro.github.io/blog/" title="https:&#x2F;&#x2F;rstyro.github.io&#x2F;blog&#x2F;">胖不了小陆</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; Mon Apr 10 2017 08:00:00 GMT+0800 (中国标准时间) – 
+  <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">以梦为马，诗酒趁年华</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/muse.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+  <script>
+    (function(){
+      var canonicalURL, curProtocol;
+      //Get the <link> tag
+      var x=document.getElementsByTagName("link");
+		//Find the last canonical URL
+		if(x.length > 0){
+			for (i=0;i<x.length;i++){
+				if(x[i].rel.toLowerCase() == 'canonical' && x[i].href){
+					canonicalURL=x[i].href;
+				}
+			}
+		}
+    //Get protocol
+	    if (!canonicalURL){
+	    	curProtocol = window.location.protocol.split(':')[0];
+	    }
+	    else{
+	    	curProtocol = canonicalURL.split(':')[0];
+	    }
+      //Get current URL if the canonical URL does not exist
+	    if (!canonicalURL) canonicalURL = window.location.href;
+	    //Assign script content. Replace current URL with the canonical URL
+      !function(){var e=/([http|https]:\/\/[a-zA-Z0-9\_\.]+\.baidu\.com)/gi,r=canonicalURL,t=document.referrer;if(!e.test(r)){var n=(String(curProtocol).toLowerCase() === 'https')?"https://sp0.baidu.com/9_Q4simg2RQJ8t7jm9iCKT-xh_/s.gif":"//api.share.baidu.com/s.gif";t?(n+="?r="+encodeURIComponent(document.referrer),r&&(n+="&l="+r)):r&&(n+="?l="+r);var i=new Image;i.src=n}}(window);})();
+  </script>
+
+
+
+
+  
+<script src="/blog/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+<script>
+if (document.querySelectorAll('pre.mermaid').length) {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mermaid@8/dist/mermaid.min.js', () => {
+    mermaid.initialize({
+      theme    : 'default',
+      logLevel : 3,
+      flowchart: { curve     : 'linear' },
+      gantt    : { axisFormat: '%m/%d/%Y' },
+      sequence : { actorMargin: 50 }
+    });
+  }, window.mermaid);
+}
+</script>
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : 'Ov23litYkWaOGM7kAKPD',
+      clientSecret: '43bd3cf99bfcb9d05d16627c97a9f7a0200df04a',
+      repo        : 'blog',
+      owner       : 'rstyro',
+      admin       : ['rstyro'],
+      id          : '8f03f4d5fb63814696f4f5ad0fa327e1',
+        language: '',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>
