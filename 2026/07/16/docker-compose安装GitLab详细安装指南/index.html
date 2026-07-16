@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/favicon.jpg">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon.jpg">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon.jpg">
+  <link rel="mask-icon" href="/blog/images/favicon.jpg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="/blog/lib/pace/pace-theme-flash.min.css">
+  <script src="/blog/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"rstyro.github.io","root":"/blog/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":true},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.json"};
+  </script>
+
+  <meta name="description" content="一、概述1.1 什么是 GitLabGitLab 是一个开源的一体化 DevOps 平台，提供 Git 仓库托管、CI&#x2F;CD、代码评审、Issue 跟踪、Wiki、容器镜像仓库等完整功能。社区版（CE）免费开源，适合个人、小团队及企业内部自建代码托管平台。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="docker-compose安装GitLab详细安装指南">
+<meta property="og:url" content="https://rstyro.github.io/blog/2026/07/16/docker-compose%E5%AE%89%E8%A3%85GitLab%E8%AF%A6%E7%BB%86%E5%AE%89%E8%A3%85%E6%8C%87%E5%8D%97/index.html">
+<meta property="og:site_name" content="胖不了小陆">
+<meta property="og:description" content="一、概述1.1 什么是 GitLabGitLab 是一个开源的一体化 DevOps 平台，提供 Git 仓库托管、CI&#x2F;CD、代码评审、Issue 跟踪、Wiki、容器镜像仓库等完整功能。社区版（CE）免费开源，适合个人、小团队及企业内部自建代码托管平台。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://rstyro.github.io/blog/2026/07/16/docker-compose%E5%AE%89%E8%A3%85GitLab%E8%AF%A6%E7%BB%86%E5%AE%89%E8%A3%85%E6%8C%87%E5%8D%97/initpwd.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2026/07/16/docker-compose%E5%AE%89%E8%A3%85GitLab%E8%AF%A6%E7%BB%86%E5%AE%89%E8%A3%85%E6%8C%87%E5%8D%97/changepwd.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2026/07/16/docker-compose%E5%AE%89%E8%A3%85GitLab%E8%AF%A6%E7%BB%86%E5%AE%89%E8%A3%85%E6%8C%87%E5%8D%97/newuse.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2026/07/16/docker-compose%E5%AE%89%E8%A3%85GitLab%E8%AF%A6%E7%BB%86%E5%AE%89%E8%A3%85%E6%8C%87%E5%8D%97/cn.png">
+<meta property="article:published_time" content="2026-07-16T11:05:21.000Z">
+<meta property="article:modified_time" content="2026-07-16T08:08:43.435Z">
+<meta property="article:author" content="rstyro">
+<meta property="article:tag" content="docker">
+<meta property="article:tag" content="GitLab">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://rstyro.github.io/blog/2026/07/16/docker-compose%E5%AE%89%E8%A3%85GitLab%E8%AF%A6%E7%BB%86%E5%AE%89%E8%A3%85%E6%8C%87%E5%8D%97/initpwd.png">
+
+<link rel="canonical" href="https://rstyro.github.io/blog/2026/07/16/docker-compose%E5%AE%89%E8%A3%85GitLab%E8%AF%A6%E7%BB%86%E5%AE%89%E8%A3%85%E6%8C%87%E5%8D%97/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>docker-compose安装GitLab详细安装指南 | 胖不了小陆</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">胖不了小陆</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">信你所信，为你所见</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/blog/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/blog/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/blog/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/rstyro" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://rstyro.github.io/blog/2026/07/16/docker-compose%E5%AE%89%E8%A3%85GitLab%E8%AF%A6%E7%BB%86%E5%AE%89%E8%A3%85%E6%8C%87%E5%8D%97/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/avatar.jpg">
+      <meta itemprop="name" content="rstyro">
+      <meta itemprop="description" content="人间的饭，吃一碗少一碗，身边的人，见一面少一面，脚下的路，走一天少一天，其实人生就是一个减法，来日并不方长！">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="胖不了小陆">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          docker-compose安装GitLab详细安装指南
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2026-07-16 19:05:21 / 修改时间：16:08:43" itemprop="dateCreated datePublished" datetime="2026-07-16T19:05:21+08:00">2026-07-16</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E7%BD%91%E7%BB%9C%E8%BF%90%E7%BB%B4/" itemprop="url" rel="index"><span itemprop="name">网络运维</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="一、概述"><a href="#一、概述" class="headerlink" title="一、概述"></a>一、概述</h2><h3 id="1-1-什么是-GitLab"><a href="#1-1-什么是-GitLab" class="headerlink" title="1.1 什么是 GitLab"></a>1.1 什么是 GitLab</h3><p>GitLab 是一个开源的一体化 DevOps 平台，提供 Git 仓库托管、CI&#x2F;CD、代码评审、Issue 跟踪、Wiki、容器镜像仓库等完整功能。社区版（CE）免费开源，适合个人、小团队及企业内部自建代码托管平台。</p>
+<span id="more"></span>
+
+
+<h3 id="1-2-为什么选择-Docker-Compose-部署"><a href="#1-2-为什么选择-Docker-Compose-部署" class="headerlink" title="1.2 为什么选择 Docker Compose 部署"></a>1.2 为什么选择 Docker Compose 部署</h3><table>
+<thead>
+<tr>
+<th>部署方式</th>
+<th>优点</th>
+<th>缺点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>包管理器（Omnibus）</td>
+<td>官方推荐、组件完整</td>
+<td>与系统耦合深、迁移复杂</td>
+</tr>
+<tr>
+<td><strong>Docker Compose</strong></td>
+<td><strong>环境隔离、易于迁移、配置集中、一键启停</strong></td>
+<td>需要熟悉 Docker</td>
+</tr>
+<tr>
+<td>Kubernetes Helm</td>
+<td>云原生、弹性伸缩</td>
+<td>复杂度高、资源开销大</td>
+</tr>
+</tbody></table>
+<p>Docker Compose 是单机&#x2F;小规模生产部署的最佳平衡点：<strong>环境隔离 + 配置即代码 + 易于备份迁移</strong>。</p>
+<h3 id="1-3-部署架构"><a href="#1-3-部署架构" class="headerlink" title="1.3 部署架构"></a>1.3 部署架构</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">┌─────────────────────────────────────────────┐</span><br><span class="line">│              Linux 宿主机                    │</span><br><span class="line">│  ┌───────────────────────────────────────┐  │</span><br><span class="line">│  │   Docker Compose 管理的 gitlab 容器    │  │</span><br><span class="line">│  │  ┌─────────┐ ┌─────────┐ ┌─────────┐ │  │</span><br><span class="line">│  │  │  Nginx  │ │  Puma   │ │Sidekiq  │ │  │</span><br><span class="line">│  │  │ (Web)   │ │ (Rails) │ │ (异步)  │ │  │</span><br><span class="line">│  │  └─────────┘ └─────────┘ └─────────┘ │  │</span><br><span class="line">│  │  ┌─────────┐ ┌─────────┐ ┌─────────┐ │  │</span><br><span class="line">│  │  │PostgreSQL│ │  Redis  │ │ Gitaly  │ │  │</span><br><span class="line">│  │  └─────────┘ └─────────┘ └─────────┘ │  │</span><br><span class="line">│  └───────────────────────────────────────┘  │</span><br><span class="line">│  挂载卷：                                     │</span><br><span class="line">│   ./gitlab/config  → /etc/gitlab             │</span><br><span class="line">│   ./gitlab/logs    → /var/log/gitlab         │</span><br><span class="line">│   ./gitlab/data    → /var/opt/gitlab         │</span><br><span class="line">└─────────────────────────────────────────────┘</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="二、环境准备"><a href="#二、环境准备" class="headerlink" title="二、环境准备"></a>二、环境准备</h2><h3 id="2-1-硬件要求"><a href="#2-1-硬件要求" class="headerlink" title="2.1 硬件要求"></a>2.1 硬件要求</h3><table>
+<thead>
+<tr>
+<th>规模</th>
+<th>CPU</th>
+<th>内存</th>
+<th>磁盘</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>最小</td>
+<td>2 核</td>
+<td>4 GB</td>
+<td>20 GB</td>
+<td>个人&#x2F;测试（≤20 用户）</td>
+</tr>
+<tr>
+<td>推荐</td>
+<td>4 核</td>
+<td>8 GB</td>
+<td>100 GB SSD</td>
+<td>小团队（≤100 用户）</td>
+</tr>
+<tr>
+<td>生产</td>
+<td>8 核+</td>
+<td>16 GB+</td>
+<td>500 GB+ SSD</td>
+<td>中型团队（≤500 用户）</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p> <strong>内存低于 4GB 会导致 GitLab 启动失败或频繁 OOM</strong>。GitLab 官方最低要求 4GB（含 Swap），推荐 8GB。</p>
+</blockquote>
+<h3 id="2-2-软件要求"><a href="#2-2-软件要求" class="headerlink" title="2.2 软件要求"></a>2.2 软件要求</h3><table>
+<thead>
+<tr>
+<th>软件</th>
+<th>最低版本</th>
+<th>推荐版本</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Linux Kernel</td>
+<td>3.10+</td>
+<td>5.x+</td>
+</tr>
+<tr>
+<td>Docker</td>
+<td>20.10+</td>
+<td>24.x+</td>
+</tr>
+<tr>
+<td>Docker Compose</td>
+<td>v2.0+</td>
+<td>v2.20+</td>
+</tr>
+<tr>
+<td>Git</td>
+<td>任意</td>
+<td>2.x</td>
+</tr>
+</tbody></table>
+<h3 id="2-3-端口规划"><a href="#2-3-端口规划" class="headerlink" title="2.3 端口规划"></a>2.3 端口规划</h3><table>
+<thead>
+<tr>
+<th>端口</th>
+<th>用途</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>80</td>
+<td>GitLab Web 页面、HTTP Clone</td>
+<td>必须对外开放</td>
+</tr>
+<tr>
+<td>2222</td>
+<td>Git over SSH</td>
+<td>建议改为非 22 端口，避免与宿主机 SSH 冲突</td>
+</tr>
+</tbody></table>
+<h3 id="2-4-系统检查"><a href="#2-4-系统检查" class="headerlink" title="2.4 系统检查"></a>2.4 系统检查</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看系统版本</span></span><br><span class="line"><span class="built_in">cat</span> /etc/os-release</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看内核版本（需 ≥ 3.10）</span></span><br><span class="line"><span class="built_in">uname</span> -r</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看 CPU / 内存 / 磁盘</span></span><br><span class="line">lscpu</span><br><span class="line">free -h</span><br><span class="line"><span class="built_in">df</span> -h</span><br><span class="line"></span><br><span class="line"><span class="comment"># 检查端口占用（80/443/22 不能被占用）</span></span><br><span class="line">ss -tlnp | grep -E <span class="string">&#x27;:(80|443|22)\b&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="2-5-关闭-配置防火墙与-SELinux"><a href="#2-5-关闭-配置防火墙与-SELinux" class="headerlink" title="2.5 关闭&#x2F;配置防火墙与 SELinux"></a>2.5 关闭&#x2F;配置防火墙与 SELinux</h3><p><strong>CentOS &#x2F; Rocky &#x2F; RHEL：</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 方式一：放行端口（推荐）</span></span><br><span class="line"><span class="built_in">sudo</span> firewall-cmd --permanent --add-port=80/tcp</span><br><span class="line"><span class="built_in">sudo</span> firewall-cmd --permanent --add-port=443/tcp</span><br><span class="line"><span class="built_in">sudo</span> firewall-cmd --permanent --add-port=2222/tcp   <span class="comment"># GitLab SSH（如改用 2222）</span></span><br><span class="line"><span class="built_in">sudo</span> firewall-cmd --reload</span><br><span class="line"></span><br><span class="line"><span class="comment"># 方式二：直接关闭防火墙（仅测试环境）</span></span><br><span class="line"><span class="built_in">sudo</span> systemctl stop firewalld</span><br><span class="line"><span class="built_in">sudo</span> systemctl <span class="built_in">disable</span> firewalld</span><br><span class="line"></span><br><span class="line"><span class="comment"># SELinux：建议设为 permissive（Docker 卷挂载避免权限问题）</span></span><br><span class="line"><span class="built_in">sudo</span> setenforce 0</span><br><span class="line"><span class="built_in">sudo</span> sed -i <span class="string">&#x27;s/^SELINUX=enforcing/SELINUX=permissive/&#x27;</span> /etc/selinux/config</span><br></pre></td></tr></table></figure>
+
+<p><strong>Ubuntu &#x2F; Debian：</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># UFW 放行端口</span></span><br><span class="line"><span class="built_in">sudo</span> ufw allow 80/tcp</span><br><span class="line"><span class="built_in">sudo</span> ufw allow 443/tcp</span><br><span class="line"><span class="built_in">sudo</span> ufw allow 2222/tcp</span><br><span class="line"><span class="built_in">sudo</span> ufw reload</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-6-配置-Swap（内存-≤-4GB-必做）"><a href="#2-6-配置-Swap（内存-≤-4GB-必做）" class="headerlink" title="2.6 配置 Swap（内存 ≤ 4GB 必做）"></a>2.6 配置 Swap（内存 ≤ 4GB 必做）</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 创建 4GB Swap</span></span><br><span class="line"><span class="built_in">sudo</span> fallocate -l 4G /swapfile</span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">chmod</span> 600 /swapfile</span><br><span class="line"><span class="built_in">sudo</span> mkswap /swapfile</span><br><span class="line"><span class="built_in">sudo</span> swapon /swapfile</span><br><span class="line"></span><br><span class="line"><span class="comment"># 永久生效</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&#x27;/swapfile none swap sw 0 0&#x27;</span> | <span class="built_in">sudo</span> <span class="built_in">tee</span> -a /etc/fstab</span><br><span class="line"></span><br><span class="line"><span class="comment"># 验证</span></span><br><span class="line">free -h</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="三、安装-Docker-与-Docker-Compose"><a href="#三、安装-Docker-与-Docker-Compose" class="headerlink" title="三、安装 Docker 与 Docker Compose"></a>三、安装 Docker 与 Docker Compose</h2><blockquote>
+<p>本章节保留通用版本，适用于 CentOS 7&#x2F;8、Rocky Linux、Ubuntu&#x2F;Debian 等其他发行版。</p>
+</blockquote>
+<h3 id="3-1-CentOS-Rocky-RHEL（CentOS-8-推荐使用-dnf）"><a href="#3-1-CentOS-Rocky-RHEL（CentOS-8-推荐使用-dnf）" class="headerlink" title="3.1 CentOS &#x2F; Rocky &#x2F; RHEL（CentOS 8+ 推荐使用 dnf）"></a>3.1 CentOS &#x2F; Rocky &#x2F; RHEL（CentOS 8+ 推荐使用 dnf）</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 卸载旧版本</span></span><br><span class="line"><span class="built_in">sudo</span> yum remove -y docker docker-client docker-client-latest docker-common \</span><br><span class="line">  docker-latest docker-latest-logrotate docker-logrotate docker-engine</span><br><span class="line"></span><br><span class="line"><span class="comment"># 安装依赖</span></span><br><span class="line"><span class="built_in">sudo</span> yum install -y yum-utils device-mapper-persistent-data lvm2</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># CentOS 8+ 推荐使用 dnf  ，这个是 使用 Docker 官方源</span></span><br><span class="line"><span class="comment"># sudo dnf config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 添加 Docker 官方源（国内推荐阿里云镜像）</span></span><br><span class="line"><span class="built_in">sudo</span> yum-config-manager --add-repo https://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看仓库是否添加成功</span></span><br><span class="line">yum repolist | grep docker</span><br><span class="line"></span><br><span class="line"><span class="comment"># 期望输出：</span></span><br><span class="line"><span class="comment"># docker-ce-stable   Docker CE Stable - x86_64</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看可用的 docker-ce 版本</span></span><br><span class="line">yum list docker-ce --showduplicates | <span class="built_in">sort</span> -r</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 安装 Docker</span></span><br><span class="line"><span class="built_in">sudo</span> yum install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin</span><br><span class="line"></span><br><span class="line"><span class="comment"># 启动并开机自启</span></span><br><span class="line"><span class="built_in">sudo</span> systemctl <span class="built_in">enable</span> --now docker</span><br><span class="line"></span><br><span class="line"><span class="comment"># 验证</span></span><br><span class="line">docker --version</span><br><span class="line">docker compose version</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-2-Ubuntu-Debian"><a href="#3-2-Ubuntu-Debian" class="headerlink" title="3.2 Ubuntu &#x2F; Debian"></a>3.2 Ubuntu &#x2F; Debian</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 卸载旧版本</span></span><br><span class="line"><span class="built_in">sudo</span> apt-get remove -y docker docker-engine docker.io containerd runc</span><br><span class="line"></span><br><span class="line"><span class="comment"># 安装依赖</span></span><br><span class="line"><span class="built_in">sudo</span> apt-get update</span><br><span class="line"><span class="built_in">sudo</span> apt-get install -y ca-certificates curl gnupg lsb-release</span><br><span class="line"></span><br><span class="line"><span class="comment"># 添加 Docker 官方 GPG key（国内推荐阿里云）</span></span><br><span class="line"><span class="built_in">sudo</span> install -m 0755 -d /etc/apt/keyrings</span><br><span class="line">curl -fsSL https://mirrors.aliyun.com/docker-ce/linux/ubuntu/gpg | \</span><br><span class="line">  <span class="built_in">sudo</span> gpg --dearmor -o /etc/apt/keyrings/docker.gpg</span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">chmod</span> a+r /etc/apt/keyrings/docker.gpg</span><br><span class="line"></span><br><span class="line"><span class="comment"># 添加仓库</span></span><br><span class="line"><span class="built_in">echo</span> \</span><br><span class="line">  <span class="string">&quot;deb [arch=<span class="subst">$(dpkg --print-architecture)</span> signed-by=/etc/apt/keyrings/docker.gpg] \</span></span><br><span class="line"><span class="string">  https://mirrors.aliyun.com/docker-ce/linux/ubuntu \</span></span><br><span class="line"><span class="string">  <span class="subst">$(. /etc/os-release &amp;&amp; echo <span class="string">&quot;<span class="variable">$VERSION_CODENAME</span>&quot;</span>)</span> stable&quot;</span> | \</span><br><span class="line">  <span class="built_in">sudo</span> <span class="built_in">tee</span> /etc/apt/sources.list.d/docker.list &gt; /dev/null</span><br><span class="line"></span><br><span class="line"><span class="comment"># 安装</span></span><br><span class="line"><span class="built_in">sudo</span> apt-get update</span><br><span class="line"><span class="built_in">sudo</span> apt-get install -y docker-ce docker-ce-cli containerd.io \</span><br><span class="line">  docker-buildx-plugin docker-compose-plugin</span><br><span class="line"></span><br><span class="line"><span class="comment"># 启动</span></span><br><span class="line"><span class="built_in">sudo</span> systemctl <span class="built_in">enable</span> --now docker</span><br><span class="line"></span><br><span class="line"><span class="comment"># 验证</span></span><br><span class="line">docker --version</span><br><span class="line">docker compose version</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-3-配置-Docker-daemon-json"><a href="#3-3-配置-Docker-daemon-json" class="headerlink" title="3.3 配置 Docker daemon.json"></a>3.3 配置 Docker daemon.json</h3><p>Docker 的全部行为由 <code>/etc/docker/daemon.json</code> 控制。安装后必须先配置再拉镜像。</p>
+<h4 id="场景-A：国际网络（无需镜像加速）"><a href="#场景-A：国际网络（无需镜像加速）" class="headerlink" title="场景 A：国际网络（无需镜像加速）"></a>场景 A：国际网络（无需镜像加速）</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> <span class="built_in">mkdir</span> -p /etc/docker /data/docker</span><br><span class="line"></span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">tee</span> /etc/docker/daemon.json &lt;&lt;-<span class="string">&#x27;EOF&#x27;</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="string">&quot;data-root&quot;</span>: <span class="string">&quot;/data/docker&quot;</span>,</span><br><span class="line">  <span class="string">&quot;log-driver&quot;</span>: <span class="string">&quot;json-file&quot;</span>,</span><br><span class="line">  <span class="string">&quot;log-opts&quot;</span>: &#123;</span><br><span class="line">    <span class="string">&quot;max-size&quot;</span>: <span class="string">&quot;100m&quot;</span>,</span><br><span class="line">    <span class="string">&quot;max-file&quot;</span>: <span class="string">&quot;3&quot;</span></span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="string">&quot;storage-driver&quot;</span>: <span class="string">&quot;overlay2&quot;</span>,</span><br><span class="line">  <span class="string">&quot;live-restore&quot;</span>: <span class="literal">true</span>,</span><br><span class="line">  <span class="string">&quot;default-ulimits&quot;</span>: &#123;</span><br><span class="line">    <span class="string">&quot;nofile&quot;</span>: &#123;</span><br><span class="line">      <span class="string">&quot;Name&quot;</span>: <span class="string">&quot;nofile&quot;</span>,</span><br><span class="line">      <span class="string">&quot;Hard&quot;</span>: 65536,</span><br><span class="line">      <span class="string">&quot;Soft&quot;</span>: 65536</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line">EOF</span><br></pre></td></tr></table></figure>
+
+<h4 id="场景-B：国内网络（需镜像加速）"><a href="#场景-B：国内网络（需镜像加速）" class="headerlink" title="场景 B：国内网络（需镜像加速）"></a>场景 B：国内网络（需镜像加速）</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> <span class="built_in">mkdir</span> -p /etc/docker /data/docker</span><br><span class="line"></span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">tee</span> /etc/docker/daemon.json &lt;&lt;-<span class="string">&#x27;EOF&#x27;</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="string">&quot;data-root&quot;</span>: <span class="string">&quot;/data/docker&quot;</span>,</span><br><span class="line">  <span class="string">&quot;registry-mirrors&quot;</span>: [</span><br><span class="line">    <span class="string">&quot;https://docker.m.daocloud.io&quot;</span>,</span><br><span class="line">    <span class="string">&quot;https://dockerproxy.net&quot;</span>,</span><br><span class="line">    <span class="string">&quot;https://mirror.ccs.tencentyun.com&quot;</span></span><br><span class="line">  ],</span><br><span class="line">  <span class="string">&quot;log-driver&quot;</span>: <span class="string">&quot;json-file&quot;</span>,</span><br><span class="line">  <span class="string">&quot;log-opts&quot;</span>: &#123;</span><br><span class="line">    <span class="string">&quot;max-size&quot;</span>: <span class="string">&quot;100m&quot;</span>,</span><br><span class="line">    <span class="string">&quot;max-file&quot;</span>: <span class="string">&quot;3&quot;</span></span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="string">&quot;storage-driver&quot;</span>: <span class="string">&quot;overlay2&quot;</span>,</span><br><span class="line">  <span class="string">&quot;live-restore&quot;</span>: <span class="literal">true</span>,</span><br><span class="line">  <span class="string">&quot;default-ulimits&quot;</span>: &#123;</span><br><span class="line">    <span class="string">&quot;nofile&quot;</span>: &#123;</span><br><span class="line">      <span class="string">&quot;Name&quot;</span>: <span class="string">&quot;nofile&quot;</span>,</span><br><span class="line">      <span class="string">&quot;Hard&quot;</span>: 65536,</span><br><span class="line">      <span class="string">&quot;Soft&quot;</span>: 65536</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line">EOF</span><br></pre></td></tr></table></figure>
+
+<h4 id="配置项说明"><a href="#配置项说明" class="headerlink" title="配置项说明"></a>配置项说明</h4><table>
+<thead>
+<tr>
+<th>配置</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>data-root</code></td>
+<td><strong>Docker 数据根目录</strong>，指向 <code>/data</code> 外挂盘，镜像&#x2F;容器&#x2F;卷全放这里，避免撑爆根分区</td>
+</tr>
+<tr>
+<td><code>registry-mirrors</code></td>
+<td>镜像加速器，国际网络可删除此项；国内必加</td>
+</tr>
+<tr>
+<td><code>log-driver</code> + <code>log-opts</code></td>
+<td>容器日志单文件 ≤100MB，最多保留 3 个滚动文件</td>
+</tr>
+<tr>
+<td><code>storage-driver</code></td>
+<td>overlay2，CentOS&#x2F;Ubuntu 默认，显式声明更可靠</td>
+</tr>
+<tr>
+<td><code>live-restore</code></td>
+<td>Docker 守护进程重启时容器不中断，GitLab 场景必需</td>
+</tr>
+<tr>
+<td><code>default-ulimits</code></td>
+<td>文件句柄上限，GitLab 的 PostgreSQL&#x2F;Gitaly 需要，避免 <code>Too many open files</code></td>
+</tr>
+</tbody></table>
+<h4 id="应用配置"><a href="#应用配置" class="headerlink" title="应用配置"></a>应用配置</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> systemctl daemon-reload</span><br><span class="line"><span class="built_in">sudo</span> systemctl restart docker</span><br><span class="line"></span><br><span class="line"><span class="comment"># 验证 data-root 已生效</span></span><br><span class="line">docker info | grep <span class="string">&quot;Docker Root Dir&quot;</span></span><br><span class="line"><span class="comment"># 应输出：Docker Root Dir: /data/docker</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="3-4-将当前用户加入-docker-组（可选）"><a href="#3-4-将当前用户加入-docker-组（可选）" class="headerlink" title="3.4 将当前用户加入 docker 组（可选）"></a>3.4 将当前用户加入 docker 组（可选）</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> usermod -aG docker <span class="variable">$USER</span></span><br><span class="line">newgrp docker   <span class="comment"># 或重新登录</span></span><br><span class="line">docker ps       <span class="comment"># 验证免 sudo</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="3-5-配置-containerd-数据目录"><a href="#3-5-配置-containerd-数据目录" class="headerlink" title="3.5 配置 containerd 数据目录"></a>3.5 配置 containerd 数据目录</h3><p>containerd 是 Docker 底层的容器运行时，镜像拉取的原始 blob 数据默认存在 <code>/var/lib/containerd/</code>（几百 MB~数 GB）。为了彻底释放根分区，一并移到 <code>/data</code>。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1. 生成默认配置文件</span></span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">mkdir</span> -p /data/containerd /etc/containerd</span><br><span class="line"></span><br><span class="line"><span class="comment"># CentOS / Rocky 下生成默认配置</span></span><br><span class="line"><span class="built_in">sudo</span> containerd config default | <span class="built_in">sudo</span> <span class="built_in">tee</span> /etc/containerd/config.toml</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 修改数据根目录</span></span><br><span class="line"><span class="built_in">sudo</span> sed -i <span class="string">&#x27;s|root = &quot;/var/lib/containerd&quot;|root = &quot;/data/containerd&quot;|&#x27;</span> /etc/containerd/config.toml</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 确认修改</span></span><br><span class="line">grep <span class="string">&#x27;root =&#x27;</span> /etc/containerd/config.toml</span><br><span class="line"><span class="comment"># 应输出：root = &quot;/data/containerd&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 4. 重启 containerd 和 Docker</span></span><br><span class="line"><span class="built_in">sudo</span> systemctl restart containerd</span><br><span class="line"><span class="built_in">sudo</span> systemctl restart docker</span><br><span class="line"></span><br><span class="line"><span class="comment"># 5. 确认新路径下已有数据</span></span><br><span class="line"><span class="built_in">ls</span> /data/containerd/</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>如果 containerd 已运行并拉过镜像，原 <code>/var/lib/containerd/</code> 下有历史数据。确认新路径下一切正常后，删除旧目录：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> <span class="built_in">rm</span> -rf /var/lib/containerd</span><br></pre></td></tr></table></figure>
+</blockquote>
+<h4 id="最终磁盘布局"><a href="#最终磁盘布局" class="headerlink" title="最终磁盘布局"></a>最终磁盘布局</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">/data/</span><br><span class="line">├── docker/           ← Docker 全部数据（daemon.json: data-root）</span><br><span class="line">│   ├── overlay2/</span><br><span class="line">│   ├── containers/</span><br><span class="line">│   └── volumes/</span><br><span class="line">├── containerd/       ← containerd 数据（config.toml: root）</span><br><span class="line">│   ├── io.containerd.content.v1.content/</span><br><span class="line">│   └── io.containerd.snapshotter.v1.overlayfs/</span><br><span class="line">└── gitlab/           ← GitLab 仓库与数据库（docker-compose bind mount）</span><br><span class="line">    ├── config/</span><br><span class="line">    ├── logs/</span><br><span class="line">    └── data/</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>至此，Docker + containerd + GitLab 的所有数据全部落在 <code>/data</code> 外挂盘，根分区不再增长。</p>
+</blockquote>
+<h2 id="四、规划-GitLab-部署目录"><a href="#四、规划-GitLab-部署目录" class="headerlink" title="四、规划 GitLab 部署目录"></a>四、规划 GitLab 部署目录</h2><h3 id="4-1-推荐目录结构"><a href="#4-1-推荐目录结构" class="headerlink" title="4.1 推荐目录结构"></a>4.1 推荐目录结构</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 创建部署目录（建议放在数据盘，如 /data 或 /opt）</span></span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">mkdir</span> -p /data/gitlab/&#123;config,logs,data&#125;</span><br><span class="line"><span class="built_in">cd</span> /data/gitlab</span><br><span class="line"></span><br><span class="line"><span class="comment"># 最终结构</span></span><br><span class="line">/data/gitlab/</span><br><span class="line">├── docker-compose.yml      <span class="comment"># Compose 编排文件</span></span><br><span class="line">├── config/                 <span class="comment"># → 容器内 /etc/gitlab（gitlab.rb、secrets）</span></span><br><span class="line">├── logs/                   <span class="comment"># → 容器内 /var/log/gitlab</span></span><br><span class="line">└── data/                   <span class="comment"># → 容器内 /var/opt/gitlab（仓库、数据库、上传文件）</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p><strong>重要</strong>：<code>data/</code> 目录包含全部 Git 仓库、PostgreSQL 数据、Redis 数据、用户上传文件，<strong>务必备份此目录</strong>。</p>
+</blockquote>
+<h3 id="4-2-权限说明"><a href="#4-2-权限说明" class="headerlink" title="4.2 权限说明"></a>4.2 权限说明</h3><p>GitLab 容器内部以 <code>git</code> 用户（UID 998）运行 PostgreSQL 等组件。在 Linux 宿主机上<strong>无需手动 chown</strong>，Docker 会在首次启动时自动处理。如遇权限问题，参考 <a href="#%E5%8D%81%E4%BA%94%E5%B8%B8%E8%A7%81%E6%95%85%E9%9A%9C%E6%8E%92%E6%9F%A5">十五、常见故障排查</a>。</p>
+<h2 id="五、编写-docker-compose-yml"><a href="#五、编写-docker-compose-yml" class="headerlink" title="五、编写 docker-compose.yml"></a>五、编写 docker-compose.yml</h2><h3 id="5-1-最小可用版本"><a href="#5-1-最小可用版本" class="headerlink" title="5.1 最小可用版本"></a>5.1 最小可用版本</h3><p>在 <code>/data/gitlab/</code> 下创建 <code>docker-compose.yml</code>：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">services:</span></span><br><span class="line">  <span class="attr">gitlab:</span></span><br><span class="line">    <span class="comment">#image: gitlab/gitlab-ce:16.11.0-ce.0</span></span><br><span class="line">    <span class="attr">image:</span> <span class="string">gitlab/gitlab-ce:18.11.7-ce.0</span></span><br><span class="line">    <span class="attr">container_name:</span> <span class="string">gitlab</span></span><br><span class="line">    <span class="attr">restart:</span> <span class="string">always</span></span><br><span class="line">    <span class="attr">hostname:</span> <span class="string">&#x27;gitlab.example.com&#x27;</span>        <span class="comment"># 改为你的域名或服务器IP</span></span><br><span class="line">    <span class="attr">environment:</span></span><br><span class="line">      <span class="attr">GITLAB_OMNIBUS_CONFIG:</span> <span class="string">|</span></span><br><span class="line"><span class="string">        external_url &#x27;http://gitlab.example.com&#x27;</span></span><br><span class="line"><span class="string">        gitlab_rails[&#x27;gitlab_shell_ssh_port&#x27;] = 2222</span></span><br><span class="line"><span class="string"></span>    <span class="attr">ports:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">&#x27;80:80&#x27;</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">&#x27;443:443&#x27;</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">&#x27;2222:22&#x27;</span></span><br><span class="line">    <span class="attr">volumes:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">./config:/etc/gitlab</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">./logs:/var/log/gitlab</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">./data:/var/opt/gitlab</span></span><br><span class="line">    <span class="attr">shm_size:</span> <span class="string">&#x27;256m&#x27;</span></span><br><span class="line">    <span class="attr">healthcheck:</span></span><br><span class="line">      <span class="attr">test:</span> [<span class="string">&quot;CMD&quot;</span>, <span class="string">&quot;curl&quot;</span>, <span class="string">&quot;-f&quot;</span>, <span class="string">&quot;http://localhost/-/health&quot;</span>]</span><br><span class="line">      <span class="attr">interval:</span> <span class="string">30s</span></span><br><span class="line">      <span class="attr">timeout:</span> <span class="string">10s</span></span><br><span class="line">      <span class="attr">retries:</span> <span class="number">5</span></span><br><span class="line">      <span class="attr">start_period:</span> <span class="string">300s</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="5-2-关键字段说明"><a href="#5-2-关键字段说明" class="headerlink" title="5.2 关键字段说明"></a>5.2 关键字段说明</h3><table>
+<thead>
+<tr>
+<th>字段</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>image</code></td>
+<td>锁定具体版本号，避免 <code>latest</code> 带来的不可预期升级</td>
+</tr>
+<tr>
+<td><code>hostname</code></td>
+<td>必须与 <code>external_url</code> 的主机部分一致，否则仓库 clone URL 会异常</td>
+</tr>
+<tr>
+<td><code>external_url</code></td>
+<td>GitLab 对外访问地址，决定 Web URL、Clone URL、回调 URL</td>
+</tr>
+<tr>
+<td><code>gitlab_shell_ssh_port</code></td>
+<td>对外暴露的 SSH 端口（避免与宿主机 22 冲突）</td>
+</tr>
+<tr>
+<td><code>shm_size</code></td>
+<td>共享内存，PostgreSQL 需要，至少 256MB</td>
+</tr>
+<tr>
+<td><code>restart: always</code></td>
+<td>容器异常退出自动重启</td>
+</tr>
+</tbody></table>
+<h3 id="5-3-镜像版本选择"><a href="#5-3-镜像版本选择" class="headerlink" title="5.3 镜像版本选择"></a>5.3 镜像版本选择</h3><p>访问 <a target="_blank" rel="noopener" href="https://hub.docker.com/r/gitlab/gitlab-ce/tags">GitLab CE Docker Hub Tags</a> 选择版本：</p>
+<ul>
+<li><strong>生产环境</strong>：使用具体版本号，如 <code>18.11.7-ce.0</code></li>
+<li><strong>测试环境</strong>：可用 <code>latest</code>，但不推荐生产使用</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 拉取指定版本（可选，启动时会自动拉取）</span></span><br><span class="line">docker pull gitlab/gitlab-ce:18.11.7-ce.0</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="六、首次启动与初始化"><a href="#六、首次启动与初始化" class="headerlink" title="六、首次启动与初始化"></a>六、首次启动与初始化</h2><h3 id="6-1-启动"><a href="#6-1-启动" class="headerlink" title="6.1 启动"></a>6.1 启动</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> /data/gitlab</span><br><span class="line"></span><br><span class="line"><span class="comment"># 后台启动</span></span><br><span class="line">docker compose up -d</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看启动日志（首次启动需 5~15 分钟，耐心等待）</span></span><br><span class="line">docker compose logs -f gitlab</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="6-2-启动过程观察"><a href="#6-2-启动过程观察" class="headerlink" title="6.2 启动过程观察"></a>6.2 启动过程观察</h3><p>首次启动会执行以下操作（日志中可见）：</p>
+<ol>
+<li>初始化 PostgreSQL 数据库</li>
+<li>执行数据库 migration</li>
+<li>生成 SSH host key、secrets</li>
+<li>编译 assets（前端资源）</li>
+<li>启动所有服务（Puma、Sidekiq、Nginx、Gitaly 等）</li>
+</ol>
+<p><strong>判断启动完成</strong>：日志出现 <code>gitlab Reconfigured!</code> 或访问 <code>http://你的IP/-/health</code> 返回 <code>GitLab OK</code>。</p>
+<h3 id="6-3-查看初始-root-密码"><a href="#6-3-查看初始-root-密码" class="headerlink" title="6.3 查看初始 root 密码"></a>6.3 查看初始 root 密码</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 方式一：从容器内读取（推荐）</span></span><br><span class="line">docker <span class="built_in">exec</span> -it gitlab <span class="built_in">cat</span> /etc/gitlab/initial_root_password</span><br><span class="line"></span><br><span class="line"><span class="comment"># 方式二：从挂载的 config 目录读取</span></span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">cat</span> /data/gitlab/config/initial_root_password</span><br></pre></td></tr></table></figure>
+
+<p>输出示例：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"># WARNING: This value is valid only in the following conditions</span><br><span class="line">#          1. If provided manually (either via `GITLAB_ROOT_PASSWORD` environment variable or via `gitlab_rails[&#x27;initial_root_password&#x27;]` setting in `gitlab.rb`, it was provided before database was seeded for the first time (usually, the first reconfigure run).</span><br><span class="line">#          2. Password hasn&#x27;t been changed manually, either via UI or via command line.</span><br><span class="line">#</span><br><span class="line">#          If the password shown here doesn&#x27;t work, you must reset the admin password following https://docs.gitlab.com/ee/security/reset_user_password.html#reset-your-root-password.</span><br><span class="line"></span><br><span class="line">Password: xxxxxxxxxxxxxxxxxxxxxxxx</span><br><span class="line"></span><br><span class="line"># NOTE: This file will be automatically deleted in the first reconfigure run after 24 hours.</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p> 该文件 24 小时后自动删除，<strong>请立即保存密码并登录后修改</strong>。</p>
+</blockquote>
+<p><img src="/blog/2026/07/16/docker-compose%E5%AE%89%E8%A3%85GitLab%E8%AF%A6%E7%BB%86%E5%AE%89%E8%A3%85%E6%8C%87%E5%8D%97/initpwd.png"></p>
+<h2 id="七、访问验证与初始登录"><a href="#七、访问验证与初始登录" class="headerlink" title="七、访问验证与初始登录"></a>七、访问验证与初始登录</h2><h3 id="7-1-访问-Web-UI"><a href="#7-1-访问-Web-UI" class="headerlink" title="7.1 访问 Web UI"></a>7.1 访问 Web UI</h3><p>浏览器访问 <code>http://gitlab.example.com</code>（或 <code>http://服务器IP</code>）：</p>
+<ul>
+<li>用户名：<code>root</code></li>
+<li>密码：上一步获取的初始密码</li>
+</ul>
+<h3 id="7-2-立即修改-root-密码"><a href="#7-2-立即修改-root-密码" class="headerlink" title="7.2 立即修改 root 密码"></a>7.2 立即修改 root 密码</h3><p>登录后：<strong>右上角头像 → Preferences →Password and authentication  →<br>Change password</strong>，设置强密码并保存。</p>
+<p><img src="/blog/2026/07/16/docker-compose%E5%AE%89%E8%A3%85GitLab%E8%AF%A6%E7%BB%86%E5%AE%89%E8%A3%85%E6%8C%87%E5%8D%97/changepwd.png"></p>
+<h3 id="7-3-关闭公开注册（生产必做）"><a href="#7-3-关闭公开注册（生产必做）" class="headerlink" title="7.3 关闭公开注册（生产必做）"></a>7.3 关闭公开注册（生产必做）</h3><p><strong>Admin Area → Settings → General → New user account restrictions</strong>：</p>
+<ul>
+<li>取消勾选 <code>Allow new user accounts</code></li>
+<li>保存更改</li>
+</ul>
+<p><img src="/blog/2026/07/16/docker-compose%E5%AE%89%E8%A3%85GitLab%E8%AF%A6%E7%BB%86%E5%AE%89%E8%A3%85%E6%8C%87%E5%8D%97/newuse.png"></p>
+<h3 id="7-4-健康检查端点"><a href="#7-4-健康检查端点" class="headerlink" title="7.4 健康检查端点"></a>7.4 健康检查端点</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 整体健康</span></span><br><span class="line">curl http://localhost/-/health</span><br><span class="line"></span><br><span class="line"><span class="comment"># 就绪探针（K8s 风格）</span></span><br><span class="line">curl http://localhost/-/readiness</span><br><span class="line"></span><br><span class="line"><span class="comment"># 存活探针</span></span><br><span class="line">curl http://localhost/-/liveness</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="八、核心配置详解（gitlab-rb）"><a href="#八、核心配置详解（gitlab-rb）" class="headerlink" title="八、核心配置详解（gitlab.rb）"></a>八、核心配置详解（gitlab.rb）</h2><p>GitLab 的所有配置都通过 <code>gitlab.rb</code> 文件管理。在 Docker 部署中，有两种修改方式：</p>
+<h3 id="8-1-方式一：通过-GITLAB-OMNIBUS-CONFIG（推荐用于少量配置）"><a href="#8-1-方式一：通过-GITLAB-OMNIBUS-CONFIG（推荐用于少量配置）" class="headerlink" title="8.1 方式一：通过 GITLAB_OMNIBUS_CONFIG（推荐用于少量配置）"></a>8.1 方式一：通过 <code>GITLAB_OMNIBUS_CONFIG</code>（推荐用于少量配置）</h3><p>在 <code>docker-compose.yml</code> 中：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">environment:</span></span><br><span class="line">  <span class="attr">GITLAB_OMNIBUS_CONFIG:</span> <span class="string">|</span></span><br><span class="line"><span class="string">    external_url &#x27;https://gitlab.example.com&#x27;</span></span><br><span class="line"><span class="string">    gitlab_rails[&#x27;gitlab_shell_ssh_port&#x27;] = 2222</span></span><br><span class="line"><span class="string">    gitlab_rails[&#x27;time_zone&#x27;] = &#x27;Asia/Shanghai&#x27;</span></span><br><span class="line"><span class="string">    puma[&#x27;worker_processes&#x27;] = 4</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="8-2-方式二：直接编辑挂载的-gitlab-rb（推荐用于大量配置）"><a href="#8-2-方式二：直接编辑挂载的-gitlab-rb（推荐用于大量配置）" class="headerlink" title="8.2 方式二：直接编辑挂载的 gitlab.rb（推荐用于大量配置）"></a>8.2 方式二：直接编辑挂载的 gitlab.rb（推荐用于大量配置）</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 编辑配置文件</span></span><br><span class="line"><span class="built_in">sudo</span> vi /data/gitlab/config/gitlab.rb</span><br><span class="line"></span><br><span class="line"><span class="comment"># 修改后重新配置并重启</span></span><br><span class="line">docker <span class="built_in">exec</span> -it gitlab gitlab-ctl reconfigure</span><br><span class="line">docker <span class="built_in">exec</span> -it gitlab gitlab-ctl restart</span><br></pre></td></tr></table></figure>
+
+<h3 id="8-3-常用配置项"><a href="#8-3-常用配置项" class="headerlink" title="8.3 常用配置项"></a>8.3 常用配置项</h3><figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ===== 基础配置 =====</span></span><br><span class="line">external_url <span class="string">&#x27;https://gitlab.example.com&#x27;</span></span><br><span class="line">gitlab_rails[<span class="string">&#x27;gitlab_shell_ssh_port&#x27;</span>] = <span class="number">2222</span></span><br><span class="line">gitlab_rails[<span class="string">&#x27;time_zone&#x27;</span>] = <span class="string">&#x27;Asia/Shanghai&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ===== 资源限制 =====</span></span><br><span class="line">puma[<span class="string">&#x27;worker_processes&#x27;</span>] = <span class="number">4</span>                    <span class="comment"># CPU 核数 - 1</span></span><br><span class="line">sidekiq[<span class="string">&#x27;max_concurrency&#x27;</span>] = <span class="number">25</span>                 <span class="comment"># Sidekiq 并发</span></span><br><span class="line">postgresql[<span class="string">&#x27;shared_buffers&#x27;</span>] = <span class="string">&quot;1GB&quot;</span>            <span class="comment"># 内存的 1/4</span></span><br><span class="line">postgresql[<span class="string">&#x27;max_worker_processes&#x27;</span>] = <span class="number">8</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ===== 仓库默认分支 =====</span></span><br><span class="line">gitlab_rails[<span class="string">&#x27;gitlab_default_branch&#x27;</span>] = <span class="string">&#x27;main&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ===== 会话超时 =====</span></span><br><span class="line">gitlab_rails[<span class="string">&#x27;session_expire_delay&#x27;</span>] = <span class="number">10080</span>    <span class="comment"># 7 天（分钟）</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ===== 关闭不需要的功能 =====</span></span><br><span class="line">gitlab_rails[<span class="string">&#x27;usage_ping_enabled&#x27;</span>] = <span class="literal">false</span></span><br><span class="line">gitlab_rails[<span class="string">&#x27;gitlab_default_projects_features_container_registry&#x27;</span>] = <span class="literal">false</span></span><br></pre></td></tr></table></figure>
+
+<p>修改后必须执行：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">exec</span> -it gitlab gitlab-ctl reconfigure</span><br></pre></td></tr></table></figure>
+
+<hr>
+<hr>
+<h2 id="九、中文配置"><a href="#九、中文配置" class="headerlink" title="九、中文配置"></a>九、中文配置</h2><p>GitLab 从 10.0 版本起内置中文语言包，无需安装任何额外插件。</p>
+<h3 id="9-1-个人切换中文"><a href="#9-1-个人切换中文" class="headerlink" title="9.1 个人切换中文"></a>9.1 个人切换中文</h3><p>个人设置不影响其他用户，改完立即生效：</p>
+<ol>
+<li>右上角头像 → <strong>Preferences</strong></li>
+<li>左侧菜单 → <strong>Localization</strong></li>
+<li><strong>Language</strong> 下拉选 <strong>中文简体（Chinese, Simplified - 简体中文）</strong></li>
+<li>翻到底部点 <strong>Save changes</strong></li>
+<li>刷新页面（F5）</li>
+</ol>
+<p><img src="/blog/2026/07/16/docker-compose%E5%AE%89%E8%A3%85GitLab%E8%AF%A6%E7%BB%86%E5%AE%89%E8%A3%85%E6%8C%87%E5%8D%97/cn.png"></p>
+<h3 id="9-2-全局默认中文"><a href="#9-2-全局默认中文" class="headerlink" title="9.2 全局默认中文"></a>9.2 全局默认中文</h3><p>所有新用户和未设置语言的用户默认显示中文。已登录且设过偏好语言的老用户不受影响。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1. 修改 gitlab.rb</span></span><br><span class="line"><span class="built_in">sudo</span> sed -i <span class="string">&quot;/^# gitlab_rails\[&#x27;default_locale&#x27;/c\gitlab_rails[&#x27;default_locale&#x27;] = &#x27;zh_CN&#x27;&quot;</span> /data/gitlab/config/gitlab.rb</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 如未找到被注释的行，直接追加</span></span><br><span class="line">grep -q <span class="string">&quot;gitlab_rails\[&#x27;default_locale&#x27;\]&quot;</span> /data/gitlab/config/gitlab.rb || \</span><br><span class="line">  <span class="built_in">echo</span> <span class="string">&quot;gitlab_rails[&#x27;default_locale&#x27;] = &#x27;zh_CN&#x27;&quot;</span> | <span class="built_in">sudo</span> <span class="built_in">tee</span> -a /data/gitlab/config/gitlab.rb</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 重新配置生效</span></span><br><span class="line">docker <span class="built_in">exec</span> -it gitlab gitlab-ctl reconfigure</span><br></pre></td></tr></table></figure>
+
+<h3 id="9-3-验证"><a href="#9-3-验证" class="headerlink" title="9.3 验证"></a>9.3 验证</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看配置是否写入</span></span><br><span class="line">grep <span class="string">&quot;default_locale&quot;</span> /data/gitlab/config/gitlab.rb</span><br><span class="line"><span class="comment"># 应输出：gitlab_rails[&#x27;default_locale&#x27;] = &#x27;zh_CN&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>退出登录或打开无痕窗口访问 GitLab 首页，即可看到中文界面。</p>
+<blockquote>
+<p>GitLab 中文覆盖率约 95%+，项目管理、代码评审、CI&#x2F;CD、设置等核心功能均已汉化。</p>
+</blockquote>
+<h2 id="十、SMTP-邮件配置"><a href="#十、SMTP-邮件配置" class="headerlink" title="十、SMTP 邮件配置"></a>十、SMTP 邮件配置</h2><p>GitLab 需要 SMTP 来发送注册确认、密码重置、流水线通知等邮件。</p>
+<h3 id="10-1-通用-SMTP（以-QQ-邮箱为例）"><a href="#10-1-通用-SMTP（以-QQ-邮箱为例）" class="headerlink" title="10.1 通用 SMTP（以 QQ 邮箱为例）"></a>10.1 通用 SMTP（以 QQ 邮箱为例）</h3><figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">gitlab_rails[<span class="string">&#x27;smtp_enable&#x27;</span>] = <span class="literal">true</span></span><br><span class="line">gitlab_rails[<span class="string">&#x27;smtp_address&#x27;</span>] = <span class="string">&quot;smtp.qq.com&quot;</span></span><br><span class="line">gitlab_rails[<span class="string">&#x27;smtp_port&#x27;</span>] = <span class="number">465</span></span><br><span class="line">gitlab_rails[<span class="string">&#x27;smtp_user_name&#x27;</span>] = <span class="string">&quot;your_qq@qq.com&quot;</span></span><br><span class="line">gitlab_rails[<span class="string">&#x27;smtp_password&#x27;</span>] = <span class="string">&quot;授权码（非QQ密码）&quot;</span></span><br><span class="line">gitlab_rails[<span class="string">&#x27;smtp_domain&#x27;</span>] = <span class="string">&quot;smtp.qq.com&quot;</span></span><br><span class="line">gitlab_rails[<span class="string">&#x27;smtp_authentication&#x27;</span>] = <span class="string">&quot;login&quot;</span></span><br><span class="line">gitlab_rails[<span class="string">&#x27;smtp_enable_starttls_auto&#x27;</span>] = <span class="literal">true</span></span><br><span class="line">gitlab_rails[<span class="string">&#x27;smtp_tls&#x27;</span>] = <span class="literal">true</span></span><br><span class="line">gitlab_rails[<span class="string">&#x27;gitlab_email_from&#x27;</span>] = <span class="string">&#x27;your_qq@qq.com&#x27;</span></span><br><span class="line">gitlab_rails[<span class="string">&#x27;gitlab_email_reply_to&#x27;</span>] = <span class="string">&#x27;your_qq@qq.com&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="10-2-阿里云邮件推送"><a href="#10-2-阿里云邮件推送" class="headerlink" title="10.2 阿里云邮件推送"></a>10.2 阿里云邮件推送</h3><figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">gitlab_rails[<span class="string">&#x27;smtp_enable&#x27;</span>] = <span class="literal">true</span></span><br><span class="line">gitlab_rails[<span class="string">&#x27;smtp_address&#x27;</span>] = <span class="string">&quot;smtpdm.aliyun.com&quot;</span></span><br><span class="line">gitlab_rails[<span class="string">&#x27;smtp_port&#x27;</span>] = <span class="number">465</span></span><br><span class="line">gitlab_rails[<span class="string">&#x27;smtp_user_name&#x27;</span>] = <span class="string">&quot;gitlab@mail.example.com&quot;</span></span><br><span class="line">gitlab_rails[<span class="string">&#x27;smtp_password&#x27;</span>] = <span class="string">&quot;SMTP密码&quot;</span></span><br><span class="line">gitlab_rails[<span class="string">&#x27;smtp_domain&#x27;</span>] = <span class="string">&quot;example.com&quot;</span></span><br><span class="line">gitlab_rails[<span class="string">&#x27;smtp_authentication&#x27;</span>] = <span class="string">&quot;login&quot;</span></span><br><span class="line">gitlab_rails[<span class="string">&#x27;smtp_enable_starttls_auto&#x27;</span>] = <span class="literal">false</span></span><br><span class="line">gitlab_rails[<span class="string">&#x27;smtp_tls&#x27;</span>] = <span class="literal">true</span></span><br><span class="line">gitlab_rails[<span class="string">&#x27;gitlab_email_from&#x27;</span>] = <span class="string">&#x27;gitlab@mail.example.com&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="10-3-测试邮件发送"><a href="#10-3-测试邮件发送" class="headerlink" title="10.3 测试邮件发送"></a>10.3 测试邮件发送</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 进入 Rails 控制台</span></span><br><span class="line">docker <span class="built_in">exec</span> -it gitlab gitlab-rails console</span><br><span class="line"></span><br><span class="line"><span class="comment"># 发送测试邮件</span></span><br><span class="line">Notify.test_email(<span class="string">&#x27;your_email@example.com&#x27;</span>, <span class="string">&#x27;GitLab Test&#x27;</span>, <span class="string">&#x27;This is a test email.&#x27;</span>).deliver_now</span><br><span class="line"></span><br><span class="line"><span class="comment"># 退出</span></span><br><span class="line"><span class="built_in">exit</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="十一、数据备份与恢复"><a href="#十一、数据备份与恢复" class="headerlink" title="十一、数据备份与恢复"></a>十一、数据备份与恢复</h2><h3 id="11-1-备份策略"><a href="#11-1-备份策略" class="headerlink" title="11.1 备份策略"></a>11.1 备份策略</h3><p>GitLab 备份包含两部分：</p>
+<table>
+<thead>
+<tr>
+<th>内容</th>
+<th>备份方式</th>
+<th>默认位置</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>应用数据（仓库、数据库、上传文件）</td>
+<td><code>gitlab-backup create</code></td>
+<td><code>data/backups/</code></td>
+</tr>
+<tr>
+<td>配置文件（gitlab.rb、secrets）</td>
+<td>手动复制</td>
+<td><code>config/</code></td>
+</tr>
+</tbody></table>
+<blockquote>
+<p> <strong>两者缺一不可</strong>。缺少 <code>config/gitlab-secrets.json</code> 会导致恢复后无法解密数据库中的敏感字段。</p>
+</blockquote>
+<h3 id="11-2-手动备份"><a href="#11-2-手动备份" class="headerlink" title="11.2 手动备份"></a>11.2 手动备份</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 创建备份（备份文件生成在 /data/gitlab/data/backups/）</span></span><br><span class="line">docker <span class="built_in">exec</span> -it gitlab gitlab-backup create STRATEGY=copy</span><br><span class="line"></span><br><span class="line"><span class="comment"># 备份配置文件</span></span><br><span class="line"><span class="built_in">sudo</span> tar -czvf gitlab-config-$(<span class="built_in">date</span> +%Y%m%d).tar.gz -C /data/gitlab config .</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看备份</span></span><br><span class="line"><span class="built_in">ls</span> -lh /data/gitlab/data/backups/</span><br></pre></td></tr></table></figure>
+
+<p>备份文件命名格式：<code>1690000000_2024_07_22_16.11.0_gitlab_backup.tar</code></p>
+<h3 id="11-3-定时备份（crontab）"><a href="#11-3-定时备份（crontab）" class="headerlink" title="11.3 定时备份（crontab）"></a>11.3 定时备份（crontab）</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> crontab -e</span><br></pre></td></tr></table></figure>
+
+<p>添加：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"># 每天凌晨 2 点备份，保留最近 7 天</span><br><span class="line">0 2 * * * docker exec gitlab gitlab-backup create STRATEGY=copy CRON=1</span><br><span class="line">0 3 * * * find /data/gitlab/data/backups -name &quot;*_gitlab_backup.tar&quot; -mtime +7 -delete</span><br><span class="line">0 4 * * * tar -czf /backup/gitlab-config-$(date +\%Y\%m\%d).tar.gz -C /data/gitlab config &amp;&amp; find /backup -name &quot;gitlab-config-*.tar.gz&quot; -mtime +7 -delete</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p><code>CRON=1</code> 会在备份完成后输出 <code>Backup completed</code>，且不打印冗余日志。</p>
+</blockquote>
+<h3 id="11-4-远程备份（可选）"><a href="#11-4-远程备份（可选）" class="headerlink" title="11.4 远程备份（可选）"></a>11.4 远程备份（可选）</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 使用 rclone 同步到对象存储（S3/OSS/MinIO）</span></span><br><span class="line">rclone <span class="built_in">sync</span> /data/gitlab/data/backups remote:gitlab-backups --config ~/.config/rclone/rclone.conf</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="11-5-恢复"><a href="#11-5-恢复" class="headerlink" title="11.5 恢复"></a>11.5 恢复</h3><p><strong>前提</strong>：恢复目标 GitLab 版本必须与备份版本<strong>完全一致</strong>。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1. 停止写入服务</span></span><br><span class="line">docker <span class="built_in">exec</span> -it gitlab gitlab-ctl stop puma</span><br><span class="line">docker <span class="built_in">exec</span> -it gitlab gitlab-ctl stop sidekiq</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 将备份文件放入 backups 目录</span></span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">cp</span> 1690000000_2024_07_22_16.11.0_gitlab_backup.tar /data/gitlab/data/backups/</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 恢复（注意 BACKUP= 后面不带 .tar 后缀）</span></span><br><span class="line">docker <span class="built_in">exec</span> -it gitlab gitlab-backup restore BACKUP=1690000000_2024_07_22_16.11.0</span><br><span class="line"></span><br><span class="line"><span class="comment"># 4. 恢复配置文件（gitlab-secrets.json 必须）</span></span><br><span class="line"><span class="built_in">sudo</span> tar -xzvf gitlab-config-20240722.tar.gz -C /data/gitlab</span><br><span class="line"></span><br><span class="line"><span class="comment"># 5. 重新配置并重启</span></span><br><span class="line">docker <span class="built_in">exec</span> -it gitlab gitlab-ctl reconfigure</span><br><span class="line">docker <span class="built_in">exec</span> -it gitlab gitlab-ctl restart</span><br><span class="line"></span><br><span class="line"><span class="comment"># 6. 验证</span></span><br><span class="line">docker <span class="built_in">exec</span> -it gitlab gitlab-rake gitlab:check SANITIZE=<span class="literal">true</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="十二、版本升级"><a href="#十二、版本升级" class="headerlink" title="十二、版本升级"></a>十二、版本升级</h2><h3 id="12-1-升级原则"><a href="#12-1-升级原则" class="headerlink" title="12.1 升级原则"></a>12.1 升级原则</h3><ul>
+<li><strong>跨大版本必须逐级升级</strong>：例如 15.x → 16.x 必须先升到 15.11.x，再升到 16.x</li>
+<li><strong>升级前必须备份</strong></li>
+<li><strong>查看官方升级路径</strong>：<a target="_blank" rel="noopener" href="https://gitlab-com.gitlab.io/support/toolbox/upgrade-path/">https://gitlab-com.gitlab.io/support/toolbox/upgrade-path/</a></li>
+</ul>
+<h3 id="12-2-升级步骤"><a href="#12-2-升级步骤" class="headerlink" title="12.2 升级步骤"></a>12.2 升级步骤</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1. 备份</span></span><br><span class="line">docker <span class="built_in">exec</span> -it gitlab gitlab-backup create STRATEGY=copy</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 修改 docker-compose.yml 中的版本号</span></span><br><span class="line"><span class="comment"># image: gitlab/gitlab-ce:16.11.0-ce.0  →  gitlab/gitlab-ce:17.0.0-ce.0</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 拉取新镜像</span></span><br><span class="line">docker compose pull</span><br><span class="line"></span><br><span class="line"><span class="comment"># 4. 停止并重新创建容器</span></span><br><span class="line">docker compose down</span><br><span class="line">docker compose up -d</span><br><span class="line"></span><br><span class="line"><span class="comment"># 5. 观察日志（migration 可能需要数十分钟）</span></span><br><span class="line">docker compose logs -f gitlab</span><br><span class="line"></span><br><span class="line"><span class="comment"># 6. 升级后验证</span></span><br><span class="line">docker <span class="built_in">exec</span> -it gitlab gitlab-rake gitlab:check SANITIZE=<span class="literal">true</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="12-3-升级失败回滚"><a href="#12-3-升级失败回滚" class="headerlink" title="12.3 升级失败回滚"></a>12.3 升级失败回滚</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1. 改回旧版本号</span></span><br><span class="line"><span class="comment"># 2. 恢复备份（见 11.5）</span></span><br><span class="line"><span class="comment"># 3. 启动</span></span><br><span class="line">docker compose up -d</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="十三、日常运维命令"><a href="#十三、日常运维命令" class="headerlink" title="十三、日常运维命令"></a>十三、日常运维命令</h2><h3 id="13-1-容器管理"><a href="#13-1-容器管理" class="headerlink" title="13.1 容器管理"></a>13.1 容器管理</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 启动 / 停止 / 重启</span></span><br><span class="line">docker compose up -d</span><br><span class="line">docker compose stop</span><br><span class="line">docker compose restart</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看状态</span></span><br><span class="line">docker compose ps</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看日志</span></span><br><span class="line">docker compose logs -f --<span class="built_in">tail</span>=100 gitlab</span><br><span class="line"></span><br><span class="line"><span class="comment"># 进入容器</span></span><br><span class="line">docker <span class="built_in">exec</span> -it gitlab bash</span><br></pre></td></tr></table></figure>
+
+<h3 id="13-2-GitLab-服务管理（容器内）"><a href="#13-2-GitLab-服务管理（容器内）" class="headerlink" title="13.2 GitLab 服务管理（容器内）"></a>13.2 GitLab 服务管理（容器内）</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看所有服务状态</span></span><br><span class="line">docker <span class="built_in">exec</span> -it gitlab gitlab-ctl status</span><br><span class="line"></span><br><span class="line"><span class="comment"># 重启单个服务</span></span><br><span class="line">docker <span class="built_in">exec</span> -it gitlab gitlab-ctl restart puma</span><br><span class="line">docker <span class="built_in">exec</span> -it gitlab gitlab-ctl restart sidekiq</span><br><span class="line">docker <span class="built_in">exec</span> -it gitlab gitlab-ctl restart nginx</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看特定服务日志</span></span><br><span class="line">docker <span class="built_in">exec</span> -it gitlab gitlab-ctl <span class="built_in">tail</span> puma</span><br><span class="line">docker <span class="built_in">exec</span> -it gitlab gitlab-ctl <span class="built_in">tail</span> postgresql</span><br></pre></td></tr></table></figure>
+
+<h3 id="13-3-Rails-控制台（高级操作）"><a href="#13-3-Rails-控制台（高级操作）" class="headerlink" title="13.3 Rails 控制台（高级操作）"></a>13.3 Rails 控制台（高级操作）</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">exec</span> -it gitlab gitlab-rails console</span><br><span class="line"></span><br><span class="line"><span class="comment"># 常用操作示例</span></span><br><span class="line">user = User.find_by_username(<span class="string">&#x27;root&#x27;</span>)</span><br><span class="line">user.password = <span class="string">&#x27;NewStrongPassword123!&#x27;</span></span><br><span class="line">user.password_confirmation = <span class="string">&#x27;NewStrongPassword123!&#x27;</span></span><br><span class="line">user.save!</span><br><span class="line"></span><br><span class="line"><span class="comment"># 解锁用户</span></span><br><span class="line">user = User.find_by_email(<span class="string">&#x27;user@example.com&#x27;</span>)</span><br><span class="line">user.unlock_access!</span><br></pre></td></tr></table></figure>
+
+<h3 id="13-4-Rake-任务"><a href="#13-4-Rake-任务" class="headerlink" title="13.4 Rake 任务"></a>13.4 Rake 任务</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 系统检查</span></span><br><span class="line">docker <span class="built_in">exec</span> -it gitlab gitlab-rake gitlab:check SANITIZE=<span class="literal">true</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看版本信息</span></span><br><span class="line">docker <span class="built_in">exec</span> -it gitlab gitlab-rake gitlab:<span class="built_in">env</span>:info</span><br><span class="line"></span><br><span class="line"><span class="comment"># 清理过期 artifacts</span></span><br><span class="line">docker <span class="built_in">exec</span> -it gitlab gitlab-rake gitlab:cleanup:orphan_job_artifact_files</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="十四、性能调优"><a href="#十四、性能调优" class="headerlink" title="十四、性能调优"></a>十四、性能调优</h2><h3 id="14-1-按服务器规格调整（以-4C8G-为例）"><a href="#14-1-按服务器规格调整（以-4C8G-为例）" class="headerlink" title="14.1 按服务器规格调整（以 4C8G 为例）"></a>14.1 按服务器规格调整（以 4C8G 为例）</h3><figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Puma（Web 进程）</span></span><br><span class="line">puma[<span class="string">&#x27;worker_processes&#x27;</span>] = <span class="number">3</span></span><br><span class="line">puma[<span class="string">&#x27;min_threads&#x27;</span>] = <span class="number">4</span></span><br><span class="line">puma[<span class="string">&#x27;max_threads&#x27;</span>] = <span class="number">4</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Sidekiq（后台任务）</span></span><br><span class="line">sidekiq[<span class="string">&#x27;max_concurrency&#x27;</span>] = <span class="number">25</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># PostgreSQL</span></span><br><span class="line">postgresql[<span class="string">&#x27;shared_buffers&#x27;</span>] = <span class="string">&quot;2GB&quot;</span></span><br><span class="line">postgresql[<span class="string">&#x27;max_worker_processes&#x27;</span>] = <span class="number">8</span></span><br><span class="line">postgresql[<span class="string">&#x27;max_connections&#x27;</span>] = <span class="number">400</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Redis</span></span><br><span class="line">redis[<span class="string">&#x27;maxmemory&#x27;</span>] = <span class="string">&quot;512mb&quot;</span></span><br><span class="line">redis[<span class="string">&#x27;maxmemory_policy&#x27;</span>] = <span class="string">&quot;allkeys-lru&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Gitaly</span></span><br><span class="line">gitaly[<span class="string">&#x27;configuration&#x27;</span>] = &#123;</span><br><span class="line">  <span class="symbol">concurrency:</span> [</span><br><span class="line">    &#123; <span class="symbol">rpc:</span> <span class="string">&quot;/gitaly.SmartHTTPService/PostReceivePack&quot;</span>, <span class="symbol">max_per_repo:</span> <span class="number">20</span> &#125;,</span><br><span class="line">    &#123; <span class="symbol">rpc:</span> <span class="string">&quot;/gitaly.SSHService/SSHUploadPack&quot;</span>, <span class="symbol">max_per_repo:</span> <span class="number">20</span> &#125;,</span><br><span class="line">  ],</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="14-2-关闭不需要的功能"><a href="#14-2-关闭不需要的功能" class="headerlink" title="14.2 关闭不需要的功能"></a>14.2 关闭不需要的功能</h3><figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 关闭 Usage Ping</span></span><br><span class="line">gitlab_rails[<span class="string">&#x27;usage_ping_enabled&#x27;</span>] = <span class="literal">false</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 关闭 Container Registry（不用的话）</span></span><br><span class="line">registry[<span class="string">&#x27;enable&#x27;</span>] = <span class="literal">false</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 关闭 Mattermost</span></span><br><span class="line">mattermost[<span class="string">&#x27;enable&#x27;</span>] = <span class="literal">false</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 关闭 Prometheus 监控（资源紧张时）</span></span><br><span class="line">prometheus_monitoring[<span class="string">&#x27;enable&#x27;</span>] = <span class="literal">false</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 限制项目默认功能</span></span><br><span class="line">gitlab_rails[<span class="string">&#x27;gitlab_default_projects_features_builds&#x27;</span>] = <span class="literal">true</span></span><br><span class="line">gitlab_rails[<span class="string">&#x27;gitlab_default_projects_features_container_registry&#x27;</span>] = <span class="literal">false</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="14-3-日志清理"><a href="#14-3-日志清理" class="headerlink" title="14.3 日志清理"></a>14.3 日志清理</h3><figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 日志轮转</span></span><br><span class="line">logging[<span class="string">&#x27;logrotate_frequency&#x27;</span>] = <span class="string">&quot;daily&quot;</span></span><br><span class="line">logging[<span class="string">&#x27;logrotate_rotate&#x27;</span>] = <span class="number">7</span></span><br><span class="line">logging[<span class="string">&#x27;logrotate_compress&#x27;</span>] = <span class="string">&quot;compress&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Nginx 访问日志（高并发时关闭）</span></span><br><span class="line">nginx[<span class="string">&#x27;logging_enabled&#x27;</span>] = <span class="literal">true</span></span><br><span class="line">nginx[<span class="string">&#x27;logrotate_frequency&#x27;</span>] = <span class="string">&quot;daily&quot;</span></span><br><span class="line">nginx[<span class="string">&#x27;logrotate_rotate&#x27;</span>] = <span class="number">7</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="14-4-监控指标"><a href="#14-4-监控指标" class="headerlink" title="14.4 监控指标"></a>14.4 监控指标</h3><p>访问 <code>http://gitlab.example.com/-/metrics</code>（默认仅本地访问）。</p>
+<h2 id="十五、常见故障排查"><a href="#十五、常见故障排查" class="headerlink" title="十五、常见故障排查"></a>十五、常见故障排查</h2><h3 id="15-1-启动失败：端口被占用"><a href="#15-1-启动失败：端口被占用" class="headerlink" title="15.1 启动失败：端口被占用"></a>15.1 启动失败：端口被占用</h3><p><strong>现象</strong>：<code>Error starting userland proxy: listen tcp4 0.0.0.0:80: bind: address already in use</code></p>
+<p><strong>解决</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查找占用进程</span></span><br><span class="line"><span class="built_in">sudo</span> ss -tlnp | grep :80</span><br><span class="line"></span><br><span class="line"><span class="comment"># 停止占用服务（如系统自带 Nginx/Apache）</span></span><br><span class="line"><span class="built_in">sudo</span> systemctl stop nginx</span><br><span class="line"><span class="built_in">sudo</span> systemctl <span class="built_in">disable</span> nginx</span><br></pre></td></tr></table></figure>
+
+<h3 id="15-2-502-Bad-Gateway"><a href="#15-2-502-Bad-Gateway" class="headerlink" title="15.2 502 Bad Gateway"></a>15.2 502 Bad Gateway</h3><p><strong>可能原因</strong>：</p>
+<ol>
+<li>GitLab 还在启动中（首次启动需 5~15 分钟）→ 等待</li>
+<li>内存不足 → 增加内存或 Swap</li>
+<li>Puma 崩溃 → 查看日志 <code>docker exec -it gitlab gitlab-ctl tail puma</code></li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看实时日志</span></span><br><span class="line">docker compose logs -f gitlab</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看 Puma 状态</span></span><br><span class="line">docker <span class="built_in">exec</span> -it gitlab gitlab-ctl status puma</span><br></pre></td></tr></table></figure>
+
+<h3 id="15-3-仓库-clone-URL-显示错误"><a href="#15-3-仓库-clone-URL-显示错误" class="headerlink" title="15.3 仓库 clone URL 显示错误"></a>15.3 仓库 clone URL 显示错误</h3><p><strong>现象</strong>：Web 界面显示的 SSH clone 地址端口不对。</p>
+<p><strong>解决</strong>：确认 <code>gitlab.rb</code> 中：</p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">external_url <span class="string">&#x27;https://gitlab.example.com&#x27;</span></span><br><span class="line">gitlab_rails[<span class="string">&#x27;gitlab_shell_ssh_port&#x27;</span>] = <span class="number">2222</span></span><br></pre></td></tr></table></figure>
+
+<p>并执行 <code>gitlab-ctl reconfigure</code>。</p>
+<h3 id="15-4-忘记-root-密码"><a href="#15-4-忘记-root-密码" class="headerlink" title="15.4 忘记 root 密码"></a>15.4 忘记 root 密码</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">exec</span> -it gitlab gitlab-rails console</span><br><span class="line"></span><br><span class="line">user = User.find_by_username(<span class="string">&#x27;root&#x27;</span>)</span><br><span class="line">user.password = <span class="string">&#x27;NewPassword123!&#x27;</span></span><br><span class="line">user.password_confirmation = <span class="string">&#x27;NewPassword123!&#x27;</span></span><br><span class="line">user.save!</span><br><span class="line"><span class="built_in">exit</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="15-5-磁盘空间不足"><a href="#15-5-磁盘空间不足" class="headerlink" title="15.5 磁盘空间不足"></a>15.5 磁盘空间不足</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看磁盘占用</span></span><br><span class="line"><span class="built_in">df</span> -h</span><br><span class="line"><span class="built_in">du</span> -sh /data/gitlab/data/*</span><br><span class="line"></span><br><span class="line"><span class="comment"># 清理 Docker 无用镜像</span></span><br><span class="line">docker system prune -a</span><br><span class="line"></span><br><span class="line"><span class="comment"># 清理 GitLab 旧备份</span></span><br><span class="line">find /data/gitlab/data/backups -name <span class="string">&quot;*.tar&quot;</span> -mtime +7 -delete</span><br><span class="line"></span><br><span class="line"><span class="comment"># 清理容器日志</span></span><br><span class="line"><span class="built_in">truncate</span> -s 0 /var/lib/docker/containers/*/*-json.log</span><br></pre></td></tr></table></figure>
+
+<h3 id="15-6-权限问题（Permission-denied）"><a href="#15-6-权限问题（Permission-denied）" class="headerlink" title="15.6 权限问题（Permission denied）"></a>15.6 权限问题（Permission denied）</h3><p><strong>现象</strong>：容器启动时报 <code>Permission denied</code> 写日志或数据。</p>
+<p><strong>解决</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 检查 SELinux（CentOS）</span></span><br><span class="line">getenforce</span><br><span class="line"><span class="built_in">sudo</span> setenforce 0</span><br><span class="line"></span><br><span class="line"><span class="comment"># 修复目录权限（GitLab 容器内 git 用户 UID=998）</span></span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">chown</span> -R 998:998 /data/gitlab/data</span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">chown</span> -R 998:998 /data/gitlab/logs</span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">chown</span> -R 998:998 /data/gitlab/config</span><br><span class="line"></span><br><span class="line"><span class="comment"># 重启</span></span><br><span class="line">docker compose restart</span><br></pre></td></tr></table></figure>
+
+<h3 id="15-7-数据库连接失败"><a href="#15-7-数据库连接失败" class="headerlink" title="15.7 数据库连接失败"></a>15.7 数据库连接失败</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看 PostgreSQL 状态</span></span><br><span class="line">docker <span class="built_in">exec</span> -it gitlab gitlab-ctl status postgresql</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看 PostgreSQL 日志</span></span><br><span class="line">docker <span class="built_in">exec</span> -it gitlab gitlab-ctl <span class="built_in">tail</span> postgresql</span><br><span class="line"></span><br><span class="line"><span class="comment"># 重启 PostgreSQL</span></span><br><span class="line">docker <span class="built_in">exec</span> -it gitlab gitlab-ctl restart postgresql</span><br></pre></td></tr></table></figure>
+
+<h3 id="15-8-邮件发送失败"><a href="#15-8-邮件发送失败" class="headerlink" title="15.8 邮件发送失败"></a>15.8 邮件发送失败</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看 Sidekiq 日志（邮件由 Sidekiq 异步发送）</span></span><br><span class="line">docker <span class="built_in">exec</span> -it gitlab gitlab-ctl <span class="built_in">tail</span> sidekiq</span><br><span class="line"></span><br><span class="line"><span class="comment"># 进入 Rails 控制台手动测试</span></span><br><span class="line">docker <span class="built_in">exec</span> -it gitlab gitlab-rails console</span><br><span class="line">Notify.test_email(<span class="string">&#x27;test@example.com&#x27;</span>, <span class="string">&#x27;Test&#x27;</span>, <span class="string">&#x27;Body&#x27;</span>).deliver_now</span><br></pre></td></tr></table></figure>
+
+<h3 id="15-9-升级后页面-500"><a href="#15-9-升级后页面-500" class="headerlink" title="15.9 升级后页面 500"></a>15.9 升级后页面 500</h3><p>通常是数据库 migration 未完成或缓存问题：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 检查 migration 状态</span></span><br><span class="line">docker <span class="built_in">exec</span> -it gitlab gitlab-rake db:migrate:status</span><br><span class="line"></span><br><span class="line"><span class="comment"># 手动执行未完成的 migration</span></span><br><span class="line">docker <span class="built_in">exec</span> -it gitlab gitlab-rake db:migrate</span><br><span class="line"></span><br><span class="line"><span class="comment"># 清理缓存</span></span><br><span class="line">docker <span class="built_in">exec</span> -it gitlab gitlab-rake cache:clear</span><br><span class="line">docker <span class="built_in">exec</span> -it gitlab gitlab-ctl restart</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="十六、安全加固建议"><a href="#十六、安全加固建议" class="headerlink" title="十六、安全加固建议"></a>十六、安全加固建议</h2><h3 id="16-1-必做项"><a href="#16-1-必做项" class="headerlink" title="16.1 必做项"></a>16.1 必做项</h3><ul>
+<li><input disabled="" type="checkbox"> 修改 root 默认密码，使用强密码（16+ 位，含大小写&#x2F;数字&#x2F;符号）</li>
+<li><input disabled="" type="checkbox"> 关闭公开注册（Admin Area → Settings → Sign-up restrictions）</li>
+<li><input disabled="" type="checkbox"> 启用 HTTPS（Let’s Encrypt 或自有证书）</li>
+<li><input disabled="" type="checkbox"> 修改 SSH 默认端口（避免使用 22）</li>
+<li><input disabled="" type="checkbox"> 配置防火墙只开放必要端口</li>
+<li><input disabled="" type="checkbox"> 定期备份（至少每日一次）</li>
+<li><input disabled="" type="checkbox"> 定期升级到最新补丁版本</li>
+</ul>
+<h3 id="16-2-推荐项"><a href="#16-2-推荐项" class="headerlink" title="16.2 推荐项"></a>16.2 推荐项</h3><figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 强制双因素认证（2FA）</span></span><br><span class="line">gitlab_rails[<span class="string">&#x27;require_two_factor_authentication&#x27;</span>] = <span class="literal">true</span></span><br><span class="line">gitlab_rails[<span class="string">&#x27;two_factor_grace_period&#x27;</span>] = <span class="number">48</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 密码复杂度</span></span><br><span class="line">gitlab_rails[<span class="string">&#x27;password_minimum_length&#x27;</span>] = <span class="number">12</span></span><br><span class="line">gitlab_rails[<span class="string">&#x27;password_complexity_required&#x27;</span>] = <span class="literal">true</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 会话安全</span></span><br><span class="line">gitlab_rails[<span class="string">&#x27;session_expire_delay&#x27;</span>] = <span class="number">1440</span>    <span class="comment"># 24 小时</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 禁用 Gravatar</span></span><br><span class="line">gitlab_rails[<span class="string">&#x27;gravatar_enabled&#x27;</span>] = <span class="literal">false</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 限制登录尝试</span></span><br><span class="line">gitlab_rails[<span class="string">&#x27;rack_attack_git_basic_auth&#x27;</span>] = &#123;</span><br><span class="line">  <span class="string">&#x27;enabled&#x27;</span> =&gt; <span class="literal">true</span>,</span><br><span class="line">  <span class="string">&#x27;ip_whitelist&#x27;</span> =&gt; [<span class="string">&quot;127.0.0.1&quot;</span>],</span><br><span class="line">  <span class="string">&#x27;maxretry&#x27;</span> =&gt; <span class="number">5</span>,</span><br><span class="line">  <span class="string">&#x27;findtime&#x27;</span> =&gt; <span class="number">60</span>,</span><br><span class="line">  <span class="string">&#x27;bantime&#x27;</span> =&gt; <span class="number">3600</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="16-3-网络隔离"><a href="#16-3-网络隔离" class="headerlink" title="16.3 网络隔离"></a>16.3 网络隔离</h3><ul>
+<li>使用反向代理（Nginx&#x2F;Traefik）作为唯一入口</li>
+<li>GitLab 容器只绑定 <code>127.0.0.1</code>，不直接对外</li>
+<li>数据库端口（PostgreSQL 5432、Redis 6379）<strong>不要映射到宿主机</strong></li>
+</ul>
+<h2 id="十七、卸载与清理"><a href="#十七、卸载与清理" class="headerlink" title="十七、卸载与清理"></a>十七、卸载与清理</h2><h3 id="17-1-停止并删除容器"><a href="#17-1-停止并删除容器" class="headerlink" title="17.1 停止并删除容器"></a>17.1 停止并删除容器</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> /data/gitlab</span><br><span class="line">docker compose down</span><br></pre></td></tr></table></figure>
+
+<h3 id="17-2-删除数据（不可恢复，谨慎操作）"><a href="#17-2-删除数据（不可恢复，谨慎操作）" class="headerlink" title="17.2 删除数据（不可恢复，谨慎操作）"></a>17.2 删除数据（<strong>不可恢复，谨慎操作</strong>）</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 备份后再删除！</span></span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">rm</span> -rf /data/gitlab</span><br><span class="line"></span><br><span class="line"><span class="comment"># 删除镜像</span></span><br><span class="line">docker rmi gitlab/gitlab-ce:18.11.7-ce.0</span><br></pre></td></tr></table></figure>
+
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>您的打赏，是我创作的动力！不给钱？那我只能靠想象力充饥了。</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/wechat_pay.jpg" alt="rstyro 微信支付">
+        <p>微信支付</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/alipay.jpg" alt="rstyro 支付宝">
+        <p>支付宝</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/blog/tags/docker/" rel="tag"><i class="fa fa-tag"></i> docker</a>
+              <a href="/blog/tags/GitLab/" rel="tag"><i class="fa fa-tag"></i> GitLab</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2026/07/10/%E5%AE%89%E8%A3%85Higress%E4%B8%8E%E4%BD%BF%E7%94%A8/" rel="prev" title="安装Higress与使用">
+      <i class="fa fa-chevron-left"></i> 安装Higress与使用
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E6%A6%82%E8%BF%B0"><span class="nav-number">1.</span> <span class="nav-text">一、概述</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-%E4%BB%80%E4%B9%88%E6%98%AF-GitLab"><span class="nav-number">1.1.</span> <span class="nav-text">1.1 什么是 GitLab</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2-%E4%B8%BA%E4%BB%80%E4%B9%88%E9%80%89%E6%8B%A9-Docker-Compose-%E9%83%A8%E7%BD%B2"><span class="nav-number">1.2.</span> <span class="nav-text">1.2 为什么选择 Docker Compose 部署</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-3-%E9%83%A8%E7%BD%B2%E6%9E%B6%E6%9E%84"><span class="nav-number">1.3.</span> <span class="nav-text">1.3 部署架构</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E7%8E%AF%E5%A2%83%E5%87%86%E5%A4%87"><span class="nav-number">2.</span> <span class="nav-text">二、环境准备</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-%E7%A1%AC%E4%BB%B6%E8%A6%81%E6%B1%82"><span class="nav-number">2.1.</span> <span class="nav-text">2.1 硬件要求</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-%E8%BD%AF%E4%BB%B6%E8%A6%81%E6%B1%82"><span class="nav-number">2.2.</span> <span class="nav-text">2.2 软件要求</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3-%E7%AB%AF%E5%8F%A3%E8%A7%84%E5%88%92"><span class="nav-number">2.3.</span> <span class="nav-text">2.3 端口规划</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-4-%E7%B3%BB%E7%BB%9F%E6%A3%80%E6%9F%A5"><span class="nav-number">2.4.</span> <span class="nav-text">2.4 系统检查</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-5-%E5%85%B3%E9%97%AD-%E9%85%8D%E7%BD%AE%E9%98%B2%E7%81%AB%E5%A2%99%E4%B8%8E-SELinux"><span class="nav-number">2.5.</span> <span class="nav-text">2.5 关闭&#x2F;配置防火墙与 SELinux</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-6-%E9%85%8D%E7%BD%AE-Swap%EF%BC%88%E5%86%85%E5%AD%98-%E2%89%A4-4GB-%E5%BF%85%E5%81%9A%EF%BC%89"><span class="nav-number">2.6.</span> <span class="nav-text">2.6 配置 Swap（内存 ≤ 4GB 必做）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E5%AE%89%E8%A3%85-Docker-%E4%B8%8E-Docker-Compose"><span class="nav-number">3.</span> <span class="nav-text">三、安装 Docker 与 Docker Compose</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-CentOS-Rocky-RHEL%EF%BC%88CentOS-8-%E6%8E%A8%E8%8D%90%E4%BD%BF%E7%94%A8-dnf%EF%BC%89"><span class="nav-number">3.1.</span> <span class="nav-text">3.1 CentOS &#x2F; Rocky &#x2F; RHEL（CentOS 8+ 推荐使用 dnf）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-Ubuntu-Debian"><span class="nav-number">3.2.</span> <span class="nav-text">3.2 Ubuntu &#x2F; Debian</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-3-%E9%85%8D%E7%BD%AE-Docker-daemon-json"><span class="nav-number">3.3.</span> <span class="nav-text">3.3 配置 Docker daemon.json</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9C%BA%E6%99%AF-A%EF%BC%9A%E5%9B%BD%E9%99%85%E7%BD%91%E7%BB%9C%EF%BC%88%E6%97%A0%E9%9C%80%E9%95%9C%E5%83%8F%E5%8A%A0%E9%80%9F%EF%BC%89"><span class="nav-number">3.3.1.</span> <span class="nav-text">场景 A：国际网络（无需镜像加速）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9C%BA%E6%99%AF-B%EF%BC%9A%E5%9B%BD%E5%86%85%E7%BD%91%E7%BB%9C%EF%BC%88%E9%9C%80%E9%95%9C%E5%83%8F%E5%8A%A0%E9%80%9F%EF%BC%89"><span class="nav-number">3.3.2.</span> <span class="nav-text">场景 B：国内网络（需镜像加速）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%85%8D%E7%BD%AE%E9%A1%B9%E8%AF%B4%E6%98%8E"><span class="nav-number">3.3.3.</span> <span class="nav-text">配置项说明</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%BA%94%E7%94%A8%E9%85%8D%E7%BD%AE"><span class="nav-number">3.3.4.</span> <span class="nav-text">应用配置</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-4-%E5%B0%86%E5%BD%93%E5%89%8D%E7%94%A8%E6%88%B7%E5%8A%A0%E5%85%A5-docker-%E7%BB%84%EF%BC%88%E5%8F%AF%E9%80%89%EF%BC%89"><span class="nav-number">3.4.</span> <span class="nav-text">3.4 将当前用户加入 docker 组（可选）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-5-%E9%85%8D%E7%BD%AE-containerd-%E6%95%B0%E6%8D%AE%E7%9B%AE%E5%BD%95"><span class="nav-number">3.5.</span> <span class="nav-text">3.5 配置 containerd 数据目录</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%9C%80%E7%BB%88%E7%A3%81%E7%9B%98%E5%B8%83%E5%B1%80"><span class="nav-number">3.5.1.</span> <span class="nav-text">最终磁盘布局</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E8%A7%84%E5%88%92-GitLab-%E9%83%A8%E7%BD%B2%E7%9B%AE%E5%BD%95"><span class="nav-number">4.</span> <span class="nav-text">四、规划 GitLab 部署目录</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-1-%E6%8E%A8%E8%8D%90%E7%9B%AE%E5%BD%95%E7%BB%93%E6%9E%84"><span class="nav-number">4.1.</span> <span class="nav-text">4.1 推荐目录结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2-%E6%9D%83%E9%99%90%E8%AF%B4%E6%98%8E"><span class="nav-number">4.2.</span> <span class="nav-text">4.2 权限说明</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%94%E3%80%81%E7%BC%96%E5%86%99-docker-compose-yml"><span class="nav-number">5.</span> <span class="nav-text">五、编写 docker-compose.yml</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#5-1-%E6%9C%80%E5%B0%8F%E5%8F%AF%E7%94%A8%E7%89%88%E6%9C%AC"><span class="nav-number">5.1.</span> <span class="nav-text">5.1 最小可用版本</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-2-%E5%85%B3%E9%94%AE%E5%AD%97%E6%AE%B5%E8%AF%B4%E6%98%8E"><span class="nav-number">5.2.</span> <span class="nav-text">5.2 关键字段说明</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-3-%E9%95%9C%E5%83%8F%E7%89%88%E6%9C%AC%E9%80%89%E6%8B%A9"><span class="nav-number">5.3.</span> <span class="nav-text">5.3 镜像版本选择</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%AD%E3%80%81%E9%A6%96%E6%AC%A1%E5%90%AF%E5%8A%A8%E4%B8%8E%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="nav-number">6.</span> <span class="nav-text">六、首次启动与初始化</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#6-1-%E5%90%AF%E5%8A%A8"><span class="nav-number">6.1.</span> <span class="nav-text">6.1 启动</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-2-%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B%E8%A7%82%E5%AF%9F"><span class="nav-number">6.2.</span> <span class="nav-text">6.2 启动过程观察</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-3-%E6%9F%A5%E7%9C%8B%E5%88%9D%E5%A7%8B-root-%E5%AF%86%E7%A0%81"><span class="nav-number">6.3.</span> <span class="nav-text">6.3 查看初始 root 密码</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%83%E3%80%81%E8%AE%BF%E9%97%AE%E9%AA%8C%E8%AF%81%E4%B8%8E%E5%88%9D%E5%A7%8B%E7%99%BB%E5%BD%95"><span class="nav-number">7.</span> <span class="nav-text">七、访问验证与初始登录</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#7-1-%E8%AE%BF%E9%97%AE-Web-UI"><span class="nav-number">7.1.</span> <span class="nav-text">7.1 访问 Web UI</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7-2-%E7%AB%8B%E5%8D%B3%E4%BF%AE%E6%94%B9-root-%E5%AF%86%E7%A0%81"><span class="nav-number">7.2.</span> <span class="nav-text">7.2 立即修改 root 密码</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7-3-%E5%85%B3%E9%97%AD%E5%85%AC%E5%BC%80%E6%B3%A8%E5%86%8C%EF%BC%88%E7%94%9F%E4%BA%A7%E5%BF%85%E5%81%9A%EF%BC%89"><span class="nav-number">7.3.</span> <span class="nav-text">7.3 关闭公开注册（生产必做）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7-4-%E5%81%A5%E5%BA%B7%E6%A3%80%E6%9F%A5%E7%AB%AF%E7%82%B9"><span class="nav-number">7.4.</span> <span class="nav-text">7.4 健康检查端点</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%AB%E3%80%81%E6%A0%B8%E5%BF%83%E9%85%8D%E7%BD%AE%E8%AF%A6%E8%A7%A3%EF%BC%88gitlab-rb%EF%BC%89"><span class="nav-number">8.</span> <span class="nav-text">八、核心配置详解（gitlab.rb）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#8-1-%E6%96%B9%E5%BC%8F%E4%B8%80%EF%BC%9A%E9%80%9A%E8%BF%87-GITLAB-OMNIBUS-CONFIG%EF%BC%88%E6%8E%A8%E8%8D%90%E7%94%A8%E4%BA%8E%E5%B0%91%E9%87%8F%E9%85%8D%E7%BD%AE%EF%BC%89"><span class="nav-number">8.1.</span> <span class="nav-text">8.1 方式一：通过 GITLAB_OMNIBUS_CONFIG（推荐用于少量配置）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#8-2-%E6%96%B9%E5%BC%8F%E4%BA%8C%EF%BC%9A%E7%9B%B4%E6%8E%A5%E7%BC%96%E8%BE%91%E6%8C%82%E8%BD%BD%E7%9A%84-gitlab-rb%EF%BC%88%E6%8E%A8%E8%8D%90%E7%94%A8%E4%BA%8E%E5%A4%A7%E9%87%8F%E9%85%8D%E7%BD%AE%EF%BC%89"><span class="nav-number">8.2.</span> <span class="nav-text">8.2 方式二：直接编辑挂载的 gitlab.rb（推荐用于大量配置）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#8-3-%E5%B8%B8%E7%94%A8%E9%85%8D%E7%BD%AE%E9%A1%B9"><span class="nav-number">8.3.</span> <span class="nav-text">8.3 常用配置项</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B9%9D%E3%80%81%E4%B8%AD%E6%96%87%E9%85%8D%E7%BD%AE"><span class="nav-number">9.</span> <span class="nav-text">九、中文配置</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#9-1-%E4%B8%AA%E4%BA%BA%E5%88%87%E6%8D%A2%E4%B8%AD%E6%96%87"><span class="nav-number">9.1.</span> <span class="nav-text">9.1 个人切换中文</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#9-2-%E5%85%A8%E5%B1%80%E9%BB%98%E8%AE%A4%E4%B8%AD%E6%96%87"><span class="nav-number">9.2.</span> <span class="nav-text">9.2 全局默认中文</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#9-3-%E9%AA%8C%E8%AF%81"><span class="nav-number">9.3.</span> <span class="nav-text">9.3 验证</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8D%81%E3%80%81SMTP-%E9%82%AE%E4%BB%B6%E9%85%8D%E7%BD%AE"><span class="nav-number">10.</span> <span class="nav-text">十、SMTP 邮件配置</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#10-1-%E9%80%9A%E7%94%A8-SMTP%EF%BC%88%E4%BB%A5-QQ-%E9%82%AE%E7%AE%B1%E4%B8%BA%E4%BE%8B%EF%BC%89"><span class="nav-number">10.1.</span> <span class="nav-text">10.1 通用 SMTP（以 QQ 邮箱为例）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#10-2-%E9%98%BF%E9%87%8C%E4%BA%91%E9%82%AE%E4%BB%B6%E6%8E%A8%E9%80%81"><span class="nav-number">10.2.</span> <span class="nav-text">10.2 阿里云邮件推送</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#10-3-%E6%B5%8B%E8%AF%95%E9%82%AE%E4%BB%B6%E5%8F%91%E9%80%81"><span class="nav-number">10.3.</span> <span class="nav-text">10.3 测试邮件发送</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8D%81%E4%B8%80%E3%80%81%E6%95%B0%E6%8D%AE%E5%A4%87%E4%BB%BD%E4%B8%8E%E6%81%A2%E5%A4%8D"><span class="nav-number">11.</span> <span class="nav-text">十一、数据备份与恢复</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#11-1-%E5%A4%87%E4%BB%BD%E7%AD%96%E7%95%A5"><span class="nav-number">11.1.</span> <span class="nav-text">11.1 备份策略</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#11-2-%E6%89%8B%E5%8A%A8%E5%A4%87%E4%BB%BD"><span class="nav-number">11.2.</span> <span class="nav-text">11.2 手动备份</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#11-3-%E5%AE%9A%E6%97%B6%E5%A4%87%E4%BB%BD%EF%BC%88crontab%EF%BC%89"><span class="nav-number">11.3.</span> <span class="nav-text">11.3 定时备份（crontab）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#11-4-%E8%BF%9C%E7%A8%8B%E5%A4%87%E4%BB%BD%EF%BC%88%E5%8F%AF%E9%80%89%EF%BC%89"><span class="nav-number">11.4.</span> <span class="nav-text">11.4 远程备份（可选）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#11-5-%E6%81%A2%E5%A4%8D"><span class="nav-number">11.5.</span> <span class="nav-text">11.5 恢复</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8D%81%E4%BA%8C%E3%80%81%E7%89%88%E6%9C%AC%E5%8D%87%E7%BA%A7"><span class="nav-number">12.</span> <span class="nav-text">十二、版本升级</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#12-1-%E5%8D%87%E7%BA%A7%E5%8E%9F%E5%88%99"><span class="nav-number">12.1.</span> <span class="nav-text">12.1 升级原则</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#12-2-%E5%8D%87%E7%BA%A7%E6%AD%A5%E9%AA%A4"><span class="nav-number">12.2.</span> <span class="nav-text">12.2 升级步骤</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#12-3-%E5%8D%87%E7%BA%A7%E5%A4%B1%E8%B4%A5%E5%9B%9E%E6%BB%9A"><span class="nav-number">12.3.</span> <span class="nav-text">12.3 升级失败回滚</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8D%81%E4%B8%89%E3%80%81%E6%97%A5%E5%B8%B8%E8%BF%90%E7%BB%B4%E5%91%BD%E4%BB%A4"><span class="nav-number">13.</span> <span class="nav-text">十三、日常运维命令</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#13-1-%E5%AE%B9%E5%99%A8%E7%AE%A1%E7%90%86"><span class="nav-number">13.1.</span> <span class="nav-text">13.1 容器管理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#13-2-GitLab-%E6%9C%8D%E5%8A%A1%E7%AE%A1%E7%90%86%EF%BC%88%E5%AE%B9%E5%99%A8%E5%86%85%EF%BC%89"><span class="nav-number">13.2.</span> <span class="nav-text">13.2 GitLab 服务管理（容器内）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#13-3-Rails-%E6%8E%A7%E5%88%B6%E5%8F%B0%EF%BC%88%E9%AB%98%E7%BA%A7%E6%93%8D%E4%BD%9C%EF%BC%89"><span class="nav-number">13.3.</span> <span class="nav-text">13.3 Rails 控制台（高级操作）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#13-4-Rake-%E4%BB%BB%E5%8A%A1"><span class="nav-number">13.4.</span> <span class="nav-text">13.4 Rake 任务</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8D%81%E5%9B%9B%E3%80%81%E6%80%A7%E8%83%BD%E8%B0%83%E4%BC%98"><span class="nav-number">14.</span> <span class="nav-text">十四、性能调优</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#14-1-%E6%8C%89%E6%9C%8D%E5%8A%A1%E5%99%A8%E8%A7%84%E6%A0%BC%E8%B0%83%E6%95%B4%EF%BC%88%E4%BB%A5-4C8G-%E4%B8%BA%E4%BE%8B%EF%BC%89"><span class="nav-number">14.1.</span> <span class="nav-text">14.1 按服务器规格调整（以 4C8G 为例）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#14-2-%E5%85%B3%E9%97%AD%E4%B8%8D%E9%9C%80%E8%A6%81%E7%9A%84%E5%8A%9F%E8%83%BD"><span class="nav-number">14.2.</span> <span class="nav-text">14.2 关闭不需要的功能</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#14-3-%E6%97%A5%E5%BF%97%E6%B8%85%E7%90%86"><span class="nav-number">14.3.</span> <span class="nav-text">14.3 日志清理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#14-4-%E7%9B%91%E6%8E%A7%E6%8C%87%E6%A0%87"><span class="nav-number">14.4.</span> <span class="nav-text">14.4 监控指标</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8D%81%E4%BA%94%E3%80%81%E5%B8%B8%E8%A7%81%E6%95%85%E9%9A%9C%E6%8E%92%E6%9F%A5"><span class="nav-number">15.</span> <span class="nav-text">十五、常见故障排查</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#15-1-%E5%90%AF%E5%8A%A8%E5%A4%B1%E8%B4%A5%EF%BC%9A%E7%AB%AF%E5%8F%A3%E8%A2%AB%E5%8D%A0%E7%94%A8"><span class="nav-number">15.1.</span> <span class="nav-text">15.1 启动失败：端口被占用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#15-2-502-Bad-Gateway"><span class="nav-number">15.2.</span> <span class="nav-text">15.2 502 Bad Gateway</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#15-3-%E4%BB%93%E5%BA%93-clone-URL-%E6%98%BE%E7%A4%BA%E9%94%99%E8%AF%AF"><span class="nav-number">15.3.</span> <span class="nav-text">15.3 仓库 clone URL 显示错误</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#15-4-%E5%BF%98%E8%AE%B0-root-%E5%AF%86%E7%A0%81"><span class="nav-number">15.4.</span> <span class="nav-text">15.4 忘记 root 密码</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#15-5-%E7%A3%81%E7%9B%98%E7%A9%BA%E9%97%B4%E4%B8%8D%E8%B6%B3"><span class="nav-number">15.5.</span> <span class="nav-text">15.5 磁盘空间不足</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#15-6-%E6%9D%83%E9%99%90%E9%97%AE%E9%A2%98%EF%BC%88Permission-denied%EF%BC%89"><span class="nav-number">15.6.</span> <span class="nav-text">15.6 权限问题（Permission denied）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#15-7-%E6%95%B0%E6%8D%AE%E5%BA%93%E8%BF%9E%E6%8E%A5%E5%A4%B1%E8%B4%A5"><span class="nav-number">15.7.</span> <span class="nav-text">15.7 数据库连接失败</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#15-8-%E9%82%AE%E4%BB%B6%E5%8F%91%E9%80%81%E5%A4%B1%E8%B4%A5"><span class="nav-number">15.8.</span> <span class="nav-text">15.8 邮件发送失败</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#15-9-%E5%8D%87%E7%BA%A7%E5%90%8E%E9%A1%B5%E9%9D%A2-500"><span class="nav-number">15.9.</span> <span class="nav-text">15.9 升级后页面 500</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8D%81%E5%85%AD%E3%80%81%E5%AE%89%E5%85%A8%E5%8A%A0%E5%9B%BA%E5%BB%BA%E8%AE%AE"><span class="nav-number">16.</span> <span class="nav-text">十六、安全加固建议</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#16-1-%E5%BF%85%E5%81%9A%E9%A1%B9"><span class="nav-number">16.1.</span> <span class="nav-text">16.1 必做项</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#16-2-%E6%8E%A8%E8%8D%90%E9%A1%B9"><span class="nav-number">16.2.</span> <span class="nav-text">16.2 推荐项</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#16-3-%E7%BD%91%E7%BB%9C%E9%9A%94%E7%A6%BB"><span class="nav-number">16.3.</span> <span class="nav-text">16.3 网络隔离</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8D%81%E4%B8%83%E3%80%81%E5%8D%B8%E8%BD%BD%E4%B8%8E%E6%B8%85%E7%90%86"><span class="nav-number">17.</span> <span class="nav-text">十七、卸载与清理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#17-1-%E5%81%9C%E6%AD%A2%E5%B9%B6%E5%88%A0%E9%99%A4%E5%AE%B9%E5%99%A8"><span class="nav-number">17.1.</span> <span class="nav-text">17.1 停止并删除容器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#17-2-%E5%88%A0%E9%99%A4%E6%95%B0%E6%8D%AE%EF%BC%88%E4%B8%8D%E5%8F%AF%E6%81%A2%E5%A4%8D%EF%BC%8C%E8%B0%A8%E6%85%8E%E6%93%8D%E4%BD%9C%EF%BC%89"><span class="nav-number">17.2.</span> <span class="nav-text">17.2 删除数据（不可恢复，谨慎操作）</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="rstyro"
+      src="/blog/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">rstyro</p>
+  <div class="site-description" itemprop="description">人间的饭，吃一碗少一碗，身边的人，见一面少一面，脚下的路，走一天少一天，其实人生就是一个减法，来日并不方长！</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives/">
+        
+          <span class="site-state-item-count">250</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/blog/tags/">
+          
+        <span class="site-state-item-count">108</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/rstyro" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;rstyro" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/rstyro" title="Gitee → https:&#x2F;&#x2F;gitee.com&#x2F;rstyro" rel="noopener" target="_blank"><i class="fab fa-codiepie fa-fw"></i>Gitee</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.jianshu.com/u/651c15a1758a" title="简书 → https:&#x2F;&#x2F;www.jianshu.com&#x2F;u&#x2F;651c15a1758a" rel="noopener" target="_blank"><i class="fa fa-book fa-fw"></i>简书</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      友链
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://rstyro.github.io/blog/" title="https:&#x2F;&#x2F;rstyro.github.io&#x2F;blog&#x2F;">胖不了小陆</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; Mon Apr 10 2017 08:00:00 GMT+0800 (中国标准时间) – 
+  <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">以梦为马，诗酒趁年华</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/muse.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+  <script>
+    (function(){
+      var canonicalURL, curProtocol;
+      //Get the <link> tag
+      var x=document.getElementsByTagName("link");
+		//Find the last canonical URL
+		if(x.length > 0){
+			for (i=0;i<x.length;i++){
+				if(x[i].rel.toLowerCase() == 'canonical' && x[i].href){
+					canonicalURL=x[i].href;
+				}
+			}
+		}
+    //Get protocol
+	    if (!canonicalURL){
+	    	curProtocol = window.location.protocol.split(':')[0];
+	    }
+	    else{
+	    	curProtocol = canonicalURL.split(':')[0];
+	    }
+      //Get current URL if the canonical URL does not exist
+	    if (!canonicalURL) canonicalURL = window.location.href;
+	    //Assign script content. Replace current URL with the canonical URL
+      !function(){var e=/([http|https]:\/\/[a-zA-Z0-9\_\.]+\.baidu\.com)/gi,r=canonicalURL,t=document.referrer;if(!e.test(r)){var n=(String(curProtocol).toLowerCase() === 'https')?"https://sp0.baidu.com/9_Q4simg2RQJ8t7jm9iCKT-xh_/s.gif":"//api.share.baidu.com/s.gif";t?(n+="?r="+encodeURIComponent(document.referrer),r&&(n+="&l="+r)):r&&(n+="?l="+r);var i=new Image;i.src=n}}(window);})();
+  </script>
+
+
+
+
+  
+<script src="/blog/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+<script>
+if (document.querySelectorAll('pre.mermaid').length) {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mermaid@8/dist/mermaid.min.js', () => {
+    mermaid.initialize({
+      theme    : 'default',
+      logLevel : 3,
+      flowchart: { curve     : 'linear' },
+      gantt    : { axisFormat: '%m/%d/%Y' },
+      sequence : { actorMargin: 50 }
+    });
+  }, window.mermaid);
+}
+</script>
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : 'Ov23litYkWaOGM7kAKPD',
+      clientSecret: '43bd3cf99bfcb9d05d16627c97a9f7a0200df04a',
+      repo        : 'blog',
+      owner       : 'rstyro',
+      admin       : ['rstyro'],
+      id          : 'b92aa818ca3a830fbfa3981b8dcbf9cc',
+        language: '',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>
