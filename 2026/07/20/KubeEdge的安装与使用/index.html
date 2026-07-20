@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/favicon.jpg">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon.jpg">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon.jpg">
+  <link rel="mask-icon" href="/blog/images/favicon.jpg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="/blog/lib/pace/pace-theme-flash.min.css">
+  <script src="/blog/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"rstyro.github.io","root":"/blog/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":true},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.json"};
+  </script>
+
+  <meta name="description" content="前言随着物联网、工业互联网、边缘AI技术的快速普及，海量终端设备产生的数据不再适合全部回传云端处理，传统中心化云计算架构面临网络带宽受限、延迟过高、离线不可用、运维成本高等痛点。边缘计算将计算、存储、网络能力下沉到业务就近的边缘节点，可有效解决上述问题。但边缘节点数量庞大、架构分散、设备异构性强，缺乏统一的编排和管理标准。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="KubeEdge的安装与使用">
+<meta property="og:url" content="https://rstyro.github.io/blog/2026/07/20/KubeEdge%E7%9A%84%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/index.html">
+<meta property="og:site_name" content="胖不了小陆">
+<meta property="og:description" content="前言随着物联网、工业互联网、边缘AI技术的快速普及，海量终端设备产生的数据不再适合全部回传云端处理，传统中心化云计算架构面临网络带宽受限、延迟过高、离线不可用、运维成本高等痛点。边缘计算将计算、存储、网络能力下沉到业务就近的边缘节点，可有效解决上述问题。但边缘节点数量庞大、架构分散、设备异构性强，缺乏统一的编排和管理标准。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://rstyro.github.io/blog/2026/07/20/KubeEdge%E7%9A%84%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/edge-version.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2026/07/20/KubeEdge%E7%9A%84%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/edge-init.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2026/07/20/KubeEdge%E7%9A%84%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/edge-join.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2026/07/20/KubeEdge%E7%9A%84%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/edge-nodes.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2026/07/20/KubeEdge%E7%9A%84%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/edge-ip.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2026/07/20/KubeEdge%E7%9A%84%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/edge-nginx.png">
+<meta property="article:published_time" content="2026-07-20T10:51:20.000Z">
+<meta property="article:modified_time" content="2026-07-20T07:27:11.753Z">
+<meta property="article:author" content="rstyro">
+<meta property="article:tag" content="k8s">
+<meta property="article:tag" content="KubeEdge">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://rstyro.github.io/blog/2026/07/20/KubeEdge%E7%9A%84%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/edge-version.png">
+
+<link rel="canonical" href="https://rstyro.github.io/blog/2026/07/20/KubeEdge%E7%9A%84%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>KubeEdge的安装与使用 | 胖不了小陆</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">胖不了小陆</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">信你所信，为你所见</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/blog/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/blog/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/blog/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/rstyro" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://rstyro.github.io/blog/2026/07/20/KubeEdge%E7%9A%84%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/avatar.jpg">
+      <meta itemprop="name" content="rstyro">
+      <meta itemprop="description" content="人间的饭，吃一碗少一碗，身边的人，见一面少一面，脚下的路，走一天少一天，其实人生就是一个减法，来日并不方长！">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="胖不了小陆">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          KubeEdge的安装与使用
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2026-07-20 18:51:20 / 修改时间：15:27:11" itemprop="dateCreated datePublished" datetime="2026-07-20T18:51:20+08:00">2026-07-20</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E7%BD%91%E7%BB%9C%E8%BF%90%E7%BB%B4/" itemprop="url" rel="index"><span itemprop="name">网络运维</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>随着物联网、工业互联网、边缘AI技术的快速普及，海量终端设备产生的数据不再适合全部回传云端处理，传统中心化云计算架构面临网络带宽受限、延迟过高、离线不可用、运维成本高等痛点。边缘计算将计算、存储、网络能力下沉到业务就近的边缘节点，可有效解决上述问题。但边缘节点数量庞大、架构分散、设备异构性强，缺乏统一的编排和管理标准。</p>
+<span id="more"></span>
+
+
+<p>Kubernetes 作为云原生编排标准，擅长云端集群资源管理，但原生并不适配边缘弱网络、低资源、离线自治的场景。<strong>KubeEdge</strong> 作为 CNCF 官方孵化的开源云边协同平台，完美将 Kubernetes 容器编排能力延伸至边缘场景，实现云端统一管控、边缘本地自治、终端设备统一接入，是目前工业边缘、物联网边缘、AI 边缘场景的主流开源解决方案。本文将详细介绍 KubeEdge 的核心原理、架构组成、部署安装流程及基础使用方法。</p>
+<h2 id="一、概述"><a href="#一、概述" class="headerlink" title="一、概述"></a>一、概述</h2><p>KubeEdge 是面向云边协同场景的开源边缘计算框架，完全兼容 Kubernetes 原生 API，无需改动原有 K8s 运维习惯，即可实现对海量边缘节点、边缘应用、物联网终端设备的统一管理。平台打通了云端数据中心与边缘节点的通信链路，支持弱网、断网自治、轻量化部署、多协议设备接入，广泛应用于智能制造、智慧园区、车载边缘、安防视频、边缘AI推理等场景。</p>
+<h3 id="1、为什么需要KubeEdge"><a href="#1、为什么需要KubeEdge" class="headerlink" title="1、为什么需要KubeEdge"></a>1、为什么需要KubeEdge</h3><p>传统纯云端 K8s 架构无法适配边缘业务场景，存在诸多短板，而 KubeEdge 针对性解决了边缘计算的核心痛点，具体优势如下：</p>
+<ul>
+<li><strong>适配弱网与离线自治</strong>：边缘网络普遍存在延迟高、抖动大、断网频繁的问题。KubeEdge 边缘节点具备本地元数据缓存能力，断网后仍可稳定运行业务、维持设备状态，网络恢复后自动同步云端数据，彻底解决断网业务中断问题。</li>
+<li><strong>极致轻量化，适配低资源边缘设备</strong>：传统 K8s 组件臃肿、资源占用高，无法部署在树莓派、工控机、嵌入式设备等低配置边缘硬件。KubeEdge 边缘核心 EdgeCore 内存占用极低，适配 ARM、x86 多架构，兼容各类异构边缘终端。</li>
+<li><strong>云边统一管控，运维无差异</strong>：完全兼容 Kubernetes 原生命令、CRD 资源、控制器模型，运维人员可通过云端 kubectl 统一管理成千上万的边缘节点，无需登录边缘设备操作，大幅降低大规模边缘集群运维成本。</li>
+<li><strong>原生支持物联网设备接入</strong>：内置设备孪生、消息总线、多协议适配器，原生支持 Modbus、OPC UA、MQTT、蓝牙、摄像头等各类终端设备接入，实现“应用编排+设备管理”一体化，区别于单纯的边缘容器方案。</li>
+<li><strong>安全可靠的云边通信</strong>：基于 WebSocket&#x2F;QUIC 协议构建加密长连接隧道，支持跨内网、跨防火墙穿透，解决边缘节点内网部署、无公网 IP 的通信难题，同时保障云边数据传输安全。</li>
+</ul>
+<h2 id="二、核心架构"><a href="#二、核心架构" class="headerlink" title="二、核心架构"></a>二、核心架构</h2><p>KubeEdge 采用标准的<strong>云-边-端三层架构</strong>，整体分为云端控制面、边缘计算面、终端设备面，云边分离、协同工作，架构解耦且扩展性极强。核心组件分为云端 CloudCore、边缘端 EdgeCore 两大核心模块，搭配自定义资源与协议适配器，实现完整的云边协同能力。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">┌─────────────────────────────────────────┐</span><br><span class="line">│              云端（Cloud）                |</span><br><span class="line">│   Kubernetes + CloudCore                │</span><br><span class="line">│   ├─ CloudHub       ← 云边通信网关        │</span><br><span class="line">│   ├─ EdgeController ← 同步 Pod/ConfigMap │</span><br><span class="line">│   └─ DeviceController← 同步设备资源      │</span><br><span class="line">└────────────┬────────────────────────────┘</span><br><span class="line">             │ WebSocket/QUIC 加密隧道</span><br><span class="line">             ▼</span><br><span class="line">┌─────────────────────────────────────────┐</span><br><span class="line">│           边缘节点（Edge）                │</span><br><span class="line">│   EdgeCore                              │</span><br><span class="line">│   ├─ EdgeHub    ← 连接云端               │</span><br><span class="line">│   ├─ Edged      ← 边缘版 kubelet        │</span><br><span class="line">│   ├─ MetaManager← 本地元数据缓存          │</span><br><span class="line">│   ├─ DeviceTwin ← 设备孪生               │</span><br><span class="line">│   ├─ EventBus   ← 本地 MQTT 总线         │</span><br><span class="line">│   └─ EdgeMesh   ← 边缘服务发现与通信       │</span><br><span class="line">└────────────┬────────────────────────────┘</span><br><span class="line">             │ Modbus / OPC UA / MQTT / BLE</span><br><span class="line">             ▼</span><br><span class="line">┌─────────────────────────────────────────┐</span><br><span class="line">│           终端设备（Device）              │</span><br><span class="line">│   摄像头 / 温湿度传感器 / PLC / 扫码器      │</span><br><span class="line">└─────────────────────────────────────────┘</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<h3 id="1、云端组件（CloudCore）"><a href="#1、云端组件（CloudCore）" class="headerlink" title="1、云端组件（CloudCore）"></a>1、云端组件（CloudCore）</h3><p>云端组件部署在标准 Kubernetes 集群中，作为整个边缘集群的控制平面，负责资源调度、节点管理、设备管控、消息转发，核心组件如下：</p>
+<ul>
+<li><strong>CloudHub</strong>：云端核心网关组件，是云边通信的唯一入口，负责与所有边缘节点的 EdgeHub 建立加密长连接，转发云端指令与边缘状态数据，支持 Websocket&#x2F;QUIC 双协议。</li>
+<li><strong>EdgeController</strong>：边缘资源控制器，监听 K8s 原生资源（Deployment、ConfigMap、Service 等），将资源变更同步至对应边缘节点，实现云端统一下发应用。</li>
+<li><strong>DeviceController</strong>：设备管理控制器，监听设备自定义资源（Device、DeviceModel），负责终端设备的注册、状态同步、权限管控，实现云端统一管理物联网设备。</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>组件</th>
+<th>作用</th>
+<th>类比</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>CloudHub</strong></td>
+<td>云边通信的唯一入口，维护与所有 EdgeHub 的长连接</td>
+<td>像 VPN 网关</td>
+</tr>
+<tr>
+<td><strong>EdgeController</strong></td>
+<td>监听 Deployment、ConfigMap、Secret 等资源，同步到边缘</td>
+<td>像边缘资源的”快递员”</td>
+</tr>
+<tr>
+<td><strong>DeviceController</strong></td>
+<td>监听 Device、DeviceModel 等自定义资源，同步设备状态</td>
+<td>像设备管家</td>
+</tr>
+</tbody></table>
+<h3 id="2、边缘端组件（EdgeCore）"><a href="#2、边缘端组件（EdgeCore）" class="headerlink" title="2、边缘端组件（EdgeCore）"></a>2、边缘端组件（EdgeCore）</h3><p>边缘端以单二进制文件 EdgeCore 为核心，部署在所有边缘节点，无需完整 K8s 集群，轻量化且高可用，内置多个核心子模块：</p>
+<ul>
+<li><strong>EdgeHub</strong>：边缘通信客户端，主动与云端 CloudCore 建立隧道连接，上报边缘节点状态、设备数据，接收云端调度指令与资源配置。</li>
+<li><strong>Edged</strong>：轻量化边缘 kubelet，替代原生 kubelet，负责边缘节点 Pod 管理、容器生命周期调度、资源监控，兼容 K8s 原生容器规范。</li>
+<li><strong>MetaManager</strong>：边缘离线自治核心模块，本地缓存 K8s 元数据、配置文件、设备状态，断网时独立维持业务运行，网络恢复后自动增量同步云端数据。</li>
+<li><strong>DeviceTwin</strong>：设备孪生模块，缓存终端设备的状态、属性、配置，实现设备状态云端镜像同步，支持云端下发设备控制指令、边缘上报设备异常。</li>
+<li><strong>EventBus</strong>：边缘本地消息总线，内置轻量 MQTT 服务，负责本地设备数据、业务消息的发布与订阅，支撑边缘本地数据流转。</li>
+<li><strong>EdgeMesh</strong>：边缘服务网格，实现边缘节点内部、跨边缘节点的服务发现与通信，替代 kube-proxy，降低边缘资源消耗。</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>组件</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>EdgeHub</strong></td>
+<td>主动连上 CloudHub，上报心跳、接收指令</td>
+</tr>
+<tr>
+<td><strong>Edged</strong></td>
+<td>边缘版 kubelet，负责拉镜像、起 Pod、管容器生命周期</td>
+</tr>
+<tr>
+<td><strong>MetaManager</strong></td>
+<td>把 Pod、ConfigMap 等数据存在本地数据库，断网时也能用</td>
+</tr>
+<tr>
+<td><strong>DeviceTwin</strong></td>
+<td>维护设备状态镜像，云端改配置，边缘自动同步给设备</td>
+</tr>
+<tr>
+<td><strong>EventBus</strong></td>
+<td>内置 MQTT broker，本地应用和设备之间可 pub&#x2F;sub 消息</td>
+</tr>
+<tr>
+<td><strong>EdgeMesh</strong></td>
+<td>边缘服务发现与负载均衡，替代 kube-proxy</td>
+</tr>
+</tbody></table>
+<h3 id="3、-终端接入层"><a href="#3、-终端接入层" class="headerlink" title="3、 终端接入层"></a>3、 终端接入层</h3><p>KubeEdge 不直接对接五花八门的硬件协议，而是通过 <strong>Mapper</strong> 适配器统一接入：</p>
+<ul>
+<li>Modbus-Mapper：工业 PLC、传感器</li>
+<li>OPC-UA-Mapper：数控机床、智能制造设备</li>
+<li>MQTT-Mapper：物联网传感器</li>
+<li>Bluetooth-Mapper：蓝牙设备</li>
+<li>摄像头 Mapper：视频流、AI 推理</li>
+</ul>
+<p>一个摄像头或温湿度传感器，在 KubeEdge 里会被映射成 <code>Device</code> 和 <code>DeviceModel</code> 两种 CRD 资源，你可以用 <code>kubectl get device</code> 查看它。</p>
+<h2 id="三、安装"><a href="#三、安装" class="headerlink" title="三、安装"></a>三、安装</h2><p>可采用 KubeEdge 官方推荐的 <strong>keadm 工具</strong> 快速部署，部署分为环境准备、云端部署、边缘节点接入三步，适配主流 Linux 系统，部署简单、稳定性高。</p>
+<h3 id="1、环境前置要求"><a href="#1、环境前置要求" class="headerlink" title="1、环境前置要求"></a>1、环境前置要求</h3><h4 id="我的测试环境"><a href="#我的测试环境" class="headerlink" title="我的测试环境"></a>我的测试环境</h4><ul>
+<li>资源有限，就弄了2个服务器</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>角色</th>
+<th>IP</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>云端节点</td>
+<td><code>10.12.5.160</code></td>
+<td>已安装 K8s 集群，运行 CloudCore</td>
+</tr>
+<tr>
+<td>边缘节点</td>
+<td><code>10.12.5.161</code></td>
+<td>运行 EdgeCore，加入云端集群</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>你可以把 IP 替换成自己的实际地址。</p>
+</blockquote>
+<p><img src="/blog/2026/07/20/KubeEdge%E7%9A%84%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/edge-version.png"></p>
+<h4 id="云端节点（控制面）"><a href="#云端节点（控制面）" class="headerlink" title="云端节点（控制面）"></a>云端节点（控制面）</h4><ul>
+<li>操作系统：Ubuntu 20.04+&#x2F;CentOS 7+</li>
+<li>已部署正常运行的 Kubernetes 1.20+ 集群</li>
+<li>已安装 <code>kubectl</code>，<code>~/.kube/config</code> 可用</li>
+<li>防火墙放行：<ul>
+<li><code>10000/tcp</code>：CloudHub 端口，边缘节点接入用</li>
+<li><code>10002/tcp</code>：证书端口，边缘节点首次注册用</li>
+<li><code>10003/tcp</code>（可选）：EdgeMesh 使用</li>
+<li><code>10004/tcp</code>（可选）：Tunnel 端口</li>
+</ul>
+</li>
+</ul>
+<p>检查集群状态：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">kubectl get nodes</span><br><span class="line">kubectl get pods -n kube-system</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="边缘节点（业务面）"><a href="#边缘节点（业务面）" class="headerlink" title="边缘节点（业务面）"></a>边缘节点（业务面）</h4><ul>
+<li>操作系统：Ubuntu 20.04+&#x2F;ARM 嵌入式系统</li>
+<li>已安装 containerd&#x2F;docker 容器运行时</li>
+<li>时间与云端同步（建议配置 NTP）</li>
+<li>能访问云端 <code>10000</code> 和 <code>10002</code> 端口</li>
+<li>关闭或配置好防火墙，避免拦截云边通信</li>
+</ul>
+<h3 id="2、安装keadm工具"><a href="#2、安装keadm工具" class="headerlink" title="2、安装keadm工具"></a>2、安装keadm工具</h3><p>KubeEdge 官方提供了一键部署工具 <strong>keadm</strong>，能自动完成：下载组件、生成证书、部署 CloudCore、生成 join token、接入边缘节点。</p>
+<p>在<strong>云端节点</strong>和<strong>边缘节点</strong>都要安装 keadm。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 安装keadm,可访问https://github.com/kubeedge/kubeedge/releases 下载最新版</span></span><br><span class="line">wget https://github.com/kubeedge/kubeedge/releases/download/v1.22.1/keadm-v1.22.1-linux-amd64.tar.gz</span><br><span class="line"></span><br><span class="line"><span class="comment"># 解压并移动到/usr/local/bin 方便使用</span></span><br><span class="line">tar -zxvf keadm-v1.22.1-linux-amd64.tar.gz</span><br><span class="line"><span class="built_in">cp</span> keadm-v1.22.1-linux-amd64/keadm/keadm /usr/local/bin/keadm</span><br><span class="line"></span><br><span class="line"><span class="comment"># 验证安装</span></span><br><span class="line">keadm version</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="3、云端初始化（部署CloudCore）"><a href="#3、云端初始化（部署CloudCore）" class="headerlink" title="3、云端初始化（部署CloudCore）"></a>3、云端初始化（部署CloudCore）</h3><p>在 K8s 主控节点执行初始化命令，自动创建 kubeedge 命名空间、部署云端核心组件、生成通信证书。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 初始化云端 CloudCore</span></span><br><span class="line"><span class="comment"># --advertise-address 填边缘节点能通的 master 内网 IP：10.12.5.160</span></span><br><span class="line"><span class="comment"># --image-repository 镜像仓库前缀，网络慢时换国内镜像</span></span><br><span class="line">keadm init \</span><br><span class="line">  --advertise-address=10.12.5.160 \</span><br><span class="line">  --kubeedge-version=v1.22.1 \</span><br><span class="line">  --kube-config=/root/.kube/config \</span><br><span class="line">  --image-repository=docker.m.daocloud.io/kubeedge</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+<p><img src="/blog/2026/07/20/KubeEdge%E7%9A%84%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/edge-init.png"></p>
+<p>执行完成后，记录边缘节点接入 Token，用于后续边缘节点注册：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 获取边缘接入token</span></span><br><span class="line">keadm gettoken</span><br></pre></td></tr></table></figure>
+
+
+
+<p>等待云端组件全部启动，确认 Pod 运行正常：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl get pods -n kubeedge</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="4、边缘节点接入集群"><a href="#4、边缘节点接入集群" class="headerlink" title="4、边缘节点接入集群"></a>4、边缘节点接入集群</h3><p>在所有边缘节点执行接入命令，替换为上方获取的 Token 与云端节点 IP，完成边缘节点注册。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 边缘节点接入集群</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 防止下载镜像超时，可以提前下载</span></span><br><span class="line">crictl pull kubeedge/installation-package:v1.22.1</span><br><span class="line"></span><br><span class="line"><span class="comment"># 加入云端节点，通过 keadm join -h 查看各个参数</span></span><br><span class="line"><span class="comment"># --cloudcore-ipport 对应cloudcore的10000端口</span></span><br><span class="line"><span class="comment"># -i, --edgenode-name 是自定义加入节点的名称，唯一即可</span></span><br><span class="line"><span class="comment"># --certport 对应cloudcore的10002端口</span></span><br><span class="line"><span class="comment"># --tarballpath 这个是kubeedge压缩包的地址（可提前从github下载包，会自动下载）</span></span><br><span class="line"><span class="comment"># --token 就是从上面 keadm gettoken 获取的</span></span><br><span class="line">keadm <span class="built_in">join</span>  --cloudcore-ipport=10.12.5.160:10000 \</span><br><span class="line">-i edge01 \</span><br><span class="line">--certport=10002 \</span><br><span class="line">--kubeedge-version=v1.22.1 \</span><br><span class="line">--tarballpath=<span class="string">&quot;/root/k8s/kubeedge/&quot;</span> \</span><br><span class="line">--token=<span class="string">&quot;da99622c850b34fc0af1df75fa6e22a10abf4b11720b49b7e6aa6031231119d5.eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3ODQ2MTcxNDh9.eUE_9KF9s9f_i7et-G50QgJvn2UYuo24ttYfE7oV5YY</span></span><br><span class="line"><span class="string">&quot;</span> </span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+<p><img src="/blog/2026/07/20/KubeEdge%E7%9A%84%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/edge-join.png"></p>
+<h3 id="5、CNI网络问题"><a href="#5、CNI网络问题" class="headerlink" title="5、CNI网络问题"></a>5、CNI网络问题</h3><p>在 KubeEdge 边缘节点上，CNI（容器网络接口）需要特殊处理，主要有两件事要做：</p>
+<ul>
+<li><strong>禁止 calico-node 调度到边缘节点</strong>：因为边缘节点资源有限且网络环境不同，通常不在边缘跑 calico。</li>
+<li><strong>为边缘节点配置独立的桥接网络</strong>：当边缘节点不走 kube-proxy 时，需要一个轻量级的 CNI 插件来给 Pod 分配 IP。</li>
+</ul>
+<h4 id="①、禁止-calico-node-调度到边缘节点"><a href="#①、禁止-calico-node-调度到边缘节点" class="headerlink" title="①、禁止 calico-node 调度到边缘节点"></a>①、禁止 calico-node 调度到边缘节点</h4><p>云端 K8s 集群通常装了 Calico，它的 <code>calico-node</code> DaemonSet 默认会在所有节点上跑。边缘节点不需要 calico-node，而且低配硬件也跑不动。</p>
+<p>通过给 calico-node DaemonSet 添加反亲和，让它<strong>跳过带有 <code>node-role.kubernetes.io/edge</code> 标签的节点</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">kubectl patch daemonset calico-node -n kube-system --<span class="built_in">type</span>=<span class="string">&#x27;merge&#x27;</span> -p <span class="string">&#x27;</span></span><br><span class="line"><span class="string">&#123;</span></span><br><span class="line"><span class="string">  &quot;spec&quot;: &#123;</span></span><br><span class="line"><span class="string">    &quot;template&quot;: &#123;</span></span><br><span class="line"><span class="string">      &quot;spec&quot;: &#123;</span></span><br><span class="line"><span class="string">        &quot;affinity&quot;: &#123;</span></span><br><span class="line"><span class="string">          &quot;nodeAffinity&quot;: &#123;</span></span><br><span class="line"><span class="string">            &quot;requiredDuringSchedulingIgnoredDuringExecution&quot;: &#123;</span></span><br><span class="line"><span class="string">              &quot;nodeSelectorTerms&quot;: [</span></span><br><span class="line"><span class="string">                &#123;</span></span><br><span class="line"><span class="string">                  &quot;matchExpressions&quot;: [</span></span><br><span class="line"><span class="string">                    &#123;</span></span><br><span class="line"><span class="string">                      &quot;key&quot;: &quot;node-role.kubernetes.io/edge&quot;,</span></span><br><span class="line"><span class="string">                      &quot;operator&quot;: &quot;DoesNotExist&quot;</span></span><br><span class="line"><span class="string">                    &#125;</span></span><br><span class="line"><span class="string">                  ]</span></span><br><span class="line"><span class="string">                &#125;</span></span><br><span class="line"><span class="string">              ]</span></span><br><span class="line"><span class="string">            &#125;</span></span><br><span class="line"><span class="string">          &#125;</span></span><br><span class="line"><span class="string">        &#125;</span></span><br><span class="line"><span class="string">      &#125;</span></span><br><span class="line"><span class="string">    &#125;</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string">&#125;&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>前提：你已经给边缘节点打过 <code>node-role.kubernetes.io/edge=</code> 标签。打完标签后 calico-node 的 Pod 就不会再调度到边缘节点了。</p>
+</blockquote>
+<h4 id="②、-为边缘节点配置桥接网络（bridge-CNI）"><a href="#②、-为边缘节点配置桥接网络（bridge-CNI）" class="headerlink" title="②、 为边缘节点配置桥接网络（bridge CNI）"></a>②、 为边缘节点配置桥接网络（bridge CNI）</h4><p>当边缘节点不依赖 kube-proxy 做服务发现时，Pod 之间的网络需要一个 CNI 插件来接管。边缘场景下最常见也最轻量的方案是 <strong>bridge 模式</strong>：在一台宿主机上，把所有 Pod 都挂到一个 Linux 网桥 <code>cni0</code> 上，通过 host-local IPAM 给每个 Pod 分配 IP，并用 NAT 让 Pod 访问外部网络。</p>
+<p><strong>Step 1：进入 CNI 配置目录</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> /etc/cni/net.d/</span><br></pre></td></tr></table></figure>
+
+<p><strong>Step 2：创建 bridge 配置文件</strong></p>
+<p>新建文件 <code>10-kubeedge-bridge.conflist</code>，写入以下内容：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;cniVersion&quot;</span><span class="punctuation">:</span> <span class="string">&quot;1.0.0&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;name&quot;</span><span class="punctuation">:</span> <span class="string">&quot;kubeedge-bridge&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;plugins&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">    <span class="punctuation">&#123;</span></span><br><span class="line">      <span class="attr">&quot;type&quot;</span><span class="punctuation">:</span> <span class="string">&quot;bridge&quot;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;bridge&quot;</span><span class="punctuation">:</span> <span class="string">&quot;cni0&quot;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;isGateway&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">true</span></span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;ipMasq&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">true</span></span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;promiscMode&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">true</span></span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;ipam&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;type&quot;</span><span class="punctuation">:</span> <span class="string">&quot;host-local&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;ranges&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">          <span class="punctuation">[</span></span><br><span class="line">            <span class="punctuation">&#123;</span></span><br><span class="line">              <span class="attr">&quot;subnet&quot;</span><span class="punctuation">:</span> <span class="string">&quot;10.88.0.0/16&quot;</span></span><br><span class="line">            <span class="punctuation">&#125;</span></span><br><span class="line">          <span class="punctuation">]</span></span><br><span class="line">        <span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;routes&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">          <span class="punctuation">&#123;</span></span><br><span class="line">            <span class="attr">&quot;dst&quot;</span><span class="punctuation">:</span> <span class="string">&quot;0.0.0.0/0&quot;</span></span><br><span class="line">          <span class="punctuation">&#125;</span></span><br><span class="line">        <span class="punctuation">]</span></span><br><span class="line">      <span class="punctuation">&#125;</span></span><br><span class="line">    <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="punctuation">&#123;</span></span><br><span class="line">      <span class="attr">&quot;type&quot;</span><span class="punctuation">:</span> <span class="string">&quot;portmap&quot;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;capabilities&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;portMappings&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">true</span></span></span><br><span class="line">      <span class="punctuation">&#125;</span></span><br><span class="line">    <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="punctuation">&#123;</span></span><br><span class="line">      <span class="attr">&quot;type&quot;</span><span class="punctuation">:</span> <span class="string">&quot;firewall&quot;</span></span><br><span class="line">    <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="punctuation">&#123;</span></span><br><span class="line">      <span class="attr">&quot;type&quot;</span><span class="punctuation">:</span> <span class="string">&quot;tuning&quot;</span></span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line">  <span class="punctuation">]</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>各字段的含义：</p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>type: bridge</code></td>
+<td>使用 Linux bridge 作为网络后端</td>
+</tr>
+<tr>
+<td><code>bridge: cni0</code></td>
+<td>创建的网桥名称</td>
+</tr>
+<tr>
+<td><code>isGateway: true</code></td>
+<td>把 <code>cni0</code> 网桥当作 Pod 的默认网关</td>
+</tr>
+<tr>
+<td><code>ipMasq: true</code></td>
+<td>自动做 SNAT，让 Pod 能访问外网</td>
+</tr>
+<tr>
+<td><code>promiscMode: true</code></td>
+<td>开启混杂模式，确保所有报文都能正常转发</td>
+</tr>
+<tr>
+<td><code>ipam.type: host-local</code></td>
+<td>IP 地址管理方式，每台宿主机本地分配</td>
+</tr>
+<tr>
+<td><code>subnet: 10.88.0.0/16</code></td>
+<td>Pod 的 CIDR 地址段（按自己网络规划调整）</td>
+</tr>
+<tr>
+<td><code>routes.dst: 0.0.0.0/0</code></td>
+<td>Pod 默认路由，指向宿主机</td>
+</tr>
+<tr>
+<td><code>portmap</code> 插件</td>
+<td>支持 Pod <code>hostPort</code> 端口映射</td>
+</tr>
+<tr>
+<td><code>firewall</code> 插件</td>
+<td>自动添加 iptables 规则，保证网络安全</td>
+</tr>
+<tr>
+<td><code>tuning</code> 插件</td>
+<td>调优内核网络参数（如 <code>sysctl</code> 配置）</td>
+</tr>
+</tbody></table>
+<p><strong>Step 3：重启 containerd 使配置生效</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systemctl restart containerd</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>如果边缘节点之前残留了 calico 的 CNI 配置文件（如 <code>10-calico.conflist</code>），记得先把它备份移除（改后缀为 <code>.bkb</code> 或不以 <code>.conflist</code> 结尾），否则多个配置冲突可能导致 Pod 网络异常。</p>
+</blockquote>
+<h3 id="6、安装验证"><a href="#6、安装验证" class="headerlink" title="6、安装验证"></a>6、安装验证</h3><p>回到云端 K8s 节点，查看边缘节点状态，状态为 Ready 即部署成功</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl get nodes</span><br></pre></td></tr></table></figure>
+
+<p>此时云端可统一管控所有边缘节点，云边通道建立完成，具备应用部署、设备管理、离线自治能力。</p>
+<p><img src="/blog/2026/07/20/KubeEdge%E7%9A%84%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/edge-nodes.png"></p>
+<h2 id="四、使用"><a href="#四、使用" class="headerlink" title="四、使用"></a>四、使用</h2><p>KubeEdge 完全兼容 K8s 原生操作方式，核心使用场景分为边缘应用部署、边缘节点管理、物联网设备管理三大模块。</p>
+<h3 id="1、边缘应用部署"><a href="#1、边缘应用部署" class="headerlink" title="1、边缘应用部署"></a>1、边缘应用部署</h3><p>通过原生 K8s 资源清单，为边缘节点部署业务应用，可通过节点标签调度应用至指定边缘节点。</p>
+<h4 id="①、为边缘节点打标签"><a href="#①、为边缘节点打标签" class="headerlink" title="①、为边缘节点打标签"></a>①、为边缘节点打标签</h4><p>在 KubeEdge 中，<strong>标签（Label）</strong> 和 <strong>污点（Taint）</strong> 配合使用，可以让云端应用精准调度到边缘节点，同时防止非边缘应用误调度过来。</p>
+<table>
+<thead>
+<tr>
+<th>概念</th>
+<th>作用</th>
+<th>类比</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Label</td>
+<td>标记节点的身份和用途，供 <code>nodeSelector</code> &#x2F; <code>nodeAffinity</code> 匹配</td>
+<td>给节点贴”工牌”</td>
+</tr>
+<tr>
+<td>Taint + Toleration</td>
+<td>拒绝不符合条件的 Pod 调度上来，只有声明了对应 Toleration 的 Pod 才能容忍该节点</td>
+<td>给节点加”门禁”</td>
+</tr>
+</tbody></table>
+<p>常见的边缘调度策略是：<strong>打一个 Label 让边缘应用找到节点，再打一个 NoSchedule Taint 挡住非边缘应用。</strong></p>
+<h5 id="Step-1：打标签"><a href="#Step-1：打标签" class="headerlink" title="Step 1：打标签"></a>Step 1：打标签</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 标记为边缘节点（空值即可，后续用于 nodeSelector 匹配）</span></span><br><span class="line">kubectl label node edge01 node-role.kubernetes.io/edge=</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看标签是否生效</span></span><br><span class="line">kubectl get node edge01 --show-labels</span><br></pre></td></tr></table></figure>
+
+<p>这两条打完，<code>node-role.kubernetes.io/edge</code> 标签会显示在节点信息中，Deployment 可通过它做调度匹配。</p>
+<h5 id="Step-2：打污点（可选但推荐）"><a href="#Step-2：打污点（可选但推荐）" class="headerlink" title="Step 2：打污点（可选但推荐）"></a>Step 2：打污点（可选但推荐）</h5><p>如果希望<strong>只有显式声明了 Toleration 的 Pod 才能调度到边缘节点</strong>，加上 NoSchedule 污点：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 添加污点：effect=NoSchedule 表示不满足条件的 Pod 一律拒绝</span></span><br><span class="line">kubectl taint node edge01 node-role.kubernetes.io/edge=<span class="literal">true</span>:NoSchedule --overwrite</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p><code>--overwrite</code> 是防止节点上已有同名 key 的污点导致命令失败。</p>
+</blockquote>
+<p>这样一来，普通 Deployment 不会误调到边缘节点；而边缘应用只需在 YAML 中加上对应的 Toleration。</p>
+<h5 id="Step-3：在-Deployment-中配合使用"><a href="#Step-3：在-Deployment-中配合使用" class="headerlink" title="Step 3：在 Deployment 中配合使用"></a>Step 3：在 Deployment 中配合使用</h5><p>边缘应用的 Deployment 需要同时声明 <code>nodeSelector</code>（选择节点）和 <code>tolerations</code>（容忍污点）：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">template:</span></span><br><span class="line">    <span class="attr">spec:</span></span><br><span class="line">      <span class="attr">nodeSelector:</span></span><br><span class="line">        <span class="attr">node-role.kubernetes.io/edge:</span> <span class="string">&quot;&quot;</span></span><br><span class="line">      <span class="attr">tolerations:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">key:</span> <span class="string">&quot;node-role.kubernetes.io/edge&quot;</span></span><br><span class="line">          <span class="attr">operator:</span> <span class="string">&quot;Equal&quot;</span></span><br><span class="line">          <span class="attr">value:</span> <span class="string">&quot;true&quot;</span></span><br><span class="line">          <span class="attr">effect:</span> <span class="string">&quot;NoSchedule&quot;</span></span><br><span class="line">      <span class="attr">containers:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">my-edge-app</span></span><br><span class="line">          <span class="attr">image:</span> <span class="string">my-edge-app:v1</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="附：如何移除污点"><a href="#附：如何移除污点" class="headerlink" title="附：如何移除污点"></a>附：如何移除污点</h5><p>如果后续不再需要污点隔离，用 <code>-</code> 后缀移除：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 移除指定污点</span></span><br><span class="line">kubectl taint node edge01 node-role.kubernetes.io/edge:NoSchedule-</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<h4 id="②、编写边缘yaml：指定节点调度"><a href="#②、编写边缘yaml：指定节点调度" class="headerlink" title="②、编写边缘yaml：指定节点调度"></a>②、编写边缘yaml：指定节点调度</h4><p>在调度规则中匹配边缘节点标签，实现应用精准下发至边缘运行。部署方式与原生 K8s 完全一致。</p>
+<p>以下是一个完整的边缘 Deployment，保存为 <code>edge-demo.yaml</code>：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">apps/v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Deployment</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">nginx-edge</span></span><br><span class="line">  <span class="attr">labels:</span></span><br><span class="line">    <span class="attr">app:</span> <span class="string">nginx-edge</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">replicas:</span> <span class="number">1</span></span><br><span class="line">  <span class="attr">selector:</span></span><br><span class="line">    <span class="attr">matchLabels:</span></span><br><span class="line">      <span class="attr">app:</span> <span class="string">nginx-edge</span></span><br><span class="line">  <span class="attr">template:</span></span><br><span class="line">    <span class="attr">metadata:</span></span><br><span class="line">      <span class="attr">labels:</span></span><br><span class="line">        <span class="attr">app:</span> <span class="string">nginx-edge</span></span><br><span class="line">    <span class="attr">spec:</span></span><br><span class="line">      <span class="comment"># 选择边缘节点</span></span><br><span class="line">      <span class="attr">nodeSelector:</span></span><br><span class="line">        <span class="attr">node-role.kubernetes.io/edge:</span> <span class="string">&quot;&quot;</span></span><br><span class="line">      <span class="comment"># 容忍边缘节点污点</span></span><br><span class="line">      <span class="attr">tolerations:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">key:</span> <span class="string">&quot;node-role.kubernetes.io/edge&quot;</span></span><br><span class="line">          <span class="attr">operator:</span> <span class="string">&quot;Equal&quot;</span></span><br><span class="line">          <span class="attr">value:</span> <span class="string">&quot;true&quot;</span></span><br><span class="line">          <span class="attr">effect:</span> <span class="string">&quot;NoSchedule&quot;</span></span><br><span class="line">      <span class="attr">containers:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">nginx</span></span><br><span class="line">          <span class="attr">image:</span> <span class="string">nginx:alpine</span></span><br><span class="line">          <span class="attr">ports:</span></span><br><span class="line">            <span class="bullet">-</span> <span class="attr">containerPort:</span> <span class="number">80</span></span><br><span class="line">              <span class="attr">hostPort:</span> <span class="number">8080</span> <span class="comment"># 宿主机端口监听</span></span><br><span class="line">          <span class="attr">resources:</span></span><br><span class="line">            <span class="attr">requests:</span></span><br><span class="line">              <span class="attr">cpu:</span> <span class="string">100m</span></span><br><span class="line">              <span class="attr">memory:</span> <span class="string">128Mi</span></span><br><span class="line">            <span class="attr">limits:</span></span><br><span class="line">              <span class="attr">cpu:</span> <span class="string">200m</span></span><br><span class="line">              <span class="attr">memory:</span> <span class="string">256Mi</span></span><br></pre></td></tr></table></figure>
+
+
+
+<blockquote>
+<p><strong>关键点</strong>：<code>nodeSelector</code> 让 Pod 调度到边缘节点；<code>tolerations</code> 让 Pod 能容忍之前打的 NoSchedule 污点。两者缺一不可。</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 部署应用</span></span><br><span class="line">kubectl apply -f edge-demo.yaml</span><br></pre></td></tr></table></figure>
+
+
+
+<p><img src="/blog/2026/07/20/KubeEdge%E7%9A%84%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/edge-ip.png"></p>
+<p>因为我的edge01的ip是<code>10.12.5.161</code>,直接访问：<code>http://10.12.5.161:8080</code> 测试</p>
+<p><img src="/blog/2026/07/20/KubeEdge%E7%9A%84%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/edge-nginx.png"></p>
+<h4 id="③、查看边缘应用状态"><a href="#③、查看边缘应用状态" class="headerlink" title="③、查看边缘应用状态"></a>③、查看边缘应用状态</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看 Pod 分布（确认调度到 edge01）</span></span><br><span class="line">kubectl get pods -o wide</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看 Pod 详细信息（事件、状态、分配节点）</span></span><br><span class="line">kubectl describe pod nginx-edge-xxx</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看边缘节点资源与分配的 Pod</span></span><br><span class="line">kubectl describe node edge01</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看节点上的实时资源使用（需安装 metrics-server）</span></span><br><span class="line">kubectl top node edge01</span><br><span class="line">kubectl top pod -A --field-selector spec.nodeName=edge01</span><br></pre></td></tr></table></figure>
+
+<p>部署成功后，你会在 <code>kubectl get pods -o wide</code> 的 <code>NODE</code> 列看到 <code>edge01</code>，说明应用已经精准下发到了边缘节点。</p>
+<h3 id="2、云边远程运维"><a href="#2、云边远程运维" class="headerlink" title="2、云边远程运维"></a>2、云边远程运维</h3><p>依托 KubeEdge 隧道能力，云端可直接远程操作边缘节点 Pod，无需登录边缘设备：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看日志</span></span><br><span class="line">kubectl logs nginx-edge-xxx</span><br><span class="line"></span><br><span class="line"><span class="comment"># 进入容器</span></span><br><span class="line">kubectl <span class="built_in">exec</span> -it nginx-edge-xxx -- /bin/sh</span><br></pre></td></tr></table></figure>
+
+
+
+<blockquote>
+<p>如果提示需要开启 <code>kubectl logs</code> 功能，云端需要额外配置 <code>cloudStream</code> 和 <code>tunnel</code> 相关端口（10003&#x2F;10004）。</p>
+</blockquote>
+<h3 id="3、物联网设备管理"><a href="#3、物联网设备管理" class="headerlink" title="3、物联网设备管理"></a>3、物联网设备管理</h3><p>KubeEdge 把设备抽象成两种 CRD：</p>
+<ul>
+<li><strong>DeviceModel</strong>：设备模型，定义一类设备有哪些属性（Property）</li>
+<li><strong>Device</strong>：具体设备实例，绑定到某个边缘节点</li>
+</ul>
+<h4 id="①、创建设备模型（定义设备属性、协议）"><a href="#①、创建设备模型（定义设备属性、协议）" class="headerlink" title="①、创建设备模型（定义设备属性、协议）"></a>①、创建设备模型（定义设备属性、协议）</h4><p>通过 DeviceModel 统一规范同类设备的参数、读写属性、通信协议。</p>
+<h4 id="②、创建设备实例（绑定边缘节点）"><a href="#②、创建设备实例（绑定边缘节点）" class="headerlink" title="②、创建设备实例（绑定边缘节点）"></a>②、创建设备实例（绑定边缘节点）</h4><p>将物理设备绑定至指定边缘节点，通过对应协议 Mapper 实现设备接入，接入后可在云端查看设备在线状态、实时数据。</p>
+<h4 id="③、查看设备状态"><a href="#③、查看设备状态" class="headerlink" title="③、查看设备状态"></a>③、查看设备状态</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看所有设备模型</span></span><br><span class="line">kubectl get devicemodels</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看所有边缘设备</span></span><br><span class="line">kubectl get devices</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="4、离线自治验证"><a href="#4、离线自治验证" class="headerlink" title="4、离线自治验证"></a>4、离线自治验证</h3><p>断开边缘节点网络，边缘节点原有业务 Pod、设备状态不会中断，业务正常运行；恢复网络后，边缘节点自动向云端同步离线期间的所有数据与状态变更，无需人工干预。</p>
+<p><strong>测试方法：</strong></p>
+<ol>
+<li>在 edge01 上部署一个持续运行的业务 Pod。</li>
+<li>在云端 <code>kubectl get pods</code> 确认运行正常。</li>
+<li>断开 edge01 的网络（如拔掉网线、关闭网卡、阻断到云端的连接）。</li>
+<li>在边缘节点上执行：</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">crictl ps</span><br></pre></td></tr></table></figure>
+
+<p>你会发现业务容器<strong>仍然正常运行</strong>。</p>
+<ol start="5">
+<li>恢复网络后，边缘节点自动 reconnect 到云端，并同步离线期间的状态变化，无需人工干预。</li>
+</ol>
+<blockquote>
+<p>注意：云端新下发的 Pod 在断网期间无法同步到边缘；但<strong>已经在边缘上运行的业务</strong>会保持不变。</p>
+</blockquote>
+<h3 id="5、集群卸载与清理"><a href="#5、集群卸载与清理" class="headerlink" title="5、集群卸载与清理"></a>5、集群卸载与清理</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 边缘节点卸载</span></span><br><span class="line">keadm reset edge</span><br><span class="line"></span><br><span class="line"><span class="comment"># 卸载云端 CloudCore</span></span><br><span class="line">keadm reset cloud</span><br><span class="line"></span><br><span class="line"><span class="comment"># 如果 keadm reset 没有清理干净，手动删除残留资源：</span></span><br><span class="line">kubectl delete deploy cloudcore -n kubeedge</span><br><span class="line">kubectl delete svc cloudcore -n kubeedge</span><br><span class="line">kubectl delete cm cloudcore -n kubeedge</span><br><span class="line">kubectl delete secret cloudcore -n kubeedge</span><br><span class="line"></span><br><span class="line"><span class="comment"># 删除 kubeedge 命名空间（包含所有相关资源）</span></span><br><span class="line">kubectl delete ns kubeedge</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="五、常见问题与排错"><a href="#五、常见问题与排错" class="headerlink" title="五、常见问题与排错"></a>五、常见问题与排错</h2><h3 id="1、边缘节点-join-失败"><a href="#1、边缘节点-join-失败" class="headerlink" title="1、边缘节点 join 失败"></a>1、边缘节点 join 失败</h3><p>检查以下几点：</p>
+<ul>
+<li>Token 是否复制完整，是否已过期（重新 <code>keadm gettoken</code>）</li>
+<li>边缘节点能否访问云端的 <code>10000</code> 和 <code>10002</code> 端口</li>
+<li>云端防火墙是否放行</li>
+<li>云端 CloudCore Pod 是否 Running</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 测试连通性</span></span><br><span class="line">nc -vz 10.12.5.160 10000</span><br><span class="line">nc -vz 10.12.5.160 10002</span><br></pre></td></tr></table></figure>
+
+<h3 id="2、edgecore-启动失败"><a href="#2、edgecore-启动失败" class="headerlink" title="2、edgecore 启动失败"></a>2、edgecore 启动失败</h3><p>查看日志定位原因：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看edgecore实时日志</span></span><br><span class="line">journalctl -u edgecore -f</span><br><span class="line"></span><br><span class="line">journalctl -u edgecore -n 200 --no-pager</span><br><span class="line"></span><br><span class="line"><span class="comment"># 重启</span></span><br><span class="line">systemctl restart edgecore</span><br></pre></td></tr></table></figure>
+
+<p>常见问题：</p>
+<ul>
+<li>容器运行时没装好（containerd&#x2F;docker）</li>
+<li>cgroup 驱动与 docker&#x2F;containerd 不一致</li>
+<li><code>/etc/kubeedge/config/edgecore.yaml</code> 配置错误</li>
+</ul>
+<h3 id="3、kubectl-logs-exec-不能用"><a href="#3、kubectl-logs-exec-不能用" class="headerlink" title="3、kubectl logs&#x2F;exec 不能用"></a>3、kubectl logs&#x2F;exec 不能用</h3><p>需要在云端启用 <code>cloudStream</code> 和 <code>tunnel</code> 端口，并确保边缘能访问云端的 <code>10003</code>、<code>10004</code> 端口。配置后重启 CloudCore 和 EdgeCore。</p>
+<h2 id="六、最后"><a href="#六、最后" class="headerlink" title="六、最后"></a>六、最后</h2><table>
+<thead>
+<tr>
+<th>要点</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>KubeEdge 是什么</td>
+<td>面向边缘计算的 Kubernetes 扩展，云边协同平台</td>
+</tr>
+<tr>
+<td>核心优势</td>
+<td>轻量化、离线自治、云边统一管控、物联网设备原生接入</td>
+</tr>
+<tr>
+<td>核心组件</td>
+<td>云端 CloudCore + 边缘 EdgeCore + Mapper</td>
+</tr>
+<tr>
+<td>部署方式</td>
+<td>keadm 一键部署，分云端 init 和边缘 join 两步</td>
+</tr>
+<tr>
+<td>使用方式</td>
+<td>基本沿用 kubectl，应用部署、设备管理都通过 K8s CRD</td>
+</tr>
+<tr>
+<td>适合场景</td>
+<td>智能制造、智慧园区、车载边缘、安防视频、边缘 AI 推理</td>
+</tr>
+</tbody></table>
+<p>掌握 KubeEdge 后，你就能用一套云原生技术栈，把 Kubernetes 的管理能力延伸到千千万万的边缘节点和终端设备上。</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>您的打赏，是我创作的动力！不给钱？那我只能靠想象力充饥了。</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/wechat_pay.jpg" alt="rstyro 微信支付">
+        <p>微信支付</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/alipay.jpg" alt="rstyro 支付宝">
+        <p>支付宝</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/blog/tags/k8s/" rel="tag"><i class="fa fa-tag"></i> k8s</a>
+              <a href="/blog/tags/KubeEdge/" rel="tag"><i class="fa fa-tag"></i> KubeEdge</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2026/07/16/docker-compose%E5%AE%89%E8%A3%85GitLab%E8%AF%A6%E7%BB%86%E5%AE%89%E8%A3%85%E6%8C%87%E5%8D%97/" rel="prev" title="docker-compose安装GitLab详细安装指南">
+      <i class="fa fa-chevron-left"></i> docker-compose安装GitLab详细安装指南
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E6%A6%82%E8%BF%B0"><span class="nav-number">2.</span> <span class="nav-text">一、概述</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1%E3%80%81%E4%B8%BA%E4%BB%80%E4%B9%88%E9%9C%80%E8%A6%81KubeEdge"><span class="nav-number">2.1.</span> <span class="nav-text">1、为什么需要KubeEdge</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E6%A0%B8%E5%BF%83%E6%9E%B6%E6%9E%84"><span class="nav-number">3.</span> <span class="nav-text">二、核心架构</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1%E3%80%81%E4%BA%91%E7%AB%AF%E7%BB%84%E4%BB%B6%EF%BC%88CloudCore%EF%BC%89"><span class="nav-number">3.1.</span> <span class="nav-text">1、云端组件（CloudCore）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2%E3%80%81%E8%BE%B9%E7%BC%98%E7%AB%AF%E7%BB%84%E4%BB%B6%EF%BC%88EdgeCore%EF%BC%89"><span class="nav-number">3.2.</span> <span class="nav-text">2、边缘端组件（EdgeCore）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3%E3%80%81-%E7%BB%88%E7%AB%AF%E6%8E%A5%E5%85%A5%E5%B1%82"><span class="nav-number">3.3.</span> <span class="nav-text">3、 终端接入层</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E5%AE%89%E8%A3%85"><span class="nav-number">4.</span> <span class="nav-text">三、安装</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1%E3%80%81%E7%8E%AF%E5%A2%83%E5%89%8D%E7%BD%AE%E8%A6%81%E6%B1%82"><span class="nav-number">4.1.</span> <span class="nav-text">1、环境前置要求</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%88%91%E7%9A%84%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83"><span class="nav-number">4.1.1.</span> <span class="nav-text">我的测试环境</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BA%91%E7%AB%AF%E8%8A%82%E7%82%B9%EF%BC%88%E6%8E%A7%E5%88%B6%E9%9D%A2%EF%BC%89"><span class="nav-number">4.1.2.</span> <span class="nav-text">云端节点（控制面）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%BE%B9%E7%BC%98%E8%8A%82%E7%82%B9%EF%BC%88%E4%B8%9A%E5%8A%A1%E9%9D%A2%EF%BC%89"><span class="nav-number">4.1.3.</span> <span class="nav-text">边缘节点（业务面）</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2%E3%80%81%E5%AE%89%E8%A3%85keadm%E5%B7%A5%E5%85%B7"><span class="nav-number">4.2.</span> <span class="nav-text">2、安装keadm工具</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3%E3%80%81%E4%BA%91%E7%AB%AF%E5%88%9D%E5%A7%8B%E5%8C%96%EF%BC%88%E9%83%A8%E7%BD%B2CloudCore%EF%BC%89"><span class="nav-number">4.3.</span> <span class="nav-text">3、云端初始化（部署CloudCore）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4%E3%80%81%E8%BE%B9%E7%BC%98%E8%8A%82%E7%82%B9%E6%8E%A5%E5%85%A5%E9%9B%86%E7%BE%A4"><span class="nav-number">4.4.</span> <span class="nav-text">4、边缘节点接入集群</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5%E3%80%81CNI%E7%BD%91%E7%BB%9C%E9%97%AE%E9%A2%98"><span class="nav-number">4.5.</span> <span class="nav-text">5、CNI网络问题</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E2%91%A0%E3%80%81%E7%A6%81%E6%AD%A2-calico-node-%E8%B0%83%E5%BA%A6%E5%88%B0%E8%BE%B9%E7%BC%98%E8%8A%82%E7%82%B9"><span class="nav-number">4.5.1.</span> <span class="nav-text">①、禁止 calico-node 调度到边缘节点</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E2%91%A1%E3%80%81-%E4%B8%BA%E8%BE%B9%E7%BC%98%E8%8A%82%E7%82%B9%E9%85%8D%E7%BD%AE%E6%A1%A5%E6%8E%A5%E7%BD%91%E7%BB%9C%EF%BC%88bridge-CNI%EF%BC%89"><span class="nav-number">4.5.2.</span> <span class="nav-text">②、 为边缘节点配置桥接网络（bridge CNI）</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6%E3%80%81%E5%AE%89%E8%A3%85%E9%AA%8C%E8%AF%81"><span class="nav-number">4.6.</span> <span class="nav-text">6、安装验证</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E4%BD%BF%E7%94%A8"><span class="nav-number">5.</span> <span class="nav-text">四、使用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1%E3%80%81%E8%BE%B9%E7%BC%98%E5%BA%94%E7%94%A8%E9%83%A8%E7%BD%B2"><span class="nav-number">5.1.</span> <span class="nav-text">1、边缘应用部署</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E2%91%A0%E3%80%81%E4%B8%BA%E8%BE%B9%E7%BC%98%E8%8A%82%E7%82%B9%E6%89%93%E6%A0%87%E7%AD%BE"><span class="nav-number">5.1.1.</span> <span class="nav-text">①、为边缘节点打标签</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#Step-1%EF%BC%9A%E6%89%93%E6%A0%87%E7%AD%BE"><span class="nav-number">5.1.1.1.</span> <span class="nav-text">Step 1：打标签</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Step-2%EF%BC%9A%E6%89%93%E6%B1%A1%E7%82%B9%EF%BC%88%E5%8F%AF%E9%80%89%E4%BD%86%E6%8E%A8%E8%8D%90%EF%BC%89"><span class="nav-number">5.1.1.2.</span> <span class="nav-text">Step 2：打污点（可选但推荐）</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Step-3%EF%BC%9A%E5%9C%A8-Deployment-%E4%B8%AD%E9%85%8D%E5%90%88%E4%BD%BF%E7%94%A8"><span class="nav-number">5.1.1.3.</span> <span class="nav-text">Step 3：在 Deployment 中配合使用</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E9%99%84%EF%BC%9A%E5%A6%82%E4%BD%95%E7%A7%BB%E9%99%A4%E6%B1%A1%E7%82%B9"><span class="nav-number">5.1.1.4.</span> <span class="nav-text">附：如何移除污点</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E2%91%A1%E3%80%81%E7%BC%96%E5%86%99%E8%BE%B9%E7%BC%98yaml%EF%BC%9A%E6%8C%87%E5%AE%9A%E8%8A%82%E7%82%B9%E8%B0%83%E5%BA%A6"><span class="nav-number">5.1.2.</span> <span class="nav-text">②、编写边缘yaml：指定节点调度</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E2%91%A2%E3%80%81%E6%9F%A5%E7%9C%8B%E8%BE%B9%E7%BC%98%E5%BA%94%E7%94%A8%E7%8A%B6%E6%80%81"><span class="nav-number">5.1.3.</span> <span class="nav-text">③、查看边缘应用状态</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2%E3%80%81%E4%BA%91%E8%BE%B9%E8%BF%9C%E7%A8%8B%E8%BF%90%E7%BB%B4"><span class="nav-number">5.2.</span> <span class="nav-text">2、云边远程运维</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3%E3%80%81%E7%89%A9%E8%81%94%E7%BD%91%E8%AE%BE%E5%A4%87%E7%AE%A1%E7%90%86"><span class="nav-number">5.3.</span> <span class="nav-text">3、物联网设备管理</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E2%91%A0%E3%80%81%E5%88%9B%E5%BB%BA%E8%AE%BE%E5%A4%87%E6%A8%A1%E5%9E%8B%EF%BC%88%E5%AE%9A%E4%B9%89%E8%AE%BE%E5%A4%87%E5%B1%9E%E6%80%A7%E3%80%81%E5%8D%8F%E8%AE%AE%EF%BC%89"><span class="nav-number">5.3.1.</span> <span class="nav-text">①、创建设备模型（定义设备属性、协议）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E2%91%A1%E3%80%81%E5%88%9B%E5%BB%BA%E8%AE%BE%E5%A4%87%E5%AE%9E%E4%BE%8B%EF%BC%88%E7%BB%91%E5%AE%9A%E8%BE%B9%E7%BC%98%E8%8A%82%E7%82%B9%EF%BC%89"><span class="nav-number">5.3.2.</span> <span class="nav-text">②、创建设备实例（绑定边缘节点）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E2%91%A2%E3%80%81%E6%9F%A5%E7%9C%8B%E8%AE%BE%E5%A4%87%E7%8A%B6%E6%80%81"><span class="nav-number">5.3.3.</span> <span class="nav-text">③、查看设备状态</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4%E3%80%81%E7%A6%BB%E7%BA%BF%E8%87%AA%E6%B2%BB%E9%AA%8C%E8%AF%81"><span class="nav-number">5.4.</span> <span class="nav-text">4、离线自治验证</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5%E3%80%81%E9%9B%86%E7%BE%A4%E5%8D%B8%E8%BD%BD%E4%B8%8E%E6%B8%85%E7%90%86"><span class="nav-number">5.5.</span> <span class="nav-text">5、集群卸载与清理</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%94%E3%80%81%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98%E4%B8%8E%E6%8E%92%E9%94%99"><span class="nav-number">6.</span> <span class="nav-text">五、常见问题与排错</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1%E3%80%81%E8%BE%B9%E7%BC%98%E8%8A%82%E7%82%B9-join-%E5%A4%B1%E8%B4%A5"><span class="nav-number">6.1.</span> <span class="nav-text">1、边缘节点 join 失败</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2%E3%80%81edgecore-%E5%90%AF%E5%8A%A8%E5%A4%B1%E8%B4%A5"><span class="nav-number">6.2.</span> <span class="nav-text">2、edgecore 启动失败</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3%E3%80%81kubectl-logs-exec-%E4%B8%8D%E8%83%BD%E7%94%A8"><span class="nav-number">6.3.</span> <span class="nav-text">3、kubectl logs&#x2F;exec 不能用</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%AD%E3%80%81%E6%9C%80%E5%90%8E"><span class="nav-number">7.</span> <span class="nav-text">六、最后</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="rstyro"
+      src="/blog/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">rstyro</p>
+  <div class="site-description" itemprop="description">人间的饭，吃一碗少一碗，身边的人，见一面少一面，脚下的路，走一天少一天，其实人生就是一个减法，来日并不方长！</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives/">
+        
+          <span class="site-state-item-count">252</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/blog/tags/">
+          
+        <span class="site-state-item-count">110</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/rstyro" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;rstyro" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/rstyro" title="Gitee → https:&#x2F;&#x2F;gitee.com&#x2F;rstyro" rel="noopener" target="_blank"><i class="fab fa-codiepie fa-fw"></i>Gitee</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.jianshu.com/u/651c15a1758a" title="简书 → https:&#x2F;&#x2F;www.jianshu.com&#x2F;u&#x2F;651c15a1758a" rel="noopener" target="_blank"><i class="fa fa-book fa-fw"></i>简书</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      友链
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://rstyro.github.io/blog/" title="https:&#x2F;&#x2F;rstyro.github.io&#x2F;blog&#x2F;">胖不了小陆</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; Mon Apr 10 2017 08:00:00 GMT+0800 (中国标准时间) – 
+  <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">以梦为马，诗酒趁年华</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/muse.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+  <script>
+    (function(){
+      var canonicalURL, curProtocol;
+      //Get the <link> tag
+      var x=document.getElementsByTagName("link");
+		//Find the last canonical URL
+		if(x.length > 0){
+			for (i=0;i<x.length;i++){
+				if(x[i].rel.toLowerCase() == 'canonical' && x[i].href){
+					canonicalURL=x[i].href;
+				}
+			}
+		}
+    //Get protocol
+	    if (!canonicalURL){
+	    	curProtocol = window.location.protocol.split(':')[0];
+	    }
+	    else{
+	    	curProtocol = canonicalURL.split(':')[0];
+	    }
+      //Get current URL if the canonical URL does not exist
+	    if (!canonicalURL) canonicalURL = window.location.href;
+	    //Assign script content. Replace current URL with the canonical URL
+      !function(){var e=/([http|https]:\/\/[a-zA-Z0-9\_\.]+\.baidu\.com)/gi,r=canonicalURL,t=document.referrer;if(!e.test(r)){var n=(String(curProtocol).toLowerCase() === 'https')?"https://sp0.baidu.com/9_Q4simg2RQJ8t7jm9iCKT-xh_/s.gif":"//api.share.baidu.com/s.gif";t?(n+="?r="+encodeURIComponent(document.referrer),r&&(n+="&l="+r)):r&&(n+="?l="+r);var i=new Image;i.src=n}}(window);})();
+  </script>
+
+
+
+
+  
+<script src="/blog/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+<script>
+if (document.querySelectorAll('pre.mermaid').length) {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mermaid@8/dist/mermaid.min.js', () => {
+    mermaid.initialize({
+      theme    : 'default',
+      logLevel : 3,
+      flowchart: { curve     : 'linear' },
+      gantt    : { axisFormat: '%m/%d/%Y' },
+      sequence : { actorMargin: 50 }
+    });
+  }, window.mermaid);
+}
+</script>
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : 'Ov23litYkWaOGM7kAKPD',
+      clientSecret: '43bd3cf99bfcb9d05d16627c97a9f7a0200df04a',
+      repo        : 'blog',
+      owner       : 'rstyro',
+      admin       : ['rstyro'],
+      id          : 'a9622b9df94fc061d3a49f82d92fe0e9',
+        language: '',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>
