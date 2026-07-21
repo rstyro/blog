@@ -22,12 +22,12 @@
     var CONFIG = {"hostname":"rstyro.github.io","root":"/blog/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":true},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.json"};
   </script>
 
-  <meta name="description" content="在我们电脑上，我们大部分使用 Clash 桌面版和订阅链接轻松访问外网，但当需求迁移到 Linux 服务器时，桌面客户端便无法直接使用。此时，Mihomo 作为一款轻量、稳定且资源占用极低的 Clash 内核，完美适配绝大多数 Linux 发行版，是服务器代理的理想选择。本文将从零开始，详细记录完整的部署流程，你只需逐条执行命令，无需任何额外复杂操作，即可一次跑通，快速拥有稳定可靠的代理服务。 一">
+  <meta name="description" content="在我们电脑上，我们大部分使用 Clash 桌面版和订阅链接轻松访问外网，但当需求迁移到 Linux 服务器时，桌面客户端便无法直接使用。此时，Mihomo 作为一款轻量、稳定且资源占用极低的 Clash 内核，完美适配绝大多数 Linux 发行版，是服务器代理的理想选择。本文将从零开始，详细记录完整的部署流程，你只需逐条执行命令，无需任何额外复杂操作，即可一次跑通，快速拥有稳定可靠的代理服务。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Linux服务器部署Mihomo配置Clash代理">
 <meta property="og:url" content="https://rstyro.github.io/blog/2026/07/04/Linux%E6%9C%8D%E5%8A%A1%E5%99%A8%E9%83%A8%E7%BD%B2Mihomo%E9%85%8D%E7%BD%AEClash%E4%BB%A3%E7%90%86/index.html">
 <meta property="og:site_name" content="胖不了小陆">
-<meta property="og:description" content="在我们电脑上，我们大部分使用 Clash 桌面版和订阅链接轻松访问外网，但当需求迁移到 Linux 服务器时，桌面客户端便无法直接使用。此时，Mihomo 作为一款轻量、稳定且资源占用极低的 Clash 内核，完美适配绝大多数 Linux 发行版，是服务器代理的理想选择。本文将从零开始，详细记录完整的部署流程，你只需逐条执行命令，无需任何额外复杂操作，即可一次跑通，快速拥有稳定可靠的代理服务。 一">
+<meta property="og:description" content="在我们电脑上，我们大部分使用 Clash 桌面版和订阅链接轻松访问外网，但当需求迁移到 Linux 服务器时，桌面客户端便无法直接使用。此时，Mihomo 作为一款轻量、稳定且资源占用极低的 Clash 内核，完美适配绝大多数 Linux 发行版，是服务器代理的理想选择。本文将从零开始，详细记录完整的部署流程，你只需逐条执行命令，无需任何额外复杂操作，即可一次跑通，快速拥有稳定可靠的代理服务。">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://rstyro.github.io/blog/2026/07/04/Linux%E6%9C%8D%E5%8A%A1%E5%99%A8%E9%83%A8%E7%BD%B2Mihomo%E9%85%8D%E7%BD%AEClash%E4%BB%A3%E7%90%86/download.png">
 <meta property="og:image" content="https://rstyro.github.io/blog/2026/07/04/Linux%E6%9C%8D%E5%8A%A1%E5%99%A8%E9%83%A8%E7%BD%B2Mihomo%E9%85%8D%E7%BD%AEClash%E4%BB%A3%E7%90%86/test.png">
@@ -252,6 +252,11 @@
 
       
         <p>在我们电脑上，我们大部分使用 Clash 桌面版和订阅链接轻松访问外网，但当需求迁移到 Linux 服务器时，桌面客户端便无法直接使用。此时，Mihomo 作为一款轻量、稳定且资源占用极低的 Clash 内核，完美适配绝大多数 Linux 发行版，是服务器代理的理想选择。本文将从零开始，详细记录完整的部署流程，你只需逐条执行命令，无需任何额外复杂操作，即可一次跑通，快速拥有稳定可靠的代理服务。</p>
+<span id="more"></span>
+
+
+
+
 <h2 id="一、安装-Mihomo-主程序"><a href="#一、安装-Mihomo-主程序" class="headerlink" title="一、安装 Mihomo 主程序"></a>一、安装 Mihomo 主程序</h2><h3 id="1-先确认服务器架构"><a href="#1-先确认服务器架构" class="headerlink" title="1. 先确认服务器架构"></a>1. 先确认服务器架构</h3><p>不同系统架构对应不同安装包，先执行命令查看本机架构：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">uname</span> -m</span><br></pre></td></tr></table></figure>
 <ul>
@@ -262,7 +267,7 @@
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 下载对应版本安装包（可去官方GitHub Releases替换最新版本号）</span></span><br><span class="line">wget https://github.com/MetaCubeX/mihomo/releases/download/v1.19.27/mihomo-linux-amd64-v1.19.27.gz</span><br><span class="line"></span><br><span class="line"><span class="comment"># 解压压缩包</span></span><br><span class="line">gunzip mihomo-linux-amd64-v1.19.27.gz</span><br><span class="line"></span><br><span class="line"><span class="comment"># 简化程序名，赋予运行权限</span></span><br><span class="line"><span class="built_in">mv</span> mihomo-linux-amd64-v1.19.27 mihomo</span><br><span class="line"><span class="built_in">chmod</span> +x mihomo</span><br><span class="line"></span><br><span class="line"><span class="comment"># 移动到系统全局目录，任意位置直接调用mihomo命令</span></span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">mv</span> mihomo /usr/local/bin/</span><br></pre></td></tr></table></figure>
 
 
-<span id="more"></span>
+
 
 
 <p><img src="/blog/2026/07/04/Linux%E6%9C%8D%E5%8A%A1%E5%99%A8%E9%83%A8%E7%BD%B2Mihomo%E9%85%8D%E7%BD%AEClash%E4%BB%A3%E7%90%86/download.png"></p>
@@ -418,7 +423,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/blog/archives/">
         
-          <span class="site-state-item-count">252</span>
+          <span class="site-state-item-count">253</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -431,7 +436,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/blog/tags/">
           
-        <span class="site-state-item-count">110</span>
+        <span class="site-state-item-count">111</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>

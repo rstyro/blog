@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/favicon.jpg">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon.jpg">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon.jpg">
+  <link rel="mask-icon" href="/blog/images/favicon.jpg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="/blog/lib/pace/pace-theme-flash.min.css">
+  <script src="/blog/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"rstyro.github.io","root":"/blog/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":true},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.json"};
+  </script>
+
+  <meta name="description" content="前言随着大模型、传统机器学习和深度学习推理业务的大规模落地，企业在实际生产中普遍面临以下运维挑战：  多框架模型（TensorFlow、PyTorch、ONNX、XGBoost、TensorRT、LLM 等）部署方式各异，缺乏统一运维手段； 推理流量波动剧烈，在线服务与离线批处理并存，静态资源分配导致大量浪费； 模型版本管理缺失，灰度发布、A&#x2F;B 测试、流量切分等高级发布策略难以实现；">
+<meta property="og:type" content="article">
+<meta property="og:title" content="KServe的安装与使用">
+<meta property="og:url" content="https://rstyro.github.io/blog/2026/07/21/KServe%E7%9A%84%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/index.html">
+<meta property="og:site_name" content="胖不了小陆">
+<meta property="og:description" content="前言随着大模型、传统机器学习和深度学习推理业务的大规模落地，企业在实际生产中普遍面临以下运维挑战：  多框架模型（TensorFlow、PyTorch、ONNX、XGBoost、TensorRT、LLM 等）部署方式各异，缺乏统一运维手段； 推理流量波动剧烈，在线服务与离线批处理并存，静态资源分配导致大量浪费； 模型版本管理缺失，灰度发布、A&#x2F;B 测试、流量切分等高级发布策略难以实现；">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://rstyro.github.io/blog/2026/07/21/KServe%E7%9A%84%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/kserve-models.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2026/07/21/KServe%E7%9A%84%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/kserve-logs.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2026/07/21/KServe%E7%9A%84%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/kserve-pod.png">
+<meta property="og:image" content="https://rstyro.github.io/blog/2026/07/21/KServe%E7%9A%84%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/kserve-request.png">
+<meta property="article:published_time" content="2026-07-21T10:31:22.000Z">
+<meta property="article:modified_time" content="2026-07-21T03:15:39.590Z">
+<meta property="article:author" content="rstyro">
+<meta property="article:tag" content="k8s">
+<meta property="article:tag" content="Kserve">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://rstyro.github.io/blog/2026/07/21/KServe%E7%9A%84%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/kserve-models.png">
+
+<link rel="canonical" href="https://rstyro.github.io/blog/2026/07/21/KServe%E7%9A%84%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>KServe的安装与使用 | 胖不了小陆</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">胖不了小陆</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">信你所信，为你所见</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/blog/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/blog/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/blog/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/rstyro" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://rstyro.github.io/blog/2026/07/21/KServe%E7%9A%84%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/avatar.jpg">
+      <meta itemprop="name" content="rstyro">
+      <meta itemprop="description" content="人间的饭，吃一碗少一碗，身边的人，见一面少一面，脚下的路，走一天少一天，其实人生就是一个减法，来日并不方长！">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="胖不了小陆">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          KServe的安装与使用
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2026-07-21 18:31:22 / 修改时间：11:15:39" itemprop="dateCreated datePublished" datetime="2026-07-21T18:31:22+08:00">2026-07-21</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E7%BD%91%E7%BB%9C%E8%BF%90%E7%BB%B4/" itemprop="url" rel="index"><span itemprop="name">网络运维</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>随着大模型、传统机器学习和深度学习推理业务的大规模落地，企业在实际生产中普遍面临以下运维挑战：</p>
+<ul>
+<li>多框架模型（TensorFlow、PyTorch、ONNX、XGBoost、TensorRT、LLM 等）部署方式各异，缺乏统一运维手段；</li>
+<li>推理流量波动剧烈，在线服务与离线批处理并存，静态资源分配导致大量浪费；</li>
+<li>模型版本管理缺失，灰度发布、A&#x2F;B 测试、流量切分等高级发布策略难以实现；</li>
+<li>推理接口协议不统一，REST&#x2F;gRPC 接口格式各异，上层业务集成成本高；</li>
+<li>可观测性不足，监控、日志、链路追踪等能力需自行开发，无法开箱即用。</li>
+</ul>
+<p>原生 Kubernetes 仅提供基础的容器编排能力，无法满足上述 AI 推理场景的专属需求。</p>
+<span id="more"></span>
+
+
+<p><strong>KServe</strong> 应运而生，它是一个由 CNCF 托管的云原生模型推理平台，基于 Kubernetes 构建，提供标准化、高性能、轻量化的推理服务解决方案。本文将从概念、架构、安装到实际案例，全方位介绍 KServe，覆盖 <strong>Standard（标准）</strong> 与 <strong>Knative Serverless（无服务器）</strong> 两种主流部署模式，助您快速落地 AI 推理服务。</p>
+<h2 id="一、概述"><a href="#一、概述" class="headerlink" title="一、概述"></a>一、概述</h2><h3 id="1、什么是-KServe"><a href="#1、什么是-KServe" class="headerlink" title="1、什么是 KServe"></a>1、什么是 KServe</h3><p>KServe（前身 KFServing）是面向机器学习 &#x2F; 深度学习推理场景的开源云原生框架，运行在 Kubernetes 之上，目标是提供统一、标准化的模型推理服务平台。</p>
+<p>它屏蔽不同 AI 框架、推理引擎的部署差异，通过自定义资源 <code>InferenceService</code> 统一管理模型服务生命周期，内置弹性伸缩、流量路由、灰度发布、模型监控、日志追踪、安全鉴权等企业级能力，兼容传统机器学习、CV 视觉模型、大语言模型 LLM 各类推理业务。</p>
+<h3 id="2、KServe-诞生背景与解决的核心问题"><a href="#2、KServe-诞生背景与解决的核心问题" class="headerlink" title="2、KServe 诞生背景与解决的核心问题"></a>2、KServe 诞生背景与解决的核心问题</h3><ul>
+<li><strong>部署繁琐</strong>：TensorFlow、PyTorch、ONNX、XGBoost、TensorRT、LLM 各自推理服务镜像、接口不统一，运维成本极高；</li>
+<li><strong>算力资源浪费</strong>：推理流量波峰波谷差异显著，原生 Deployment 无法缩容至零，空闲时仍占用资源；</li>
+<li><strong>缺少模型版本管控能力</strong>：不支持灰度发布、A&#x2F;B 测试、流量权重切分，模型上线风险高；</li>
+<li><strong>接口协议混乱</strong>：不同模型服务 Rest&#x2F;gRPC 接口格式不统一，业务对接成本高；</li>
+<li><strong>推理可观测能力缺失</strong>：模型输入输出监控、推理延迟、错误率、样本日志采集需要自行开发。</li>
+</ul>
+<h4 id="KServe-核心解决能力"><a href="#KServe-核心解决能力" class="headerlink" title="KServe 核心解决能力"></a>KServe 核心解决能力</h4><ul>
+<li><strong>统一 CRD</strong>：使用 <code>InferenceService</code> 一套 YAML 即可部署任意框架模型；</li>
+<li><strong>Serverless 伸缩</strong>：基于 Knative 支持缩容至零副本，大幅节省成本；</li>
+<li><strong>精细流量管理</strong>：集成 Istio 原生能力，支持灰度、蓝绿、A&#x2F;B 测试、流量镜像；</li>
+<li><strong>标准化推理协议</strong>：遵循 v2 推理协议（REST&#x2F;gRPC），统一预测和元数据接口；</li>
+<li><strong>内置可观测性</strong>：自动采集 QPS、延迟、错误率等指标，集成日志和分布式追踪；</li>
+<li><strong>异构硬件调度</strong>：支持 GPU 调度，模型存储支持 S3&#x2F;OSS&#x2F;MinIO&#x2F;PVC 及本地挂载，同时支持离线批量推理。</li>
+</ul>
+<h3 id="3、什么是-InferenceService"><a href="#3、什么是-InferenceService" class="headerlink" title="3、什么是 InferenceService"></a>3、什么是 InferenceService</h3><p><code>InferenceService</code> 是 KServe 的核心自定义资源（CRD），是用户定义模型推理服务的唯一入口，替代原生 Kubernetes的 Deployment&#x2F;Service&#x2F;Ingress。</p>
+<p>只需要一份 <code>InferenceService</code> YAML，KServe Controller 会自动创建底层所有资源：</p>
+<ul>
+<li>推理后端容器（<strong>Predictor</strong>）</li>
+<li>数据预处理&#x2F;后处理容器（<strong>Transformer</strong>）</li>
+<li>模型可解释性容器（<strong>Explainer</strong>）</li>
+<li>流量路由规则、VirtualService、弹性伸缩策略（HPA 或 Knative Autoscaler）</li>
+</ul>
+<h4 id="三大核心组件"><a href="#三大核心组件" class="headerlink" title="三大核心组件"></a>三大核心组件</h4><table>
+<thead>
+<tr>
+<th align="left">组件</th>
+<th align="left">职责</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>Predictor（预测器）</strong></td>
+<td align="left">加载模型，处理核心推理请求，支持多种运行时（Triton、TorchServe、TensorFlow Serving、vLLM、MLServer 等）</td>
+</tr>
+<tr>
+<td align="left"><strong>Transformer（转换器）</strong></td>
+<td align="left">执行请求前数据预处理和响应后处理，解耦业务逻辑与推理引擎</td>
+</tr>
+<tr>
+<td align="left"><strong>Explainer（解释器）</strong></td>
+<td align="left">提供模型可解释性分析（如特征贡献度），适用于风控、医疗等需解释性的场景</td>
+</tr>
+</tbody></table>
+<h3 id="4、核心组件"><a href="#4、核心组件" class="headerlink" title="4、核心组件"></a>4、核心组件</h3><table>
+<thead>
+<tr>
+<th align="left">组件</th>
+<th align="left">说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>KServe Controller</strong></td>
+<td align="left">核心控制器，监听 <code>InferenceService</code> CRD，协调创建&#x2F;更新&#x2F;删除底层工作负载</td>
+</tr>
+<tr>
+<td align="left"><strong>Model Storage Initializer</strong></td>
+<td align="left">初始化 Sidecar 容器，自动从 对象存储（S3）、PVC、宿主机目录拉取模型文件至 Pod；</td>
+</tr>
+<tr>
+<td align="left"><strong>Predictor Runtimes</strong></td>
+<td align="left">官方预置的多框架推理镜像（Triton、TorchServe、TensorFlow Serving、vLLM、MLServer 等）</td>
+</tr>
+<tr>
+<td align="left"><strong>KServe Agent</strong></td>
+<td align="left">Sidecar 容器，负责指标采集、日志转发、健康检查、推理协议适配</td>
+</tr>
+<tr>
+<td align="left"><strong>Ingress Gateway</strong></td>
+<td align="left">基于 Istio 或 KServe Gateway，统一推理流量入口，实现路由、限流、灰度、鉴权</td>
+</tr>
+<tr>
+<td align="left"><strong>Autoscaler</strong></td>
+<td align="left">两种伸缩模式： <br />• <strong>Standard 模式</strong>：基于 K8s HPA（CPU&#x2F;QPS 指标），不支持缩容至零 <br />• <strong>Knative 模式</strong>：基于 Knative Autoscaler，支持零副本缩容</td>
+</tr>
+</tbody></table>
+<h2 id="二、整体架构"><a href="#二、整体架构" class="headerlink" title="二、整体架构"></a>二、整体架构</h2><h3 id="1、KServe-全局架构"><a href="#1、KServe-全局架构" class="headerlink" title="1、KServe 全局架构"></a>1、KServe 全局架构</h3><p>KServe 整体架构分为四层，完全基于 Kubernetes 生态扩展：</p>
+<table>
+<thead>
+<tr>
+<th align="left">层级</th>
+<th align="left">组件说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>控制平面层</strong></td>
+<td align="left">KServe Controller、CRD（<code>InferenceService</code>、<code>ClusterServingRuntime</code>），依赖 Kubernetes API Server、etcd、调度器及 GPU 调度插件</td>
+</tr>
+<tr>
+<td align="left"><strong>流量管理层</strong></td>
+<td align="left">Istio Gateway &#x2F; Knative Ingress 提供外部流量入口；<br />VirtualService 实现流量切分、灰度、路由规则</td>
+</tr>
+<tr>
+<td align="left"><strong>推理运行时层</strong>（Pod 内部）</td>
+<td align="left">Model Storage Initializer + KServe Agent Sidecar + Predictor&#x2F;Transformer&#x2F;Explainer 主容器</td>
+</tr>
+<tr>
+<td align="left"><strong>存储与可观测层</strong></td>
+<td align="left">• <strong>存储</strong>：MinIO&#x2F;S3&#x2F;云对象存储&#x2F;PVC 等 <br />• <strong>监控</strong>：Prometheus + Grafana 采集推理 QPS、延迟、错误率 <br />• <strong>日志</strong>：Loki&#x2F;ELK 采集推理输入输出日志 <br />• <strong>链路追踪</strong>：Jaeger&#x2F;Zipkin 追踪推理请求全链路</td>
+</tr>
+</tbody></table>
+<h2 id="三、安装KServe"><a href="#三、安装KServe" class="headerlink" title="三、安装KServe"></a>三、安装KServe</h2><h3 id="1、前置环境准备"><a href="#1、前置环境准备" class="headerlink" title="1、前置环境准备"></a>1、前置环境准备</h3><ul>
+<li>可用 Kubernetes 集群 1.24+；</li>
+<li>已安装 Helm 3；</li>
+<li>若使用 GPU 推理：部署 nvidia-device-plugin；</li>
+</ul>
+<h3 id="2、拉取源码"><a href="#2、拉取源码" class="headerlink" title="2、拉取源码"></a>2、拉取源码</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 克隆 kserve 官方代码仓库</span></span><br><span class="line">git <span class="built_in">clone</span> https://github.com/kserve/kserve.git</span><br><span class="line"></span><br><span class="line"><span class="built_in">cd</span> kserve</span><br><span class="line"></span><br><span class="line"><span class="comment"># 切换稳定版本，本文示例 v0.18.0</span></span><br><span class="line">git checkout release-0.18</span><br></pre></td></tr></table></figure>
+
+
+<h3 id="3、一键安装脚本（推荐）"><a href="#3、一键安装脚本（推荐）" class="headerlink" title="3、一键安装脚本（推荐）"></a>3、一键安装脚本（推荐）</h3><p>KServe 源码提供了自动化安装脚本 <code>hack/kserve-install.sh</code>，可一键安装所有依赖（cert-manager、Istio、Knative 等）及 KServe 自身，比手动 Helm 操作简便许多。</p>
+<h4 id="脚本核心参数说明"><a href="#脚本核心参数说明" class="headerlink" title="脚本核心参数说明"></a>脚本核心参数说明</h4><table>
+<thead>
+<tr>
+<th>参数</th>
+<th>含义</th>
+<th>选项</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>--kserve-version</code></td>
+<td>KServe 版本</td>
+<td><code>v0.18.0</code> 等</td>
+</tr>
+<tr>
+<td><code>--type</code></td>
+<td>安装哪些组件</td>
+<td><code>kserve</code>（核心）&#x2F; <code>localmodel</code>（本地模型节点）&#x2F; <code>llmisvc</code>（LLM 推理服务）</td>
+</tr>
+<tr>
+<td><code>--standard</code></td>
+<td>Standard 模式</td>
+<td>无 Istio&#x2F;Knative 依赖，最简单</td>
+</tr>
+<tr>
+<td><code>--knative</code></td>
+<td>Knative 模式</td>
+<td>自动装 Istio + Knative，支持缩容到零</td>
+</tr>
+<tr>
+<td><code>--deps-only</code></td>
+<td>只装依赖</td>
+<td>只装 Istio、Knative、cert-manager，不装 KServe 本身</td>
+</tr>
+</tbody></table>
+<h4 id="场景化安装命令（按需选择）"><a href="#场景化安装命令（按需选择）" class="headerlink" title="场景化安装命令（按需选择）"></a>场景化安装命令（按需选择）</h4><ol>
+<li><strong>新手快速体验（传统机器学习模型）</strong>：Standard 模式，KServe 核心 + 本地模型挂载</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> kserve/</span><br><span class="line"></span><br><span class="line"><span class="comment"># 安装内容：KServe 核心 + 本地模型节点支持。</span></span><br><span class="line">./hack/kserve-install.sh \</span><br><span class="line">  --kserve-version v0.18.0 \</span><br><span class="line">  --<span class="built_in">type</span> kserve,localmodel \</span><br><span class="line">  --standard</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li><strong>LLM 大模型部署（vLLM 推理）</strong>：Standard 模式，集成 LLM 专用运行时</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">./hack/kserve-install.sh \</span><br><span class="line">  --kserve-version v0.18.0 \</span><br><span class="line">  --<span class="built_in">type</span> kserve,llmisvc,localmodel \</span><br><span class="line">  --standard</span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li><strong>已有 Istio&#x2F;Knative，仅补充依赖</strong></li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">./hack/kserve-install.sh \</span><br><span class="line">  --kserve-version v0.18.0 \</span><br><span class="line">  --<span class="built_in">type</span> kserve,llmisvc,localmodel \</span><br><span class="line">  --knative \</span><br><span class="line">  --deps-only</span><br></pre></td></tr></table></figure>
+
+<ol start="4">
+<li><strong>全新完整 Serverless 平台（支持 0 缩容）</strong></li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">./hack/kserve-install.sh \</span><br><span class="line">  --kserve-version v0.18.0 \</span><br><span class="line">  --<span class="built_in">type</span> kserve,llmisvc,localmodel \</span><br><span class="line">  --knative</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>安装耗时参考：Standard 模式 3<del>5 分钟；Knative 模式含 Istio+Knative 部署，耗时 8</del>12 分钟。（视网络环境而定）</p>
+</blockquote>
+<h3 id="4、手动分步安装（理解每一步在做什么）"><a href="#4、手动分步安装（理解每一步在做什么）" class="headerlink" title="4、手动分步安装（理解每一步在做什么）"></a>4、手动分步安装（理解每一步在做什么）</h3><blockquote>
+<p>上一节的脚本帮你一键搞定，适合快速上手。这一节把每个组件拆开装，适合<strong>离线环境、内网部署、或者你想搞清楚 KServe 到底装了哪些东西</strong>。</p>
+</blockquote>
+<p>整个安装分为四步，按顺序执行：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">步骤一：装 CRD（告诉 K8s 有 InferenceService 这种东西）</span><br><span class="line">   ↓</span><br><span class="line">步骤二：装运行时配置（告诉 KServe 支持哪些推理框架）</span><br><span class="line">   ↓</span><br><span class="line">步骤三：装 KServe 控制器（核心引擎，真正干活的组件）</span><br><span class="line">   ↓</span><br><span class="line">步骤四：装扩展资源（本地模型节点、LLM 推理服务等，可选）</span><br></pre></td></tr></table></figure>
+
+<h4 id="步骤一：安装-CRD（自定义资源定义）"><a href="#步骤一：安装-CRD（自定义资源定义）" class="headerlink" title="步骤一：安装 CRD（自定义资源定义）"></a>步骤一：安装 CRD（自定义资源定义）</h4><p>CRD 是基础，必须先装。根据你的需求选装：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 必装：核心CRD</span></span><br><span class="line"><span class="comment"># 在线环境</span></span><br><span class="line">helm install kserve-crd oci://ghcr.io/kserve/charts/kserve-crd \</span><br><span class="line">  --version v0.18.0 \</span><br><span class="line">  --namespace kserve \</span><br><span class="line">  --create-namespace</span><br><span class="line"></span><br><span class="line"><span class="comment"># 离线环境（先用 git clone 拉源码到本地）</span></span><br><span class="line">helm install kserve-crd ./charts/kserve-crd \</span><br><span class="line">  --namespace kserve \</span><br><span class="line">  --create-namespace</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 可选：本地模型节点 CRD（宿主机HostPath挂载模型使用）</span></span><br><span class="line">helm install kserve-localmodel-crd ./charts/kserve-localmodel-crd \</span><br><span class="line">  --namespace kserve \</span><br><span class="line">  --create-namespace</span><br><span class="line"></span><br><span class="line"><span class="comment"># 可选：LLM 推理服务 CRD（部署 vLLM 等大语言模型时需要）</span></span><br><span class="line">helm install kserve-llmisvc-crd ./charts/kserve-llmisvc-crd \</span><br><span class="line">  --namespace kserve \</span><br><span class="line">  --create-namespace</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p><strong>选装建议</strong>：新手先把第一条核心 CRD 装了就行，后面两条用到再装。</p>
+</blockquote>
+<h4 id="步骤二：安装推理运行时配置"><a href="#步骤二：安装推理运行时配置" class="headerlink" title="步骤二：安装推理运行时配置"></a>步骤二：安装推理运行时配置</h4><p>这一步告诉 KServe”我支持哪些推理框架”。<code>servingruntime</code> 控制传统模型运行时（SKLearn&#x2F;PyTorch&#x2F;TensorFlow），<code>llmisvcConfigs</code> 控制大模型运行时（vLLM 等）。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">helm install kserve-runtime-configs oci://ghcr.io/kserve/charts/kserve-runtime-configs \</span><br><span class="line">  --<span class="built_in">set</span> kserve.servingruntime.enabled=<span class="literal">true</span> \</span><br><span class="line">  --<span class="built_in">set</span> kserve.llmisvcConfigs.enabled=<span class="literal">true</span> \</span><br><span class="line">  --version v0.18.0 \</span><br><span class="line">  --namespace kserve</span><br><span class="line"></span><br><span class="line"><span class="comment"># 如果安装中断或参数改错了，可使用 upgrade（无需卸载重装）</span></span><br><span class="line">helm upgrade -i kserve-runtime-configs \</span><br><span class="line">  oci://ghcr.io/kserve/charts/kserve-runtime-configs \</span><br><span class="line">  --<span class="built_in">set</span> kserve.servingruntime.enabled=<span class="literal">true</span> \</span><br><span class="line">  --<span class="built_in">set</span> kserve.llmisvcConfigs.enabled=<span class="literal">true</span> \</span><br><span class="line">  --version v0.18.0 \</span><br><span class="line">  --namespace kserve</span><br></pre></td></tr></table></figure>
+
+<h4 id="步骤三：安装-KServe-控制器（二选一）"><a href="#步骤三：安装-KServe-控制器（二选一）" class="headerlink" title="步骤三：安装 KServe 控制器（二选一）"></a>步骤三：安装 KServe 控制器（二选一）</h4><p>这是核心组件，负责监听 InferenceService 并创建对应的 Deployment&#x2F;Service 等资源。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 模式 A：Standard 标准模式（推荐生产使用）</span></span><br><span class="line">helm install kserve-resources oci://ghcr.io/kserve/charts/kserve-resources \</span><br><span class="line">  --version v0.18.0 \</span><br><span class="line">  --namespace kserve \</span><br><span class="line">  --<span class="built_in">set</span> kserve.controller.deploymentMode=Standard \</span><br><span class="line">  --<span class="built_in">wait</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 离线环境用本地 Chart</span></span><br><span class="line">helm install kserve-resources ./charts/kserve-resources \</span><br><span class="line">  --version v0.18.0 \</span><br><span class="line">  --namespace kserve \</span><br><span class="line">  --<span class="built_in">set</span> kserve.controller.deploymentMode=Standard \</span><br><span class="line">  --<span class="built_in">wait</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 模式 B：Knative Serverless 模式</span></span><br><span class="line"><span class="comment"># 前置条件：已安装 Istio + Knative Serving</span></span><br><span class="line"><span class="comment"># 优势：支持缩容到零，按请求自动扩缩</span></span><br><span class="line">helm install kserve-resources oci://ghcr.io/kserve/charts/kserve-resources \</span><br><span class="line">  --version v0.18.0 \</span><br><span class="line">  --namespace kserve \</span><br><span class="line">  --<span class="built_in">set</span> kserve.controller.deploymentMode=Knative \</span><br><span class="line">  --<span class="built_in">wait</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="步骤四：安装扩展资源（可选）"><a href="#步骤四：安装扩展资源（可选）" class="headerlink" title="步骤四：安装扩展资源（可选）"></a>步骤四：安装扩展资源（可选）</h4><p>如果你在步骤一装了对应的 CRD，这里装对应的控制器：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 本地模型节点控制器（配合步骤一的 localmodel CRD）</span></span><br><span class="line">helm install kserve-localmodel-resources ./charts/kserve-localmodel-resources \</span><br><span class="line">  --version v0.18.0 \</span><br><span class="line">  --namespace kserve \</span><br><span class="line">  --<span class="built_in">wait</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># LLM 推理服务控制器（配合步骤一的 llmisvc CRD）</span></span><br><span class="line">helm install kserve-llmisvc-resources ./charts/kserve-llmisvc-resources \</span><br><span class="line">  --version v0.18.0 \</span><br><span class="line">  --namespace kserve \</span><br><span class="line">  --<span class="built_in">set</span> kserve.controller.deploymentMode=Standard \</span><br><span class="line">  --<span class="built_in">wait</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="快速对照：最低安装-vs-完整安装"><a href="#快速对照：最低安装-vs-完整安装" class="headerlink" title="快速对照：最低安装 vs 完整安装"></a>快速对照：最低安装 vs 完整安装</h4><table>
+<thead>
+<tr>
+<th>场景</th>
+<th>需要执行的步骤</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>最小化体验</strong>（只跑 SKLearn&#x2F;PyTorch）</td>
+<td>步骤一（核心CRD）→ 步骤二 → 步骤三</td>
+</tr>
+<tr>
+<td><strong>生产标准部署</strong>（传统模型 + 本地存储）</td>
+<td>步骤一（核心 + localmodel CRD）→ 步骤二 → 步骤三 → 步骤四（localmodel）</td>
+</tr>
+<tr>
+<td><strong>LLM 大模型部署</strong>（vLLM 等）</td>
+<td>步骤一（核心 + llmisvc CRD）→ 步骤二 → 步骤三 → 步骤四（llmisvc）</td>
+</tr>
+<tr>
+<td><strong>全家桶</strong>（什么都装）</td>
+<td>步骤一（全部 CRD）→ 步骤二 → 步骤三 → 步骤四（全部）</td>
+</tr>
+</tbody></table>
+<h3 id="5、安装验证"><a href="#5、安装验证" class="headerlink" title="5、安装验证"></a>5、安装验证</h3><p>无论你用脚本还是手动安装，装完都跑一遍下面的检查，确认一切就绪。</p>
+<h4 id="5-1-必检项（三条全部通过即为成功）"><a href="#5-1-必检项（三条全部通过即为成功）" class="headerlink" title="5.1 必检项（三条全部通过即为成功）"></a>5.1 必检项（三条全部通过即为成功）</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ① Controller 是否在运行</span></span><br><span class="line">kubectl get pods -n kserve</span><br><span class="line"><span class="comment"># 期望看到：kserve-controller-manager-xxx   2/2   Running</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ② InferenceService CRD 是否注册成功</span></span><br><span class="line">kubectl get crd | grep inferenceservice</span><br><span class="line"><span class="comment"># 期望看到：inferenceservices.serving.kserve.io</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ③ 推理运行时是否就绪</span></span><br><span class="line">kubectl get clusterservingruntimes</span><br><span class="line"><span class="comment"># 期望看到：多个运行时（Triton、TorchServe 等），状态就绪</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="5-2-可选检查项"><a href="#5-2-可选检查项" class="headerlink" title="5.2 可选检查项"></a>5.2 可选检查项</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 检查 LLM CRD（若已安装）</span></span><br><span class="line">kubectl get crd | grep llminferenceservices</span><br><span class="line"></span><br><span class="line"><span class="comment"># 检查 Envoy Gateway（若已安装）</span></span><br><span class="line">kubectl get pods -n envoy-gateway-system</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看 KServe 版本信息</span></span><br><span class="line">kubectl get crd inferenceservices.serving.kserve.io -o yaml | grep -A 5 <span class="string">&quot;versions:&quot;</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="四、使用"><a href="#四、使用" class="headerlink" title="四、使用"></a>四、使用</h2><p>本节演示如何使用 KServe 部署一个 Hugging Face 上的小型大语言模型，并通过 hostPath 直接挂载本地模型文件。</p>
+<p>完整流程：HuggingFace 模型下载 → K8s 资源 YAML 编写 → 部署验证 → 接口调用测试</p>
+<h3 id="1、下载Hugging-Face模型到本地"><a href="#1、下载Hugging-Face模型到本地" class="headerlink" title="1、下载Hugging Face模型到本地"></a>1、下载Hugging Face模型到本地</h3><h4 id="①、安装python环境"><a href="#①、安装python环境" class="headerlink" title="①、安装python环境"></a>①、安装python环境</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 安装python3主程序 + 工具</span></span><br><span class="line"><span class="built_in">sudo</span> apt install -y python3 python3-dev python3-venv</span><br><span class="line"><span class="comment"># 安装 pip3（Python 包管理器，用来装 huggingface_hub）</span></span><br><span class="line"><span class="built_in">sudo</span> apt install -y python3-pip</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看python版本</span></span><br><span class="line">python3 --version</span><br><span class="line"><span class="comment"># 查看pip版本</span></span><br><span class="line">pip3 --version</span><br><span class="line"></span><br><span class="line"><span class="comment"># 配置软连接，设置 python 指向 python3（方便直接敲 python）</span></span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">ln</span> -s /usr/bin/python3 /usr/bin/python</span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">ln</span> -s /usr/bin/pip3 /usr/bin/pip</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="②、安装huggingface-cli"><a href="#②、安装huggingface-cli" class="headerlink" title="②、安装huggingface-cli"></a>②、安装huggingface-cli</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 建个虚拟环境</span></span><br><span class="line">python3 -m venv venv &amp;&amp; <span class="built_in">source</span> venv/bin/activate</span><br><span class="line"></span><br><span class="line"><span class="comment"># 国内清华源加速安装</span></span><br><span class="line"><span class="comment"># 加-U：强制更新到最新版</span></span><br><span class="line">pip install huggingface_hub -i https://pypi.tuna.tsinghua.edu.cn/simple</span><br><span class="line">pip install -U huggingface_hub -i https://pypi.tuna.tsinghua.edu.cn/simple</span><br><span class="line"></span><br><span class="line"><span class="comment"># 上面安装报错PEP 668：加参数 --break-system-packages 绕过限制</span></span><br><span class="line">pip install -U huggingface_hub -i https://pypi.tuna.tsinghua.edu.cn/simple --break-system-packages</span><br><span class="line"></span><br><span class="line"><span class="comment"># 旧版使用 huggingface-cli ，新版改为： hf</span></span><br><span class="line">hf version</span><br><span class="line"><span class="comment"># 输出版本号即正常，例如 huggingface_hub version 0.26.2</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 私有模型才需要登录（公开模型不用登录）</span></span><br><span class="line">hf auth login</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 标准下载命令</span></span><br><span class="line"><span class="comment"># 参数说明：</span></span><br><span class="line"><span class="comment"># Qwen/Qwen3-0.6B：模型仓库名</span></span><br><span class="line"><span class="comment"># --local-dir：本地存放路径（给 KServe 挂载用）</span></span><br><span class="line"><span class="comment"># 新版没有下面这2个参数了</span></span><br><span class="line"><span class="comment"># --local-dir-use-symlinks False：不生成缓存软链接，直接存完整文件，挂载 PVC 不会丢文件</span></span><br><span class="line"><span class="comment"># --resume-download：断点续传，断网后重新执行接着下</span></span><br><span class="line">hf download \</span><br><span class="line">Qwen/Qwen3-0.6B \</span><br><span class="line">--local-dir /data/models/Qwen3-0.6B </span><br><span class="line"></span><br><span class="line"><span class="comment"># 下载Qwen2.5-0.5B</span></span><br><span class="line">hf download \</span><br><span class="line">Qwen/Qwen2.5-0.5B-Instruct \</span><br><span class="line">--local-dir /opt/models/Qwen2.5-0.5B-Instruct</span><br></pre></td></tr></table></figure>
+
+<p><img src="/blog/2026/07/21/KServe%E7%9A%84%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/kserve-models.png"></p>
+<h5 id="配置国内镜像加速"><a href="#配置国内镜像加速" class="headerlink" title="配置国内镜像加速"></a>配置国内镜像加速</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 临时生效（当前终端）</span></span><br><span class="line"><span class="built_in">export</span> HF_ENDPOINT=https://hf-mirror.com</span><br><span class="line"></span><br><span class="line"><span class="comment"># 永久生效（所有终端）</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;export HF_ENDPOINT=https://hf-mirror.com&quot;</span> &gt;&gt; ~/.bashrc</span><br><span class="line"><span class="built_in">source</span> ~/.bashrc</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="2、配置yaml"><a href="#2、配置yaml" class="headerlink" title="2、配置yaml"></a>2、配置yaml</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ==========================================================</span></span><br><span class="line"><span class="comment"># 0. 命名空间定义</span></span><br><span class="line"><span class="comment"># ==========================================================</span></span><br><span class="line">apiVersion: v1</span><br><span class="line">kind: Namespace</span><br><span class="line">metadata:</span><br><span class="line">  name: edge-ai</span><br><span class="line">---</span><br><span class="line"><span class="comment"># ==========================================================</span></span><br><span class="line"><span class="comment"># 1. InferenceService（使用 hostPath 直挂本地模型）</span></span><br><span class="line"><span class="comment"># ==========================================================</span></span><br><span class="line">apiVersion: serving.kserve.io/v1beta1</span><br><span class="line">kind: InferenceService</span><br><span class="line">metadata:</span><br><span class="line">  name: qwen2-05b</span><br><span class="line">  namespace: edge-ai</span><br><span class="line">spec:</span><br><span class="line">  predictor:</span><br><span class="line">    minReplicas: 1</span><br><span class="line">    maxReplicas: 1</span><br><span class="line">    nodeSelector:</span><br><span class="line">      kubernetes.io/hostname: edge01          <span class="comment"># 指定模型所在节点</span></span><br><span class="line">    tolerations:                           </span><br><span class="line">    - key: node-role.kubernetes.io/edge</span><br><span class="line">      operator: Exists</span><br><span class="line">      effect: NoSchedule</span><br><span class="line">    containers:</span><br><span class="line">    - name: vllm</span><br><span class="line">      image: vllm/vllm-openai-cpu:v0.25.0-x86_64   <span class="comment"># CPU 版 vLLM 镜像</span></span><br><span class="line">      imagePullPolicy: IfNotPresent</span><br><span class="line">      <span class="built_in">command</span>: [<span class="string">&quot;vllm&quot;</span>, <span class="string">&quot;serve&quot;</span>]</span><br><span class="line">      args:</span><br><span class="line">        - /mnt/models</span><br><span class="line">        - --served-model-name=Qwen2.5-0.5B-Instruct</span><br><span class="line">        - --port=8080</span><br><span class="line">        - --trust-remote-code</span><br><span class="line">        - --dtype=bfloat16</span><br><span class="line">        - --max-model-len=1024</span><br><span class="line">        - --tensor-parallel-size=1</span><br><span class="line">        - --pipeline-parallel-size=1</span><br><span class="line">        - --max-num-seqs=1</span><br><span class="line">      <span class="built_in">env</span>:</span><br><span class="line">        - name: VLLM_ENABLE_V1_MULTIPROCESSING</span><br><span class="line">          value: <span class="string">&quot;0&quot;</span></span><br><span class="line">        - name: OMP_NUM_THREADS</span><br><span class="line">          value: <span class="string">&quot;6&quot;</span></span><br><span class="line">        - name: VLLM_CPU_OMP_THREADS_BIND</span><br><span class="line">          value: <span class="string">&quot;auto&quot;</span></span><br><span class="line">        - name: VLLM_CPU_KVCACHE_SPACE</span><br><span class="line">          value: <span class="string">&quot;3&quot;</span></span><br><span class="line">      resources:</span><br><span class="line">        limits:</span><br><span class="line">          cpu: <span class="string">&quot;8&quot;</span></span><br><span class="line">          memory: <span class="string">&quot;10Gi&quot;</span></span><br><span class="line">        requests:</span><br><span class="line">          cpu: <span class="string">&quot;4&quot;</span></span><br><span class="line">          memory: <span class="string">&quot;8Gi&quot;</span></span><br><span class="line">      volumeMounts:</span><br><span class="line">        - name: model-storage</span><br><span class="line">          mountPath: /mnt/models</span><br><span class="line">          readOnly: <span class="literal">true</span></span><br><span class="line">        - name: shm</span><br><span class="line">          mountPath: /dev/shm</span><br><span class="line">    volumes:</span><br><span class="line">    - name: model-storage</span><br><span class="line">      hostPath:</span><br><span class="line">        path: /opt/models/Qwen2.5-0.5B-Instruct   <span class="comment"># 宿主机模型路径</span></span><br><span class="line">        <span class="built_in">type</span>: Directory</span><br><span class="line">    - name: shm</span><br><span class="line">      emptyDir:</span><br><span class="line">        medium: Memory</span><br><span class="line">        sizeLimit: 8Gi</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="3、部署"><a href="#3、部署" class="headerlink" title="3、部署"></a>3、部署</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 部署</span></span><br><span class="line">kubectl apply -f qwen2-05b-vllm-edge.yaml</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看推理服务状态</span></span><br><span class="line">kubectl get inferenceservice -n edge-ai</span><br><span class="line"><span class="comment"># 查看Pod运行日志，排查模型加载异常</span></span><br><span class="line">kubectl logs -f deploy/qwen2-05b-predictor -n edge-ai</span><br><span class="line"></span><br><span class="line"><span class="comment"># 获取服务端点</span></span><br><span class="line">kubectl get svc -n edge-ai qwen2-05b-predictor -o wide</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 删除</span></span><br><span class="line">kubectl delete inferenceservice qwen2-05b</span><br><span class="line"><span class="comment"># 或全删除</span></span><br><span class="line">kubectl delete -f qwen2-05b-vllm-edge.yaml</span><br><span class="line"></span><br><span class="line"><span class="comment"># 重新应用</span></span><br><span class="line">kubectl apply -f qwen2-05b-vllm-edge.yaml</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<p><img src="/blog/2026/07/21/KServe%E7%9A%84%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/kserve-logs.png"></p>
+<p>启动成功，监听8080端口</p>
+<p><img src="/blog/2026/07/21/KServe%E7%9A%84%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/kserve-pod.png"></p>
+<h3 id="4、测试"><a href="#4、测试" class="headerlink" title="4、测试"></a>4、测试</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 测试-请求模型列表</span></span><br><span class="line">curl http://10.88.0.29:8080/v1/models</span><br><span class="line"></span><br><span class="line"><span class="comment"># 对话推理接口调用</span></span><br><span class="line">curl http://10.88.0.29:8080/v1/chat/completions \</span><br><span class="line">  -H <span class="string">&quot;Content-Type: application/json&quot;</span> \</span><br><span class="line">  -d <span class="string">&#x27;&#123;&quot;model&quot;:&quot;Qwen2.5-0.5B-Instruct&quot;,&quot;max_tokens&quot;:100,&quot;messages&quot;:[&#123;&quot;role&quot;:&quot;user&quot;,&quot;content&quot;:&quot;你好&quot;&#125;]&#125;&#x27;</span></span><br></pre></td></tr></table></figure>
+
+
+
+<p><img src="/blog/2026/07/21/KServe%E7%9A%84%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/kserve-request.png"></p>
+<h2 id="五、最后"><a href="#五、最后" class="headerlink" title="五、最后"></a>五、最后</h2><p>大部分内容是基于我的笔记记录，更多内容可参考官网：</p>
+<p><a target="_blank" rel="noopener" href="https://kserve.github.io/website/docs/install/overview">https://kserve.github.io/website/docs/install/overview</a></p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>您的打赏，是我创作的动力！不给钱？那我只能靠想象力充饥了。</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/wechat_pay.jpg" alt="rstyro 微信支付">
+        <p>微信支付</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/blog/images/alipay.jpg" alt="rstyro 支付宝">
+        <p>支付宝</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/blog/tags/k8s/" rel="tag"><i class="fa fa-tag"></i> k8s</a>
+              <a href="/blog/tags/Kserve/" rel="tag"><i class="fa fa-tag"></i> Kserve</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2026/07/20/KubeEdge%E7%9A%84%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/" rel="prev" title="KubeEdge的安装与使用">
+      <i class="fa fa-chevron-left"></i> KubeEdge的安装与使用
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E6%A6%82%E8%BF%B0"><span class="nav-number">2.</span> <span class="nav-text">一、概述</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1%E3%80%81%E4%BB%80%E4%B9%88%E6%98%AF-KServe"><span class="nav-number">2.1.</span> <span class="nav-text">1、什么是 KServe</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2%E3%80%81KServe-%E8%AF%9E%E7%94%9F%E8%83%8C%E6%99%AF%E4%B8%8E%E8%A7%A3%E5%86%B3%E7%9A%84%E6%A0%B8%E5%BF%83%E9%97%AE%E9%A2%98"><span class="nav-number">2.2.</span> <span class="nav-text">2、KServe 诞生背景与解决的核心问题</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#KServe-%E6%A0%B8%E5%BF%83%E8%A7%A3%E5%86%B3%E8%83%BD%E5%8A%9B"><span class="nav-number">2.2.1.</span> <span class="nav-text">KServe 核心解决能力</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3%E3%80%81%E4%BB%80%E4%B9%88%E6%98%AF-InferenceService"><span class="nav-number">2.3.</span> <span class="nav-text">3、什么是 InferenceService</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%89%E5%A4%A7%E6%A0%B8%E5%BF%83%E7%BB%84%E4%BB%B6"><span class="nav-number">2.3.1.</span> <span class="nav-text">三大核心组件</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4%E3%80%81%E6%A0%B8%E5%BF%83%E7%BB%84%E4%BB%B6"><span class="nav-number">2.4.</span> <span class="nav-text">4、核心组件</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E6%95%B4%E4%BD%93%E6%9E%B6%E6%9E%84"><span class="nav-number">3.</span> <span class="nav-text">二、整体架构</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1%E3%80%81KServe-%E5%85%A8%E5%B1%80%E6%9E%B6%E6%9E%84"><span class="nav-number">3.1.</span> <span class="nav-text">1、KServe 全局架构</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E5%AE%89%E8%A3%85KServe"><span class="nav-number">4.</span> <span class="nav-text">三、安装KServe</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1%E3%80%81%E5%89%8D%E7%BD%AE%E7%8E%AF%E5%A2%83%E5%87%86%E5%A4%87"><span class="nav-number">4.1.</span> <span class="nav-text">1、前置环境准备</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2%E3%80%81%E6%8B%89%E5%8F%96%E6%BA%90%E7%A0%81"><span class="nav-number">4.2.</span> <span class="nav-text">2、拉取源码</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3%E3%80%81%E4%B8%80%E9%94%AE%E5%AE%89%E8%A3%85%E8%84%9A%E6%9C%AC%EF%BC%88%E6%8E%A8%E8%8D%90%EF%BC%89"><span class="nav-number">4.3.</span> <span class="nav-text">3、一键安装脚本（推荐）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%84%9A%E6%9C%AC%E6%A0%B8%E5%BF%83%E5%8F%82%E6%95%B0%E8%AF%B4%E6%98%8E"><span class="nav-number">4.3.1.</span> <span class="nav-text">脚本核心参数说明</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9C%BA%E6%99%AF%E5%8C%96%E5%AE%89%E8%A3%85%E5%91%BD%E4%BB%A4%EF%BC%88%E6%8C%89%E9%9C%80%E9%80%89%E6%8B%A9%EF%BC%89"><span class="nav-number">4.3.2.</span> <span class="nav-text">场景化安装命令（按需选择）</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4%E3%80%81%E6%89%8B%E5%8A%A8%E5%88%86%E6%AD%A5%E5%AE%89%E8%A3%85%EF%BC%88%E7%90%86%E8%A7%A3%E6%AF%8F%E4%B8%80%E6%AD%A5%E5%9C%A8%E5%81%9A%E4%BB%80%E4%B9%88%EF%BC%89"><span class="nav-number">4.4.</span> <span class="nav-text">4、手动分步安装（理解每一步在做什么）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%AD%A5%E9%AA%A4%E4%B8%80%EF%BC%9A%E5%AE%89%E8%A3%85-CRD%EF%BC%88%E8%87%AA%E5%AE%9A%E4%B9%89%E8%B5%84%E6%BA%90%E5%AE%9A%E4%B9%89%EF%BC%89"><span class="nav-number">4.4.1.</span> <span class="nav-text">步骤一：安装 CRD（自定义资源定义）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%AD%A5%E9%AA%A4%E4%BA%8C%EF%BC%9A%E5%AE%89%E8%A3%85%E6%8E%A8%E7%90%86%E8%BF%90%E8%A1%8C%E6%97%B6%E9%85%8D%E7%BD%AE"><span class="nav-number">4.4.2.</span> <span class="nav-text">步骤二：安装推理运行时配置</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%AD%A5%E9%AA%A4%E4%B8%89%EF%BC%9A%E5%AE%89%E8%A3%85-KServe-%E6%8E%A7%E5%88%B6%E5%99%A8%EF%BC%88%E4%BA%8C%E9%80%89%E4%B8%80%EF%BC%89"><span class="nav-number">4.4.3.</span> <span class="nav-text">步骤三：安装 KServe 控制器（二选一）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%AD%A5%E9%AA%A4%E5%9B%9B%EF%BC%9A%E5%AE%89%E8%A3%85%E6%89%A9%E5%B1%95%E8%B5%84%E6%BA%90%EF%BC%88%E5%8F%AF%E9%80%89%EF%BC%89"><span class="nav-number">4.4.4.</span> <span class="nav-text">步骤四：安装扩展资源（可选）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%BF%AB%E9%80%9F%E5%AF%B9%E7%85%A7%EF%BC%9A%E6%9C%80%E4%BD%8E%E5%AE%89%E8%A3%85-vs-%E5%AE%8C%E6%95%B4%E5%AE%89%E8%A3%85"><span class="nav-number">4.4.5.</span> <span class="nav-text">快速对照：最低安装 vs 完整安装</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5%E3%80%81%E5%AE%89%E8%A3%85%E9%AA%8C%E8%AF%81"><span class="nav-number">4.5.</span> <span class="nav-text">5、安装验证</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#5-1-%E5%BF%85%E6%A3%80%E9%A1%B9%EF%BC%88%E4%B8%89%E6%9D%A1%E5%85%A8%E9%83%A8%E9%80%9A%E8%BF%87%E5%8D%B3%E4%B8%BA%E6%88%90%E5%8A%9F%EF%BC%89"><span class="nav-number">4.5.1.</span> <span class="nav-text">5.1 必检项（三条全部通过即为成功）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-2-%E5%8F%AF%E9%80%89%E6%A3%80%E6%9F%A5%E9%A1%B9"><span class="nav-number">4.5.2.</span> <span class="nav-text">5.2 可选检查项</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E4%BD%BF%E7%94%A8"><span class="nav-number">5.</span> <span class="nav-text">四、使用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1%E3%80%81%E4%B8%8B%E8%BD%BDHugging-Face%E6%A8%A1%E5%9E%8B%E5%88%B0%E6%9C%AC%E5%9C%B0"><span class="nav-number">5.1.</span> <span class="nav-text">1、下载Hugging Face模型到本地</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E2%91%A0%E3%80%81%E5%AE%89%E8%A3%85python%E7%8E%AF%E5%A2%83"><span class="nav-number">5.1.1.</span> <span class="nav-text">①、安装python环境</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E2%91%A1%E3%80%81%E5%AE%89%E8%A3%85huggingface-cli"><span class="nav-number">5.1.2.</span> <span class="nav-text">②、安装huggingface-cli</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E9%85%8D%E7%BD%AE%E5%9B%BD%E5%86%85%E9%95%9C%E5%83%8F%E5%8A%A0%E9%80%9F"><span class="nav-number">5.1.2.1.</span> <span class="nav-text">配置国内镜像加速</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2%E3%80%81%E9%85%8D%E7%BD%AEyaml"><span class="nav-number">5.2.</span> <span class="nav-text">2、配置yaml</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3%E3%80%81%E9%83%A8%E7%BD%B2"><span class="nav-number">5.3.</span> <span class="nav-text">3、部署</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4%E3%80%81%E6%B5%8B%E8%AF%95"><span class="nav-number">5.4.</span> <span class="nav-text">4、测试</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%94%E3%80%81%E6%9C%80%E5%90%8E"><span class="nav-number">6.</span> <span class="nav-text">五、最后</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="rstyro"
+      src="/blog/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">rstyro</p>
+  <div class="site-description" itemprop="description">人间的饭，吃一碗少一碗，身边的人，见一面少一面，脚下的路，走一天少一天，其实人生就是一个减法，来日并不方长！</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives/">
+        
+          <span class="site-state-item-count">253</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/blog/tags/">
+          
+        <span class="site-state-item-count">111</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/rstyro" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;rstyro" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/rstyro" title="Gitee → https:&#x2F;&#x2F;gitee.com&#x2F;rstyro" rel="noopener" target="_blank"><i class="fab fa-codiepie fa-fw"></i>Gitee</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.jianshu.com/u/651c15a1758a" title="简书 → https:&#x2F;&#x2F;www.jianshu.com&#x2F;u&#x2F;651c15a1758a" rel="noopener" target="_blank"><i class="fa fa-book fa-fw"></i>简书</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      友链
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://rstyro.github.io/blog/" title="https:&#x2F;&#x2F;rstyro.github.io&#x2F;blog&#x2F;">胖不了小陆</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; Mon Apr 10 2017 08:00:00 GMT+0800 (中国标准时间) – 
+  <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">以梦为马，诗酒趁年华</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/muse.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+  <script>
+    (function(){
+      var canonicalURL, curProtocol;
+      //Get the <link> tag
+      var x=document.getElementsByTagName("link");
+		//Find the last canonical URL
+		if(x.length > 0){
+			for (i=0;i<x.length;i++){
+				if(x[i].rel.toLowerCase() == 'canonical' && x[i].href){
+					canonicalURL=x[i].href;
+				}
+			}
+		}
+    //Get protocol
+	    if (!canonicalURL){
+	    	curProtocol = window.location.protocol.split(':')[0];
+	    }
+	    else{
+	    	curProtocol = canonicalURL.split(':')[0];
+	    }
+      //Get current URL if the canonical URL does not exist
+	    if (!canonicalURL) canonicalURL = window.location.href;
+	    //Assign script content. Replace current URL with the canonical URL
+      !function(){var e=/([http|https]:\/\/[a-zA-Z0-9\_\.]+\.baidu\.com)/gi,r=canonicalURL,t=document.referrer;if(!e.test(r)){var n=(String(curProtocol).toLowerCase() === 'https')?"https://sp0.baidu.com/9_Q4simg2RQJ8t7jm9iCKT-xh_/s.gif":"//api.share.baidu.com/s.gif";t?(n+="?r="+encodeURIComponent(document.referrer),r&&(n+="&l="+r)):r&&(n+="?l="+r);var i=new Image;i.src=n}}(window);})();
+  </script>
+
+
+
+
+  
+<script src="/blog/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+<script>
+if (document.querySelectorAll('pre.mermaid').length) {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mermaid@8/dist/mermaid.min.js', () => {
+    mermaid.initialize({
+      theme    : 'default',
+      logLevel : 3,
+      flowchart: { curve     : 'linear' },
+      gantt    : { axisFormat: '%m/%d/%Y' },
+      sequence : { actorMargin: 50 }
+    });
+  }, window.mermaid);
+}
+</script>
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : 'Ov23litYkWaOGM7kAKPD',
+      clientSecret: '43bd3cf99bfcb9d05d16627c97a9f7a0200df04a',
+      repo        : 'blog',
+      owner       : 'rstyro',
+      admin       : ['rstyro'],
+      id          : '1555d6865b4397bab87da4b1fc3c7eba',
+        language: '',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>

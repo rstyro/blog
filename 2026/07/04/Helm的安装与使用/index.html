@@ -22,12 +22,12 @@
     var CONFIG = {"hostname":"rstyro.github.io","root":"/blog/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":true},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.json"};
   </script>
 
-  <meta name="description" content="玩 K8s 的朋友肯定都有过这种体验：部署一个微服务，Deployment、Service、ConfigMap、Ingress…… 一堆 YAML 文件写得头晕眼花。换个环境还得挨个改配置，一旦升级出错，回滚更是噩梦。 这时候，你就需要 Helm 了。 作为 K8s 事实上的“包管理器”，Helm 能把这些零散的资源打包，让你像用 apt 或 yum 装软件一样，一条命令搞定复杂应用的部署。这篇文">
+  <meta name="description" content="玩 K8s 的朋友肯定都有过这种体验：部署一个微服务，Deployment、Service、ConfigMap、Ingress…… 一堆 YAML 文件写得头晕眼花。换个环境还得挨个改配置，一旦升级出错，回滚更是噩梦。 这时候，你就需要 Helm 了。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Helm的安装与使用">
 <meta property="og:url" content="https://rstyro.github.io/blog/2026/07/04/Helm%E7%9A%84%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/index.html">
 <meta property="og:site_name" content="胖不了小陆">
-<meta property="og:description" content="玩 K8s 的朋友肯定都有过这种体验：部署一个微服务，Deployment、Service、ConfigMap、Ingress…… 一堆 YAML 文件写得头晕眼花。换个环境还得挨个改配置，一旦升级出错，回滚更是噩梦。 这时候，你就需要 Helm 了。 作为 K8s 事实上的“包管理器”，Helm 能把这些零散的资源打包，让你像用 apt 或 yum 装软件一样，一条命令搞定复杂应用的部署。这篇文">
+<meta property="og:description" content="玩 K8s 的朋友肯定都有过这种体验：部署一个微服务，Deployment、Service、ConfigMap、Ingress…… 一堆 YAML 文件写得头晕眼花。换个环境还得挨个改配置，一旦升级出错，回滚更是噩梦。 这时候，你就需要 Helm 了。">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://rstyro.github.io/blog/2026/07/04/Helm%E7%9A%84%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/version.png">
 <meta property="article:published_time" content="2026-07-04T04:03:01.000Z">
@@ -251,10 +251,9 @@
       
         <p>玩 K8s 的朋友肯定都有过这种体验：部署一个微服务，Deployment、Service、ConfigMap、Ingress…… 一堆 YAML 文件写得头晕眼花。换个环境还得挨个改配置，一旦升级出错，回滚更是噩梦。</p>
 <p>这时候，你就需要 Helm 了。</p>
-<p>作为 K8s 事实上的“包管理器”，Helm 能把这些零散的资源打包，让你像用 <code>apt</code> 或 <code>yum</code> 装软件一样，一条命令搞定复杂应用的部署。这篇文章不整虚的，直接带你搞懂 Helm 的核心逻辑，并手把手完成安装和基础配置。</p>
 <span id="more"></span>
 
-
+<p>作为 K8s 事实上的“包管理器”，Helm 能把这些零散的资源打包，让你像用 <code>apt</code> 或 <code>yum</code> 装软件一样，一条命令搞定复杂应用的部署。这篇文章不整虚的，直接带你搞懂 Helm 的核心逻辑，并手把手完成安装和基础配置。</p>
 <h2 id="一、为什么-K8s-需要-Helm？"><a href="#一、为什么-K8s-需要-Helm？" class="headerlink" title="一、为什么 K8s 需要 Helm？"></a>一、为什么 K8s 需要 Helm？</h2><h3 id="1-1-原生-Kubernetes-部署的痛点"><a href="#1-1-原生-Kubernetes-部署的痛点" class="headerlink" title="1.1 原生 Kubernetes 部署的痛点"></a>1.1 原生 Kubernetes 部署的痛点</h3><p>假设你要部署一个微服务应用，它通常包含：</p>
 <ul>
 <li>Deployment（部署）</li>
@@ -479,7 +478,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/blog/archives/">
         
-          <span class="site-state-item-count">252</span>
+          <span class="site-state-item-count">253</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -492,7 +491,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/blog/tags/">
           
-        <span class="site-state-item-count">110</span>
+        <span class="site-state-item-count">111</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>

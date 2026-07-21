@@ -196,6 +196,89 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://rstyro.github.io/blog/2026/07/21/KServe%E7%9A%84%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/avatar.jpg">
+      <meta itemprop="name" content="rstyro">
+      <meta itemprop="description" content="人间的饭，吃一碗少一碗，身边的人，见一面少一面，脚下的路，走一天少一天，其实人生就是一个减法，来日并不方长！">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="胖不了小陆">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/blog/2026/07/21/KServe%E7%9A%84%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/" class="post-title-link" itemprop="url">KServe的安装与使用</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2026-07-21 18:31:22 / 修改时间：11:15:39" itemprop="dateCreated datePublished" datetime="2026-07-21T18:31:22+08:00">2026-07-21</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E7%BD%91%E7%BB%9C%E8%BF%90%E7%BB%B4/" itemprop="url" rel="index"><span itemprop="name">网络运维</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>随着大模型、传统机器学习和深度学习推理业务的大规模落地，企业在实际生产中普遍面临以下运维挑战：</p>
+<ul>
+<li>多框架模型（TensorFlow、PyTorch、ONNX、XGBoost、TensorRT、LLM 等）部署方式各异，缺乏统一运维手段；</li>
+<li>推理流量波动剧烈，在线服务与离线批处理并存，静态资源分配导致大量浪费；</li>
+<li>模型版本管理缺失，灰度发布、A&#x2F;B 测试、流量切分等高级发布策略难以实现；</li>
+<li>推理接口协议不统一，REST&#x2F;gRPC 接口格式各异，上层业务集成成本高；</li>
+<li>可观测性不足，监控、日志、链路追踪等能力需自行开发，无法开箱即用。</li>
+</ul>
+<p>原生 Kubernetes 仅提供基础的容器编排能力，无法满足上述 AI 推理场景的专属需求。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/blog/2026/07/21/KServe%E7%9A%84%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://rstyro.github.io/blog/2026/07/20/KubeEdge%E7%9A%84%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -570,57 +653,13 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h2 id="一、前言：为什么需要-Harbor"><a href="#一、前言：为什么需要-Harbor" class="headerlink" title="一、前言：为什么需要 Harbor"></a>一、前言：为什么需要 Harbor</h2><h3 id="1-1-Docker-Hub-的痛点"><a href="#1-1-Docker-Hub-的痛点" class="headerlink" title="1.1 Docker Hub 的痛点"></a>1.1 Docker Hub 的痛点</h3><p>Docker Hub 是公共镜像仓库，企业大规模使用时会遇到以下问题：</p>
+          <h2 id="一、为什么需要-Harbor"><a href="#一、为什么需要-Harbor" class="headerlink" title="一、为什么需要 Harbor"></a>一、为什么需要 Harbor</h2><h3 id="1-1-Docker-Hub-的痛点"><a href="#1-1-Docker-Hub-的痛点" class="headerlink" title="1.1 Docker Hub 的痛点"></a>1.1 Docker Hub 的痛点</h3><p>Docker Hub 是公共镜像仓库，企业大规模使用时会遇到以下问题：</p>
 <ul>
 <li><strong>网络限制</strong>：拉取镜像慢、不稳定，生产环境不可控</li>
 <li><strong>安全风险</strong>：公共镜像来源不明，可能包含漏洞或恶意代码</li>
 <li><strong>合规要求</strong>：金融、政务等行业要求镜像必须存储在境内或内部</li>
 <li><strong>版本管理缺失</strong>：无法按项目、团队、环境进行细粒度权限控制</li>
 <li><strong>拉取次数限制</strong>：Docker Hub 对匿名和免费账户有拉取配额</li>
-</ul>
-<h3 id="1-2-私有镜像仓库的选择"><a href="#1-2-私有镜像仓库的选择" class="headerlink" title="1.2 私有镜像仓库的选择"></a>1.2 私有镜像仓库的选择</h3><table>
-<thead>
-<tr>
-<th>方案</th>
-<th>定位</th>
-<th>特点</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>Docker Registry</td>
-<td>基础镜像存储</td>
-<td>官方开源，功能单一，无 UI</td>
-</tr>
-<tr>
-<td>Harbor</td>
-<td>企业级镜像仓库</td>
-<td>图形界面、权限管理、漏洞扫描、镜像复制、签名验证</td>
-</tr>
-<tr>
-<td>Nexus</td>
-<td>通用制品库</td>
-<td>支持 Maven、npm、Docker 等多种制品</td>
-</tr>
-<tr>
-<td>Quay &#x2F; ACR &#x2F; TCR</td>
-<td>商业&#x2F;云厂商</td>
-<td>开箱即用，按量付费</td>
-</tr>
-</tbody></table>
-<p><strong>选型建议</strong>：</p>
-<ul>
-<li>团队规模小、只需要存储镜像 → Docker Registry</li>
-<li>需要权限管理、扫描、审计、多仓库同步 → <strong>Harbor</strong></li>
-<li>已经有 Nexus 管理 Java&#x2F;NPM 制品 → 可直接复用 Nexus 的 Docker 仓库</li>
-<li>不想自建、预算充足 → 云厂商容器镜像服务</li>
-</ul>
-<h3 id="1-3-Harbor-能解决什么问题"><a href="#1-3-Harbor-能解决什么问题" class="headerlink" title="1.3 Harbor 能解决什么问题"></a>1.3 Harbor 能解决什么问题</h3><ul>
-<li><strong>镜像私有化</strong>：将业务镜像统一存储在公司内部</li>
-<li><strong>权限隔离</strong>：按项目划分命名空间，控制谁可以推送&#x2F;拉取</li>
-<li><strong>漏洞扫描</strong>：集成 Trivy，扫描镜像中的 OS&#x2F;应用漏洞</li>
-<li><strong>镜像复制</strong>：跨机房、跨云同步镜像，构建多活&#x2F;灾备</li>
-<li><strong>签名与可信</strong>：支持 Notation &#x2F; Cosign 镜像签名，防止镜像被篡改</li>
-<li><strong>审计与合规</strong>：记录推送、拉取、删除操作日志</li>
 </ul>
           <!--noindex-->
             <div class="post-button">
@@ -772,7 +811,6 @@
       
           <p>玩 K8s 的朋友肯定都有过这种体验：部署一个微服务，Deployment、Service、ConfigMap、Ingress…… 一堆 YAML 文件写得头晕眼花。换个环境还得挨个改配置，一旦升级出错，回滚更是噩梦。</p>
 <p>这时候，你就需要 Helm 了。</p>
-<p>作为 K8s 事实上的“包管理器”，Helm 能把这些零散的资源打包，让你像用 <code>apt</code> 或 <code>yum</code> 装软件一样，一条命令搞定复杂应用的部署。这篇文章不整虚的，直接带你搞懂 Helm 的核心逻辑，并手把手完成安装和基础配置。</p>
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/blog/2026/07/04/Helm%E7%9A%84%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/#more" rel="contents">
@@ -847,14 +885,6 @@
 
       
           <p>在我们电脑上，我们大部分使用 Clash 桌面版和订阅链接轻松访问外网，但当需求迁移到 Linux 服务器时，桌面客户端便无法直接使用。此时，Mihomo 作为一款轻量、稳定且资源占用极低的 Clash 内核，完美适配绝大多数 Linux 发行版，是服务器代理的理想选择。本文将从零开始，详细记录完整的部署流程，你只需逐条执行命令，无需任何额外复杂操作，即可一次跑通，快速拥有稳定可靠的代理服务。</p>
-<h2 id="一、安装-Mihomo-主程序"><a href="#一、安装-Mihomo-主程序" class="headerlink" title="一、安装 Mihomo 主程序"></a>一、安装 Mihomo 主程序</h2><h3 id="1-先确认服务器架构"><a href="#1-先确认服务器架构" class="headerlink" title="1. 先确认服务器架构"></a>1. 先确认服务器架构</h3><p>不同系统架构对应不同安装包，先执行命令查看本机架构：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">uname</span> -m</span><br></pre></td></tr></table></figure>
-<ul>
-<li>输出 <code>x86_64</code>：下载 amd64 版本</li>
-<li>输出 <code>aarch64</code>：下载 arm64 版本</li>
-</ul>
-<h3 id="2-一键下载、解压、配置全局命令"><a href="#2-一键下载、解压、配置全局命令" class="headerlink" title="2. 一键下载、解压、配置全局命令"></a>2. 一键下载、解压、配置全局命令</h3><p>以主流 x86_64 架构为例，复制下面整套命令依次执行：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 下载对应版本安装包（可去官方GitHub Releases替换最新版本号）</span></span><br><span class="line">wget https://github.com/MetaCubeX/mihomo/releases/download/v1.19.27/mihomo-linux-amd64-v1.19.27.gz</span><br><span class="line"></span><br><span class="line"><span class="comment"># 解压压缩包</span></span><br><span class="line">gunzip mihomo-linux-amd64-v1.19.27.gz</span><br><span class="line"></span><br><span class="line"><span class="comment"># 简化程序名，赋予运行权限</span></span><br><span class="line"><span class="built_in">mv</span> mihomo-linux-amd64-v1.19.27 mihomo</span><br><span class="line"><span class="built_in">chmod</span> +x mihomo</span><br><span class="line"></span><br><span class="line"><span class="comment"># 移动到系统全局目录，任意位置直接调用mihomo命令</span></span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">mv</span> mihomo /usr/local/bin/</span><br></pre></td></tr></table></figure>
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/blog/2026/07/04/Linux%E6%9C%8D%E5%8A%A1%E5%99%A8%E9%83%A8%E7%BD%B2Mihomo%E9%85%8D%E7%BD%AEClash%E4%BB%A3%E7%90%86/#more" rel="contents">
@@ -951,83 +981,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://rstyro.github.io/blog/2026/05/13/Midscene-js%E9%9B%B6%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8%E5%AE%8C%E5%85%A8%E6%8C%87%E5%8D%97-UI%E8%87%AA%E5%8A%A8%E5%8C%96/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/blog/images/avatar.jpg">
-      <meta itemprop="name" content="rstyro">
-      <meta itemprop="description" content="人间的饭，吃一碗少一碗，身边的人，见一面少一面，脚下的路，走一天少一天，其实人生就是一个减法，来日并不方长！">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="胖不了小陆">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/blog/2026/05/13/Midscene-js%E9%9B%B6%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8%E5%AE%8C%E5%85%A8%E6%8C%87%E5%8D%97-UI%E8%87%AA%E5%8A%A8%E5%8C%96/" class="post-title-link" itemprop="url">Midscene.js零基础入门完全指南-UI自动化</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2026-05-13 15:52:24" itemprop="dateCreated datePublished" datetime="2026-05-13T15:52:24+08:00">2026-05-13</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/blog/categories/%E5%B7%A5%E5%85%B7/" itemprop="url" rel="index"><span itemprop="name">工具</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="一、传统-UI-自动化的"><a href="#一、传统-UI-自动化的" class="headerlink" title="一、传统 UI 自动化的"></a>一、传统 UI 自动化的</h2><p>作为一名前端开发或者测试工程师，你一定经历过这些场景——</p>
-<p>辛辛苦苦写了几百行测试脚本，前端同学一个 DOM 结构调整，几十个用例集体飘红。定位元素全靠 <code>.header &gt; nav &gt; ul &gt; li:nth-child(2) &gt; a</code> 这种意大利面式的选择器，不但写着难受，改起来更是让人头皮发麻。调试的时候更崩溃：脚本失败了，只有一行冷冰冰的报错信息，你根本不知道当时页面上到底是什么样子。</p>
-<p>这就是传统 UI 自动化的三大痛点：<strong>选择器脆弱</strong>（页面一改就挂）、<strong>维护成本高</strong>（动态内容处理复杂）、<strong>调试体验差</strong>（缺乏可视化回放）。</p>
-<p>有没有一种方式，能让我们<strong>用自然语言描述想做什么</strong>，然后交给 AI 去理解页面、找到元素、执行操作？</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/blog/2026/05/13/Midscene-js%E9%9B%B6%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8%E5%AE%8C%E5%85%A8%E6%8C%87%E5%8D%97-UI%E8%87%AA%E5%8A%A8%E5%8C%96/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1099,7 +1052,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/blog/archives/">
         
-          <span class="site-state-item-count">252</span>
+          <span class="site-state-item-count">253</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -1112,7 +1065,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/blog/tags/">
           
-        <span class="site-state-item-count">110</span>
+        <span class="site-state-item-count">111</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
