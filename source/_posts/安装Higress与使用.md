@@ -355,4 +355,40 @@ Higress 支持为路由配置 API Key 认证，增强访问安全性。
 
 
 
+### 5、访问 Prometheus 指标
+
+Higress的默认 Prometheus 监控的端口为15020
+Prometheus 指标实际上是由 `higress-gateway` Pod 本身在 15020 端口上暴露的。Service 只是没有将这个端口映射出来
+
+```bash
+
+# 方法一：
+# 获取 Pod IP
+kubectl get pods -n higress-system -o wide | grep higress-gateway
+# 在集群内部 ，直接访问
+curl http://<Pod_IP>:15020/stats/prometheus
+
+
+# 方法二：
+# 为 higress-gateway Service 添加端口映射 (推荐)
+
+# 修改 Service，使其也能转发 15020 端口的流量
+kubectl edit svc higress-gateway -n higress-system
+
+# 在 spec.ports 部分下，添加一个新的端口映射。例如，添加一个 NodePort 类型的端口
+spec:
+  ports:
+  # ... 原有的 80, 443 端口配置 ...
+  - name: http-monitoring  # 端口名称
+    port: 15020
+    targetPort: 15020
+    nodePort: 31520      # 可选，指定一个 30000-32767 范围内的端口
+    protocol: TCP
+```
+
+保存后，你就可以通过 `http://<任意节点IP>:31520/stats/prometheus` (如果你设置了 nodePort) 
+或 `http://<ClusterIP>:15020/stats/prometheus` (在集群内) 来访问了。
+
+
+
 至此，Higress 的基础安装和路由认证功能已成功验证。后续可根据业务需求配置更复杂的灰度发布、限流和 AI 路由策略。
